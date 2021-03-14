@@ -1,13 +1,13 @@
 [package]
-name = "onto-pyo3"
+name = "py-horned-owl"
 version = "0.1.0"
-authors = ["janna <j.hastings@ucl.ac.uk>"]
+authors = ["Janna Hastings <j.hastings@ucl.ac.uk>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name="ontopyo3"
+name="pyhornedowl"
 crate-type=["cdylib"]
 
 [dependencies.pyo3]
