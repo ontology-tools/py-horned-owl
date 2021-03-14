@@ -656,7 +656,7 @@ fn recurse_ancestors(onto : &PyIndexedOntology, subclass: &IRI, ancestors: &mut 
 }
 
 #[pymodule]
-fn ontopyo3(_py:Python, m:&PyModule) -> PyResult<()> {
+fn pyhornedowl(_py:Python, m:&PyModule) -> PyResult<()> {
     m.add_class::<PyIndexedOntology>()?;
 
     m.add_function(wrap_pyfunction!(open_ontology,m)?)?;
