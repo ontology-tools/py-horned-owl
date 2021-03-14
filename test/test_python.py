@@ -1,9 +1,9 @@
-import ontopyo3
+import pyhornedowl
 import time
 
 print("Loading ontology")
 
-ontoname = "chebi_core.owx"
+ontoname = "test/chebi_core.owx"
 
 FULL = False
 RDFSLABEL = "http://www.w3.org/2000/01/rdf-schema#label"
@@ -12,7 +12,7 @@ DEFN = "http://purl.obolibrary.org/obo/IAO_0000115"
 HAS_ROLE = "http://purl.obolibrary.org/obo/RO_0000087"
 CHARGE = "http://purl.obolibrary.org/obo/chebi/charge"
 
-onto = ontopyo3.open_ontology(ontoname)
+onto = pyhornedowl.open_ontology(ontoname)
 
 print (f"Loaded ontology has {len(onto.get_classes())} classes.")
 print (f"Loaded ontology has {len(onto.get_axioms())} axioms.")
@@ -93,10 +93,10 @@ if FULL:
 
 if FULL:
     clssid = onto.get_iri_for_label("caffeine")
-    ancestors = ontopyo3.get_ancestors(onto,clssid)
+    ancestors = pyhornedowl.get_ancestors(onto,clssid)
     print(f"Got ancestors {ancestors} for class {clssid}")
     print("Getting a whole lot of labels for IRIs")
-    descs = ontopyo3.get_descendants(onto,onto.get_iri_for_label('carboxylic acid'))
+    descs = pyhornedowl.get_descendants(onto,onto.get_iri_for_label('carboxylic acid'))
     desc_names = [onto.get_annotation(d,RDFSLABEL) for d in descs]
     print(len(desc_names))
 
@@ -109,6 +109,6 @@ if FULL:
 #time.sleep(5)
 
 if FULL:
-    onto.save_to_file("chebi-updated.owx")
+    onto.save_to_file("test/chebi-updated.owx")
 
 print("Quitting")
