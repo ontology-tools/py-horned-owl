@@ -1,0 +1,22 @@
+[package]
+name = "onto-pyo3"
+version = "0.1.0"
+authors = ["janna <j.hastings@ucl.ac.uk>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name="ontopyo3"
+crate-type=["cdylib"]
+
+[dependencies.pyo3]
+version = "0.12.4"
+features = ["extension-module"]
+
+[dependencies]
+horned-owl = { path = "../horned-owl", version = "0.9.0-experimental"}
+curie = "0.0.8"
+
+[profile.dev]
+opt-level=3
