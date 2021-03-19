@@ -31,7 +31,7 @@ Then you can get maturin to build the library and install it into the virtual Py
 
 ## Usage
 
-Currently the library only supports loading ontologies from `.owx` (OWL-XML) files. Some test files in this format are available in the [owl-xml](https://github.com/jannahastings/horned-owl/tree/main/src/ont/owl-xml) horned-owl folder. 
+Currently the library only supports loading ontologies from `.owx` (OWL-XML) files. Some test files in this format are available in the [owl-xml](https://github.com/jannahastings/horned-owl/tree/main/src/ont/owl-xml) horned-owl folder. Alternatively, [ROBOT](http://robot.obolibrary.org/) can transform ontologies into this format using `robot convert`. 
 
 Example of simple usage:
 
