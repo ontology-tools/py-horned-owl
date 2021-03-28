@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use pyo3::types::{PyString,PyList};
+use pyo3::exceptions::PyValueError;
 use pyo3::PyDowncastError;
 use std::io::BufReader;
 use std::fs::File;
@@ -10,7 +11,7 @@ use horned_owl::model::*;
 use horned_owl::ontology::iri_mapped::IRIMappedOntology;
 use horned_owl::ontology::axiom_mapped::AxiomMappedOntology;
 
-use curie::PrefixMapping;
+use curie::{PrefixMapping,Curie};
 
 use std::collections::HashSet;
 use std::collections::HashMap;
@@ -323,6 +324,46 @@ struct PyIndexedOntology {
 
 #[pymethods]
 impl PyIndexedOntology {
+    fn get_id_for_iri(&mut self, iri: String) -> PyResult<PyObject> {
+        let gil = Python::acquire_gil();
+        let py = gil.python();
+        let res = self.mapping.shrink_iri(&iri);
+        //println!("{:?}",self.mapping);
+        //println!("{:?}",res);
+
+        if let Ok(curie) = res {
+            Ok(curie.to_string().to_object(py))
+        } else {  //Return null
+            Ok(().to_object(py))
+        }
+    }
+
+    fn get_iri_for_id(&mut self, id: String) -> PyResult<PyObject> {
+        let gil = Python::acquire_gil();
+        let py = gil.python();
+
+        let idparts: Vec<&str> = id.split(":").collect();
+
+        let curie = Curie::new(Some(idparts[0]), idparts[1]);
+
+        let res = self.mapping.expand_curie(&curie);
+
+        if let Ok(iri) = res {
+            Ok(iri.to_string().to_object(py))
+        } else {  //Return null
+            Ok(().to_object(py))
+        }
+    }
+
+    fn add_prefix_mapping(&mut self, iriprefix: String, mappedid: String) -> PyResult<()> {
+        let result = self.mapping.add_prefix(&iriprefix, &mappedid);
+        if let Ok(()) = result {
+            Ok(())
+        } else {
+            Err(PyValueError::new_err("Invalid prefix error"))
+        }
+    }
+
     fn set_label(&mut self, iri: String, label: String) -> PyResult<()> {
         let b = Build::new();
         let iri = b.iri(iri);
@@ -447,6 +488,32 @@ impl PyIndexedOntology {
         } else {
             Ok(().to_object(py))
         }
+    }
+
+    fn get_annotations(&mut self, class_iri: String, ann_iri: String) -> PyResult<Vec<String>> {
+        let b = Build::new();
+        let iri = b.iri(class_iri);
+
+        let literal_values : Vec<String> = self.ontology.get_axs_for_iri(iri)
+                                .filter_map(|aax: &AnnotatedAxiom| {
+            match &aax.axiom {
+                Axiom::AnnotationAssertion(AnnotationAssertion{subject:_,ann}) => {
+                        match ann {
+                            Annotation {ap, av:  AnnotationValue::Literal(Literal::Simple{literal}) } => {
+                                if ann_iri.eq(&ap.0.to_string()) {
+                                    Some(literal.clone())
+                                } else {
+                                    None
+                                }
+                            },
+                            _ => None,
+                        }
+                    },
+                    _ => None,
+                }
+        }).collect();
+
+        Ok(literal_values)
     }
 
     fn save_to_file(&mut self, file_name: String) -> PyResult<()>{

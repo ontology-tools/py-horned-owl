@@ -5,10 +5,11 @@ print("Loading ontology")
 
 ontoname = "test/chebi_core.owx"
 
-FULL = False
+FULL = True
 RDFSLABEL = "http://www.w3.org/2000/01/rdf-schema#label"
 SMILES = "http://purl.obolibrary.org/obo/chebi/smiles"
 DEFN = "http://purl.obolibrary.org/obo/IAO_0000115"
+SYN = "http://purl.obolibrary.org/obo/IAO_0000115"
 HAS_ROLE = "http://purl.obolibrary.org/obo/RO_0000087"
 CHARGE = "http://purl.obolibrary.org/obo/chebi/charge"
 
