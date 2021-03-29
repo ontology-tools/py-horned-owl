@@ -37,20 +37,23 @@ print ("Adding a complex axiom")
 
 onto.add_axiom(['SubClassOf', 'http://purl.obolibrary.org/obo/CHEBI_27732', ['ObjectSomeValuesFrom', 'http://test-op', 'http://test-ob-target']])
 
+onto.add_axiom(['SubClassOf', 'http://purl.obolibrary.org/obo/CHEBI_27732', ['ObjectIntersectionOf', 'http://purl.obolibrary.org/obo/CHEBI_27134', 'http://test-ob-target']])
+
+
 print (f"Ontology now has {len(onto.get_axioms())} axioms.")
 
 
 # Get all classes with asserted charge but no smiles
 # THIS IS SLOW :-(
-if FULL:
-    clsses_with_charge_no_smiles = []
-    for c in [c for c in onto.get_classes() if len(onto.get_subclasses(c))>1]: # Only if you have multiple subclasses
-        chg = onto.get_annotation(c,CHARGE)
-        smls = onto.get_annotation(c,SMILES)
-        if chg and not smls:
-            clsses_with_charge_no_smiles.append(c)
+#if FULL:
+#    clsses_with_charge_no_smiles = []
+#    for c in [c for c in onto.get_classes() if len(onto.get_subclasses(c))>1]: # Only if you have multiple subclasses
+#        chg = onto.get_annotation(c,CHARGE)
+#        smls = onto.get_annotation(c,SMILES)
+#        if chg and not smls:
+#            clsses_with_charge_no_smiles.append(c)
 
-    print(f"The ontology has {len(clsses_with_charge_no_smiles)} classes with multiple subclasses, charge and no smiles.")
+#    print(f"The ontology has {len(clsses_with_charge_no_smiles)} classes with multiple subclasses, charge and no smiles.")
 
 
 
@@ -109,7 +112,7 @@ if FULL:
 #print("Sleeping")
 #time.sleep(5)
 
-if FULL:
-    onto.save_to_file("test/chebi-updated.owx")
+#if FULL:
+#    onto.save_to_file("test/chebi-updated.owx")
 
 print("Quitting")

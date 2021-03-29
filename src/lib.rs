@@ -17,6 +17,7 @@ use std::collections::HashSet;
 use std::collections::HashMap;
 use std::time::Instant;
 use std::default::Default;
+use std::path::Path;
 
 #[pyclass]
 #[derive(Clone,Default,Debug,PartialEq)]
@@ -159,6 +160,12 @@ impl From<&ClassExpression> for PySimpleAxiom {
                         pyax.elements.push(PySimpleAxiom::from(ele).into());
                     }
                 },
+                ClassExpression::ObjectUnionOf(clsses) => {
+                    pyax.elements.push("ObjectUnionOf".into());
+                    for ele in clsses {
+                        pyax.elements.push(PySimpleAxiom::from(ele).into());
+                    }
+                }
                 ClassExpression::ObjectComplementOf(ce) => {
                     pyax.elements.push("ObjectComplementOf".into());
                     pyax.elements.push(PySimpleAxiom::from(&(**ce)).into());
@@ -190,7 +197,7 @@ impl From<&SimpleAxiomContent> for ClassExpression {
             let cename: String = eles.next().unwrap().into();
 
             match &cename[..] {
-                "ObjectSomeValuesFrom" => {
+                "ObjectSomeValuesFrom" | "ObjectAllValuesFrom" => {
                     //First an object property
                     let objpname = eles.next().unwrap();
                     let obp = b.object_property(b.iri(objpname.clone()));
@@ -199,14 +206,39 @@ impl From<&SimpleAxiomContent> for ClassExpression {
                     //Then its target
                     let objptar = eles.next().unwrap();
 
-                    ClassExpression::ObjectSomeValuesFrom{
-                                    ope: obpe,
-                               bce: b.class(objptar).into()
+                    match &cename[..] {
+                        "ObjectSomeValuesFrom" => {
+                            ClassExpression::ObjectSomeValuesFrom{
+                                            ope: obpe,
+                                       bce: b.class(objptar).into()
+                            }
+                        },
+                        "ObjectAllValuesFrom" => {
+                            ClassExpression::ObjectAllValuesFrom{
+                                            ope: obpe,
+                                       bce: b.class(objptar).into()
+                            }
+                        },
+                        _ => {panic!("Class expression not supported.")}
                     }
                 },
+                "ObjectIntersectionOf" | "ObjectUnionOf" => {
+                    //The rest of the list should have classes that remain in the list
+                    let clsses: Vec<ClassExpression> = eles.map(|clss| b.class(clss).into()).collect();
+                    match &cename[..] {
+                        "ObjectIntersectionOf" => {
+                            ClassExpression::ObjectIntersectionOf (clsses)
+                        },
+                        "ObjectUnionOf" => {
+                            ClassExpression::ObjectUnionOf (clsses)
+                        },
+                        _ => {panic!{"Class expression not supported."}}
+                    }
+                },
+                //"ObjectComplementOf" still to do
                 _ => {
-                    println!("Unknown class expression name: {:?}",cename);
-                    panic!("Unknown class expression")
+                    println!("Class expression name: {:?} not supported.",cename);
+                    panic!("Class expression not supported.")
                 }
             }
         } else if let Some(strval) = &ce.str_val {
@@ -229,13 +261,11 @@ impl From<PySimpleAxiom> for Axiom {
 
         let resax : Axiom = match &axtype[..] {
             "DeclareClass" => {
-                println!("DeclareClass");
                 //next is going to be an IRI of the class being declared
                 let clsiri: String = eles.next().unwrap().into();
                 Axiom::DeclareClass(DeclareClass(Class(b.iri(clsiri.clone()))))
             },
             "SubClassOf" => {
-                println!("SubClassOf");
                 //next is going to be an IRI for the class that is the subclass
                 let subiri: String = eles.next().unwrap().into();
                 let subce: ClassExpression = ClassExpression::Class(Class(b.iri(subiri.clone())));
@@ -250,7 +280,6 @@ impl From<PySimpleAxiom> for Axiom {
 
             },
             "AnnotationAssertion" => {
-                println!("AnnotationAssertion");
                 let subiri: String = eles.next().unwrap().into();
                 let apiri: String = eles.next().unwrap().into();
                 let annstr: String = eles.next().unwrap().into();
@@ -328,8 +357,6 @@ impl PyIndexedOntology {
         let gil = Python::acquire_gil();
         let py = gil.python();
         let res = self.mapping.shrink_iri(&iri);
-        //println!("{:?}",self.mapping);
-        //println!("{:?}",res);
 
         if let Ok(curie) = res {
             Ok(curie.to_string().to_object(py))
@@ -360,7 +387,7 @@ impl PyIndexedOntology {
         if let Ok(()) = result {
             Ok(())
         } else {
-            Err(PyValueError::new_err("Invalid prefix error"))
+            Err(PyValueError::new_err("Error - prefix is invalid."))
         }
     }
 
@@ -649,30 +676,36 @@ impl PyIndexedOntology {
 }
 
 #[pyfunction]
-fn open_ontology(ontoname: &PyString) -> PyResult<PyIndexedOntology> {
+fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
     let before = Instant::now();
 
-    let filename: String = ontoname.extract().unwrap();
+    let ontology: String = ontology.extract().unwrap();
 
-    let f = File::open(filename).ok().unwrap();
-    let mut f = BufReader::new(f);
-
-    let r = horned_owl::io::owx::reader::read(&mut f);
+    let r = if Path::new(&ontology).exists() {
+        let file = File::open(ontology).ok().unwrap();
+        let mut f = BufReader::new(file);
+        horned_owl::io::owx::reader::read(&mut f)
+    } else {
+        //just try to parse the string
+        let str_val = ontology.as_bytes();
+        let mut f = BufReader::new(str_val);
+        horned_owl::io::owx::reader::read(&mut f)
+    };
     assert!(r.is_ok(), "Expected ontology, got failure:{:?}", r.err());
 
     let time_middle = before.elapsed().as_secs();
     let (o, m) = r.ok().unwrap();
-    println!("Finished reading ontology from file in {:?} seconds.", time_middle);
+    println!("Finished reading ontology in {:?} seconds.", time_middle);
 
     let before = Instant::now();
-    println!("About to build indexes");
+    //println!("About to build indexes");
     let iro = IRIMappedOntology::from(o);
 
     let mut lo =  PyIndexedOntology::from(iro);
     lo.mapping = m; //Needed when saving
 
     let time_after = before.elapsed().as_secs();
-    println!("Finished building indexes in  {:?} seconds.", time_after);
+    println!("Finished building ontology indexes in  {:?} seconds.", time_after);
 
     Ok(lo)
 }
