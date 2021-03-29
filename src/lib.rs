@@ -458,36 +458,19 @@ impl PyIndexedOntology {
     }
 
     fn get_annotation(&mut self, class_iri: String, ann_iri: String) -> PyResult<PyObject> {
-        let b = Build::new();
-        let iri = b.iri(class_iri);
-
         let gil = Python::acquire_gil();
         let py = gil.python();
 
-        let literal_values = &self.ontology.get_axs_for_iri(iri)
-                                .filter_map(|aax: &AnnotatedAxiom| {
-            match &aax.axiom {
-                Axiom::AnnotationAssertion(AnnotationAssertion{subject:_,ann}) => {
-                        match ann {
-                            Annotation {ap, av:  AnnotationValue::Literal(Literal::Simple{literal}) } => {
-                                if ann_iri.eq(&ap.0.to_string()) {
-                                    Some(literal.clone())
-                                } else {
-                                    None
-                                }
-                            },
-                            _ => None,
-                        }
-                    },
-                    _ => None,
-                }
-        }).next();
+        let annots = self.get_annotations(class_iri, ann_iri);
 
-        if let Some(literal_value) = literal_values {
-            Ok(literal_value.to_object(py))
-        } else {
-            Ok(().to_object(py))
-        }
+        let mut literal_value = ().to_object(py);
+
+        if let Ok(literal_values) = annots {
+            if !literal_values.is_empty() {
+                literal_value = literal_values.into_iter().next().to_object(py);
+        } }
+
+        Ok(literal_value)
     }
 
     fn get_annotations(&mut self, class_iri: String, ann_iri: String) -> PyResult<Vec<String>> {
@@ -500,6 +483,22 @@ impl PyIndexedOntology {
                 Axiom::AnnotationAssertion(AnnotationAssertion{subject:_,ann}) => {
                         match ann {
                             Annotation {ap, av:  AnnotationValue::Literal(Literal::Simple{literal}) } => {
+                                if ann_iri.eq(&ap.0.to_string()) {
+                                    Some(literal.clone())
+                                } else {
+                                    None
+                                }
+                            },
+                            //Language { literal: String, lang: String },
+                            Annotation {ap, av:  AnnotationValue::Literal(Literal::Language{literal, lang:_}) } => {
+                                if ann_iri.eq(&ap.0.to_string()) {
+                                    Some(literal.clone())
+                                } else {
+                                    None
+                                }
+                            },
+                            //Datatype { literal: String, datatype_iri: IRI },
+                            Annotation {ap, av:  AnnotationValue::Literal(Literal::Datatype{literal, datatype_iri:_}) } => {
                                 if ann_iri.eq(&ap.0.to_string()) {
                                     Some(literal.clone())
                                 } else {
