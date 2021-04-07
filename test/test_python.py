@@ -11,6 +11,7 @@ SMILES = "http://purl.obolibrary.org/obo/chebi/smiles"
 DEFN = "http://purl.obolibrary.org/obo/IAO_0000115"
 SYN = "http://purl.obolibrary.org/obo/IAO_0000115"
 HAS_ROLE = "http://purl.obolibrary.org/obo/RO_0000087"
+HAS_PART = "http://purl.obolibrary.org/obo/BFO_0000051"
 CHARGE = "http://purl.obolibrary.org/obo/chebi/charge"
 
 onto = pyhornedowl.open_ontology(ontoname)
@@ -42,42 +43,40 @@ onto.add_axiom(['SubClassOf', 'http://purl.obolibrary.org/obo/CHEBI_27732', ['Ob
 
 print (f"Ontology now has {len(onto.get_axioms())} axioms.")
 
-
+print (f"Getting all classes with charge and no smiles")
 # Get all classes with asserted charge but no smiles
-# THIS IS SLOW :-(
-#if FULL:
-#    clsses_with_charge_no_smiles = []
-#    for c in [c for c in onto.get_classes() if len(onto.get_subclasses(c))>1]: # Only if you have multiple subclasses
-#        chg = onto.get_annotation(c,CHARGE)
-#        smls = onto.get_annotation(c,SMILES)
-#        if chg and not smls:
-#            clsses_with_charge_no_smiles.append(c)
-
-#    print(f"The ontology has {len(clsses_with_charge_no_smiles)} classes with multiple subclasses, charge and no smiles.")
-
-
-
-#print(f"Object property {HAS_ROLE} has label {onto.get_annotation(HAS_ROLE,RDFSLABEL)}")
-#print(f"Object property 'has part' has iri {onto.get_iri_for_label('has part')}" )
+if FULL:
+    classes_with_charge = set()
+    classes_with_smiles = set()
+    for a in onto.get_axioms():
+        #Example: ['AnnotationAssertion', 'http://purl.obolibrary.org/obo/CHEBI_27732', 'http://www.geneontology.org/formats/oboInOwl#hasAlternativeId', 'CHEBI:41472']
+        if len(a)==4 and a[0]=='AnnotationAssertion':
+            if a[2]==CHARGE:
+                chg = a[3]
+                classes_with_charge.add(a[1])
+            if a[2]==SMILES:
+                smls = a[3]
+                classes_with_smiles.add(a[1])
+    classes_with_charge_no_smiles = [c for c in classes_with_charge if c not in classes_with_smiles]
+    print(f"The ontology has {len(classes_with_charge_no_smiles)} classes with charge and no smiles.")
 
 # Get all the classes with asserted parts:
-#clsses_with_parts = []
-#for c in onto.get_classes():
-#    axs = onto.get_axioms_for_iri(c)
-#    for ax in axs:
-#        if ax.index("SubClassOf")==0
+if FULL:
+    print("Getting all asserted part relations")
+    asserted_parts = [] # A list of tuples
+    for a in onto.get_axioms():
+        # Example: ['SubClassOf', 'http://purl.obolibrary.org/obo/CHEBI_27732', ['ObjectSomeValuesFrom', 'http://purl.obolibrary.org/obo/RO_0000087', 'http://purl.obolibrary.org/obo/CHEBI_85234']]
+        if len(a)==3 and a[0]=='SubClassOf' and \
+          isinstance(a[2], list) and len(a[2])==3 and \
+          a[2][0]=='ObjectSomeValuesFrom' and a[2][1]==HAS_PART:
+            asserted_parts.append((a[1],a[2][2]))
 
-
-
-# Works, but is slow!
-#onto.save_to_file("chebi_updated.owx")
-
+    print(f"There are {len(asserted_parts)} parthood relations asserted in ChEBI.")
 
 #print("Sleeping")
 #time.sleep(5)
 
-print("Axioms for IRI ",clssid,": ",onto.get_axioms_for_iri(clssid))
-
+#print("Axioms for IRI ",clssid,": ",onto.get_axioms_for_iri(clssid))
 
 if FULL:
     for input_label in ["carboxy group","codeine","caffeine"]:
@@ -112,6 +111,7 @@ if FULL:
 #print("Sleeping")
 #time.sleep(5)
 
+# Currently this is a bit slow. But it does work!
 #if FULL:
 #    onto.save_to_file("test/chebi-updated.owx")
 
