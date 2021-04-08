@@ -60,7 +60,7 @@ if FULL:
     classes_with_charge_no_smiles = [c for c in classes_with_charge if c not in classes_with_smiles]
     print(f"The ontology has {len(classes_with_charge_no_smiles)} classes with charge and no smiles.")
 
-# Get all the classes with asserted parts:
+# Get all the asserted parts:
 if FULL:
     print("Getting all asserted part relations")
     asserted_parts = [] # A list of tuples
