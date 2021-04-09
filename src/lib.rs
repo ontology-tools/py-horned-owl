@@ -371,15 +371,20 @@ impl PyIndexedOntology {
 
         let idparts: Vec<&str> = id.split(":").collect();
 
-        let curie = Curie::new(Some(idparts[0]), idparts[1]);
+        if idparts.len()==2 {
+            let curie = Curie::new(Some(idparts[0]), idparts[1]);
 
-        let res = self.mapping.expand_curie(&curie);
+            let res = self.mapping.expand_curie(&curie);
 
-        if let Ok(iri) = res {
-            Ok(iri.to_string().to_object(py))
-        } else {  //Return null
+            if let Ok(iri) = res {
+                Ok(iri.to_string().to_object(py))
+            } else {  //Return null
+                Ok(().to_object(py))
+            }
+        } else { //Not a CURIE, at least not of the form PREFIX:NUMBER
             Ok(().to_object(py))
         }
+
     }
 
     fn add_prefix_mapping(&mut self, iriprefix: String, mappedid: String) -> PyResult<()> {

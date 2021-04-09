@@ -20,3 +20,7 @@ print(clsshrtid)
 clsid2 = onto.get_iri_for_id(clsshrtid)
 
 print(clsid2)
+
+
+clsid3 = onto.get_iri_for_id("oopsie")
+print(clsid3)

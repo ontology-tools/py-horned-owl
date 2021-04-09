@@ -63,13 +63,13 @@ if FULL:
 # Get all the asserted parts:
 if FULL:
     print("Getting all asserted part relations")
-    asserted_parts = [] # A list of tuples
+    asserted_parts = set() # A list of tuples
     for a in onto.get_axioms():
         # Example: ['SubClassOf', 'http://purl.obolibrary.org/obo/CHEBI_27732', ['ObjectSomeValuesFrom', 'http://purl.obolibrary.org/obo/RO_0000087', 'http://purl.obolibrary.org/obo/CHEBI_85234']]
         if len(a)==3 and a[0]=='SubClassOf' and \
           isinstance(a[2], list) and len(a[2])==3 and \
           a[2][0]=='ObjectSomeValuesFrom' and a[2][1]==HAS_PART:
-            asserted_parts.append((a[1],a[2][2]))
+            asserted_parts.add((a[1],a[2][2]))
 
     print(f"There are {len(asserted_parts)} parthood relations asserted in ChEBI.")
 
