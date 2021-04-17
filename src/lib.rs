@@ -134,6 +134,7 @@ impl From<&ObjectPropertyExpression> for PySimpleAxiom {
 
         match ope {
             ObjectPropertyExpression::ObjectProperty(p) => {
+                pyax.elements.push("ObjectProperty".into());
                 pyax.elements.push(p.0.to_string().into());
             },
             ObjectPropertyExpression::InverseObjectProperty(p) => {
@@ -198,24 +199,21 @@ impl From<&SimpleAxiomContent> for ClassExpression {
 
             match &cename[..] {
                 "ObjectSomeValuesFrom" | "ObjectAllValuesFrom" => {
-                    //First an object property
-                    let objpname = eles.next().unwrap();
-                    let obp = b.object_property(b.iri(objpname.clone()));
-                    let obpe = ObjectPropertyExpression::ObjectProperty(obp.clone());
-
+                    //First an object property expression
+                    let objpe: ObjectPropertyExpression = eles.next().unwrap().into();
                     //Then its target
                     let objptar = eles.next().unwrap();
 
                     match &cename[..] {
                         "ObjectSomeValuesFrom" => {
                             ClassExpression::ObjectSomeValuesFrom{
-                                            ope: obpe,
+                                            ope: objpe,
                                        bce: b.class(objptar).into()
                             }
                         },
                         "ObjectAllValuesFrom" => {
                             ClassExpression::ObjectAllValuesFrom{
-                                            ope: obpe,
+                                            ope: objpe,
                                        bce: b.class(objptar).into()
                             }
                         },
@@ -235,7 +233,14 @@ impl From<&SimpleAxiomContent> for ClassExpression {
                         _ => {panic!{"Class expression not supported."}}
                     }
                 },
-                //"ObjectComplementOf" still to do
+                "ObjectComplementOf" => {
+                    let objctar = eles.next().unwrap();
+                    ClassExpression::ObjectComplementOf(b.class(objctar).into())
+                },
+                "ObjectHasSelf" => {
+                    let objprp = eles.next().unwrap();
+                    ClassExpression::ObjectHasSelf(objprp.into())
+                },
                 _ => {
                     println!("Class expression name: {:?} not supported.",cename);
                     panic!("Class expression not supported.")
@@ -245,8 +250,39 @@ impl From<&SimpleAxiomContent> for ClassExpression {
             //Parse string value into a simple class
             ClassExpression::Class(Class(b.iri(strval.clone())))
         } else {
-
             panic!("Unparseable class expression")
+        }
+    }
+}
+
+impl From<&SimpleAxiomContent> for ObjectPropertyExpression {
+    fn from(ope: &SimpleAxiomContent) -> ObjectPropertyExpression {
+        let b = Build::new();
+
+        if let Some(axval) = &ope.ax_val {
+            //Parse axiom into object property expression
+            //It has some elements, the first of which should be the type of the expression
+            let mut eles = axval.elements.iter();
+            let opename: String = eles.next().unwrap().into();
+
+            match &opename[..] {
+                "ObjectProperty" => {
+                    let objprp = eles.next().unwrap();
+                    ObjectPropertyExpression::ObjectProperty(b.object_property(objprp.clone()))
+                },
+                "InverseObjectProperty" => {
+                    let objprp = eles.next().unwrap();
+                    ObjectPropertyExpression::InverseObjectProperty(b.object_property(objprp.clone()))
+                },
+                _ => {
+                    panic!("Object property expression not supported.")
+                }
+            }
+        } else if let Some(strval) = &ope.str_val {
+            //Parse string value into a simple object property expression
+            ObjectPropertyExpression::ObjectProperty(ObjectProperty(b.iri(strval.clone())))
+        } else {
+            panic!("Unparseable object property expression")
         }
     }
 }
@@ -265,6 +301,26 @@ impl From<PySimpleAxiom> for Axiom {
                 let clsiri: String = eles.next().unwrap().into();
                 Axiom::DeclareClass(DeclareClass(Class(b.iri(clsiri.clone()))))
             },
+            "DeclareObjectProperty" => {
+                let objpiri: String = eles.next().unwrap().into();
+                Axiom::DeclareObjectProperty(DeclareObjectProperty(ObjectProperty(b.iri(objpiri.clone()))))
+            }
+            "DeclareNamedIndividual" => {
+                let indiri: String = eles.next().unwrap().into();
+                Axiom::DeclareNamedIndividual(DeclareNamedIndividual(NamedIndividual(b.iri(indiri.clone()))))
+            },
+            "DeclareDatatype" => {
+                let dtiri: String = eles.next().unwrap().into();
+                Axiom::DeclareDatatype(DeclareDatatype(Datatype(b.iri(dtiri.clone()))))
+            },
+            "DeclareDataProperty" => {
+                let dtiri: String = eles.next().unwrap().into();
+                Axiom::DeclareDataProperty(DeclareDataProperty(DataProperty(b.iri(dtiri.clone()))))
+            },
+            "DeclareAnnotationProperty" => {
+                let dtiri: String = eles.next().unwrap().into();
+                Axiom::DeclareAnnotationProperty(DeclareAnnotationProperty(AnnotationProperty(b.iri(dtiri.clone()))))
+            },
             "SubClassOf" => {
                 //next is going to be an IRI for the class that is the subclass
                 let subiri: String = eles.next().unwrap().into();
@@ -279,6 +335,23 @@ impl From<PySimpleAxiom> for Axiom {
                 Axiom::SubClassOf(SubClassOf{sup:supce,sub:subce})
 
             },
+            "EquivalentClasses" => {
+                //Next is going to be a set of class expressions
+                let clsses: Vec<ClassExpression> = eles.map(|clss| clss.into()).collect();
+
+                //Create the Axiom
+                Axiom::EquivalentClasses(EquivalentClasses(clsses))
+
+            },
+            "DisjointClasses" => {
+                //Next is going to be a set of class expressions
+                let clsses: Vec<ClassExpression> = eles.map(|clss| clss.into()).collect();
+
+                //Create the Axiom
+                Axiom::DisjointClasses(DisjointClasses(clsses))
+
+            }
+            //TODO add other axiom types here.
             "AnnotationAssertion" => {
                 let subiri: String = eles.next().unwrap().into();
                 let apiri: String = eles.next().unwrap().into();
@@ -289,8 +362,7 @@ impl From<PySimpleAxiom> for Axiom {
                             ,av: AnnotationValue::Literal(Literal::Simple{literal:annstr})}})
             },
             _ => {
-                println!("Something else: {:?}",axtype);
-                Axiom::DeclareClass(DeclareClass(Class(b.iri("Eh?"))))
+                panic!("Unknown axiom type {:}",axtype);
             },
         };
         //
@@ -343,11 +415,10 @@ struct PyIndexedOntology {
 
     classes_to_subclasses: HashMap<IRI,HashSet<IRI>>, //axiom typed index would give subclass axioms
     classes_to_superclasses: HashMap<IRI,HashSet<IRI>>,
-    //classes: HashSet<IRI>, //declaration typed index in horned-owl
 
     //The primary store of the axioms is a Horned OWL indexed ontology
     ontology: IRIMappedOntology,
-    //Need this for saving again afterwards
+    //Need this for converting IRIs to IDs and for saving again afterwards
     mapping: PrefixMapping,
 }
 
