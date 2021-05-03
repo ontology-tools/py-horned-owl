@@ -5,7 +5,7 @@ An experimental bridge from horned-owl to python using PyO3.
 ## Installation
 
 ### Published version 
-To install the published library, which is currently only available for python 3.8.x on MacOS: 
+To install the published library, which is currently only available for python 3.8.x on MacOS and Linux: 
 
 `pip install py_horned_owl`
 
