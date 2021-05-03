@@ -116,3 +116,49 @@ if FULL:
 #    onto.save_to_file("test/chebi-updated.owx")
 
 print("Quitting")
+
+
+
+
+
+
+#Memory Profiler for all your memory needs.
+
+#https://pypi.python.org/pypi/memory_profiler
+
+#Run a pip install:
+
+#pip install memory_profiler
+
+#Import the library:
+
+#import memory_profiler
+
+#Add a decorator to the item you wish to profile:
+
+#@profile
+#def my_func():
+#    a = [1] * (10 ** 6)
+#    b = [2] * (2 * 10 ** 7)
+#    del b
+#    return a
+
+#if __name__ == '__main__':
+#    my_func()
+
+#Execute the code:
+
+#python -m memory_profiler example.py
+
+#Recieve the output:
+
+# Line #    Mem usage  Increment   Line Contents
+# ==============================================
+# 3                           @profile
+# 4      5.97 MB    0.00 MB   def my_func():
+# 5     13.61 MB    7.64 MB       a = [1] * (10 ** 6)
+# 6    166.20 MB  152.59 MB       b = [2] * (2 * 10 ** 7)
+# 7     13.61 MB -152.59 MB       del b
+# 8     13.61 MB    0.00 MB       return a
+
+#Examples are from the docs, linked above.
