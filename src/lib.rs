@@ -10,6 +10,12 @@ use horned_owl::vocab::{AnnotationBuiltIn,WithIRI};
 use horned_owl::model::*;
 use horned_owl::ontology::iri_mapped::IRIMappedOntology;
 use horned_owl::ontology::axiom_mapped::AxiomMappedOntology;
+use horned_owl::ontology::declaration_mapped::DeclarationMappedIndex;
+use horned_owl::ontology::logically_equal::LogicallyEqualIndex;
+use horned_owl::io::rdf::reader::IncompleteParse;
+use horned_owl::ontology::indexed::ThreeIndexedOntology;
+use horned_owl::ontology::set::SetIndex;
+use horned_owl::ontology::set::SetOntology;
 
 use curie::{PrefixMapping,Curie};
 
@@ -18,6 +24,8 @@ use std::collections::HashMap;
 use std::time::Instant;
 use std::default::Default;
 use std::path::Path;
+use std::ops::Deref;
+use failure::Error;
 
 #[pyclass]
 #[derive(Clone,Default,Debug,PartialEq)]
@@ -357,7 +365,8 @@ impl From<PySimpleAxiom> for Axiom {
                 let apiri: String = eles.next().unwrap().into();
                 let annstr: String = eles.next().unwrap().into();
 
-                Axiom::AnnotationAssertion(AnnotationAssertion{subject:b.iri(subiri.clone()),
+                Axiom::AnnotationAssertion(AnnotationAssertion{
+                    subject: Individual::Named (b.named_individual(subiri.clone()) ),
                         ann: Annotation{ap: AnnotationProperty(b.iri(apiri))
                             ,av: AnnotationValue::Literal(Literal::Simple{literal:annstr})}})
             },
@@ -473,7 +482,7 @@ impl PyIndexedOntology {
 
         let ax1:AnnotatedAxiom =
             Axiom::AnnotationAssertion(
-                AnnotationAssertion{subject:iri.clone(),
+                AnnotationAssertion{subject: Individual::Named(b.named_individual(iri.clone())),
                     ann: Annotation{ap: b.annotation_property(AnnotationBuiltIn::LABEL.iri_s()),
                     av: AnnotationValue::Literal(
                         Literal::Simple{literal:label.clone()})}}).into();
@@ -698,6 +707,8 @@ impl PyIndexedOntology {
 
 impl PyIndexedOntology {
     fn insert(&mut self, ax: &AnnotatedAxiom) -> () {
+        let b = Build::new();
+
         match ax.kind() {
             AxiomKind::AnnotationAssertion => {
                 match ax.clone().axiom {
@@ -705,7 +716,7 @@ impl PyIndexedOntology {
                         match ann {
                             Annotation {ap, av:  AnnotationValue::Literal(Literal::Simple{literal}) } => {
                                 if AnnotationBuiltIn::LABEL.iri_s().eq(&ap.0.to_string()) {
-                                    &self.labels_to_iris.insert(literal.clone(),subject.clone());
+                                    &self.labels_to_iris.insert(literal.clone(),b.iri(subject.deref()));
                                 }
                             },
                             _ => (),
@@ -751,11 +762,7 @@ impl PyIndexedOntology {
 
 }
 
-#[pyfunction]
-fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
-    let before = Instant::now();
-
-    let ontology: String = ontology.extract().unwrap();
+fn open_ontology_owx(ontology: &str) -> Result<(SetOntology,PrefixMapping),Error> {
 
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
@@ -767,23 +774,49 @@ fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
         let mut f = BufReader::new(str_val);
         horned_owl::io::owx::reader::read(&mut f)
     };
-    assert!(r.is_ok(), "Expected ontology, got failure:{:?}", r.err());
+    r
+}
 
-    let time_middle = before.elapsed().as_secs();
-    let (o, m) = r.ok().unwrap();
-    println!("Finished reading ontology in {:?} seconds.", time_middle);
+fn open_ontology_rdf(ontology: &str) ->
+        Result<(ThreeIndexedOntology<SetIndex, DeclarationMappedIndex, LogicallyEqualIndex>, IncompleteParse),Error> {
+    let r = if Path::new(&ontology).exists() {
+        let file = File::open(ontology).ok().unwrap();
+        let mut f = BufReader::new(file);
+        horned_owl::io::rdf::reader::read(&mut f)
+    } else {
+        //just try to parse the string
+        let str_val = ontology.as_bytes();
+        let mut f = BufReader::new(str_val);
+        horned_owl::io::rdf::reader::read(&mut f)
+    };
+    r
+}
 
+#[pyfunction]
+fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
     let before = Instant::now();
-    //println!("About to build indexes");
-    let iro = IRIMappedOntology::from(o);
 
-    let mut lo =  PyIndexedOntology::from(iro);
-    lo.mapping = m; //Needed when saving
+    let ontology: String = ontology.extract().unwrap();
 
-    let time_after = before.elapsed().as_secs();
-    println!("Finished building ontology indexes in  {:?} seconds.", time_after);
-
-    Ok(lo)
+    let r = open_ontology_owx(&ontology);
+    if r.is_ok() {
+        let (o,m) = r.ok().unwrap();
+        //println!("About to build indexes");
+        let iro = IRIMappedOntology::from(o);
+        let mut lo =  PyIndexedOntology::from(iro);
+        lo.mapping = m; //Needed when saving
+        Ok(lo)
+    } else {
+        let r2 = open_ontology_rdf(&ontology);
+        if r2.is_ok() {
+            let (o,p) = r.ok().unwrap();
+            let iro = IRIMappedOntology::from(o);
+            let mut lo =  PyIndexedOntology::from(iro);
+            Ok(lo)
+        } else {
+            Err(PyValueError::new_err("Unable to open ontology"))
+        }
+    }
 }
 
 #[pyfunction]
