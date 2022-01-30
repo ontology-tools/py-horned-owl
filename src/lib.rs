@@ -798,25 +798,59 @@ fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
 
     let ontology: String = ontology.extract().unwrap();
 
-    let r = open_ontology_owx(&ontology);
-    if r.is_ok() {
-        let (o,m) = r.ok().unwrap();
-        //println!("About to build indexes");
-        let iro = IRIMappedOntology::from(o);
-        let mut lo =  PyIndexedOntology::from(iro);
-        lo.mapping = m; //Needed when saving
-        Ok(lo)
-    } else {
+    let result = if ontology.ends_with("owx") {
+        let r = open_ontology_owx(&ontology);
+        println!("Got result {:?}",r);
+        if r.is_ok() {
+            let (o,m) = r.ok().unwrap();
+            //println!("Got ontology from owx {:?}",o);
+            //println!("About to build indexes");
+            let iro = IRIMappedOntology::from(o);
+            let mut lo =  PyIndexedOntology::from(iro);
+            lo.mapping = m; //Needed when saving
+            Ok(lo)
+        } else {
+            Err(PyValueError::new_err("Unable to open ontology"))
+        }
+    } else if ontology.ends_with("owl"){
         let r2 = open_ontology_rdf(&ontology);
         if r2.is_ok() {
-            let (o,p) = r.ok().unwrap();
-            let iro = IRIMappedOntology::from(o);
+            let (o,p) = r2.ok().unwrap();
+            //println!("Got ontology from rdf {:?}",o);
+            let so = SetOntology::from(o);
+            let iro = IRIMappedOntology::from(so);
             let mut lo =  PyIndexedOntology::from(iro);
             Ok(lo)
         } else {
             Err(PyValueError::new_err("Unable to open ontology"))
         }
-    }
+    } else { // No recognised suffix, maybe it is a string value, just try to parse
+        let r = open_ontology_owx(&ontology);
+        if r.is_ok() {
+            let (o,m) = r.ok().unwrap();
+            //println!("Got ontology from owx {:?}",o);
+            //println!("About to build indexes");
+            let iro = IRIMappedOntology::from(o);
+            let mut lo =  PyIndexedOntology::from(iro);
+            lo.mapping = m; //Needed when saving
+            Ok(lo)
+        } else {
+            let r2 = open_ontology_rdf(&ontology);
+            if r2.is_ok() {
+                let (o,p) = r2.ok().unwrap();
+                //println!("Got ontology from rdf {:?}",o);
+                let so = SetOntology::from(o);
+                let iro = IRIMappedOntology::from(so);
+                let mut lo =  PyIndexedOntology::from(iro);
+                Ok(lo)
+            } else {
+                Err(PyValueError::new_err("Unable to open ontology"))
+            }
+
+        }
+
+    };
+    result
 }
 
 #[pyfunction]
