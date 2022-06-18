@@ -26,6 +26,8 @@ use std::default::Default;
 use std::path::Path;
 use std::ops::Deref;
 use failure::Error;
+use std::sync::Arc;
+use std::borrow::Borrow;
 
 #[pyclass]
 #[derive(Clone,Default,Debug,PartialEq)]
@@ -84,6 +86,18 @@ impl From<&SimpleAxiomContent> for String {
     }
 }
 
+impl Borrow<str> for SimpleAxiomContent {
+    fn borrow(&self) -> &str {
+        self.str_val.as_ref().unwrap().as_ref()
+    }
+}
+
+impl Borrow<str> for &SimpleAxiomContent {
+    fn borrow(&self) -> &str {
+        self.str_val.as_ref().unwrap().as_ref()
+    }
+}
+
 impl From<PySimpleAxiom> for SimpleAxiomContent {
     fn from(item: PySimpleAxiom) -> Self {
         SimpleAxiomContent { str_val: None, ax_val: Some(item) }
@@ -136,8 +150,8 @@ impl ToPyObject for PySimpleAxiom {
     }
 }
 
-impl From<&ObjectPropertyExpression> for PySimpleAxiom {
-    fn from(ope: &ObjectPropertyExpression) -> PySimpleAxiom {
+impl From<&ObjectPropertyExpression<ArcStr>> for PySimpleAxiom {
+    fn from(ope: &ObjectPropertyExpression<ArcStr>) -> PySimpleAxiom {
         let mut pyax = PySimpleAxiom::default();
 
         match ope {
@@ -155,8 +169,8 @@ impl From<&ObjectPropertyExpression> for PySimpleAxiom {
     }
 }
 
-impl From<&ClassExpression> for PySimpleAxiom {
-    fn from(ce: &ClassExpression) -> PySimpleAxiom {
+impl From<&ClassExpression<ArcStr>> for PySimpleAxiom {
+    fn from(ce: &ClassExpression<ArcStr>) -> PySimpleAxiom {
         let mut pyax = PySimpleAxiom::default();
 
             match ce {
@@ -195,9 +209,9 @@ impl From<&ClassExpression> for PySimpleAxiom {
     }
 }
 
-impl From<&SimpleAxiomContent> for ClassExpression {
-    fn from(ce: &SimpleAxiomContent) -> ClassExpression {
-        let b = Build::new();
+impl From<&SimpleAxiomContent> for ClassExpression<ArcStr> {
+    fn from(ce: &SimpleAxiomContent) -> ClassExpression<ArcStr> {
+        let b = Build::new_arc();
 
         if let Some(axval) = &ce.ax_val {
             //Parse axiom into class expression
@@ -208,7 +222,7 @@ impl From<&SimpleAxiomContent> for ClassExpression {
             match &cename[..] {
                 "ObjectSomeValuesFrom" | "ObjectAllValuesFrom" => {
                     //First an object property expression
-                    let objpe: ObjectPropertyExpression = eles.next().unwrap().into();
+                    let objpe: ObjectPropertyExpression<ArcStr> = eles.next().unwrap().into();
                     //Then its target
                     let objptar = eles.next().unwrap();
 
@@ -230,7 +244,7 @@ impl From<&SimpleAxiomContent> for ClassExpression {
                 },
                 "ObjectIntersectionOf" | "ObjectUnionOf" => {
                     //The rest of the list should have classes that remain in the list
-                    let clsses: Vec<ClassExpression> = eles.map(|clss| b.class(clss).into()).collect();
+                    let clsses: Vec<ClassExpression<ArcStr>> = eles.map(|clss| b.class(clss).into()).collect();
                     match &cename[..] {
                         "ObjectIntersectionOf" => {
                             ClassExpression::ObjectIntersectionOf (clsses)
@@ -263,8 +277,8 @@ impl From<&SimpleAxiomContent> for ClassExpression {
     }
 }
 
-impl From<&SimpleAxiomContent> for ObjectPropertyExpression {
-    fn from(ope: &SimpleAxiomContent) -> ObjectPropertyExpression {
+impl From<&SimpleAxiomContent> for ObjectPropertyExpression<ArcStr> {
+    fn from(ope: &SimpleAxiomContent) -> ObjectPropertyExpression<ArcStr> {
         let b = Build::new();
 
         if let Some(axval) = &ope.ax_val {
@@ -295,15 +309,15 @@ impl From<&SimpleAxiomContent> for ObjectPropertyExpression {
     }
 }
 
-impl From<PySimpleAxiom> for Axiom {
-    fn from(ax: PySimpleAxiom) -> Axiom {
-        let b = Build::new();
+impl From<PySimpleAxiom> for Axiom<ArcStr> {
+    fn from(ax: PySimpleAxiom) -> Axiom<ArcStr> {
+        let b = Build::new_arc();
         //we expect a List with elements
         let mut eles = ax.elements.iter();
         //The first of which is the axiom type
         let axtype: String = eles.next().unwrap().into();
 
-        let resax : Axiom = match &axtype[..] {
+        let resax : Axiom<ArcStr> = match &axtype[..] {
             "DeclareClass" => {
                 //next is going to be an IRI of the class being declared
                 let clsiri: String = eles.next().unwrap().into();
@@ -332,12 +346,12 @@ impl From<PySimpleAxiom> for Axiom {
             "SubClassOf" => {
                 //next is going to be an IRI for the class that is the subclass
                 let subiri: String = eles.next().unwrap().into();
-                let subce: ClassExpression = ClassExpression::Class(Class(b.iri(subiri.clone())));
+                let subce: ClassExpression<ArcStr> = ClassExpression::Class(Class(b.iri(subiri.clone())));
                 //then either class expression for the superclass, or another list to iterate over.
                 let ce: &SimpleAxiomContent = eles.next().unwrap();
 
                 //Parse a class expression from the simple axiom content
-                let supce: ClassExpression = ce.into();
+                let supce: ClassExpression<ArcStr> = ce.into();
 
                 //Create the Axiom
                 Axiom::SubClassOf(SubClassOf{sup:supce,sub:subce})
@@ -345,7 +359,7 @@ impl From<PySimpleAxiom> for Axiom {
             },
             "EquivalentClasses" => {
                 //Next is going to be a set of class expressions
-                let clsses: Vec<ClassExpression> = eles.map(|clss| clss.into()).collect();
+                let clsses: Vec<ClassExpression<ArcStr>> = eles.map(|clss| clss.into()).collect();
 
                 //Create the Axiom
                 Axiom::EquivalentClasses(EquivalentClasses(clsses))
@@ -353,7 +367,7 @@ impl From<PySimpleAxiom> for Axiom {
             },
             "DisjointClasses" => {
                 //Next is going to be a set of class expressions
-                let clsses: Vec<ClassExpression> = eles.map(|clss| clss.into()).collect();
+                let clsses: Vec<ClassExpression<ArcStr>> = eles.map(|clss| clss.into()).collect();
 
                 //Create the Axiom
                 Axiom::DisjointClasses(DisjointClasses(clsses))
@@ -366,7 +380,7 @@ impl From<PySimpleAxiom> for Axiom {
                 let annstr: String = eles.next().unwrap().into();
 
                 Axiom::AnnotationAssertion(AnnotationAssertion{
-                    subject: Individual::Named (b.named_individual(subiri.clone()) ),
+                    subject: AnnotationSubject::IRI (b.iri(subiri)), //TODO cope with anonymous individual as well?
                         ann: Annotation{ap: AnnotationProperty(b.iri(apiri))
                             ,av: AnnotationValue::Literal(Literal::Simple{literal:annstr})}})
             },
@@ -380,9 +394,9 @@ impl From<PySimpleAxiom> for Axiom {
     }
 }
 
-impl From<&Axiom> for PySimpleAxiom {
+impl From<&Axiom<ArcStr>> for PySimpleAxiom {
 
-    fn from(aax: &Axiom) -> PySimpleAxiom {
+    fn from(aax: &Axiom<ArcStr>) -> PySimpleAxiom {
         let mut pyax = PySimpleAxiom::default();
         pyax.elements.push(format!("{}",aax.kind()).into());
 
@@ -420,13 +434,13 @@ impl From<&Axiom> for PySimpleAxiom {
 struct PyIndexedOntology {
 
     //State variables private to Rust, exposed through methods to Python
-    labels_to_iris: HashMap<String,IRI>,
+    labels_to_iris: HashMap<String,IRI<ArcStr>>,
 
-    classes_to_subclasses: HashMap<IRI,HashSet<IRI>>, //axiom typed index would give subclass axioms
-    classes_to_superclasses: HashMap<IRI,HashSet<IRI>>,
+    classes_to_subclasses: HashMap<IRI<ArcStr>,HashSet<IRI<ArcStr>>>, //axiom typed index would give subclass axioms
+    classes_to_superclasses: HashMap<IRI<ArcStr>,HashSet<IRI<ArcStr>>>,
 
     //The primary store of the axioms is a Horned OWL indexed ontology
-    ontology: IRIMappedOntology,
+    ontology: IRIMappedOntology<ArcStr, Arc<AnnotatedAxiom<ArcStr>>>,
     //Need this for converting IRIs to IDs and for saving again afterwards
     mapping: PrefixMapping,
 }
@@ -477,10 +491,10 @@ impl PyIndexedOntology {
     }
 
     fn set_label(&mut self, iri: String, label: String) -> PyResult<()> {
-        let b = Build::new();
+        let b = Build::new_arc();
         let iri = b.iri(iri);
 
-        let ax1:AnnotatedAxiom =
+        let ax1:AnnotatedAxiom<ArcStr> =
             Axiom::AnnotationAssertion(
                 AnnotationAssertion{subject: Individual::Named(b.named_individual(iri.clone())),
                     ann: Annotation{ap: b.annotation_property(AnnotationBuiltIn::LABEL.iri_s()),
@@ -488,7 +502,7 @@ impl PyIndexedOntology {
                         Literal::Simple{literal:label.clone()})}}).into();
 
         //If we already have a label, update it:
-        let old_ax = &self.ontology.get_axs_for_iri(iri).filter_map(|aax: &AnnotatedAxiom| {
+        let old_ax = &self.ontology.get_axs_for_iri(iri).filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
             match &aax.axiom {
                 Axiom::AnnotationAssertion(AnnotationAssertion{subject:_subj,ann}) => {
                         match ann {
@@ -527,7 +541,7 @@ impl PyIndexedOntology {
     }
 
     fn get_subclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
-        let b = Build::new();
+        let b = Build::new_arc();
         let iri = b.iri(iri);
 
         let subclasses = self.classes_to_subclasses.get(&iri);
@@ -540,7 +554,7 @@ impl PyIndexedOntology {
     }
 
     fn get_superclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
-        let b = Build::new();
+        let b = Build::new_arc();
         let iri = b.iri(iri);
 
         let superclasses  = self.classes_to_superclasses.get(&iri);
@@ -586,11 +600,11 @@ impl PyIndexedOntology {
     }
 
     fn get_annotations(&mut self, class_iri: String, ann_iri: String) -> PyResult<Vec<String>> {
-        let b = Build::new();
+        let b = Build::new_arc();
         let iri = b.iri(class_iri);
 
         let literal_values : Vec<String> = self.ontology.get_axs_for_iri(iri)
-                                .filter_map(|aax: &AnnotatedAxiom| {
+                                .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
             match &aax.axiom {
                 Axiom::AnnotationAssertion(AnnotationAssertion{subject:_,ann}) => {
                         match ann {
@@ -671,7 +685,7 @@ impl PyIndexedOntology {
         let py = gil.python();
 
         let axioms = self.ontology.i().iter()
-                                .filter_map(|aax: &AnnotatedAxiom| {
+                                .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
                                     Some(PySimpleAxiom::from(&aax.axiom))
                                 }).map(|aax: PySimpleAxiom| {aax.to_object(py)}).collect();
 
@@ -706,7 +720,7 @@ impl PyIndexedOntology {
 }
 
 impl PyIndexedOntology {
-    fn insert(&mut self, ax: &AnnotatedAxiom) -> () {
+    fn insert(&mut self, ax: &AnnotatedAxiom<ArcStr>) -> () {
         let b = Build::new();
 
         match ax.kind() {
@@ -748,10 +762,10 @@ impl PyIndexedOntology {
         }
     }
 
-    fn from(iro: IRIMappedOntology) -> PyIndexedOntology {
+    fn from(iro: IRIMappedOntology<ArcStr,AnnotatedAxiom<ArcStr>>) -> PyIndexedOntology {
         let mut ino = PyIndexedOntology::default();
 
-        for ax in iro.i() {
+        for ax in iro.iter() {
             ino.insert(&ax);
         }
 
@@ -762,7 +776,7 @@ impl PyIndexedOntology {
 
 }
 
-fn open_ontology_owx(ontology: &str) -> Result<(SetOntology,PrefixMapping),Error> {
+fn open_ontology_owx(ontology: &str) -> Result<(SetOntology<ArcStr>,PrefixMapping),Error> {
 
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
@@ -778,7 +792,10 @@ fn open_ontology_owx(ontology: &str) -> Result<(SetOntology,PrefixMapping),Error
 }
 
 fn open_ontology_rdf(ontology: &str) ->
-        Result<(ThreeIndexedOntology<SetIndex, DeclarationMappedIndex, LogicallyEqualIndex>, IncompleteParse),Error> {
+        Result<(ThreeIndexedOntology<ArcStr, AnnotatedAxiom<ArcStr>,
+            SetIndex<ArcStr,AnnotatedAxiom<ArcStr>>,
+            DeclarationMappedIndex<ArcStr,AnnotatedAxiom<ArcStr>>,
+            LogicallyEqualIndex<ArcStr,AnnotatedAxiom<ArcStr>>>, IncompleteParse<ArcStr>),Error> {
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
         let mut f = BufReader::new(file);
@@ -866,7 +883,7 @@ fn get_descendants(onto: &PyIndexedOntology, parent: &PyString) -> PyResult<Hash
     Ok(descendants)
 }
 
-fn recurse_descendants(onto : &PyIndexedOntology, superclass: &IRI, descendants: &mut HashSet<String>) {
+fn recurse_descendants(onto : &PyIndexedOntology, superclass: &IRI<ArcStr>, descendants: &mut HashSet<String>) {
     descendants.insert(superclass.into());
     if onto.classes_to_subclasses.contains_key(superclass) {
         for cls2 in &mut onto.classes_to_subclasses[superclass].iter() {
@@ -888,7 +905,7 @@ fn get_ancestors(onto: &PyIndexedOntology, child: &PyString) -> PyResult<HashSet
     Ok(ancestors)
 }
 
-fn recurse_ancestors(onto : &PyIndexedOntology, subclass: &IRI, ancestors: &mut HashSet<String>) {
+fn recurse_ancestors(onto : &PyIndexedOntology, subclass: &IRI<ArcStr>, ancestors: &mut HashSet<String>) {
     ancestors.insert(subclass.into());
     if onto.classes_to_superclasses.contains_key(subclass) {
         for cls2 in &mut onto.classes_to_superclasses[subclass].iter() {
