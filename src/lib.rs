@@ -833,7 +833,7 @@ fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
 
     let result = if ontology.ends_with("owx") {
         let r = open_ontology_owx(&ontology);
-        println!("Got result {:?}",r);
+        //println!("Got result {:?}",r);
         if r.is_ok() {
             let (o,m) = r.ok().unwrap();
             //println!("Got ontology from owx {:?}",o);
