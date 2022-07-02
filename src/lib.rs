@@ -10,12 +10,16 @@ use horned_owl::vocab::{AnnotationBuiltIn,WithIRI};
 use horned_owl::model::*;
 use horned_owl::ontology::iri_mapped::IRIMappedOntology;
 use horned_owl::ontology::axiom_mapped::AxiomMappedOntology;
-use horned_owl::ontology::declaration_mapped::DeclarationMappedIndex;
-use horned_owl::ontology::logically_equal::LogicallyEqualIndex;
+//use horned_owl::ontology::declaration_mapped::DeclarationMappedIndex;
+//use horned_owl::ontology::logically_equal::LogicallyEqualIndex;
 use horned_owl::io::rdf::reader::IncompleteParse;
-use horned_owl::ontology::indexed::ThreeIndexedOntology;
-use horned_owl::ontology::set::SetIndex;
+//use horned_owl::ontology::indexed::ThreeIndexedOntology;
+//use horned_owl::ontology::set::SetIndex;
 use horned_owl::ontology::set::SetOntology;
+use horned_owl::error::HornedError;
+use horned_owl::io::rdf::reader::RDFOntology;
+use horned_owl::ontology::axiom_mapped::ArcAxiomMappedOntology;
+use horned_owl::ontology::iri_mapped::ArcIRIMappedOntology;
 
 use curie::{PrefixMapping,Curie};
 
@@ -25,7 +29,7 @@ use std::time::Instant;
 use std::default::Default;
 use std::path::Path;
 use std::ops::Deref;
-use failure::Error;
+//use failure::Error;
 use std::sync::Arc;
 use std::borrow::Borrow;
 
@@ -398,7 +402,7 @@ impl From<&Axiom<ArcStr>> for PySimpleAxiom {
 
     fn from(aax: &Axiom<ArcStr>) -> PySimpleAxiom {
         let mut pyax = PySimpleAxiom::default();
-        pyax.elements.push(format!("{}",aax.kind()).into());
+        pyax.elements.push(format!("{:?}",aax.kind()).into());
 
         match aax {
             Axiom::DeclareClass(DeclareClass(dc)) => {
@@ -430,7 +434,6 @@ impl From<&Axiom<ArcStr>> for PySimpleAxiom {
 }
 
 #[pyclass]
-#[derive(Default)]
 struct PyIndexedOntology {
 
     //State variables private to Rust, exposed through methods to Python
@@ -440,9 +443,21 @@ struct PyIndexedOntology {
     classes_to_superclasses: HashMap<IRI<ArcStr>,HashSet<IRI<ArcStr>>>,
 
     //The primary store of the axioms is a Horned OWL indexed ontology
-    ontology: IRIMappedOntology<ArcStr, Arc<AnnotatedAxiom<ArcStr>>>,
+    ontology: ArcIRIMappedOntology,
     //Need this for converting IRIs to IDs and for saving again afterwards
     mapping: PrefixMapping,
+}
+
+impl Default for PyIndexedOntology {
+    fn default() -> Self {
+        PyIndexedOntology {
+            labels_to_iris: Default::default(),
+            classes_to_subclasses: Default::default(),
+            classes_to_superclasses: Default::default(),
+            ontology: ArcIRIMappedOntology::new_arc(),
+            mapping: Default::default()
+        }
+    }
 }
 
 #[pymethods]
@@ -496,13 +511,13 @@ impl PyIndexedOntology {
 
         let ax1:AnnotatedAxiom<ArcStr> =
             Axiom::AnnotationAssertion(
-                AnnotationAssertion{subject: Individual::Named(b.named_individual(iri.clone())),
-                    ann: Annotation{ap: b.annotation_property(AnnotationBuiltIn::LABEL.iri_s()),
+                AnnotationAssertion{subject: iri.clone().into(),
+                    ann: Annotation{ap: b.annotation_property(AnnotationBuiltIn::LABEL.iri_s().clone()),
                     av: AnnotationValue::Literal(
                         Literal::Simple{literal:label.clone()})}}).into();
 
         //If we already have a label, update it:
-        let old_ax = &self.ontology.get_axs_for_iri(iri).filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
+        let old_ax = &self.ontology.get_axs_for_iri(&iri).filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
             match &aax.axiom {
                 Axiom::AnnotationAssertion(AnnotationAssertion{subject:_subj,ann}) => {
                         match ann {
@@ -569,7 +584,7 @@ impl PyIndexedOntology {
 
     fn get_classes(&mut self) -> PyResult<HashSet<String>> {
         //Get the DeclareClass axioms
-        let classes = self.ontology.k().annotated_axiom(AxiomKind::DeclareClass);
+        let classes = self.ontology.get_axs_for_axkind(AxiomKind::DeclareClass);
 
         let classes : HashSet<String> = classes
                         .filter_map(|aax| {
@@ -603,7 +618,7 @@ impl PyIndexedOntology {
         let b = Build::new_arc();
         let iri = b.iri(class_iri);
 
-        let literal_values : Vec<String> = self.ontology.get_axs_for_iri(iri)
+        let literal_values : Vec<String> = self.ontology.get_axs_for_iri(&iri)
                                 .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
             match &aax.axiom {
                 Axiom::AnnotationAssertion(AnnotationAssertion{subject:_,ann}) => {
@@ -645,9 +660,9 @@ impl PyIndexedOntology {
         let before = Instant::now();
 
         let mut file = File::create(file_name)?;
-        let mut amo : AxiomMappedOntology = AxiomMappedOntology::default();
+        let mut amo : ArcAxiomMappedOntology = AxiomMappedOntology::new_arc();
         //Copy the axioms into an AxiomMappedOntology as that is what horned owl writes
-        for aax in self.ontology.k() {
+        for aax in self.ontology.iter() {
             amo.insert(aax.clone());
         }
         let time_middle = before.elapsed().as_secs();
@@ -672,8 +687,8 @@ impl PyIndexedOntology {
         let gil = Python::acquire_gil();
         let py = gil.python();
 
-        let axioms = self.ontology.get_axs_for_iri(iri)
-                                .filter_map(|aax: &AnnotatedAxiom| {
+        let axioms = self.ontology.get_axs_for_iri(&iri)
+                                .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
                                     Some(PySimpleAxiom::from(&aax.axiom))
                                 }).map(|aax: PySimpleAxiom| {aax.to_object(py)}).collect();
 
@@ -684,7 +699,7 @@ impl PyIndexedOntology {
         let gil = Python::acquire_gil();
         let py = gil.python();
 
-        let axioms = self.ontology.i().iter()
+        let axioms = self.ontology.iter()
                                 .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
                                     Some(PySimpleAxiom::from(&aax.axiom))
                                 }).map(|aax: PySimpleAxiom| {aax.to_object(py)}).collect();
@@ -698,7 +713,7 @@ impl PyIndexedOntology {
 
         let els: Vec<SimpleAxiomContent> = SimpleAxiomContent::parse(ax,py);
 
-        let ax: Axiom = PySimpleAxiom{elements:els}.into();
+        let ax: Axiom<ArcStr> = PySimpleAxiom{elements:els}.into();
 
         self.ontology.insert(ax);
 
@@ -711,7 +726,7 @@ impl PyIndexedOntology {
 
         let els: Vec<SimpleAxiomContent> = SimpleAxiomContent::parse(ax,py);
 
-        let ax: Axiom = PySimpleAxiom{elements:els}.into();
+        let ax: Axiom<ArcStr> = PySimpleAxiom{elements:els}.into();
 
         self.ontology.remove(&ax.into());
 
@@ -762,7 +777,7 @@ impl PyIndexedOntology {
         }
     }
 
-    fn from(iro: IRIMappedOntology<ArcStr,AnnotatedAxiom<ArcStr>>) -> PyIndexedOntology {
+    fn from(iro: IRIMappedOntology<ArcStr,Arc<AnnotatedAxiom<ArcStr>>>) -> PyIndexedOntology {
         let mut ino = PyIndexedOntology::default();
 
         for ax in iro.iter() {
@@ -776,35 +791,36 @@ impl PyIndexedOntology {
 
 }
 
-fn open_ontology_owx(ontology: &str) -> Result<(SetOntology<ArcStr>,PrefixMapping),Error> {
+fn open_ontology_owx(ontology: &str) -> Result<(SetOntology<ArcStr>,PrefixMapping),HornedError> {
+    let b = Build::new_arc();
 
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
         let mut f = BufReader::new(file);
-        horned_owl::io::owx::reader::read(&mut f)
+        horned_owl::io::owx::reader::read_with_build(&mut f, &b)
     } else {
         //just try to parse the string
         let str_val = ontology.as_bytes();
         let mut f = BufReader::new(str_val);
-        horned_owl::io::owx::reader::read(&mut f)
+        horned_owl::io::owx::reader::read_with_build(&mut f, &b)
     };
     r
 }
 
 fn open_ontology_rdf(ontology: &str) ->
-        Result<(ThreeIndexedOntology<ArcStr, AnnotatedAxiom<ArcStr>,
-            SetIndex<ArcStr,AnnotatedAxiom<ArcStr>>,
-            DeclarationMappedIndex<ArcStr,AnnotatedAxiom<ArcStr>>,
-            LogicallyEqualIndex<ArcStr,AnnotatedAxiom<ArcStr>>>, IncompleteParse<ArcStr>),Error> {
+        Result<(RDFOntology<ArcStr, Arc<AnnotatedAxiom<ArcStr>>>,
+            IncompleteParse<Arc<str>>), HornedError> {
+    let b = Build::new_arc();
+
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
         let mut f = BufReader::new(file);
-        horned_owl::io::rdf::reader::read(&mut f)
+        horned_owl::io::rdf::reader::read_with_build(&mut f, &b)
     } else {
         //just try to parse the string
         let str_val = ontology.as_bytes();
         let mut f = BufReader::new(str_val);
-        horned_owl::io::rdf::reader::read(&mut f)
+        horned_owl::io::rdf::reader::read_with_build(&mut f, &b)
     };
     r
 }
