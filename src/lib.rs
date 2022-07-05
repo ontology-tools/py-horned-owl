@@ -517,7 +517,7 @@ impl PyIndexedOntology {
                         Literal::Simple{literal:label.clone()})}}).into();
 
         //If we already have a label, update it:
-        let old_ax = &self.ontology.get_axs_for_iri(&iri).filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
+        let old_ax = &self.ontology.axiom_for_iri(&iri).filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
             match &aax.axiom {
                 Axiom::AnnotationAssertion(AnnotationAssertion{subject:_subj,ann}) => {
                         match ann {
@@ -584,7 +584,7 @@ impl PyIndexedOntology {
 
     fn get_classes(&mut self) -> PyResult<HashSet<String>> {
         //Get the DeclareClass axioms
-        let classes = self.ontology.get_axs_for_axkind(AxiomKind::DeclareClass);
+        let classes = self.ontology.axiom_for_kind(AxiomKind::DeclareClass);
 
         let classes : HashSet<String> = classes
                         .filter_map(|aax| {
@@ -618,7 +618,7 @@ impl PyIndexedOntology {
         let b = Build::new_arc();
         let iri = b.iri(class_iri);
 
-        let literal_values : Vec<String> = self.ontology.get_axs_for_iri(&iri)
+        let literal_values : Vec<String> = self.ontology.axiom_for_iri(&iri)
                                 .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
             match &aax.axiom {
                 Axiom::AnnotationAssertion(AnnotationAssertion{subject:_,ann}) => {
@@ -687,7 +687,7 @@ impl PyIndexedOntology {
         let gil = Python::acquire_gil();
         let py = gil.python();
 
-        let axioms = self.ontology.get_axs_for_iri(&iri)
+        let axioms = self.ontology.axiom_for_iri(&iri)
                                 .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
                                     Some(PySimpleAxiom::from(&aax.axiom))
                                 }).map(|aax: PySimpleAxiom| {aax.to_object(py)}).collect();
