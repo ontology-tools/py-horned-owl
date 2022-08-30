@@ -13,6 +13,7 @@ use horned_owl::ontology::axiom_mapped::AxiomMappedOntology;
 //use horned_owl::ontology::declaration_mapped::DeclarationMappedIndex;
 //use horned_owl::ontology::logically_equal::LogicallyEqualIndex;
 use horned_owl::io::rdf::reader::IncompleteParse;
+use horned_owl::io::{ParserConfiguration, RDFParserConfiguration};
 //use horned_owl::ontology::indexed::ThreeIndexedOntology;
 //use horned_owl::ontology::set::SetIndex;
 use horned_owl::ontology::set::SetOntology;
@@ -815,12 +816,18 @@ fn open_ontology_rdf(ontology: &str) ->
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
         let mut f = BufReader::new(file);
-        horned_owl::io::rdf::reader::read_with_build(&mut f, &b)
+        horned_owl::io::rdf::reader::read_with_build(&mut f, &b, ParserConfiguration {
+            rdf: RDFParserConfiguration{lax:true},
+            ..Default::default()
+        })
     } else {
         //just try to parse the string
         let str_val = ontology.as_bytes();
         let mut f = BufReader::new(str_val);
-        horned_owl::io::rdf::reader::read_with_build(&mut f, &b)
+        horned_owl::io::rdf::reader::read_with_build(&mut f, &b, ParserConfiguration {
+            rdf: RDFParserConfiguration{lax:true},
+            ..Default::default()
+        })
     };
     r
 }
