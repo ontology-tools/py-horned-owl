@@ -46,7 +46,7 @@ jobs:
       - name: Build
         run: |
           maturin build
-          zip -r ${{ matrix.asset_name }} ./target/wheels/*.whl
+          zip -r ./target/${{ matrix.artifact_name }} ./target/wheels/*.whl
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -67,6 +67,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ matrix.asset_name }}
+          asset_path: ./target/${{ matrix.artifact_name }}
           asset_name: ${{ matrix.asset_name }}
           asset_content_type: application/zip
