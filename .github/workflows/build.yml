@@ -35,9 +35,6 @@ jobs:
       - name: Build
         run: |
           maturin build
-        run: |
-          pip install --upgrade pip
-          pip install maturin==0.13.2
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
