@@ -15,7 +15,7 @@ version = "0.15.1"
 features = ["extension-module"]
 
 [dependencies]
-horned-owl = { path = "../horned-owl", version = "0.12.1-alpha.0"}
+horned-owl = { git = "https://github.com/phillord/horned-owl", version = "0.12.1-alpha.0", branch="devel"}
 curie = "0.1.1"
 failure = "0.1.2"
 
