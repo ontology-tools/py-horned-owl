@@ -16,8 +16,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["macos-latest", "windows-latest"]
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        include:
+        - os: ubuntu-latest
+          python-version: "3.7"
+          artifact_name: py-horned-owl.zip
+          asset_name: py-horned-owl-linux-amd64
+        - os: windows-latest
+          python-version: "3.7"
+          artifact_name: py-horned-owl.zip
+          asset_name: py-horned-owl-windows-amd64
+        - os: macos-latest
+          python-version: "3.7"
+          artifact_name: py-horned-owl.zip
+          asset_name: py-horned-owl-macos-amd64
     steps:
       - uses: actions/checkout@v3
       - name: Set up Rust
@@ -35,6 +46,7 @@ jobs:
       - name: Build
         run: |
           maturin build
+          zip -r ${{ matrix.asset_name }} ./target/wheels/*.whl
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -55,4 +67,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/wheels/*.whl
+          asset_path: ${{ matrix.asset_name }}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ github.ref }}
