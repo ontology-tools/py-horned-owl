@@ -5,17 +5,14 @@ An experimental bridge from horned-owl to python using PyO3.
 ## Installation
 
 ### Published version 
-To install the published library, which is currently only available for python 3.8.x on MacOS and Linux: 
+To install the published library: 
 
 `pip install py_horned_owl`
 
 ### From sources
 To build locally from sources, you will need [Rust](https://www.rust-lang.org/tools/install), [PyO3](https://github.com/PyO3/pyo3) and [Maturin](https://github.com/PyO3/maturin). 
 
-First check out the associated Python-compatible version of horned-owl: 
-`git clone https://github.com/jannahastings/horned-owl`
-
-Then check out this repository: 
+Check out this repository: 
 `git clone https://github.com/jannahastings/py-horned-owl/`
 
 In the directory py-horned-owl, create and activate a virtual Python environment: 
@@ -31,7 +28,7 @@ Then you can get maturin to build the library and install it into the virtual Py
 
 ## Usage
 
-Currently the library only supports loading ontologies from `.owx` (OWL-XML) files. Some test files in this format are available in the [owl-xml](https://github.com/jannahastings/horned-owl/tree/main/src/ont/owl-xml) horned-owl folder. Alternatively, [ROBOT](http://robot.obolibrary.org/) can transform ontologies into this format using `robot convert`. 
+The library supports loading ontologies from `.owl` (RDF-XML) and `.owx` (OWL-XML) files via horned-owl's parsing functionality. [ROBOT](http://robot.obolibrary.org/) can transform ontologies that are in other OWL flavours into one of these formats using `robot convert`. 
 
 Example of simple usage:
 
