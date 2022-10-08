@@ -409,11 +409,20 @@ impl From<&Axiom<ArcStr>> for PySimpleAxiom {
             Axiom::DeclareClass(DeclareClass(dc)) => {
                 pyax.elements.push( dc.0.to_string().into() );
             },
-            Axiom::DeclareObjectProperty(DeclareObjectProperty(dp)) => {
-                pyax.elements.push( dp.0.to_string().into() );
+            Axiom::DeclareObjectProperty(DeclareObjectProperty(dop)) => {
+                pyax.elements.push( dop.0.to_string().into() );
             },
             Axiom::DeclareNamedIndividual(DeclareNamedIndividual(ni)) => {
                 pyax.elements.push( ni.0.to_string().into() );
+            },
+            Axiom::DeclareDatatype(DeclareDatatype(dt)) => {
+                pyax.elements.push( dt.0.to_string().into() )
+            },
+            Axiom::DeclareDataProperty(DeclareDataProperty(dp)) => {
+                pyax.elements.push( dp.0.to_string().into() )
+            },
+            Axiom::DeclareAnnotationProperty(DeclareAnnotationProperty(ap)) => {
+                pyax.elements.push( ap.0.to_string().into() )
             },
             Axiom::SubClassOf(SubClassOf{sup,sub}) => {
                 pyax.elements.push( PySimpleAxiom::from(sub).into() );
@@ -431,6 +440,11 @@ impl From<&Axiom<ArcStr>> for PySimpleAxiom {
             Axiom::EquivalentClasses(EquivalentClasses(clsses)) => {
                 for ele in clsses {
                     pyax.elements.push( PySimpleAxiom::from(ele).into() );
+                }
+            },
+            Axiom::DisjointClasses(DisjointClasses(classes)) => {
+                for ele in classes {
+                    pyax.elements.push( PySimpleAxiom::from(ele).into() )
                 }
             }
             _ => ()
