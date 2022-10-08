@@ -556,6 +556,26 @@ impl PyIndexedOntology {
         }
     }
 
+    fn get_iri(&mut self) -> PyResult<PyObject> {
+        let gil = Python::acquire_gil();
+        let py = gil.python();     
+        let iri_value = &self.ontology.id().iri.as_ref();
+        if let Some(iri_value) = iri_value {
+            Ok(iri_value.to_string().to_object(py))
+        } else {
+            Ok(().to_object(py))
+        }
+    }
+    fn get_version_iri(&mut self) -> PyResult<PyObject> {
+        let gil = Python::acquire_gil();
+        let py = gil.python();     
+        let iri_value = &self.ontology.id().viri.as_ref();
+        if let Some(iri_value) = iri_value {
+            Ok(iri_value.to_string().to_object(py))
+        } else {
+            Ok(().to_object(py))
+        }
+    }
     fn get_subclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
         let b = Build::new_arc();
         let iri = b.iri(iri);
@@ -662,6 +682,10 @@ impl PyIndexedOntology {
 
         let mut file = File::create(file_name)?;
         let mut amo : ArcAxiomMappedOntology = AxiomMappedOntology::new_arc();
+        let oid = &self.ontology.id().clone();
+
+        amo.mut_id().iri = oid.iri.clone();
+        amo.mut_id().viri = oid.viri.clone();
         //Copy the axioms into an AxiomMappedOntology as that is what horned owl writes
         for aax in self.ontology.iter() {
             amo.insert(aax.clone());
@@ -816,10 +840,7 @@ fn open_ontology_rdf(ontology: &str) ->
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
         let mut f = BufReader::new(file);
-        horned_owl::io::rdf::reader::read_with_build(&mut f, &b, ParserConfiguration {
-            rdf: RDFParserConfiguration{lax:true},
-            ..Default::default()
-        })
+        horned_owl::io::rdf::reader::read_with_build(&mut f, &b, ParserConfiguration::default())
     } else {
         //just try to parse the string
         let str_val = ontology.as_bytes();
