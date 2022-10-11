@@ -409,6 +409,21 @@ impl From<&Axiom<ArcStr>> for PySimpleAxiom {
             Axiom::DeclareClass(DeclareClass(dc)) => {
                 pyax.elements.push( dc.0.to_string().into() );
             },
+            Axiom::DeclareObjectProperty(DeclareObjectProperty(dop)) => {
+                pyax.elements.push( dop.0.to_string().into() );
+            },
+            Axiom::DeclareNamedIndividual(DeclareNamedIndividual(ni)) => {
+                pyax.elements.push( ni.0.to_string().into() );
+            },
+            Axiom::DeclareDatatype(DeclareDatatype(dt)) => {
+                pyax.elements.push( dt.0.to_string().into() )
+            },
+            Axiom::DeclareDataProperty(DeclareDataProperty(dp)) => {
+                pyax.elements.push( dp.0.to_string().into() )
+            },
+            Axiom::DeclareAnnotationProperty(DeclareAnnotationProperty(ap)) => {
+                pyax.elements.push( ap.0.to_string().into() )
+            },
             Axiom::SubClassOf(SubClassOf{sup,sub}) => {
                 pyax.elements.push( PySimpleAxiom::from(sub).into() );
                 pyax.elements.push( PySimpleAxiom::from(sup).into() );
@@ -427,6 +442,11 @@ impl From<&Axiom<ArcStr>> for PySimpleAxiom {
                     pyax.elements.push( PySimpleAxiom::from(ele).into() );
                 }
             },
+            Axiom::DisjointClasses(DisjointClasses(classes)) => {
+                for ele in classes {
+                    pyax.elements.push( PySimpleAxiom::from(ele).into() )
+                }
+            }
             _ => ()
         }
 
@@ -599,6 +619,22 @@ impl PyIndexedOntology {
         Ok(classes)
     }
 
+    fn get_object_properties(&mut self) -> PyResult<HashSet<String>> {
+        //Get the DeclareObjectProperty axioms
+        let object_properties = self.ontology.axiom_for_kind(AxiomKind::DeclareObjectProperty);
+
+        let object_properties : HashSet<String> = object_properties
+                        .filter_map(|aax| {
+                            match aax.clone().axiom {
+                                    Axiom::DeclareObjectProperty(dop) => {
+                                        Some(dop.0.0.to_string())
+                                    },
+                                    _ => None
+                                }
+                        }).collect();
+        Ok(object_properties)
+    }
+    
     fn get_annotation(&mut self, class_iri: String, ann_iri: String) -> PyResult<PyObject> {
         let gil = Python::acquire_gil();
         let py = gil.python();
