@@ -15,7 +15,7 @@ version = "0.15.1"
 features = ["abi3-py37", "extension-module"]
 
 [dependencies]
-horned-owl = { git = "https://github.com/phillord/horned-owl", version = "0.12.1-alpha.0", branch="devel"}
+horned-owl = { git = "https://github.com/phillord/horned-owl", version = "0.14.0", tag = "v0.14.0"}
 curie = "0.1.1"
 failure = "0.1.2"
 
