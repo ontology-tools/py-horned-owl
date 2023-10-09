@@ -3,6 +3,7 @@ on:
   push:
     branches:
         - main
+        - arm_builds
 
   pull_request:
     branches:
@@ -14,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["macos-latest", "windows-latest"]
+        os: ["macos-latest", "windows-latest", "macos-13-arm64"]
         python-version: ["3.7"]
     steps:
       - uses: actions/checkout@v3
