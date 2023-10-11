@@ -1,0 +1,49 @@
+name: release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number of the release"
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Adjust version
+        run: |
+          sed -i "0,/version = \".*\"/{s//version = \"$VERSION\"/}" Cargo.toml
+          cat Cargo.toml
+          git checkout -b "release/v$VERSION"
+          git config --global user.name 'Release workflow'
+          git config --global user.email 'noreply@github.com'
+          git add Cargo.toml
+          git status
+          git commit -m "Updated version to $VERSION"
+          git push --set-upstream origin $(git branch --show-current)
+        env:
+          VERSION: ${{ inputs.version }}
+  build:
+    needs: prepare-release
+    uses: ./.github/workflows/build.yml
+  release:
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      - name: Get wheels
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels
+      - name: Info
+        run: ls -la
+#      - name: Create release
+#        run: |
+#          git tag "v$VERSION"
+#          git push --tags
+#        env:
+#          VERSION: ${{ inputs.version }}
+
+
