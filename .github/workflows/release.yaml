@@ -50,6 +50,7 @@ jobs:
         run: find .
       - name: Create release
         run: |
+          git fetch
           git checkout "release/v$VERSION"
           git tag "v$VERSION"
           git push --tags
@@ -64,5 +65,11 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*"
+          draft: true
+          generateReleaseNotes: true
+          tag: "v${{ inputs.version }}"
 
 
