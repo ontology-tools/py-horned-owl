@@ -1,4 +1,5 @@
-name: release
+name: Release
+run-name: Release v${{ inputs.version }}
 on:
   workflow_dispatch:
     inputs:
@@ -55,7 +56,7 @@ jobs:
           git checkout "release/v$VERSION"
           git tag "v$VERSION"
           git push --tags
-          git checkout merge
+          git checkout main
           git merge "release/v$VERSION"
           git push
           git branch -D "release/v$VERSION"
