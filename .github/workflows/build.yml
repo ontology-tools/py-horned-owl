@@ -18,7 +18,13 @@ jobs:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
         python-version: ["3.7"]
     steps:
+      - run: echo "${{ github.inputs.branch }}"
       - uses: actions/checkout@v3
+        with:
+          ref: '${{ github.inputs.branch }}'
+        if: "${{ github.inputs.branch != '' }}"
+      - uses: actions/checkout@v3
+        if: "${{ github.inputs.branch == '' }}"
       - run: cat Cargo.toml
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@master

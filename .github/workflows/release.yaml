@@ -29,6 +29,8 @@ jobs:
   build:
     needs: prepare-release
     uses: ./.github/workflows/build.yml
+    with:
+      branch: "release/v${{ inputs.version }}"
   release:
     runs-on: ubuntu-latest
     needs: [ build ]
