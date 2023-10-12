@@ -50,7 +50,16 @@ jobs:
           path: dist
       - name: Info
         run: find .
-      - name: Create release
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*"
+          generateReleaseNotes: true
+          tag: "v${{ inputs.version }}"
+      - name: Finish release
         run: |
           git fetch
           git checkout "release/v$VERSION"
@@ -63,15 +72,5 @@ jobs:
           git push -d origin "release/v$VERSION"
         env:
           VERSION: ${{ inputs.version }}
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-      - uses: ncipollo/release-action@v1
-        with:
-          artifacts: "dist/*"
-          draft: true
-          generateReleaseNotes: true
-          tag: "v${{ inputs.version }}"
 
 
