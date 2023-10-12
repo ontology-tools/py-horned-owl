@@ -1,14 +1,18 @@
 name: Build
 on:
-  push:
-    branches:
-        - main
+#  push:
+#    branches:
+#        - main
 
   pull_request:
     branches:
         - main
   workflow_call:
-
+    inputs:
+      branch:
+        description: "Branch to checkout"
+        required: false
+        type: string
 jobs:
   build:
     name: Build Binaries
