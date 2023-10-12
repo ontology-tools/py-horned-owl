@@ -40,6 +40,7 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - uses: actions/checkout@v3
       - name: Get wheels
         uses: actions/download-artifact@v3
         with:
@@ -49,6 +50,7 @@ jobs:
         run: find .
       - name: Create release
         run: |
+          git checkout "release/v$VERSION"
           git tag "v$VERSION"
           git push --tags
           git checkout merge
