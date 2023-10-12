@@ -22,13 +22,15 @@ jobs:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
         python-version: ["3.7"]
     steps:
-      - run: echo "${{ github.inputs.branch }}"
+      - run: echo "$BRANCH"
+        env:
+          BRANCH: ${{ inputs.branch }}
       - uses: actions/checkout@v3
         with:
-          ref: '${{ github.inputs.branch }}'
-        if: "${{ github.inputs.branch != '' }}"
+          ref: '${{ inputs.branch }}'
+        if: "${{ inputs.branch != '' }}"
       - uses: actions/checkout@v3
-        if: "${{ github.inputs.branch == '' }}"
+        if: "${{ inputs.branch == '' }}"
       - run: cat Cargo.toml
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@master
