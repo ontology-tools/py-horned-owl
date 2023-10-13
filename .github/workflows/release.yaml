@@ -38,9 +38,6 @@ jobs:
     name: Do release
     runs-on: ubuntu-latest
     needs: [ build ]
-    environment:
-      name: pypi
-      url: https://test.pypi.org/p/tmp-py-horned-owl
     permissions:
       contents: write
       id-token: write
@@ -55,8 +52,6 @@ jobs:
         run: find .
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
       - name: Finish release
         run: |
           git fetch
@@ -69,6 +64,7 @@ jobs:
         with:
           artifacts: "dist/*"
           generateReleaseNotes: true
+          makeLatest: true
           tag: "v${{ inputs.version }}"
       - name: Finish release
         run: |
