@@ -1,6 +1,6 @@
 [package]
 name = "py-horned-owl"
-version = "0.2.5"
+version = "0.2.2"
 authors = ["Janna Hastings <j.hastings@ucl.ac.uk>"]
 edition = "2018"
 
