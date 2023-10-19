@@ -1,0 +1,79 @@
+name: Release
+run-name: Release v${{ inputs.version }}
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number of the release"
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  prepare-release:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Adjust version
+        run: |
+          sed -i "0,/version = \".*\"/{s//version = \"$VERSION\"/}" Cargo.toml
+          cat Cargo.toml
+          git checkout -b "release/v$VERSION"
+          git config --global user.name 'Release workflow'
+          git config --global user.email 'noreply@github.com'
+          git add Cargo.toml
+          git status
+          git commit -m "Updated version to $VERSION"
+          git push --set-upstream origin $(git branch --show-current)
+        env:
+          VERSION: ${{ inputs.version }}
+  build:
+    name: Build wheels
+    needs: prepare-release
+    uses: ./.github/workflows/build.yml
+    with:
+      branch: "release/v${{ inputs.version }}"
+  release:
+    name: Do release
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get wheels
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels
+          path: dist
+      - name: Info
+        run: find .
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Finish release
+        run: |
+          git fetch
+          git checkout "release/v$VERSION"
+          git tag "v$VERSION"
+          git push --tags
+        env:
+          VERSION: ${{ inputs.version }}
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*"
+          generateReleaseNotes: true
+          makeLatest: true
+          tag: "v${{ inputs.version }}"
+      - name: Finish release
+        run: |
+          git checkout main
+          git merge "release/v$VERSION"
+          git push
+          git branch -D "release/v$VERSION"
+          git push -d origin "release/v$VERSION"
+        env:
+          VERSION: ${{ inputs.version }}
+
+
