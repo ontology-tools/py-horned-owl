@@ -25,7 +25,7 @@ use horned_owl::ontology::set::SetOntology;
 
 use curie::{Curie, PrefixMapping};
 
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeSet};
 use std::collections::HashSet;
 use std::default::Default;
 use std::ops::Deref;
@@ -46,6 +46,7 @@ struct PyIndexedOntology {
     ontology: ArcIRIMappedOntology,
     //Need this for converting IRIs to IDs and for saving again afterwards
     mapping: PrefixMapping,
+    build: Build<ArcStr>,
 }
 
 impl Default for PyIndexedOntology {
@@ -56,6 +57,7 @@ impl Default for PyIndexedOntology {
             classes_to_superclasses: Default::default(),
             ontology: ArcIRIMappedOntology::new_arc(),
             mapping: Default::default(),
+            build: Build::new_arc(),
         }
     }
 }
@@ -103,13 +105,12 @@ impl PyIndexedOntology {
     }
 
     fn set_label(&mut self, iri: String, label: String) -> PyResult<()> {
-        let b = Build::new_arc();
-        let iri = b.iri(iri);
+        let iri = self.build.iri(iri);
 
         let ax1: AnnotatedAxiom<ArcStr> = Axiom::AnnotationAssertion(AnnotationAssertion {
             subject: iri.clone().into(),
             ann: Annotation {
-                ap: b.annotation_property(AnnotationBuiltIn::LABEL.iri_s().clone()),
+                ap: self.build.annotation_property(AnnotationBuiltIn::LABEL.iri_s().clone()),
                 av: AnnotationValue::Literal(Literal::Simple {
                     literal: label.clone(),
                 }),
@@ -177,8 +178,7 @@ impl PyIndexedOntology {
         }
     }
     fn get_subclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
-        let b = Build::new_arc();
-        let iri = b.iri(iri);
+        let iri = self.build.iri(iri);
 
         let subclasses = self.classes_to_subclasses.get(&iri);
         if let Some(subclss) = subclasses {
@@ -190,8 +190,7 @@ impl PyIndexedOntology {
     }
 
     fn get_superclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
-        let b = Build::new_arc();
-        let iri = b.iri(iri);
+        let iri = self.build.iri(iri);
 
         let superclasses = self.classes_to_superclasses.get(&iri);
         if let Some(superclss) = superclasses {
@@ -250,8 +249,7 @@ impl PyIndexedOntology {
     }
 
     fn get_annotations(&mut self, class_iri: String, ann_iri: String) -> PyResult<Vec<String>> {
-        let b = Build::new_arc();
-        let iri = b.iri(class_iri);
+        let iri = self.build.iri(class_iri);
 
         let literal_values : Vec<String> = self.ontology.axiom_for_iri(&iri)
                                 .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
@@ -325,14 +323,15 @@ impl PyIndexedOntology {
         }
     }
 
-    fn get_axioms_for_iri(&mut self, py: Python, iri: String) -> PyResult<Vec<PyObject>> {
+    fn get_axioms_for_iri(&mut self, py: Python<'_>, iri: String) -> PyResult<Vec<PyObject>> {
         let b = Build::new();
         let iri = b.iri(iri);
 
         let axioms = self
             .ontology
             .axiom_for_iri(&iri)
-            .map(|ax| model::AnnotatedAxiom::from(ax).into_py(py))
+            .map(|a| a.into())
+            .map(|a: model::AnnotatedAxiom| a.into_py(py))
             .collect();
 
         Ok(axioms)
@@ -349,16 +348,26 @@ impl PyIndexedOntology {
         Ok(r)
     }
 
-    fn add_axiom(&mut self, ax: model::AnnotatedAxiom) -> PyResult<()> {
-        self.ontology.insert(ax);
+    fn add_axiom(&mut self, ax: model::Axiom, annotations: Option<BTreeSet<model::Annotation>>) -> PyResult<()> {
+        let annotated_axiom = model::AnnotatedAxiom{
+            axiom: ax,
+            ann: annotations.unwrap_or(BTreeSet::new()).into()
+        };
+        self.ontology.insert(annotated_axiom);
 
         Ok(())
     }
 
-    fn remove_axiom(&mut self, ax: model::AnnotatedAxiom) -> PyResult<()> {
-        self.ontology.remove(&ax.into());
+    fn remove_axiom(&mut self, ax: model::Axiom) -> PyResult<()> {
+        let ax: Axiom<Arc<str>> = ax.into();
+        let annotated = self.ontology.iter().find(|a| { a.axiom == ax}).ok_or(PyValueError::new_err("args"))?.to_owned();
+        self.ontology.remove(&annotated);
 
         Ok(())
+    }
+
+    fn iri(&self, iri: String) -> model::IRI {
+        model::IRI::new(iri, &self.build)
     }
 }
 
@@ -428,9 +437,7 @@ impl PyIndexedOntology {
     }
 }
 
-fn open_ontology_owx(ontology: &str) -> Result<(SetOntology<ArcStr>, PrefixMapping), HornedError> {
-    let b = Build::new_arc();
-
+fn open_ontology_owx(ontology: &str, b: &Build<Arc<str>>) -> Result<(SetOntology<ArcStr>, PrefixMapping), HornedError> {
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
         let mut f = BufReader::new(file);
@@ -446,6 +453,7 @@ fn open_ontology_owx(ontology: &str) -> Result<(SetOntology<ArcStr>, PrefixMappi
 
 fn open_ontology_rdf(
     ontology: &str,
+    b: &Build<Arc<str>>
 ) -> Result<
     (
         RDFOntology<ArcStr, Arc<AnnotatedAxiom<ArcStr>>>,
@@ -453,7 +461,6 @@ fn open_ontology_rdf(
     ),
     HornedError,
 > {
-    let b = Build::new_arc();
 
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
@@ -479,8 +486,10 @@ fn open_ontology_rdf(
 fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
     let ontology: String = ontology.extract().unwrap();
 
+    let b = Build::new_arc();
+
     let result = if ontology.ends_with("owx") {
-        let r = open_ontology_owx(&ontology);
+        let r = open_ontology_owx(&ontology, &b);
         //println!("Got result {:?}",r);
         if r.is_ok() {
             let (o, m) = r.ok().unwrap();
@@ -494,7 +503,7 @@ fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
             Err(PyValueError::new_err("Unable to open ontology"))
         }
     } else if ontology.ends_with("owl") {
-        let r2 = open_ontology_rdf(&ontology);
+        let r2 = open_ontology_rdf(&ontology, &b);
         if r2.is_ok() {
             let (o, _) = r2.ok().unwrap();
             //println!("Got ontology from rdf {:?}",o);
@@ -507,7 +516,7 @@ fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
         }
     } else {
         // No recognised suffix, maybe it is a string value, just try to parse
-        let r = open_ontology_owx(&ontology);
+        let r = open_ontology_owx(&ontology, &b);
         if r.is_ok() {
             let (o, m) = r.ok().unwrap();
             //println!("Got ontology from owx {:?}",o);
@@ -517,7 +526,7 @@ fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
             lo.mapping = m; //Needed when saving
             Ok(lo)
         } else {
-            let r2 = open_ontology_rdf(&ontology);
+            let r2 = open_ontology_rdf(&ontology, &b);
             if r2.is_ok() {
                 let (o, _) = r2.ok().unwrap();
                 //println!("Got ontology from rdf {:?}",o);

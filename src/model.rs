@@ -1,11 +1,32 @@
-use std::{collections::BTreeSet, sync::Arc};
+use std::{borrow::Borrow, collections::BTreeSet, sync::Arc};
 
 use horned_owl::model::ArcStr;
 
-use pyo3::prelude::*;
+use pyo3::{exceptions::PyKeyError, prelude::*, types::PyType, PyObject};
 
 use paste::paste;
+use regex::Regex;
 
+use std::fmt::Write;
+
+fn to_py_type<T>() -> String {
+    let crate_regex = Regex::new(r"(?m)(?:\w+::)*(\w+)").unwrap();
+    let box_regex = Regex::new(r"BoxWrap<(.*)>").unwrap();
+
+    let mut name: String = std::any::type_name::<T>().to_string();
+    name = crate_regex.replace_all(&name, "$1").to_string();
+    name = box_regex.replace_all(&name, "$1").to_string();
+    name = name.replace("<", "[");
+    name = name.replace(">", "]");
+    name = name.replace("VecWrap", "list");
+    name = name.replace("StringWrapper", "str");
+    name = name.replace("BTreeSetWrap", "set");
+    name = name.replace("u32", "int");
+    name = name.replace("&str", "str");
+    name = name.replace("String", "str");
+
+    name
+}
 
 macro_rules! cond {
     ($x:ident, $($_:tt)+) => {
@@ -26,7 +47,6 @@ macro_rules! wrapped_base {
                 value.into()
             }
         }
-
 
         impl From<&$name> for horned_owl::model::$name<ArcStr> {
             fn from(value: &$name) -> Self {
@@ -64,48 +84,325 @@ macro_rules! wrapped_base {
     };
 }
 
-macro_rules! wrapped {
-    (pub struct $name:ident { $(pub $field:ident: $type:ty,)* }) => {
+macro_rules! wrapped_enum {
+    (pub enum $name:ident {
+        $(
+            $(#[transparent] $v_name_transparent:ident ( $field_transparent:ty ))?
+            $($v_name:ident as $v_name_full:ident $(( $field_t0:ty$(, $field_t1:ty)? ))?$({ $($field_s:ident : $type_s:ty,)+ })?)?
+            ,
+        )*
+    }) => {
         paste! {
-            #[pyclass(module="pyhornedowl.model")]
-            #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-            pub struct $name {
-                $(
-                    #[pyo3(get,set)]
-                    $field: $type,
-                )*
+            #[allow(non_camel_case_types)]
+            #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+            enum [<$name _ Inner>] {
+                $($(
+                    $v_name([<$v_name_full>]),
+                )?)*
+                $($(
+                    $v_name_transparent($v_name_transparent),
+                )?)*
             }
 
-            struct [<$name Wrap>](horned_owl::model::$name<ArcStr>);
+            #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+            pub struct $name([<$name _ Inner>]);
+
+            impl ToPyi for $name {
+                #[allow(unused_assignments)]
+                fn pyi() -> String {
+                    let mut res = String::new();
+                    let mut first = true;
+
+                    write!(&mut res, "typing.Union[").unwrap();
+                    $($(
+
+                        if (first) {
+                            first = false;
+                            write!(&mut res, "{}", stringify!($v_name_full)).unwrap();
+                        } else {
+                            write!(&mut res, ", {}", stringify!($v_name_full)).unwrap();
+                        }
+                    )*)?
+
+                    $($(
+                        if (first) {
+                            first = false;
+                            write!(&mut res, "{}", stringify!($v_name_transparent)).unwrap();
+                        } else {
+                            write!(&mut res, ", {}", stringify!($v_name_transparent)).unwrap();
+                        }
+                    )*)?
+                    write!(&mut res, "]\n").unwrap();
+
+                    res
+                }
+            }
+
+            $($(
+                #[allow(non_camel_case_types)]
+                #[pyclass(module="pyhornedowl.model")]
+                #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+                pub struct [<$v_name_full>]
+                    $((
+                        #[pyo3(get,set,name="first")]
+                        pub $field_t0
+                        $(,
+                            #[pyo3(get,set,name="second")]
+                            pub $field_t1
+                        )?
+                    );)?
+                    $({
+                        $(
+                            #[pyo3(get,set)]
+                            pub $field_s: $type_s,
+                        )*
+                    })?
+
+                #[pymethods]
+                impl [<$v_name_full >] {
+                    #[new]
+                    fn new(
+                        $(first: $field_t0, $(second: $field_t1)?)?
+                        $($($field_s: $type_s,)*)?
+                    ) -> Self {
+                        [<$v_name_full>]
+                        $((
+                            first.into(), $(cond! (second.into(), $field_t1))?
+                        ))?
+                        $({
+                            $($field_s: $field_s.into(),)*
+                        })?
+                    }
+
+
+                    fn __getitem__(&self, py: Python<'_>, name: &str) -> PyResult<PyObject> {
+                        match name {
+                            $($(stringify!($field_s) => Ok(self.$field_s.clone().into_py(py)),)*)?
+                            $("first" => Ok(cond!(self.0.clone().into_py(py), $field_t0)),)?
+                            $($("second" => Ok(cond!(self.1.clone().into_py(py), $field_t1)),)?)?
+                            &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
+                        }
+                    }
+
+                    fn __setitem__(&mut self, name: &str, value: &PyAny) -> PyResult<()> {
+                        match name {
+                            $($(stringify!($field_s) => {
+                                self.$field_s = FromPyObject::extract(value)?;
+                                Ok(())
+                            },)*)?
+                            $("first" => {
+                                self.0 = FromPyObject::extract(cond!(value, $field_t0))?;
+                                Ok(())
+                            })?
+                            $($("second" => {
+                                self.1 = FromPyObject::extract(cond!(value, $field_t1))?;
+                                Ok(())
+                            })?)?
+                            &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
+                        }
+                    }
+
+                    #[classmethod]
+                    fn __pyi__(_: &PyType) -> String {
+                        let mut res = String::new();
+
+                        write!(&mut res, "class {}:\n", stringify!($v_name_full)).unwrap();
+                        $($(
+                            write!(&mut res, "    {}: {}\n", stringify!($field_s), to_py_type::<$type_s>()).unwrap();
+                        )*)?
+                        $(
+                            write!(&mut res, "    first: {}\n", to_py_type::<$field_t0>()).unwrap();
+                        )?
+                        $($(
+                            write!(&mut res, "    second: {}\n", to_py_type::<$field_t1>()).unwrap();
+                        )?)?
+
+                        write!(&mut res, "    def __init__(self").unwrap();
+                        $($(
+                            write!(&mut res, ", {}: {}", stringify!($field_s), to_py_type::<$type_s>()).unwrap();
+                        )*)?
+                        $(write!(&mut res, ", first: {}", to_py_type::<$field_t0>()).unwrap();)?
+                        $($(
+                            write!(&mut res, ", second: {}", to_py_type::<$field_t1>()).unwrap();
+                        )?)?
+                        write!(&mut res, "):\n        ...\n").unwrap();
+                        write!(&mut res, "    ...\n").unwrap();
+
+                        res
+                    }
+                }
+            )?)*
 
             impl From<horned_owl::model::$name<ArcStr>> for $name {
                 fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
+                    match value {
+                        $($(
+                            horned_owl::model::$name::$v_name_transparent::<ArcStr>(f0) => $name(
+                                [<$name _ Inner>]::$v_name_transparent(f0.into())),
+                        )?)*
+                        $($($(
+                            horned_owl::model::$name::$v_name::<ArcStr>(f0 $(, cond!(f1, $field_t1))?) => $name(
+                                [<$name _ Inner>]::$v_name([<$v_name_full>](
+                                f0.into() $(, cond!(f1.into(), $field_t1))?
+                            ))),
+                        )?)?)*
+                        $($($(
+                            horned_owl::model::$name::$v_name::<ArcStr>{
+                                $($field_s, )*
+                            } => $name([<$name _ Inner>]::$v_name([<$v_name_full>]{
+                                $($field_s: $field_s.into(),)*
+                            })),
+                        )?)?)*
+                    }
+                }
+            }
+            impl IntoPy<pyo3::PyObject> for $name {
+                fn into_py(self, py: pyo3::Python) -> pyo3::PyObject {
+                    match self.0 {
+                        $($(
+                            [<$name _ Inner>]::$v_name(val) => {
+                                val.into_py(py)
+                            },
+                        )?)*
+                        $($(
+                            [<$name _ Inner>]::$v_name_transparent(val) => {
+                                val.into_py(py)
+                            },
+                        )?)*
+                    }
+                }
+            }
+
+            impl From<$name> for horned_owl::model::$name<ArcStr> {
+                fn from(value: $name) -> Self {
+                    match value.0 {
+                        $($(
+                            [<$name _ Inner>]::$v_name_transparent(f0) => horned_owl::model::$name::<ArcStr>::$v_name_transparent(f0.into()),
+                        )?
+
+                        $($(
+                            [<$name _ Inner>]::$v_name([<$v_name_full>](f0 $(, cond!(f1, $field_t1))?)) => horned_owl::model::$name::<ArcStr>::$v_name(f0.into() $(, cond!(f1.into(), $field_t1))?),
+                        )?)?
+
+                        $($(
+                            [<$name _ Inner>]::$v_name([<$v_name_full>]{
+                                $($field_s, )*
+                            }) => horned_owl::model::$name::<ArcStr>::$v_name{
+                                $($field_s: $field_s.into(),)*
+                            },
+                        )?)?)*
+                    }
+                }
+            }
+
+            impl <'source> FromPyObject<'source> for $name {
+                fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
+                    $($(
+                        {
+                            let r = [<$v_name_transparent>]::extract(ob);
+                            if r.is_ok() {
+                                let local = r.unwrap();
+                                let inner = [<$name _ Inner>]::$v_name_transparent(local);
+                                return Ok($name(inner));
+                            }
+                        }
+                    )?
+
+                    $(
+                        {
+                            let r = [<$v_name_full>]::extract(ob);
+                            if r.is_ok() {
+                                let local = r.unwrap();
+                                let inner = [<$name _ Inner>]::$v_name(local);
+                                return Ok($name(inner));
+                            }
+                        }
+                    )?)*
+
+                    Err(pyo3::PyErr::new::<pyo3::exceptions::PyTypeError, _>("Object cannot be converted to $name"))
+                }
+            }
+
+            wrapped_base! {$name}
+        }
+    };
+}
+
+macro_rules! wrapped {
+    (pub struct $name:ident { $(pub $field:ident: $type:ty,)* }) => {
+        paste! {
+            #[pyclass(module="pyhornedowl.model",mapping)]
+            #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+            pub struct $name {
+                $(
+                    #[pyo3(get,set)]
+                    pub $field: $type,
+                )*
+            }
+
+            #[pymethods]
+            impl $name {
+                #[new]
+                fn new($($field: $type),*) -> Self {
+                    $name {
+                        $($field,)*
+                    }
+                }
+
+                fn __getitem__(&self, py: Python<'_>, name: &str) -> PyResult<PyObject> {
+                    match name {
+                        $(stringify!($field) => Ok(self.$field.clone().into_py(py)),)*
+                        &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
+                    }
+                }
+
+                fn __setitem__(&mut self, name: &str, value: &PyAny) -> PyResult<()> {
+                    match name {
+                        $(stringify!($field) => {
+                            self.$field = FromPyObject::extract(value)?;
+                            Ok(())
+                        },)*
+                        &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
+                    }
+                }
+
+                #[classmethod]
+                fn __pyi__(_: &PyType) -> String {
+                    let mut res = String::new();
+
+                    write!(&mut res, "class {}:\n", stringify!($name)).unwrap();
+                    $(
+                        write!(&mut res, "    {}: {}\n", stringify!($field), to_py_type::<$type>()).unwrap();
+                    )*
+
+
+                    write!(&mut res, "    def __init__(self").unwrap();
+                    $(
+                        write!(&mut res, ", {}: {}", stringify!($field), to_py_type::<$type>()).unwrap();
+                    )*
+                    write!(&mut res, "):\n        ...\n").unwrap();
+                    write!(&mut res, "    ...\n").unwrap();
+
+                    res
+                }
+            }
+
+            impl From<horned_owl::model::$name<ArcStr>> for $name {
+                fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
+
                     $name {
                         $($field: value.$field.into()),*
                     }
                 }
             }
 
-            impl IntoPy<PyObject> for [<$name Wrap>] {
-                fn into_py(self, py: pyo3::Python) -> pyo3::PyObject {
-                    $name::from(self.0).into_py(py)
-                }
-            }
-
 
             impl From<$name> for horned_owl::model::$name<ArcStr> {
                 fn from(value: $name) -> Self {
+
                     horned_owl::model::$name::<ArcStr> {
                         $($field: value.$field.into(),)*
                     }
-                }
-            }
-
-            impl <'source> FromPyObject<'source> for [<$name Wrap>] {
-                fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
-                    let local = $name::extract(ob)?;
-
-                    Ok([<$name Wrap>](local.into()))
                 }
             }
 
@@ -115,30 +412,55 @@ macro_rules! wrapped {
     };
     (pub struct $name:ident ( pub $type0:ty $(, pub $type1:ty)?)) => { paste! {
         #[pyclass(module="pyhornedowl.model")]
-        #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+        #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
         pub struct $name (
-            #[pyo3(get,set,name="inner")]
-            $type0,
+            #[pyo3(get,set,name="first")]
+            pub $type0,
             $(
-                #[pyo3(get,set,name="inner")]
-                $type1,
+                #[pyo3(get,set,name="second")]
+                pub $type1,
             )?
         );
 
-        struct [<$name Wrap>](horned_owl::model::$name<ArcStr>);
+        #[pymethods]
+        impl $name {
+            #[new]
+            fn new(first: $type0$(, second: $type1)?) -> Self {
+                $name (
+                    first,
+                    $(cond! (second, $type1))?
+                )
+            }
+
+            #[classmethod]
+            fn __pyi__(_: &PyType) -> String {
+                let mut res = String::new();
+
+                write!(&mut res, "class {}:\n", stringify!($name)).unwrap();
+                write!(&mut res, "    first: {}\n", to_py_type::<$type0>()).unwrap();
+                $(
+                    write!(&mut res, "    second: {}\n", to_py_type::<$type1>()).unwrap();
+                )?
+
+                write!(&mut res, "    def __init__(self").unwrap();
+                write!(&mut res, ", first: {}", to_py_type::<$type0>()).unwrap();
+                $(
+                    write!(&mut res, ", second: {}", to_py_type::<$type1>()).unwrap();
+                )?
+                write!(&mut res, "):\n        ...\n").unwrap();
+                write!(&mut res, "    ...\n").unwrap();
+
+                res
+            }
+        }
 
         impl From<horned_owl::model::$name<ArcStr>> for $name {
             fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
+
                 $name (
                     value.0.into(),
                     $(cond! (value.1.into(), $type1))?
                 )
-            }
-        }
-
-        impl IntoPy<PyObject> for [<$name Wrap>] {
-            fn into_py(self, py: pyo3::Python) -> pyo3::PyObject {
-                $name::from(self.0).into_py(py)
             }
         }
 
@@ -151,25 +473,41 @@ macro_rules! wrapped {
             }
         }
 
-        impl <'source> FromPyObject<'source> for [<$name Wrap>] {
-            fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
-                let local = $name::extract(ob)?;
-                Ok([<$name Wrap>](local.into()))
-            }
-        }
-
         wrapped_base! {$name}
 
     }};
     (transparent pub enum $name:ident {
         $($v_name:ident ( $field:ty ),)*
     }) => {
-        #[derive(FromPyObject, Clone, PartialEq, Eq, PartialOrd, Ord)]
+        #[derive(Debug, FromPyObject, Clone, PartialEq, Eq, PartialOrd, Ord)]
         pub enum $name {
             $(
                 #[pyo3(transparent)]
                 $v_name ($field),
             )*
+        }
+
+        impl ToPyi for $name {
+            #[allow(unused_assignments)]
+            fn pyi() -> String {
+                let mut res = String::new();
+                let mut first = true;
+
+                write!(&mut res, "typing.Union[").unwrap();
+                $(
+
+                    if (first) {
+                        first = false;
+                        write!(&mut res, "{}", to_py_type::<$field>()).unwrap();
+                    } else {
+                        write!(&mut res, ", {}", to_py_type::<$field>()).unwrap();
+                    }
+                )*
+
+                write!(&mut res, "]\n").unwrap();
+
+                res
+            }
         }
 
         impl IntoPy<PyObject> for $name {
@@ -189,124 +527,65 @@ macro_rules! wrapped {
         }
 
         impl From<horned_owl::model::$name<ArcStr>> for $name {
+
             fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
                 match value {
                     $(horned_owl::model::$name::$v_name(inner) => $name::$v_name(inner.into()),)*
                 }
             }
         }
-        
+
         wrapped_base! {$name}
     };
-    (pub enum $name:ident {
-        $($v_name:ident $(( $field_t0:ty$(, $field_t1:ty)? ))?$({ $($field_s:ident : $type_s:ty,)+ })?,)*
+    ($(#[suffix=$suffix:ident])? pub enum $name:ident {
+        $(
+            $($v_name:ident $(( $field_t0:ty$(, $field_t1:ty)? ))?$({ $($field_s:ident : $type_s:ty,)+ })?)?
+            ,
+        )*
     }) => {
-        paste! {
-            #[allow(non_camel_case_types)]
-            #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-            enum [<$name _ Inner>] {
+
+    };
+    (pub enum $name:ident {
+        $(
+            $(#[transparent] $v_name_transparent:ident ( $field_transparent:ty ))?
+            $($v_name:ident $(( $field_t0:ty$(, $field_t1:ty)? ))?$({ $($field_s:ident : $type_s:ty,)+ })?)?
+            ,
+        )*
+    }) => {
+        wrapped_enum! {
+            pub enum $name {
                 $(
-                    $v_name([<$name _ $v_name>]),
+                    $(#[transparent] $v_name_transparent ( $field_transparent ))?
+                    $($v_name as $v_name $(( $field_t0 $(, $field_t1)? ))?$({ $($field_s : $type_s,)+ })?)?
+                    ,
                 )*
             }
+        }
+    };
 
-            #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-            pub struct $name([<$name _ Inner>]);
-
-            $(
-                #[allow(non_camel_case_types)]
-                // #[pyclass(extends=$name)]
-                #[pyclass(module="pyhornedowl.model")]
-                #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-                pub struct [<$name _ $v_name>]
-                    $((
-                        #[pyo3(get,set,name="first")]
-                        $field_t0
-                        $(,
-                            #[pyo3(get,set,name="second")]
-                            $field_t1
-                        )?
-                    );)?
-                    $({
-                        $(
-                            #[pyo3(get,set)]
-                            $field_s: $type_s,
-                        )*
-                    })?
-            )*
-
-            impl From<horned_owl::model::$name<ArcStr>> for $name {
-                fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
-                    match value {
-                        $($(
-                            horned_owl::model::$name::$v_name::<ArcStr>(f0 $(, cond!(f1, $field_t1))?) => $name(
-                                [<$name _ Inner>]::$v_name([<$name _ $v_name>](
-                                f0.into() $(, cond!(f1.into(), $field_t1))?
-                            ))),
-                        )?)*
-                        $($(
-                            horned_owl::model::$name::$v_name::<ArcStr>{
-                                $($field_s, )*
-                            } => $name([<$name _ Inner>]::$v_name([<$name _ $v_name>]{
-                                $($field_s: $field_s.into(),)*
-                            })),
-                        )?)*
-                    }
-                }
-            }
-            impl IntoPy<pyo3::PyObject> for $name {
-                fn into_py(self, py: pyo3::Python) -> pyo3::PyObject {
-                    match self.0 {
-                        $(
-                            [<$name _ Inner>]::$v_name(val) => {
-                                val.into_py(py)
-                            },
-                        )*
-                    }
-                }
-            }
-
-            impl From<$name> for horned_owl::model::$name<ArcStr> {
-                fn from(value: $name) -> Self {
-                    match value.0 {
-                        $($(
-                            [<$name _ Inner>]::$v_name([<$name _ $v_name>](f0 $(, cond!(f1, $field_t1))?)) => horned_owl::model::$name::<ArcStr>::$v_name(f0.into() $(, cond!(f1.into(), $field_t1))?),
-                        )?)*
-
-                        $($(
-                            [<$name _ Inner>]::$v_name([<$name _ $v_name>]{
-                                $($field_s, )*
-                            }) => horned_owl::model::$name::<ArcStr>::$v_name{
-                                $($field_s: $field_s.into(),)*
-                            },
-                        )?)*
-                    }
-                }
-            }
-
-            impl <'source> FromPyObject<'source> for $name {
-                fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
+    (#[suffixed] pub enum $name:ident {
+        $(
+            $v_name:ident $(( $field_t0:ty$(, $field_t1:ty)? ))?$({ $($field_s:ident : $type_s:ty,)+ })?
+            ,
+        )*
+    }) => {
+        paste! {
+            wrapped_enum! {
+                pub enum $name {
                     $(
-                        {
-                            let r = [<$name _ $v_name>]::extract(ob);
-                            if r.is_ok() {
-                                let local = r.unwrap();
-                                let inner = [<$name _ Inner>]::$v_name(local);
-                                return Ok($name(inner));
-                            }
-                        }
+                        $v_name as [<$v_name $name>] $(( $field_t0 $(, $field_t1)? ))?$({ $($field_s : $type_s,)+ })?,
                     )*
-
-                    Err(pyo3::PyErr::new::<pyo3::exceptions::PyTypeError, _>("Object cannot be converted to $name"))
                 }
             }
-
-            wrapped_base! {$name}
         }
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+trait ToPyi {
+    fn pyi() -> String;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VecWrap<T>(Vec<T>);
 
 impl<T> From<Vec<T>> for VecWrap<T> {
@@ -333,8 +612,8 @@ impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for VecWrap<T> {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-struct BoxWrap<T>(Box<T>);
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct BoxWrap<T>(Box<T>);
 
 impl<'source, T: FromPyObject<'source>> FromPyObject<'source> for BoxWrap<T> {
     fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
@@ -348,8 +627,8 @@ impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for BoxWrap<T> {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-#[pyclass(module="pyhornedowl.model")]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[pyclass(module = "pyhornedowl.model")]
 pub struct IRI(horned_owl::model::IRI<ArcStr>);
 
 impl From<IRI> for horned_owl::model::IRI<ArcStr> {
@@ -366,16 +645,28 @@ impl From<horned_owl::model::IRI<ArcStr>> for IRI {
 
 #[pymethods]
 impl IRI {
-    fn __repr__(&self) -> String {
-        format!("IRI({})", self.0)
+    pub fn __repr__(&self) -> String {
+        format!("IRI.parse(\"{}\")", self.0)
     }
-    fn __str__(&self) -> String {
+    pub fn __str__(&self) -> String {
         self.0.to_string()
+    }
+
+    #[classmethod]
+    pub fn parse(_: &PyType, value: String) -> Self {
+        let builder = horned_owl::model::Build::new_arc();
+        IRI(builder.iri(value))
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-struct StringWrapper(String);
+impl IRI {
+    pub fn new<A: Borrow<str>>(iri: A, build: &horned_owl::model::Build<ArcStr>) -> Self {
+        IRI(build.iri(iri))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct StringWrapper(String);
 
 impl From<Arc<str>> for StringWrapper {
     fn from(value: Arc<str>) -> Self {
@@ -401,61 +692,8 @@ impl<'source> FromPyObject<'source> for StringWrapper {
     }
 }
 
-wrapped! { pub struct Class(pub IRI) }
-wrapped! { pub struct AnonymousIndividual(pub StringWrapper) }
-wrapped! { pub struct NamedIndividual(pub IRI) }
-wrapped! { pub struct ObjectProperty(pub IRI) }
-wrapped! { pub struct Datatype(pub IRI) }
-wrapped! { pub struct DataProperty(pub IRI) }
-wrapped! { pub struct FacetRestriction {
-    pub f: Facet,
-    pub l: Literal,
-} }
-
-wrapped! {
-    transparent
-    pub enum Individual {
-        Anonymous(AnonymousIndividual),
-        Named(NamedIndividual),
-    }
-}
-
-wrapped! {
-pub enum ObjectPropertyExpression {
-    ObjectProperty(ObjectProperty),
-    InverseObjectProperty(ObjectProperty),
-}
-}
-
-wrapped! {
-    pub enum Literal {
-        Simple {
-            literal: String,
-        },
-        Language {
-            literal: String,
-            lang: String,
-        },
-        Datatype {
-            literal: String,
-            datatype_iri: IRI,
-        },
-    }
-}
-
-wrapped! {
-    pub enum DataRange {
-        Datatype(Datatype),
-        DataIntersectionOf(VecWrap<DataRange>),
-        DataUnionOf(VecWrap<DataRange>),
-        DataComplementOf(BoxWrap<DataRange>),
-        DataOneOf(VecWrap<Literal>),
-        DatatypeRestriction(Datatype, VecWrap<FacetRestriction>),
-    }
-}
-
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-#[pyclass(module="pyhornedowl.model")]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[pyclass(module = "pyhornedowl.model")]
 pub enum Facet {
     Length = 1,
     MinLength = 2,
@@ -470,49 +708,26 @@ pub enum Facet {
     LangRange = 11,
 }
 
-// impl<'source> pyo3::FromPyObject<'source> for Facet {
-//     fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
-//         let py_str = ob.str()?;
-//         let s: &str = py_str.extract()?;
-
-//         match s {
-//             "Length" => Ok(Facet::Length),
-//             "MinLength" => Ok(Facet::MinLength),
-//             "MaxLength" => Ok(Facet::MaxLength),
-//             "Pattern" => Ok(Facet::Pattern),
-//             "MinInclusive" => Ok(Facet::MinInclusive),
-//             "MinExclusive" => Ok(Facet::MinExclusive),
-//             "MaxInclusive" => Ok(Facet::MaxInclusive),
-//             "MaxExclusive" => Ok(Facet::MaxExclusive),
-//             "TotalDigits" => Ok(Facet::TotalDigits),
-//             "FractionDigits" => Ok(Facet::FractionDigits),
-//             "LangRange" => Ok(Facet::LangRange),
-//             &_ => Err(pyo3::PyErr::new::<pyo3::exceptions::PyTypeError, _>(
-//                 format!("Invalid facet '{s}'!"),
-//             )),
-//         }
-//     }
-// }
-
-// impl pyo3::IntoPy<pyo3::PyObject> for Facet {
-//     fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
-//         let s = match self {
-//             Facet::Length => "Length",
-//             Facet::MinLength => "MinLength",
-//             Facet::MaxLength => "MaxLength",
-//             Facet::Pattern => "Pattern",
-//             Facet::MinInclusive => "MinInclusive",
-//             Facet::MinExclusive => "MinExclusive",
-//             Facet::MaxInclusive => "MaxInclusive",
-//             Facet::MaxExclusive => "MaxExclusive",
-//             Facet::TotalDigits => "TotalDigits",
-//             Facet::FractionDigits => "FractionDigits",
-//             Facet::LangRange => "LangRange",
-//         };
-
-//         s.into_py(py)
-//     }
-// }
+#[pymethods]
+impl Facet {
+    #[classmethod]
+    fn __pyi__(_: &PyType) -> String {
+        "class Facet:
+    Length: Facet
+    MinLength: Facet
+    MaxLength: Facet
+    Pattern: Facet
+    MinInclusive: Facet
+    MinExclusive: Facet
+    MaxInclusive: Facet
+    MaxExclusive: Facet
+    TotalDigits: Facet
+    FractionDigits: Facet
+    LangRange: Facet
+"
+        .to_owned()
+    }
+}
 
 impl From<Facet> for horned_owl::model::Facet {
     fn from(value: Facet) -> Self {
@@ -549,9 +764,63 @@ impl From<horned_owl::model::Facet> for Facet {
     }
 }
 
+wrapped! { pub struct Class(pub IRI) }
+wrapped! { pub struct AnonymousIndividual(pub StringWrapper) }
+wrapped! { pub struct NamedIndividual(pub IRI) }
+wrapped! { pub struct ObjectProperty(pub IRI) }
+wrapped! { pub struct Datatype(pub IRI) }
+wrapped! { pub struct DataProperty(pub IRI) }
+wrapped! { pub struct FacetRestriction {
+    pub f: Facet,
+    pub l: Literal,
+} }
+
+wrapped! {
+    transparent
+    pub enum Individual {
+        Anonymous(AnonymousIndividual),
+        Named(NamedIndividual),
+    }
+}
+
+wrapped! {
+    pub enum ObjectPropertyExpression {
+        #[transparent] ObjectProperty(ObjectProperty),
+        InverseObjectProperty(ObjectProperty),
+    }
+}
+
+wrapped! {
+    #[suffixed]
+    pub enum Literal {
+        Simple {
+            literal: String,
+        },
+        Language {
+            literal: String,
+            lang: String,
+        },
+        Datatype {
+            literal: String,
+            datatype_iri: IRI,
+        },
+    }
+}
+
+wrapped! {
+    pub enum DataRange {
+        #[transparent] Datatype(Datatype),
+        DataIntersectionOf(VecWrap<DataRange>),
+        DataUnionOf(VecWrap<DataRange>),
+        DataComplementOf(BoxWrap<DataRange>),
+        DataOneOf(VecWrap<Literal>),
+        DatatypeRestriction(Datatype, VecWrap<FacetRestriction>),
+    }
+}
+
 wrapped! {
 pub enum ClassExpression {
-    Class(Class),
+    #[transparent] Class(Class),
     ObjectIntersectionOf(VecWrap<ClassExpression>),
     ObjectUnionOf(VecWrap<ClassExpression>),
     ObjectComplementOf(BoxWrap<ClassExpression>),
@@ -929,8 +1198,20 @@ wrapped! {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-struct BTreeSetWrap<T>(BTreeSet<T>);
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct BTreeSetWrap<T>(BTreeSet<T>);
+
+impl<T> From<BTreeSet<T>> for BTreeSetWrap<T> {
+    fn from(value: BTreeSet<T>) -> Self {
+        BTreeSetWrap(value)
+    }
+}
+
+impl<T> From<BTreeSetWrap<T>> for BTreeSet<T> {
+    fn from(value: BTreeSetWrap<T>) -> Self {
+        value.0
+    }
+}
 
 impl From<BTreeSet<horned_owl::model::Annotation<ArcStr>>> for BTreeSetWrap<Annotation> {
     fn from(value: BTreeSet<horned_owl::model::Annotation<ArcStr>>) -> Self {
@@ -960,10 +1241,37 @@ impl IntoPy<pyo3::PyObject> for BTreeSetWrap<Annotation> {
 pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
     let module = PyModule::new(py, "model")?;
 
-    // To get all members to export on the documentation website for horned_ows::model execute the following javascript command 
-    // console.log(Array.from(document.querySelectorAll("a.struct")).map(x=>x.innerText).filter(x => x != "Build" && x != "OntologyId").map(x => `module.add_class::<${ x.innerText }>()?;`).join("\n"))
-
-
+    // To get all members to export on the documentation website for horned_ows::model execute the following javascript command
+    // console.log([...(await Promise.all(Array.from(document.querySelectorAll("a.enum")).filter(x => ["ClassExpression", "ObjectPropertyExpression", "Literal", "DataRange", ""].indexOf(x.innerText) >= 0).map(async a => { html = await(await fetch(a.href)).text(); doc = document.createElement("html"); doc.innerHTML=html; return Array.from(doc.querySelectorAll(".variant")).map(x => x.id.replace("variant.", "")); }))).flatMap(arr => arr.map(x => `module.add_class::<${ x }>()?;`)), ...Array.from(document.querySelectorAll("a.struct")).map(x=>x.innerText).filter(x => ["Build", "OntologyID"].indexOf(x) < 0).map(x => `module.add_class::<${ x }>()?;`)].join("\n"))
+    module.add_class::<Class>()?;
+    module.add_class::<ObjectIntersectionOf>()?;
+    module.add_class::<ObjectUnionOf>()?;
+    module.add_class::<ObjectComplementOf>()?;
+    module.add_class::<ObjectOneOf>()?;
+    module.add_class::<ObjectSomeValuesFrom>()?;
+    module.add_class::<ObjectAllValuesFrom>()?;
+    module.add_class::<ObjectHasValue>()?;
+    module.add_class::<ObjectHasSelf>()?;
+    module.add_class::<ObjectMinCardinality>()?;
+    module.add_class::<ObjectMaxCardinality>()?;
+    module.add_class::<ObjectExactCardinality>()?;
+    module.add_class::<DataSomeValuesFrom>()?;
+    module.add_class::<DataAllValuesFrom>()?;
+    module.add_class::<DataHasValue>()?;
+    module.add_class::<DataMinCardinality>()?;
+    module.add_class::<DataMaxCardinality>()?;
+    module.add_class::<DataExactCardinality>()?;
+    module.add_class::<Datatype>()?;
+    module.add_class::<DataIntersectionOf>()?;
+    module.add_class::<DataUnionOf>()?;
+    module.add_class::<DataComplementOf>()?;
+    module.add_class::<DataOneOf>()?;
+    module.add_class::<DatatypeRestriction>()?;
+    module.add_class::<SimpleLiteral>()?;
+    module.add_class::<LanguageLiteral>()?;
+    module.add_class::<DatatypeLiteral>()?;
+    module.add_class::<ObjectProperty>()?;
+    module.add_class::<InverseObjectProperty>()?;
     module.add_class::<AnnotatedAxiom>()?;
     module.add_class::<Annotation>()?;
     module.add_class::<AnnotationAssertion>()?;
@@ -1019,6 +1327,49 @@ pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
     module.add_class::<SubObjectPropertyOf>()?;
     module.add_class::<SymmetricObjectProperty>()?;
     module.add_class::<TransitiveObjectProperty>()?;
+
+    module.add_class::<Facet>()?;
+
+    // Build unions
+    #[pyfunction]
+    fn __pyi__() -> String {
+        let mut res = String::new();
+
+        write!(&mut res, "ClassExpression = {}\n", ClassExpression::pyi()).unwrap();
+        write!(
+            &mut res,
+            "ObjectPropertyExpression = {}\n",
+            ObjectPropertyExpression::pyi()
+        )
+        .unwrap();
+        write!(&mut res, "Literal = {}\n", Literal::pyi()).unwrap();
+        write!(&mut res, "DataRange = {}\n", DataRange::pyi()).unwrap();
+
+        write!(&mut res, "Individual = {}\n", Individual::pyi()).unwrap();
+        write!(
+            &mut res,
+            "PropertyExpression = {}\n",
+            PropertyExpression::pyi()
+        )
+        .unwrap();
+        write!(
+            &mut res,
+            "AnnotationSubject = {}\n",
+            AnnotationSubject::pyi()
+        )
+        .unwrap();
+        write!(&mut res, "AnnotationValue = {}\n", AnnotationValue::pyi()).unwrap();
+        write!(
+            &mut res,
+            "SubObjectPropertyExpression = {}\n",
+            SubObjectPropertyExpression::pyi()
+        )
+        .unwrap();
+        write!(&mut res, "Axiom = {}\n", Axiom::pyi()).unwrap();
+
+        res
+    }
+    module.add_function(wrap_pyfunction!(__pyi__, module)?)?;
 
     Ok(module)
 }
