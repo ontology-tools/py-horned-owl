@@ -1,5 +1,6 @@
 name: Build
 on:
+  workflow_dispatch:
   push:
     branches:
         - main
@@ -20,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        python-version: ["3.7"]
+        python-version: ["3.8"]
     steps:
       - run: echo "$BRANCH"
         env:
