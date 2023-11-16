@@ -25,8 +25,8 @@ use horned_owl::ontology::set::SetOntology;
 
 use curie::{Curie, PrefixMapping};
 
-use std::collections::{HashMap, BTreeSet};
 use std::collections::HashSet;
+use std::collections::{BTreeSet, HashMap};
 use std::default::Default;
 use std::ops::Deref;
 use std::path::Path;
@@ -110,7 +110,9 @@ impl PyIndexedOntology {
         let ax1: AnnotatedAxiom<ArcStr> = Axiom::AnnotationAssertion(AnnotationAssertion {
             subject: iri.clone().into(),
             ann: Annotation {
-                ap: self.build.annotation_property(AnnotationBuiltIn::LABEL.iri_s().clone()),
+                ap: self
+                    .build
+                    .annotation_property(AnnotationBuiltIn::LABEL.iri_s().clone()),
                 av: AnnotationValue::Literal(Literal::Simple {
                     literal: label.clone(),
                 }),
@@ -348,10 +350,14 @@ impl PyIndexedOntology {
         Ok(r)
     }
 
-    fn add_axiom(&mut self, ax: model::Axiom, annotations: Option<BTreeSet<model::Annotation>>) -> PyResult<()> {
-        let annotated_axiom = model::AnnotatedAxiom{
+    fn add_axiom(
+        &mut self,
+        ax: model::Axiom,
+        annotations: Option<BTreeSet<model::Annotation>>,
+    ) -> PyResult<()> {
+        let annotated_axiom = model::AnnotatedAxiom {
             axiom: ax,
-            ann: annotations.unwrap_or(BTreeSet::new()).into()
+            ann: annotations.unwrap_or(BTreeSet::new()).into(),
         };
         self.ontology.insert(annotated_axiom);
 
@@ -360,7 +366,12 @@ impl PyIndexedOntology {
 
     fn remove_axiom(&mut self, ax: model::Axiom) -> PyResult<()> {
         let ax: Axiom<Arc<str>> = ax.into();
-        let annotated = self.ontology.iter().find(|a| { a.axiom == ax}).ok_or(PyValueError::new_err("args"))?.to_owned();
+        let annotated = self
+            .ontology
+            .iter()
+            .find(|a| a.axiom == ax)
+            .ok_or(PyValueError::new_err("args"))?
+            .to_owned();
         self.ontology.remove(&annotated);
 
         Ok(())
@@ -437,7 +448,10 @@ impl PyIndexedOntology {
     }
 }
 
-fn open_ontology_owx(ontology: &str, b: &Build<Arc<str>>) -> Result<(SetOntology<ArcStr>, PrefixMapping), HornedError> {
+fn open_ontology_owx(
+    ontology: &str,
+    b: &Build<Arc<str>>,
+) -> Result<(SetOntology<ArcStr>, PrefixMapping), HornedError> {
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
         let mut f = BufReader::new(file);
@@ -453,7 +467,7 @@ fn open_ontology_owx(ontology: &str, b: &Build<Arc<str>>) -> Result<(SetOntology
 
 fn open_ontology_rdf(
     ontology: &str,
-    b: &Build<Arc<str>>
+    b: &Build<Arc<str>>,
 ) -> Result<
     (
         RDFOntology<ArcStr, Arc<AnnotatedAxiom<ArcStr>>>,
@@ -461,7 +475,6 @@ fn open_ontology_rdf(
     ),
     HornedError,
 > {
-
     let r = if Path::new(&ontology).exists() {
         let file = File::open(ontology).ok().unwrap();
         let mut f = BufReader::new(file);
