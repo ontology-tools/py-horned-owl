@@ -83,7 +83,7 @@ SubObjectPropertyOf = model.SubObjectPropertyOf
 SymmetricObjectProperty = model.SymmetricObjectProperty
 TransitiveObjectProperty = model.TransitiveObjectProperty
 Facet = model.Facet
-ClassExpression = ObjectIntersectionOf| ObjectUnionOf| ObjectComplementOf| ObjectOneOf| ObjectSomeValuesFrom| ObjectAllValuesFrom| ObjectHasValue| ObjectHasSelf| ObjectMinCardinality| ObjectMaxCardinality| ObjectExactCardinality| DataSomeValuesFrom| DataAllValuesFrom| DataHasValue| DataMinCardinality| DataMaxCardinality| DataExactCardinality| Class
+ClassExpression = typing.Union[ObjectIntersectionOf, ObjectUnionOf, ObjectComplementOf, ObjectOneOf, ObjectSomeValuesFrom, ObjectAllValuesFrom, ObjectHasValue, ObjectHasSelf, ObjectMinCardinality, ObjectMaxCardinality, ObjectExactCardinality, DataSomeValuesFrom, DataAllValuesFrom, DataHasValue, DataMinCardinality, DataMaxCardinality, DataExactCardinality, Class]
 
 ObjectPropertyExpression = typing.Union[InverseObjectProperty, ObjectProperty]
 
