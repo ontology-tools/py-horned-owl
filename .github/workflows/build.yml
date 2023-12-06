@@ -53,6 +53,7 @@ jobs:
           rust-toolchain: nightly
           maturin-version: latest
           command: build
+          args: --sdist
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
