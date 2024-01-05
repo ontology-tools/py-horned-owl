@@ -32,55 +32,146 @@ macro_rules! cond {
     ($x:ident, $($_:tt)+) => {
         $x
     };
-    ($x:ty, $($_:tt)+) => {
+    ($x:expr, $($_:tt)+) => {
         $x
     };
-    ($x:expr, $($_:tt)+) => {
+    ($x:ty, $($_:tt)+) => {
         $x
     };
 }
 
 macro_rules! wrapped_base {
     ($name:ident) => {
-        impl From<&horned_owl::model::$name<ArcStr>> for $name {
-            fn from(value: &horned_owl::model::$name<ArcStr>) -> Self {
-                value.into()
+        impl FromCompatible<horned_owl::model::$name<ArcStr>> for $name {
+            fn from_c(value: horned_owl::model::$name<ArcStr>) -> Self {
+                $name::from(value)
             }
         }
 
-        impl From<&$name> for horned_owl::model::$name<ArcStr> {
-            fn from(value: &$name) -> Self {
-                value.into()
+        impl FromCompatible<&horned_owl::model::$name<ArcStr>> for $name {
+            fn from_c(value: &horned_owl::model::$name<ArcStr>) -> Self {
+                $name::from(value)
+            }
+        }
+
+        impl FromCompatible<$name> for horned_owl::model::$name<ArcStr> {
+            fn from_c(value: $name) -> Self {
+                horned_owl::model::$name::<ArcStr>::from(value)
+            }
+        }
+
+        impl FromCompatible<&$name> for horned_owl::model::$name<ArcStr> {
+            fn from_c(value: &$name) -> Self {
+                horned_owl::model::$name::<ArcStr>::from(value)
+            }
+        }
+
+        impl From<horned_owl::model::$name<ArcStr>> for $name {
+            fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
+                $name::from(value.borrow())
+            }
+        }
+
+        impl From<$name> for horned_owl::model::$name<ArcStr> {
+            fn from(value: $name) -> Self {
+                horned_owl::model::$name::<ArcStr>::from(value.borrow())
+            }
+        }
+
+
+        impl From<&BoxWrap<$name>> for Box<horned_owl::model::$name<ArcStr>> {
+            fn from(value: &BoxWrap<$name>) -> Self {
+                Box::new(((*value.0.clone()).into()))
+            }
+        }
+
+        impl From<&Box<horned_owl::model::$name<ArcStr>>> for BoxWrap<$name> {
+            fn from(value: &Box<horned_owl::model::$name<ArcStr>>) -> Self {
+                BoxWrap(Box::new(Into::<$name>::into(*value.clone())))
             }
         }
 
         impl From<BoxWrap<$name>> for Box<horned_owl::model::$name<ArcStr>> {
             fn from(value: BoxWrap<$name>) -> Self {
-                Box::new((*value.0).into())
+                Into::<Box<horned_owl::model::$name<ArcStr>>>::into(value.borrow())
             }
         }
 
         impl From<Box<horned_owl::model::$name<ArcStr>>> for BoxWrap<$name> {
             fn from(value: Box<horned_owl::model::$name<ArcStr>>) -> Self {
-                BoxWrap(Box::new((*value).into()))
+                Into::<BoxWrap<$name>>::into(value.borrow())
             }
         }
 
         impl From<VecWrap<$name>> for Vec<horned_owl::model::$name<ArcStr>> {
             fn from(value: VecWrap<$name>) -> Self {
-                value
-                    .0
-                    .into_iter()
-                    .map(horned_owl::model::$name::<ArcStr>::from)
-                    .collect()
+                Into::<Vec<horned_owl::model::$name<ArcStr>>>::into(value.borrow())
             }
         }
 
         impl From<Vec<horned_owl::model::$name<ArcStr>>> for VecWrap<$name> {
             fn from(value: Vec<horned_owl::model::$name<ArcStr>>) -> Self {
+                Into::<VecWrap<$name>>::into(value.borrow())
+            }
+        }
+
+        impl From<&VecWrap<$name>> for Vec<horned_owl::model::$name<ArcStr>> {
+            fn from(value: &VecWrap<$name>) -> Self {
+                value
+                    .0
+                    .iter()
+                    .map(horned_owl::model::$name::<ArcStr>::from)
+                    .collect()
+            }
+        }
+        impl From<&Vec<horned_owl::model::$name<ArcStr>>> for VecWrap<$name> {
+            fn from(value: &Vec<horned_owl::model::$name<ArcStr>>) -> Self {
                 VecWrap(value.into_iter().map($name::from).collect())
             }
         }
+
+
+        impl FromCompatible<&BoxWrap<$name>> for Box<horned_owl::model::$name<ArcStr>> {
+            fn from_c(value: &BoxWrap<$name>) -> Self {
+                Box::<horned_owl::model::$name<ArcStr>>::from(value)
+            }
+        }
+        impl FromCompatible<&Box<horned_owl::model::$name<ArcStr>>> for BoxWrap<$name> {
+            fn from_c(value: &Box<horned_owl::model::$name<ArcStr>>) -> Self {
+                 BoxWrap::<$name>::from(value)
+            }
+        }
+        impl FromCompatible<BoxWrap<$name>> for Box<horned_owl::model::$name<ArcStr>> {
+            fn from_c(value: BoxWrap<$name>) -> Self {
+                 Box::<horned_owl::model::$name<ArcStr>>::from(value)
+            }
+        }
+        impl FromCompatible<Box<horned_owl::model::$name<ArcStr>>> for BoxWrap<$name> {
+            fn from_c(value: Box<horned_owl::model::$name<ArcStr>>) -> Self {
+                 BoxWrap::<$name>::from(value)
+            }
+        }
+        impl FromCompatible<VecWrap<$name>> for Vec<horned_owl::model::$name<ArcStr>> {
+            fn from_c(value: VecWrap<$name>) -> Self {
+                 Vec::<horned_owl::model::$name<ArcStr>>::from(value)
+            }
+        }
+        impl FromCompatible<Vec<horned_owl::model::$name<ArcStr>>> for VecWrap<$name> {
+            fn from_c(value: Vec<horned_owl::model::$name<ArcStr>>) -> Self {
+                 VecWrap::<$name>::from(value)
+            }
+        }
+        impl FromCompatible<&VecWrap<$name>> for Vec<horned_owl::model::$name<ArcStr>> {
+            fn from_c(value: &VecWrap<$name>) -> Self {
+                 Vec::<horned_owl::model::$name<ArcStr>>::from(value)
+            }
+        }
+        impl FromCompatible<&Vec<horned_owl::model::$name<ArcStr>>> for VecWrap<$name> {
+            fn from_c(value: &Vec<horned_owl::model::$name<ArcStr>>) -> Self {
+                 VecWrap::<$name>::from(value)
+            }
+        }
+
     };
 }
 
@@ -233,8 +324,8 @@ macro_rules! wrapped_enum {
                 }
             )?)*
 
-            impl From<horned_owl::model::$name<ArcStr>> for $name {
-                fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
+            impl From<&horned_owl::model::$name<ArcStr>> for $name {
+                fn from(value: &horned_owl::model::$name<ArcStr>) -> Self {
                     match value {
                         $($(
                             horned_owl::model::$name::$v_name_transparent::<ArcStr>(f0) => $name(
@@ -243,14 +334,14 @@ macro_rules! wrapped_enum {
                         $($($(
                             horned_owl::model::$name::$v_name::<ArcStr>(f0 $(, cond!(f1, $field_t1))?) => $name(
                                 [<$name _ Inner>]::$v_name([<$v_name_full>](
-                                f0.into() $(, cond!(f1.into(), $field_t1))?
+                                (f0).into() $(, Into::<$field_t1>::into(f1))?
                             ))),
                         )?)?)*
                         $($($(
                             horned_owl::model::$name::$v_name::<ArcStr>{
                                 $($field_s, )*
                             } => $name([<$name _ Inner>]::$v_name([<$v_name_full>]{
-                                $($field_s: $field_s.into(),)*
+                                $($field_s: IntoCompatible::<$type_s>::into_c($field_s),)*
                             })),
                         )?)?)*
                     }
@@ -273,22 +364,23 @@ macro_rules! wrapped_enum {
                 }
             }
 
-            impl From<$name> for horned_owl::model::$name<ArcStr> {
-                fn from(value: $name) -> Self {
-                    match value.0 {
+            impl From<&$name> for horned_owl::model::$name<ArcStr> {
+                fn from(value: &$name) -> Self {
+                    match value.0.borrow() {
                         $($(
                             [<$name _ Inner>]::$v_name_transparent(f0) => horned_owl::model::$name::<ArcStr>::$v_name_transparent(f0.into()),
                         )?
 
                         $($(
-                            [<$name _ Inner>]::$v_name([<$v_name_full>](f0 $(, cond!(f1, $field_t1))?)) => horned_owl::model::$name::<ArcStr>::$v_name(f0.into() $(, cond!(f1.into(), $field_t1))?),
+                            [<$name _ Inner>]::$v_name([<$v_name_full>](f0 $(, cond!(f1, $field_t1))?)) =>
+                                horned_owl::model::$name::<ArcStr>::$v_name(f0.into() $(, cond!(f1.into(), $field_t1))?),
                         )?)?
 
                         $($(
                             [<$name _ Inner>]::$v_name([<$v_name_full>]{
                                 $($field_s, )*
                             }) => horned_owl::model::$name::<ArcStr>::$v_name{
-                                $($field_s: $field_s.into(),)*
+                                $($field_s: $field_s.into_c(),)*
                             },
                         )?)?)*
                     }
@@ -387,21 +479,19 @@ macro_rules! wrapped {
                 }
             }
 
-            impl From<horned_owl::model::$name<ArcStr>> for $name {
-                fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
-
+            impl From<&horned_owl::model::$name<ArcStr>> for $name {
+                fn from(value: &horned_owl::model::$name<ArcStr>) -> Self {
                     $name {
-                        $($field: value.$field.into()),*
+                        $($field: IntoCompatible::<$type>::into_c(value.$field.borrow()),)*
                     }
                 }
             }
 
 
-            impl From<$name> for horned_owl::model::$name<ArcStr> {
-                fn from(value: $name) -> Self {
-
+            impl From<&$name> for horned_owl::model::$name<ArcStr> {
+                fn from(value: &$name) -> Self {
                     horned_owl::model::$name::<ArcStr> {
-                        $($field: value.$field.into(),)*
+                        $($field: value.$field.borrow().into_c(),)*
                     }
                 }
             }
@@ -454,21 +544,21 @@ macro_rules! wrapped {
             }
         }
 
-        impl From<horned_owl::model::$name<ArcStr>> for $name {
-            fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
+        impl From<&horned_owl::model::$name<ArcStr>> for $name {
+            fn from(value: &horned_owl::model::$name<ArcStr>) -> Self {
 
                 $name (
-                    value.0.into(),
-                    $(cond! (value.1.into(), $type1))?
+                    IntoCompatible::<$type0>::into_c(&value.0),
+                    $(IntoCompatible::<$type1>::into_c(&value.1))?
                 )
             }
         }
 
-        impl From<$name> for horned_owl::model::$name<ArcStr> {
-            fn from(value: $name) -> Self {
+        impl From<&$name> for horned_owl::model::$name<ArcStr> {
+            fn from(value: &$name) -> Self {
                 horned_owl::model::$name::<ArcStr> (
-                    value.0.into(),
-                    $(cond! (value.1.into(), $type1))?
+                    IntoCompatible::into_c(&value.0),
+                    $(cond! (IntoCompatible::into_c(&value.1), $type1))?
                 )
             }
         }
@@ -518,17 +608,17 @@ macro_rules! wrapped {
             }
         }
 
-        impl From<$name> for horned_owl::model::$name<ArcStr> {
-            fn from(value: $name) -> Self {
+        impl From<&$name> for horned_owl::model::$name<ArcStr> {
+            fn from(value: &$name) -> Self {
                 match value {
                     $($name::$v_name(inner) => horned_owl::model::$name::$v_name(inner.into()),)*
                 }
             }
         }
 
-        impl From<horned_owl::model::$name<ArcStr>> for $name {
+        impl From<&horned_owl::model::$name<ArcStr>> for $name {
 
-            fn from(value: horned_owl::model::$name<ArcStr>) -> Self {
+            fn from(value: &horned_owl::model::$name<ArcStr>) -> Self {
                 match value {
                     $(horned_owl::model::$name::$v_name(inner) => $name::$v_name(inner.into()),)*
                 }
@@ -578,6 +668,119 @@ macro_rules! wrapped {
                 }
             }
         }
+    }
+}
+
+trait FromCompatible<T> {
+    fn from_c(value: T) -> Self;
+}
+
+trait IntoCompatible<T> {
+    fn into_c(self) -> T;
+}
+
+impl<T, U> IntoCompatible<U> for T
+where
+    U: FromCompatible<T>,
+{
+    fn into_c(self) -> U {
+        U::from_c(self)
+    }
+}
+
+impl FromCompatible<&Arc<str>> for StringWrapper {
+    fn from_c(value: &Arc<str>) -> Self {
+        StringWrapper::from(value)
+    }
+}
+
+impl FromCompatible<&StringWrapper> for Arc<str> {
+    fn from_c(value: &StringWrapper) -> Self {
+        Arc::<str>::from(value)
+    }
+}
+
+impl FromCompatible<&String> for String {
+    fn from_c(value: &String) -> Self {
+        String::from(value)
+    }
+}
+
+impl FromCompatible<&horned_owl::model::IRI<Arc<str>>> for IRI {
+    fn from_c(value: &horned_owl::model::IRI<Arc<str>>) -> Self {
+        IRI::from(value)
+    }
+}
+
+impl FromCompatible<&IRI> for horned_owl::model::IRI<Arc<str>> {
+    fn from_c(value: &IRI) -> Self {
+        horned_owl::model::IRI::<Arc<str>>::from(value)
+    }
+}
+
+impl FromCompatible<horned_owl::model::IRI<Arc<str>>> for IRI {
+    fn from_c(value: horned_owl::model::IRI<Arc<str>>) -> Self {
+        IRI::from(value.borrow())
+    }
+}
+
+impl FromCompatible<IRI> for horned_owl::model::IRI<Arc<str>> {
+    fn from_c(value: IRI) -> Self {
+        horned_owl::model::IRI::<Arc<str>>::from(value.borrow())
+    }
+}
+
+impl FromCompatible<&horned_owl::model::Facet> for Facet {
+    fn from_c(value: &horned_owl::model::Facet) -> Self {
+        Facet::from(value)
+    }
+}
+
+impl FromCompatible<Facet> for horned_owl::model::Facet {
+    fn from_c(value: Facet) -> Self {
+        From::from(value.borrow())
+    }
+}
+
+impl FromCompatible<&Facet> for horned_owl::model::Facet {
+    fn from_c(value: &Facet) -> Self {
+        horned_owl::model::Facet::from(value)
+    }
+}
+
+impl FromCompatible<horned_owl::model::Facet> for Facet {
+    fn from_c(value: horned_owl::model::Facet) -> Self {
+        Facet::from(value.borrow())
+    }
+}
+
+impl FromCompatible<&u32> for u32 {
+    fn from_c(value: &u32) -> Self {
+        value.clone()
+    }
+}
+
+impl FromCompatible<&BTreeSet<horned_owl::model::Annotation<Arc<str>>>> for BTreeSetWrap<Annotation> {
+    fn from_c(value: &BTreeSet<horned_owl::model::Annotation<Arc<str>>>) -> Self {
+        BTreeSetWrap::<Annotation>::from(value)
+    }
+}
+
+impl FromCompatible<&BTreeSetWrap<Annotation>> for BTreeSet<horned_owl::model::Annotation<Arc<str>>> {
+    fn from_c(value: &BTreeSetWrap<Annotation>) -> Self {
+        BTreeSet::<horned_owl::model::Annotation<Arc<str>>>::from(value)
+    }
+}
+
+impl FromCompatible<BTreeSet<horned_owl::model::Annotation<Arc<str>>>> for BTreeSetWrap<Annotation> {
+    fn from_c(value: BTreeSet<horned_owl::model::Annotation<Arc<str>>>) -> Self {
+        FromCompatible::from_c(value.borrow())
+    }
+}
+
+impl FromCompatible<BTreeSetWrap<Annotation>> for BTreeSet<horned_owl::model::Annotation<Arc<str>>> {
+    fn from_c(value: BTreeSetWrap<Annotation>) -> Self {
+        FromCompatible::from_c(value.borrow())
     }
 }
 
@@ -643,6 +846,18 @@ impl From<horned_owl::model::IRI<ArcStr>> for IRI {
     }
 }
 
+impl From<&IRI> for horned_owl::model::IRI<ArcStr> {
+    fn from(value: &IRI) -> Self {
+        value.0.clone()
+    }
+}
+
+impl From<&horned_owl::model::IRI<ArcStr>> for IRI {
+    fn from(value: &horned_owl::model::IRI<ArcStr>) -> Self {
+        IRI(value.clone())
+    }
+}
+
 #[pymethods]
 impl IRI {
     pub fn __repr__(&self) -> String {
@@ -668,15 +883,15 @@ impl IRI {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct StringWrapper(String);
 
-impl From<Arc<str>> for StringWrapper {
-    fn from(value: Arc<str>) -> Self {
+impl From<&Arc<str>> for StringWrapper {
+    fn from(value: &Arc<str>) -> Self {
         StringWrapper(value.to_string())
     }
 }
 
-impl From<StringWrapper> for Arc<str> {
-    fn from(value: StringWrapper) -> Self {
-        Arc::<str>::from(value.0)
+impl From<&StringWrapper> for Arc<str> {
+    fn from(value: &StringWrapper) -> Self {
+        Arc::<str>::from(value.0.clone())
     }
 }
 
@@ -729,8 +944,8 @@ impl Facet {
     }
 }
 
-impl From<Facet> for horned_owl::model::Facet {
-    fn from(value: Facet) -> Self {
+impl From<&Facet> for horned_owl::model::Facet {
+    fn from(value: &Facet) -> Self {
         match value {
             Facet::Length => horned_owl::model::Facet::Length,
             Facet::MinLength => horned_owl::model::Facet::MinLength,
@@ -746,8 +961,8 @@ impl From<Facet> for horned_owl::model::Facet {
         }
     }
 }
-impl From<horned_owl::model::Facet> for Facet {
-    fn from(value: horned_owl::model::Facet) -> Self {
+impl From<&horned_owl::model::Facet> for Facet {
+    fn from(value: &horned_owl::model::Facet) -> Self {
         match value {
             horned_owl::model::Facet::Length => Facet::Length,
             horned_owl::model::Facet::MinLength => Facet::MinLength,
@@ -761,6 +976,17 @@ impl From<horned_owl::model::Facet> for Facet {
             horned_owl::model::Facet::FractionDigits => Facet::FractionDigits,
             horned_owl::model::Facet::LangRange => Facet::LangRange,
         }
+    }
+}
+
+impl From<Facet> for horned_owl::model::Facet {
+    fn from(value: Facet) -> Self {
+        value.borrow().into()
+    }
+}
+impl From<horned_owl::model::Facet> for Facet {
+    fn from(value: horned_owl::model::Facet) -> Self {
+        value.borrow().into()
     }
 }
 
@@ -1213,15 +1439,15 @@ impl<T> From<BTreeSetWrap<T>> for BTreeSet<T> {
     }
 }
 
-impl From<BTreeSet<horned_owl::model::Annotation<ArcStr>>> for BTreeSetWrap<Annotation> {
-    fn from(value: BTreeSet<horned_owl::model::Annotation<ArcStr>>) -> Self {
-        BTreeSetWrap(value.into_iter().map(From::from).collect())
+impl From<&BTreeSet<horned_owl::model::Annotation<ArcStr>>> for BTreeSetWrap<Annotation> {
+    fn from(value: &BTreeSet<horned_owl::model::Annotation<ArcStr>>) -> Self {
+        BTreeSetWrap(value.iter().map(From::from).collect())
     }
 }
 
-impl From<BTreeSetWrap<Annotation>> for BTreeSet<horned_owl::model::Annotation<ArcStr>> {
-    fn from(value: BTreeSetWrap<Annotation>) -> Self {
-        value.0.into_iter().map(From::from).collect()
+impl From<&BTreeSetWrap<Annotation>> for BTreeSet<horned_owl::model::Annotation<ArcStr>> {
+    fn from(value: &BTreeSetWrap<Annotation>) -> Self {
+        value.0.iter().map(From::from).collect()
     }
 }
 

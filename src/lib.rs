@@ -332,8 +332,8 @@ impl PyIndexedOntology {
         let axioms = self
             .ontology
             .axiom_for_iri(&iri)
-            .map(|a| a.into())
-            .map(|a: model::AnnotatedAxiom| a.into_py(py))
+            .map(|a| model::AnnotatedAxiom::from(a))
+            .map(|a: model::AnnotatedAxiom| a.into_py(py) )
             .collect();
 
         Ok(axioms)
@@ -355,9 +355,10 @@ impl PyIndexedOntology {
         ax: model::Axiom,
         annotations: Option<BTreeSet<model::Annotation>>,
     ) -> PyResult<()> {
+        let ann: model::BTreeSetWrap<model::Annotation> = annotations.unwrap_or(BTreeSet::new()).into();
         let annotated_axiom = model::AnnotatedAxiom {
             axiom: ax,
-            ann: annotations.unwrap_or(BTreeSet::new()).into(),
+            ann,
         };
         self.ontology.insert(annotated_axiom);
 
