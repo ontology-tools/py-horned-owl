@@ -1,6 +1,6 @@
 import json
 
-with open("model.json") as f:
+with open("hornedowldoc/model.json") as f:
     data = json.load(f)
 
 docs = dict([(x['name'], x['docs']) for x in data["index"].values() if 

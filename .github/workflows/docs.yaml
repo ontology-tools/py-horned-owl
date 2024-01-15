@@ -29,7 +29,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: doc
-          path: model.json
+          path: hornedowldoc
       - name: "Get docs"
         run: >
           python3 build_doc.py
