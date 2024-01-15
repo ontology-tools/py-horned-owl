@@ -45,8 +45,8 @@ jobs:
           pip install -U sphinx sphinx_rtd_theme
           pip install dist/*.whl
       - name: "Build docs"
+        working-directory: docs
         run: |
-          cd docs
           make html
       - uses: actions/upload-artifact@v3
         with:
