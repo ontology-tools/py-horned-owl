@@ -2,30 +2,57 @@ use std::{borrow::Borrow, collections::BTreeSet, sync::Arc};
 
 use horned_owl::model::ArcStr;
 
-use pyo3::{exceptions::PyKeyError, prelude::*, types::PyType, PyObject};
+use pyo3::{exceptions::PyKeyError, prelude::*, types::{PyType, IntoPyDict}, PyObject};
 
 use paste::paste;
 use regex::Regex;
 
 use std::fmt::Write;
 
-fn to_py_type<T>() -> String {
+fn to_py_type_str(n: &str, m: String) -> String {
     let crate_regex = Regex::new(r"(?m)(?:\w+::)*(\w+)").unwrap();
     let box_regex = Regex::new(r"BoxWrap<(.*)>").unwrap();
+    let list_regex = Regex::new(r"VecWrap<(.*)>").unwrap();
+    let set_regex = Regex::new(r"BTreeSetWrap<(.*)>").unwrap();
 
-    let mut name: String = std::any::type_name::<T>().to_string();
-    name = crate_regex.replace_all(&name, "$1").to_string();
-    name = box_regex.replace_all(&name, "$1").to_string();
-    name = name.replace("<", "[");
-    name = name.replace(">", "]");
-    name = name.replace("VecWrap", "list");
-    name = name.replace("StringWrapper", "str");
-    name = name.replace("BTreeSetWrap", "set");
-    name = name.replace("u32", "int");
-    name = name.replace("&str", "str");
-    name = name.replace("String", "str");
+    let name = crate_regex.replace_all(n, "$1").to_string();
 
-    name
+    let mut ma = box_regex.captures(&name);
+    if ma.is_some() {
+        return to_py_type_str(ma.unwrap()[1].borrow(), m);
+    }
+
+    ma = list_regex.captures(&name);
+    if ma.is_some() {
+        let inner = to_py_type_str(ma.unwrap()[1].borrow(), m);
+        return format!("typing.List[{}]", inner);
+    }
+
+    ma = set_regex.captures(&name);
+    if ma.is_some() {
+        let inner = to_py_type_str(ma.unwrap()[1].borrow(), m);
+        return format!("typing.Set[{}]", inner);
+    }
+
+    if name == "StringWrapper" || name == "&str" || name == "String" {
+        return "str".to_string();
+    }
+
+    if name == "u32" {
+        return "int".to_string();
+    }
+
+    if name == "u32" {
+        return "int".to_string();
+    }
+
+    return format!("{}{}", m, name);
+}
+
+fn to_py_type<T>(m: String) -> String {
+    let name = std::any::type_name::<T>();
+
+    return to_py_type_str(name, m);
 }
 
 macro_rules! cond {
@@ -78,7 +105,6 @@ macro_rules! wrapped_base {
             }
         }
 
-
         impl From<&BoxWrap<$name>> for Box<horned_owl::model::$name<ArcStr>> {
             fn from(value: &BoxWrap<$name>) -> Self {
                 Box::new(((*value.0.clone()).into()))
@@ -130,7 +156,6 @@ macro_rules! wrapped_base {
             }
         }
 
-
         impl FromCompatible<&BoxWrap<$name>> for Box<horned_owl::model::$name<ArcStr>> {
             fn from_c(value: &BoxWrap<$name>) -> Self {
                 Box::<horned_owl::model::$name<ArcStr>>::from(value)
@@ -138,40 +163,39 @@ macro_rules! wrapped_base {
         }
         impl FromCompatible<&Box<horned_owl::model::$name<ArcStr>>> for BoxWrap<$name> {
             fn from_c(value: &Box<horned_owl::model::$name<ArcStr>>) -> Self {
-                 BoxWrap::<$name>::from(value)
+                BoxWrap::<$name>::from(value)
             }
         }
         impl FromCompatible<BoxWrap<$name>> for Box<horned_owl::model::$name<ArcStr>> {
             fn from_c(value: BoxWrap<$name>) -> Self {
-                 Box::<horned_owl::model::$name<ArcStr>>::from(value)
+                Box::<horned_owl::model::$name<ArcStr>>::from(value)
             }
         }
         impl FromCompatible<Box<horned_owl::model::$name<ArcStr>>> for BoxWrap<$name> {
             fn from_c(value: Box<horned_owl::model::$name<ArcStr>>) -> Self {
-                 BoxWrap::<$name>::from(value)
+                BoxWrap::<$name>::from(value)
             }
         }
         impl FromCompatible<VecWrap<$name>> for Vec<horned_owl::model::$name<ArcStr>> {
             fn from_c(value: VecWrap<$name>) -> Self {
-                 Vec::<horned_owl::model::$name<ArcStr>>::from(value)
+                Vec::<horned_owl::model::$name<ArcStr>>::from(value)
             }
         }
         impl FromCompatible<Vec<horned_owl::model::$name<ArcStr>>> for VecWrap<$name> {
             fn from_c(value: Vec<horned_owl::model::$name<ArcStr>>) -> Self {
-                 VecWrap::<$name>::from(value)
+                VecWrap::<$name>::from(value)
             }
         }
         impl FromCompatible<&VecWrap<$name>> for Vec<horned_owl::model::$name<ArcStr>> {
             fn from_c(value: &VecWrap<$name>) -> Self {
-                 Vec::<horned_owl::model::$name<ArcStr>>::from(value)
+                Vec::<horned_owl::model::$name<ArcStr>>::from(value)
             }
         }
         impl FromCompatible<&Vec<horned_owl::model::$name<ArcStr>>> for VecWrap<$name> {
             fn from_c(value: &Vec<horned_owl::model::$name<ArcStr>>) -> Self {
-                 VecWrap::<$name>::from(value)
+                VecWrap::<$name>::from(value)
             }
         }
-
     };
 }
 
@@ -200,27 +224,29 @@ macro_rules! wrapped_enum {
 
             impl ToPyi for $name {
                 #[allow(unused_assignments)]
-                fn pyi() -> String {
+                fn pyi(module: Option<String>) -> String {
                     let mut res = String::new();
                     let mut first = true;
+
+                    let m = module.map(|c| format!("{}.", c)).unwrap_or_default();
 
                     write!(&mut res, "typing.Union[").unwrap();
                     $($(
 
                         if (first) {
                             first = false;
-                            write!(&mut res, "{}", stringify!($v_name_full)).unwrap();
+                            write!(&mut res, "{}{}", m, stringify!($v_name_full)).unwrap();
                         } else {
-                            write!(&mut res, ", {}", stringify!($v_name_full)).unwrap();
+                            write!(&mut res, ", {}{}", m, stringify!($v_name_full)).unwrap();
                         }
                     )*)?
 
                     $($(
                         if (first) {
                             first = false;
-                            write!(&mut res, "{}", stringify!($v_name_transparent)).unwrap();
+                            write!(&mut res, "{}{}", m, stringify!($v_name_transparent)).unwrap();
                         } else {
-                            write!(&mut res, ", {}", stringify!($v_name_transparent)).unwrap();
+                            write!(&mut res, ", {}{}", m, stringify!($v_name_transparent)).unwrap();
                         }
                     )*)?
                     write!(&mut res, "]\n").unwrap();
@@ -230,6 +256,18 @@ macro_rules! wrapped_enum {
             }
 
             $($(
+                #[doc = concat!(
+                    stringify!($v_name_full),
+                    "(",
+
+                    $("first: ",
+                    stringify!($field_t0),
+                    $(concat!(", second: ", stringify!($field_t1)),)?)?
+
+                    $($(concat!(stringify!($field_s), ": ", stringify!($type_s), ", ")),*,)?
+
+                    ")",
+                    "\n\n",doc!($v_name_full))]
                 #[allow(non_camel_case_types)]
                 #[pyclass(module="pyhornedowl.model")]
                 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -299,22 +337,22 @@ macro_rules! wrapped_enum {
 
                         write!(&mut res, "class {}:\n", stringify!($v_name_full)).unwrap();
                         $($(
-                            write!(&mut res, "    {}: {}\n", stringify!($field_s), to_py_type::<$type_s>()).unwrap();
+                            write!(&mut res, "    {}: {}\n", stringify!($field_s), to_py_type::<$type_s>(String::new())).unwrap();
                         )*)?
                         $(
-                            write!(&mut res, "    first: {}\n", to_py_type::<$field_t0>()).unwrap();
+                            write!(&mut res, "    first: {}\n", to_py_type::<$field_t0>(String::new())).unwrap();
                         )?
                         $($(
-                            write!(&mut res, "    second: {}\n", to_py_type::<$field_t1>()).unwrap();
+                            write!(&mut res, "    second: {}\n", to_py_type::<$field_t1>(String::new())).unwrap();
                         )?)?
 
                         write!(&mut res, "    def __init__(self").unwrap();
                         $($(
-                            write!(&mut res, ", {}: {}", stringify!($field_s), to_py_type::<$type_s>()).unwrap();
+                            write!(&mut res, ", {}: {}", stringify!($field_s), to_py_type::<$type_s>(String::new())).unwrap();
                         )*)?
-                        $(write!(&mut res, ", first: {}", to_py_type::<$field_t0>()).unwrap();)?
+                        $(write!(&mut res, ", first: {}", to_py_type::<$field_t0>(String::new())).unwrap();)?
                         $($(
-                            write!(&mut res, ", second: {}", to_py_type::<$field_t1>()).unwrap();
+                            write!(&mut res, ", second: {}", to_py_type::<$field_t1>(String::new())).unwrap();
                         )?)?
                         write!(&mut res, "):\n        ...\n").unwrap();
                         write!(&mut res, "    ...\n").unwrap();
@@ -423,6 +461,15 @@ macro_rules! wrapped_enum {
 macro_rules! wrapped {
     (pub struct $name:ident { $(pub $field:ident: $type:ty,)* }) => {
         paste! {
+
+            #[doc = concat!(
+                stringify!($name),
+                "(",
+                $(concat!(stringify!($field), ": ", stringify!($type), ", ")),*,
+                ")",
+                "\n\n",
+                doc!($name)
+            )]
             #[pyclass(module="pyhornedowl.model",mapping)]
             #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
             pub struct $name {
@@ -464,13 +511,13 @@ macro_rules! wrapped {
 
                     write!(&mut res, "class {}:\n", stringify!($name)).unwrap();
                     $(
-                        write!(&mut res, "    {}: {}\n", stringify!($field), to_py_type::<$type>()).unwrap();
+                        write!(&mut res, "    {}: {}\n", stringify!($field), to_py_type::<$type>(String::new())).unwrap();
                     )*
 
 
                     write!(&mut res, "    def __init__(self").unwrap();
                     $(
-                        write!(&mut res, ", {}: {}", stringify!($field), to_py_type::<$type>()).unwrap();
+                        write!(&mut res, ", {}: {}", stringify!($field), to_py_type::<$type>(String::new())).unwrap();
                     )*
                     write!(&mut res, "):\n        ...\n").unwrap();
                     write!(&mut res, "    ...\n").unwrap();
@@ -501,6 +548,16 @@ macro_rules! wrapped {
 
     };
     (pub struct $name:ident ( pub $type0:ty $(, pub $type1:ty)?)) => { paste! {
+
+        #[doc = concat!(
+            stringify!($name),
+            "(first: ",
+            stringify!($type0),
+            $(concat!("second: ", stringify!($type1)),)?
+            ")",
+            "\n\n",
+            doc!($name)
+        )]
         #[pyclass(module="pyhornedowl.model")]
         #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
         pub struct $name (
@@ -527,15 +584,15 @@ macro_rules! wrapped {
                 let mut res = String::new();
 
                 write!(&mut res, "class {}:\n", stringify!($name)).unwrap();
-                write!(&mut res, "    first: {}\n", to_py_type::<$type0>()).unwrap();
+                write!(&mut res, "    first: {}\n", to_py_type::<$type0>(String::new())).unwrap();
                 $(
-                    write!(&mut res, "    second: {}\n", to_py_type::<$type1>()).unwrap();
+                    write!(&mut res, "    second: {}\n", to_py_type::<$type1>(String::new())).unwrap();
                 )?
 
                 write!(&mut res, "    def __init__(self").unwrap();
-                write!(&mut res, ", first: {}", to_py_type::<$type0>()).unwrap();
+                write!(&mut res, ", first: {}", to_py_type::<$type0>(String::new())).unwrap();
                 $(
-                    write!(&mut res, ", second: {}", to_py_type::<$type1>()).unwrap();
+                    write!(&mut res, ", second: {}", to_py_type::<$type1>(String::new())).unwrap();
                 )?
                 write!(&mut res, "):\n        ...\n").unwrap();
                 write!(&mut res, "    ...\n").unwrap();
@@ -579,18 +636,20 @@ macro_rules! wrapped {
 
         impl ToPyi for $name {
             #[allow(unused_assignments)]
-            fn pyi() -> String {
+            fn pyi(module: Option<String>) -> String {
                 let mut res = String::new();
                 let mut first = true;
+
+                let m = module.map(|c| format!("{}.", c)).unwrap_or_default();
 
                 write!(&mut res, "typing.Union[").unwrap();
                 $(
 
                     if (first) {
                         first = false;
-                        write!(&mut res, "{}", to_py_type::<$field>()).unwrap();
+                        write!(&mut res, "{}", to_py_type::<$field>(m.clone())).unwrap();
                     } else {
-                        write!(&mut res, ", {}", to_py_type::<$field>()).unwrap();
+                        write!(&mut res, ", {}", to_py_type::<$field>(m.clone())).unwrap();
                     }
                 )*
 
@@ -626,14 +685,6 @@ macro_rules! wrapped {
         }
 
         wrapped_base! {$name}
-    };
-    ($(#[suffix=$suffix:ident])? pub enum $name:ident {
-        $(
-            $($v_name:ident $(( $field_t0:ty$(, $field_t1:ty)? ))?$({ $($field_s:ident : $type_s:ty,)+ })?)?
-            ,
-        )*
-    }) => {
-
     };
     (pub enum $name:ident {
         $(
@@ -760,32 +811,40 @@ impl FromCompatible<&u32> for u32 {
     }
 }
 
-impl FromCompatible<&BTreeSet<horned_owl::model::Annotation<Arc<str>>>> for BTreeSetWrap<Annotation> {
+impl FromCompatible<&BTreeSet<horned_owl::model::Annotation<Arc<str>>>>
+    for BTreeSetWrap<Annotation>
+{
     fn from_c(value: &BTreeSet<horned_owl::model::Annotation<Arc<str>>>) -> Self {
         BTreeSetWrap::<Annotation>::from(value)
     }
 }
 
-impl FromCompatible<&BTreeSetWrap<Annotation>> for BTreeSet<horned_owl::model::Annotation<Arc<str>>> {
+impl FromCompatible<&BTreeSetWrap<Annotation>>
+    for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
+{
     fn from_c(value: &BTreeSetWrap<Annotation>) -> Self {
         BTreeSet::<horned_owl::model::Annotation<Arc<str>>>::from(value)
     }
 }
 
-impl FromCompatible<BTreeSet<horned_owl::model::Annotation<Arc<str>>>> for BTreeSetWrap<Annotation> {
+impl FromCompatible<BTreeSet<horned_owl::model::Annotation<Arc<str>>>>
+    for BTreeSetWrap<Annotation>
+{
     fn from_c(value: BTreeSet<horned_owl::model::Annotation<Arc<str>>>) -> Self {
         FromCompatible::from_c(value.borrow())
     }
 }
 
-impl FromCompatible<BTreeSetWrap<Annotation>> for BTreeSet<horned_owl::model::Annotation<Arc<str>>> {
+impl FromCompatible<BTreeSetWrap<Annotation>>
+    for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
+{
     fn from_c(value: BTreeSetWrap<Annotation>) -> Self {
         FromCompatible::from_c(value.borrow())
     }
 }
 
 trait ToPyi {
-    fn pyi() -> String;
+    fn pyi(module: Option<String>) -> String;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -907,6 +966,8 @@ impl<'source> FromPyObject<'source> for StringWrapper {
     }
 }
 
+
+#[doc = doc!(Facet)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[pyclass(module = "pyhornedowl.model")]
 pub enum Facet {
@@ -1464,6 +1525,25 @@ impl IntoPy<pyo3::PyObject> for BTreeSetWrap<Annotation> {
     }
 }
 
+macro_rules! add_type_alias {
+    ($py:ident, $module:ident, $($name:ident),*) => {
+        {
+            let locals = [("typing", $py.import("typing")?), ("m", $module)].into_py_dict($py);
+
+            let mut code: String;
+            let mut ta: &PyAny;
+
+            $(
+                code = $name::pyi(Some("m".to_string()));
+                ta = $py.eval(&code, None, Some(&locals))?;
+                locals.set_item(stringify!($name), ta)?;
+                ta.setattr("__doc__",  doc!($name))?;
+                $module.add(stringify!($name), ta)?;
+            )*
+        }
+    };
+}
+
 pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
     let module = PyModule::new(py, "model")?;
 
@@ -1556,46 +1636,18 @@ pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
 
     module.add_class::<Facet>()?;
 
-    // Build unions
-    #[pyfunction]
-    fn __pyi__() -> String {
-        let mut res = String::new();
-
-        write!(&mut res, "ClassExpression = {}\n", ClassExpression::pyi()).unwrap();
-        write!(
-            &mut res,
-            "ObjectPropertyExpression = {}\n",
-            ObjectPropertyExpression::pyi()
-        )
-        .unwrap();
-        write!(&mut res, "Literal = {}\n", Literal::pyi()).unwrap();
-        write!(&mut res, "DataRange = {}\n", DataRange::pyi()).unwrap();
-
-        write!(&mut res, "Individual = {}\n", Individual::pyi()).unwrap();
-        write!(
-            &mut res,
-            "PropertyExpression = {}\n",
-            PropertyExpression::pyi()
-        )
-        .unwrap();
-        write!(
-            &mut res,
-            "AnnotationSubject = {}\n",
-            AnnotationSubject::pyi()
-        )
-        .unwrap();
-        write!(&mut res, "AnnotationValue = {}\n", AnnotationValue::pyi()).unwrap();
-        write!(
-            &mut res,
-            "SubObjectPropertyExpression = {}\n",
-            SubObjectPropertyExpression::pyi()
-        )
-        .unwrap();
-        write!(&mut res, "Axiom = {}\n", Axiom::pyi()).unwrap();
-
-        res
-    }
-    module.add_function(wrap_pyfunction!(__pyi__, module)?)?;
-
+    add_type_alias!(py, module,
+        ClassExpression,
+        ObjectPropertyExpression,
+        SubObjectPropertyExpression,
+        Literal,
+        DataRange,
+        Individual,
+        PropertyExpression,
+        AnnotationSubject,
+        AnnotationValue,
+        Axiom
+    );
+    
     Ok(module)
 }

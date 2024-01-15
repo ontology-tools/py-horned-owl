@@ -3,6 +3,9 @@ from typing import Optional
 from .model import IRI, AnnotatedAxiom, Axiom, Annotation
 
 class PyIndexedOntology:
+    """
+    An ontology indexed by python iri objects
+    """
     def get_id_for_iri(self, iri: IRI) -> Optional[str]: ...
     def get_iri_for_id(self, id: str) -> Optional[str]: ...
     def add_prefix_mapping(self, iriprefix: str, mappedid: str) -> None: ...
@@ -25,5 +28,11 @@ class PyIndexedOntology:
 
 
 def open_ontology(path: str) -> PyIndexedOntology: ...
+"""
+Opens an ontology.
+
+This is a test.
+"""
+
 def get_descendants(onto: PyIndexedOntology, parent: str) -> set[str]: ...
 def get_ancestors(onto: PyIndexedOntology, child: str) -> set[str]: ...
