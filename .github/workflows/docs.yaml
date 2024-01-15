@@ -1,6 +1,9 @@
 on:
     push:
       branches: [main, docs] # branch to trigger deployment
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   horned-owl-doc:
     runs-on: ubuntu-latest
@@ -46,8 +49,7 @@ jobs:
           pip install dist/*.whl
       - name: "Build docs"
         working-directory: docs
-        run: |
-          make html
+        run: sphinx-build source build
       - uses: actions/upload-artifact@v3
         with:
           name: docs
