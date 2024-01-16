@@ -56,7 +56,7 @@ jobs:
         with:
           if-no-files-found: error
           name: docs
-          path: docs/build/html
+          path: docs/build
 
   # Deploy job
   deploy:
