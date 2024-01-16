@@ -50,8 +50,11 @@ jobs:
       - name: "Build docs"
         working-directory: docs
         run: sphinx-build -b html source build
+      - name: "Debug"
+        run: "ls -la"
       - uses: actions/upload-artifact@v3
         with:
+          if-no-files-found: error
           name: docs
           path: docs/build/html
 
