@@ -12,7 +12,7 @@ To use py-horned-owl, first install it using pip:
 
 
 Work with ontologies
-----------------
+--------------------
 
 .. code-block:: python
    

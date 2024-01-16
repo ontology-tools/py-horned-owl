@@ -30,6 +30,12 @@ autodoc_default_options = {
 }
 autodoc_typehints = "both"
 
+autosummary_generate = True
+
+autodoc_type_aliases = {
+    'ClassExpression ': 'pyhornedowl.module.ClassExpression',
+}
+
 extensions = [
     'sphinx.ext.autodoc',
    'sphinx.ext.autosummary',

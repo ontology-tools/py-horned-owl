@@ -23,10 +23,17 @@ def process_signature(app, what, name, obj, options, signature: str, return_anno
     return (signature, return_annotation)
 
 def process_docstring(app, what, name, obj, options, lines: List[str]):
-    md_link = re.compile(r'\[([^][]+)\]\(((?:[^()]+)+)\)')
+    text = "\n".join(lines)
+    md_code = re.compile(r"(`[^`]+`)")
+    md_internal_link = re.compile(r"\[([^][]+)\]\(struct\.([^()]+)\.html\)")
+    md_link = re.compile(r'\[([^][]+)\]\(([^()]+)\)')
 
-    for i, line in enumerate(lines):
-        lines[i] = re.sub(md_link, r"`\1 <\2>`_", line)
+    text = re.sub(md_code, r":code:\1", text)
+    text = re.sub(md_internal_link, r":py:class:`~pyhornedowl.model.\2`", text)
+    text = re.sub(md_link, r"`\1 <\2>`_", text)
+
+    lines.clear()
+    lines += text.splitlines()
             
 
 def setup(app):

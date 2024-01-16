@@ -4,76 +4,80 @@
 {% set aliases = members | select("in", defined_aliases) %}
 
 
-
-.. automodule:: {{ fullname }}
+.. py:currentmodule:: {{ fullname }}
+.. currentmodule:: {{ fullname }}
   
-   {% block attributes %}
-   {% if attributes %}
-   .. rubric:: Module Attributes
+{% block attributes %}
+{% if attributes %}
+.. rubric:: Module Attributes
 
-   .. autosummary::
-      :toctree:
-   {% for item in attributes %}
-      {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+.. autosummary::
+   :toctree:
+   :nosignatures:
+{% for item in attributes %}
+   {{ item }}
+{%- endfor %}
+{% endif %}
+{% endblock %}
 
-   {% block functions %}
-   {% if functions %}
-   .. rubric:: {{ _('Functions') }}
+{% block functions %}
+{% if functions %}
+.. rubric:: {{ _('Functions') }}
 
-   .. autosummary::
-      :toctree:
-   {% for item in functions %}
-      {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+.. autosummary::
+   :toctree:
+   :nosignatures:
+{% for item in functions %}
+   {{ item }}
+{%- endfor %}
+{% endif %}
+{% endblock %}
 
-   {% block classes %}
-   {% if classes %}
-   .. rubric:: {{ _('Classes') }}
+{% block classes %}
+{% if classes %}
+.. rubric:: {{ _('Classes') }}
 
-   .. autosummary::
-      :toctree:
-   {% for item in classes %}
-      {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+.. autosummary::
+   :toctree:
+   :nosignatures:
+{% for item in classes %}
+   {{ item }}
+{%- endfor %}
+{% endif %}
+{% endblock %}
 
-   {% block exceptions %}
-   {% if exceptions %}
-   .. rubric:: {{ _('Exceptions') }}
+{% block exceptions %}
+{% if exceptions %}
+.. rubric:: {{ _('Exceptions') }}
 
-   .. autosummary::
-      :toctree:
-   {% for item in exceptions %}
-      {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+.. autosummary::
+   :toctree:
+   :nosignatures:
+{% for item in exceptions %}
+   {{ item }}
+{%- endfor %}
+{% endif %}
+{% endblock %}
 
 {% block aliases %}
 .. rubric:: Module aliases
 
-   {% for item in aliases %}
-   {%- if not item.startswith("_") %}
+{% for item in aliases %}
+{%- if not item.startswith("_") %}
 .. autodata:: {{ item }}
-   {%- endif -%}
-   {% endfor %}
-   {% endblock %}
+{%- endif -%}
+{% endfor %}
+{% endblock %}
 
 {% block modules %}
 {% if modules %}
 .. rubric:: Modules
 
 .. autosummary::
-   :toctree:
-   :recursive:
+:toctree:
+:recursive:
 {% for item in modules %}
-   {{ item }}
+{{ item }}
 {%- endfor %}
 {% endif %}
 {% endblock %}
