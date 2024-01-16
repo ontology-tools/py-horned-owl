@@ -8,14 +8,14 @@ class Class:
     ...
 
 class ObjectIntersectionOf:
-    first: list[ClassExpression]
-    def __init__(self, first: list[ClassExpression]):
+    first: typing.List[ClassExpression]
+    def __init__(self, first: typing.List[ClassExpression]):
         ...
     ...
 
 class ObjectUnionOf:
-    first: list[ClassExpression]
-    def __init__(self, first: list[ClassExpression]):
+    first: typing.List[ClassExpression]
+    def __init__(self, first: typing.List[ClassExpression]):
         ...
     ...
 
@@ -26,8 +26,8 @@ class ObjectComplementOf:
     ...
 
 class ObjectOneOf:
-    first: list[Individual]
-    def __init__(self, first: list[Individual]):
+    first: typing.List[Individual]
+    def __init__(self, first: typing.List[Individual]):
         ...
     ...
 
@@ -134,14 +134,14 @@ class Datatype:
     ...
 
 class DataIntersectionOf:
-    first: list[DataRange]
-    def __init__(self, first: list[DataRange]):
+    first: typing.List[DataRange]
+    def __init__(self, first: typing.List[DataRange]):
         ...
     ...
 
 class DataUnionOf:
-    first: list[DataRange]
-    def __init__(self, first: list[DataRange]):
+    first: typing.List[DataRange]
+    def __init__(self, first: typing.List[DataRange]):
         ...
     ...
 
@@ -152,15 +152,15 @@ class DataComplementOf:
     ...
 
 class DataOneOf:
-    first: list[Literal]
-    def __init__(self, first: list[Literal]):
+    first: typing.List[Literal]
+    def __init__(self, first: typing.List[Literal]):
         ...
     ...
 
 class DatatypeRestriction:
     first: Datatype
-    second: list[FacetRestriction]
-    def __init__(self, first: Datatype, second: list[FacetRestriction]):
+    second: typing.List[FacetRestriction]
+    def __init__(self, first: Datatype, second: typing.List[FacetRestriction]):
         ...
     ...
 
@@ -198,8 +198,8 @@ class InverseObjectProperty:
 
 class AnnotatedAxiom:
     axiom: Axiom
-    ann: set[Annotation]
-    def __init__(self, axiom: Axiom, ann: set[Annotation]):
+    ann: typing.Set[Annotation]
+    def __init__(self, axiom: Axiom, ann: typing.Set[Annotation]):
         ...
     ...
 
@@ -264,9 +264,9 @@ class DataProperty:
 
 class DataPropertyAssertion:
     dp: DataProperty
-    "from": Individual
+    from: Individual
     to: Literal
-    def __init__(self, dp: DataProperty, from_: Individual, to: Literal):
+    def __init__(self, dp: DataProperty,  to: Literal):
         ...
     ...
 
@@ -328,51 +328,51 @@ class DeclareObjectProperty:
     ...
 
 class DifferentIndividuals:
-    first: list[Individual]
-    def __init__(self, first: list[Individual]):
+    first: typing.List[Individual]
+    def __init__(self, first: typing.List[Individual]):
         ...
     ...
 
 class DisjointClasses:
-    first: list[ClassExpression]
-    def __init__(self, first: list[ClassExpression]):
+    first: typing.List[ClassExpression]
+    def __init__(self, first: typing.List[ClassExpression]):
         ...
     ...
 
 class DisjointDataProperties:
-    first: list[DataProperty]
-    def __init__(self, first: list[DataProperty]):
+    first: typing.List[DataProperty]
+    def __init__(self, first: typing.List[DataProperty]):
         ...
     ...
 
 class DisjointObjectProperties:
-    first: list[ObjectPropertyExpression]
-    def __init__(self, first: list[ObjectPropertyExpression]):
+    first: typing.List[ObjectPropertyExpression]
+    def __init__(self, first: typing.List[ObjectPropertyExpression]):
         ...
     ...
 
 class DisjointUnion:
     first: Class
-    second: list[ClassExpression]
-    def __init__(self, first: Class, second: list[ClassExpression]):
+    second: typing.List[ClassExpression]
+    def __init__(self, first: Class, second: typing.List[ClassExpression]):
         ...
     ...
 
 class EquivalentClasses:
-    first: list[ClassExpression]
-    def __init__(self, first: list[ClassExpression]):
+    first: typing.List[ClassExpression]
+    def __init__(self, first: typing.List[ClassExpression]):
         ...
     ...
 
 class EquivalentDataProperties:
-    first: list[DataProperty]
-    def __init__(self, first: list[DataProperty]):
+    first: typing.List[DataProperty]
+    def __init__(self, first: typing.List[DataProperty]):
         ...
     ...
 
 class EquivalentObjectProperties:
-    first: list[ObjectPropertyExpression]
-    def __init__(self, first: list[ObjectPropertyExpression]):
+    first: typing.List[ObjectPropertyExpression]
+    def __init__(self, first: typing.List[ObjectPropertyExpression]):
         ...
     ...
 
@@ -397,15 +397,13 @@ class FunctionalObjectProperty:
 
 class HasKey:
     ce: ClassExpression
-    vpe: list[PropertyExpression]
-    def __init__(self, ce: ClassExpression, vpe: list[PropertyExpression]):
+    vpe: typing.List[PropertyExpression]
+    def __init__(self, ce: ClassExpression, vpe: typing.List[PropertyExpression]):
         ...
     ...
 
 class IRI:
     parse: Any
-    def __init__(self, parse):
-        ...
     ...
 
 class Import:
@@ -441,25 +439,25 @@ class NamedIndividual:
 
 class NegativeDataPropertyAssertion:
     dp: DataProperty
-    # from: Individual
+    from: Individual
     to: Literal
-    def __init__(self, dp: DataProperty, from_: Individual, to: Literal):
+    def __init__(self, dp: DataProperty,  to: Literal):
         ...
     ...
 
 class NegativeObjectPropertyAssertion:
     ope: ObjectPropertyExpression
-    "from": Individual
+    from: Individual
     to: Individual
-    def __init__(self, ope: ObjectPropertyExpression, from_: Individual, to: Individual):
+    def __init__(self, ope: ObjectPropertyExpression,  to: Individual):
         ...
     ...
 
 class ObjectPropertyAssertion:
     ope: ObjectPropertyExpression
-    "from": Individual
+    from: Individual
     to: Individual
-    def __init__(self, ope: ObjectPropertyExpression, from_: Individual, to: Individual):
+    def __init__(self, ope: ObjectPropertyExpression,  to: Individual):
         ...
     ...
 
@@ -490,8 +488,8 @@ class ReflexiveObjectProperty:
     ...
 
 class SameIndividual:
-    first: list[Individual]
-    def __init__(self, first: list[Individual]):
+    first: typing.List[Individual]
+    def __init__(self, first: typing.List[Individual]):
         ...
     ...
 
@@ -549,23 +547,13 @@ class Facet:
     LangRange: Facet
 
 ClassExpression = typing.Union[ObjectIntersectionOf, ObjectUnionOf, ObjectComplementOf, ObjectOneOf, ObjectSomeValuesFrom, ObjectAllValuesFrom, ObjectHasValue, ObjectHasSelf, ObjectMinCardinality, ObjectMaxCardinality, ObjectExactCardinality, DataSomeValuesFrom, DataAllValuesFrom, DataHasValue, DataMinCardinality, DataMaxCardinality, DataExactCardinality, Class]
-
 ObjectPropertyExpression = typing.Union[InverseObjectProperty, ObjectProperty]
-
+SubObjectPropertyExpression = typing.Union[typing.List[typing.Union[InverseObjectProperty, ObjectProperty]], InverseObjectProperty, ObjectProperty]
 Literal = typing.Union[SimpleLiteral, LanguageLiteral, DatatypeLiteral]
-
 DataRange = typing.Union[DataIntersectionOf, DataUnionOf, DataComplementOf, DataOneOf, DatatypeRestriction, Datatype]
-
 Individual = typing.Union[AnonymousIndividual, NamedIndividual]
-
-PropertyExpression = typing.Union[ObjectPropertyExpression, DataProperty, AnnotationProperty]
-
+PropertyExpression = typing.Union[InverseObjectProperty, ObjectProperty, DataProperty, AnnotationProperty]
 AnnotationSubject = typing.Union[IRI, AnonymousIndividual]
-
-AnnotationValue = typing.Union[Literal, IRI]
-
-SubObjectPropertyExpression = typing.Union[list[ObjectPropertyExpression], ObjectPropertyExpression]
-
+AnnotationValue = typing.Union[SimpleLiteral, LanguageLiteral, DatatypeLiteral, IRI]
 Axiom = typing.Union[OntologyAnnotation, Import, DeclareClass, DeclareObjectProperty, DeclareAnnotationProperty, DeclareDataProperty, DeclareNamedIndividual, DeclareDatatype, SubClassOf, EquivalentClasses, DisjointClasses, DisjointUnion, SubObjectPropertyOf, EquivalentObjectProperties, DisjointObjectProperties, InverseObjectProperties, ObjectPropertyDomain, ObjectPropertyRange, FunctionalObjectProperty, InverseFunctionalObjectProperty, ReflexiveObjectProperty, IrreflexiveObjectProperty, SymmetricObjectProperty, AsymmetricObjectProperty, TransitiveObjectProperty, SubDataPropertyOf, EquivalentDataProperties, DisjointDataProperties, DataPropertyDomain, DataPropertyRange, FunctionalDataProperty, DatatypeDefinition, HasKey, SameIndividual, DifferentIndividuals, ClassAssertion, ObjectPropertyAssertion, NegativeObjectPropertyAssertion, DataPropertyAssertion, NegativeDataPropertyAssertion, AnnotationAssertion, SubAnnotationPropertyOf, AnnotationPropertyDomain, AnnotationPropertyRange]
-
 

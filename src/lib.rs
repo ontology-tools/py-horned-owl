@@ -214,7 +214,7 @@ impl PyIndexedOntology {
         }
     }
 
-    /// get_subclasses(iri: str) -> Set[str]
+    /// get_subclasses(self, iri: str) -> Set[str]
     /// 
     /// Gets all subclasses of an entity.
     fn get_subclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
@@ -229,7 +229,7 @@ impl PyIndexedOntology {
         }
     }
 
-    /// get_superclasses(iri: str) -> Set[str]
+    /// get_superclasses(self, iri: str) -> Set[str]
     /// 
     /// Gets all superclasses of an entity.
     fn get_superclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
@@ -437,7 +437,7 @@ impl PyIndexedOntology {
         Ok(())
     }
 
-    /// remove_axiom(Self, ax: model.Axiom) -> None
+    /// remove_axiom(self, ax: model.Axiom) -> None
     /// 
     /// Removes an axiom from the ontology.
     fn remove_axiom(&mut self, ax: model::Axiom) -> PyResult<()> {
@@ -642,6 +642,9 @@ fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
     result
 }
 
+/// get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]
+/// 
+/// Gets all direct and indirect subclasses of an class.
 #[pyfunction]
 fn get_descendants(onto: &PyIndexedOntology, parent: &PyString) -> PyResult<HashSet<String>> {
     let mut descendants = HashSet::new();
@@ -668,6 +671,9 @@ fn recurse_descendants(
     }
 }
 
+/// get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]
+/// 
+/// Gets all direct and indirect super classes of a class.
 #[pyfunction]
 fn get_ancestors(onto: &PyIndexedOntology, child: &PyString) -> PyResult<HashSet<String>> {
     let mut ancestors = HashSet::new();
