@@ -1,6 +1,6 @@
 on:
     push:
-      branches: [main, docs] # branch to trigger deployment
+      branches: [main] # branch to trigger deployment
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
