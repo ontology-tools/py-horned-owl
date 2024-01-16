@@ -51,7 +51,7 @@ jobs:
         working-directory: docs
         run: sphinx-build -b html source build
       - name: "Debug"
-        run: "ls -la"
+        run: "find ."
       - uses: actions/upload-artifact@v3
         with:
           if-no-files-found: error
