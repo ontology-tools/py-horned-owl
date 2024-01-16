@@ -50,8 +50,6 @@ jobs:
       - name: "Build docs"
         working-directory: docs
         run: sphinx-build -b html source build
-      - name: "Debug"
-        run: "find ."
       - uses: actions/upload-artifact@v3
         with:
           if-no-files-found: error
@@ -68,6 +66,11 @@ jobs:
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment originates from an appropriate source
 
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
     # Specify runner + deployment step
     runs-on: ubuntu-latest
     steps:
