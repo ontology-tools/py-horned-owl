@@ -83,25 +83,15 @@ SubObjectPropertyOf = model.SubObjectPropertyOf
 SymmetricObjectProperty = model.SymmetricObjectProperty
 TransitiveObjectProperty = model.TransitiveObjectProperty
 Facet = model.Facet
-ClassExpression = typing.Union[ObjectIntersectionOf, ObjectUnionOf, ObjectComplementOf, ObjectOneOf, ObjectSomeValuesFrom, ObjectAllValuesFrom, ObjectHasValue, ObjectHasSelf, ObjectMinCardinality, ObjectMaxCardinality, ObjectExactCardinality, DataSomeValuesFrom, DataAllValuesFrom, DataHasValue, DataMinCardinality, DataMaxCardinality, DataExactCardinality, Class]
+ClassExpression = model.ClassExpression
+ObjectPropertyExpression = model.ObjectPropertyExpression
+SubObjectPropertyExpression = model.SubObjectPropertyExpression
+Literal = model.Literal
+DataRange = model.DataRange
+Individual = model.Individual
+PropertyExpression = model.PropertyExpression
+AnnotationSubject = model.AnnotationSubject
+AnnotationValue = model.AnnotationValue
+Axiom = model.Axiom
 
-ObjectPropertyExpression = typing.Union[InverseObjectProperty, ObjectProperty]
-
-Literal = typing.Union[SimpleLiteral, LanguageLiteral, DatatypeLiteral]
-
-DataRange = typing.Union[DataIntersectionOf, DataUnionOf, DataComplementOf, DataOneOf, DatatypeRestriction, Datatype]
-
-Individual = typing.Union[AnonymousIndividual, NamedIndividual]
-
-PropertyExpression = typing.Union[ObjectPropertyExpression, DataProperty, AnnotationProperty]
-
-AnnotationSubject = typing.Union[IRI, AnonymousIndividual]
-
-AnnotationValue = typing.Union[Literal, IRI]
-
-SubObjectPropertyExpression = typing.Union[list[ObjectPropertyExpression], ObjectPropertyExpression]
-
-Axiom = typing.Union[OntologyAnnotation, Import, DeclareClass, DeclareObjectProperty, DeclareAnnotationProperty, DeclareDataProperty, DeclareNamedIndividual, DeclareDatatype, SubClassOf, EquivalentClasses, DisjointClasses, DisjointUnion, SubObjectPropertyOf, EquivalentObjectProperties, DisjointObjectProperties, InverseObjectProperties, ObjectPropertyDomain, ObjectPropertyRange, FunctionalObjectProperty, InverseFunctionalObjectProperty, ReflexiveObjectProperty, IrreflexiveObjectProperty, SymmetricObjectProperty, AsymmetricObjectProperty, TransitiveObjectProperty, SubDataPropertyOf, EquivalentDataProperties, DisjointDataProperties, DataPropertyDomain, DataPropertyRange, FunctionalDataProperty, DatatypeDefinition, HasKey, SameIndividual, DifferentIndividuals, ClassAssertion, ObjectPropertyAssertion, NegativeObjectPropertyAssertion, DataPropertyAssertion, NegativeDataPropertyAssertion, AnnotationAssertion, SubAnnotationPropertyOf, AnnotationPropertyDomain, AnnotationPropertyRange]
-
-
-__all__ = ['Class', 'ObjectIntersectionOf', 'ObjectUnionOf', 'ObjectComplementOf', 'ObjectOneOf', 'ObjectSomeValuesFrom', 'ObjectAllValuesFrom', 'ObjectHasValue', 'ObjectHasSelf', 'ObjectMinCardinality', 'ObjectMaxCardinality', 'ObjectExactCardinality', 'DataSomeValuesFrom', 'DataAllValuesFrom', 'DataHasValue', 'DataMinCardinality', 'DataMaxCardinality', 'DataExactCardinality', 'Datatype', 'DataIntersectionOf', 'DataUnionOf', 'DataComplementOf', 'DataOneOf', 'DatatypeRestriction', 'SimpleLiteral', 'LanguageLiteral', 'DatatypeLiteral', 'ObjectProperty', 'InverseObjectProperty', 'AnnotatedAxiom', 'Annotation', 'AnnotationAssertion', 'AnnotationProperty', 'AnnotationPropertyDomain', 'AnnotationPropertyRange', 'AnonymousIndividual', 'AsymmetricObjectProperty', 'ClassAssertion', 'DataProperty', 'DataPropertyAssertion', 'DataPropertyDomain', 'DataPropertyRange', 'DatatypeDefinition', 'DeclareAnnotationProperty', 'DeclareClass', 'DeclareDataProperty', 'DeclareDatatype', 'DeclareNamedIndividual', 'DeclareObjectProperty', 'DifferentIndividuals', 'DisjointClasses', 'DisjointDataProperties', 'DisjointObjectProperties', 'DisjointUnion', 'EquivalentClasses', 'EquivalentDataProperties', 'EquivalentObjectProperties', 'FacetRestriction', 'FunctionalDataProperty', 'FunctionalObjectProperty', 'HasKey', 'IRI', 'Import', 'InverseFunctionalObjectProperty', 'InverseObjectProperties', 'IrreflexiveObjectProperty', 'NamedIndividual', 'NegativeDataPropertyAssertion', 'NegativeObjectPropertyAssertion', 'ObjectPropertyAssertion', 'ObjectPropertyDomain', 'ObjectPropertyRange', 'OntologyAnnotation', 'ReflexiveObjectProperty', 'SameIndividual', 'SubAnnotationPropertyOf', 'SubClassOf', 'SubDataPropertyOf', 'SubObjectPropertyOf', 'SymmetricObjectProperty', 'TransitiveObjectProperty', 'Facet', 'ClassExpression', 'ObjectPropertyExpression', 'Literal', 'DataRange', 'Individual', 'PropertyExpression', 'AnnotationSubject', 'AnnotationValue', 'SubObjectPropertyExpression', 'Axiom']
+__all__ = ['Class', 'ObjectIntersectionOf', 'ObjectUnionOf', 'ObjectComplementOf', 'ObjectOneOf', 'ObjectSomeValuesFrom', 'ObjectAllValuesFrom', 'ObjectHasValue', 'ObjectHasSelf', 'ObjectMinCardinality', 'ObjectMaxCardinality', 'ObjectExactCardinality', 'DataSomeValuesFrom', 'DataAllValuesFrom', 'DataHasValue', 'DataMinCardinality', 'DataMaxCardinality', 'DataExactCardinality', 'Datatype', 'DataIntersectionOf', 'DataUnionOf', 'DataComplementOf', 'DataOneOf', 'DatatypeRestriction', 'SimpleLiteral', 'LanguageLiteral', 'DatatypeLiteral', 'ObjectProperty', 'InverseObjectProperty', 'AnnotatedAxiom', 'Annotation', 'AnnotationAssertion', 'AnnotationProperty', 'AnnotationPropertyDomain', 'AnnotationPropertyRange', 'AnonymousIndividual', 'AsymmetricObjectProperty', 'ClassAssertion', 'DataProperty', 'DataPropertyAssertion', 'DataPropertyDomain', 'DataPropertyRange', 'DatatypeDefinition', 'DeclareAnnotationProperty', 'DeclareClass', 'DeclareDataProperty', 'DeclareDatatype', 'DeclareNamedIndividual', 'DeclareObjectProperty', 'DifferentIndividuals', 'DisjointClasses', 'DisjointDataProperties', 'DisjointObjectProperties', 'DisjointUnion', 'EquivalentClasses', 'EquivalentDataProperties', 'EquivalentObjectProperties', 'FacetRestriction', 'FunctionalDataProperty', 'FunctionalObjectProperty', 'HasKey', 'IRI', 'Import', 'InverseFunctionalObjectProperty', 'InverseObjectProperties', 'IrreflexiveObjectProperty', 'NamedIndividual', 'NegativeDataPropertyAssertion', 'NegativeObjectPropertyAssertion', 'ObjectPropertyAssertion', 'ObjectPropertyDomain', 'ObjectPropertyRange', 'OntologyAnnotation', 'ReflexiveObjectProperty', 'SameIndividual', 'SubAnnotationPropertyOf', 'SubClassOf', 'SubDataPropertyOf', 'SubObjectPropertyOf', 'SymmetricObjectProperty', 'TransitiveObjectProperty', 'Facet', 'ClassExpression', 'ObjectPropertyExpression', 'SubObjectPropertyExpression', 'Literal', 'DataRange', 'Individual', 'PropertyExpression', 'AnnotationSubject', 'AnnotationValue', 'Axiom']
