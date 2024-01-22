@@ -48,6 +48,7 @@ for c in onto.get_classes():
 
 ```
 
+For more information please visit the [documentation](https://jannahastings.github.io/py-horned-owl/). 
 
 
 
