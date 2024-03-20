@@ -14,6 +14,7 @@ fn to_py_type_str(n: &str, m: String) -> String {
     let box_regex = Regex::new(r"BoxWrap<(.*)>").unwrap();
     let list_regex = Regex::new(r"VecWrap<(.*)>").unwrap();
     let set_regex = Regex::new(r"BTreeSetWrap<(.*)>").unwrap();
+    let option_regex = Regex::new(r"Option<(.*)>").unwrap();
 
     let name = crate_regex.replace_all(n, "$1").to_string();
 
@@ -32,6 +33,12 @@ fn to_py_type_str(n: &str, m: String) -> String {
     if ma.is_some() {
         let inner = to_py_type_str(ma.unwrap()[1].borrow(), m);
         return format!("typing.Set[{}]", inner);
+    }
+
+    ma = option_regex.captures(&name);
+    if ma.is_some() {
+        let inner = to_py_type_str(ma.unwrap()[1].borrow(), m);
+        return format!("typing.Optional[{}]", inner);
     }
 
     if name == "StringWrapper" || name == "&str" || name == "String" {
@@ -811,6 +818,17 @@ impl FromCompatible<&u32> for u32 {
     }
 }
 
+impl <'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
+where
+    U: FromCompatible<&'a T> {
+    fn from_c(value: &'a Option<T>) -> Self {
+        match value {
+            None => None,
+            Some(x) => Some(U::from_c(x))
+        }
+    }
+}
+
 impl FromCompatible<&BTreeSet<horned_owl::model::Annotation<Arc<str>>>>
     for BTreeSetWrap<Annotation>
 {
@@ -890,6 +908,33 @@ impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for BoxWrap<T> {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct StringWrapper(String);
+
+impl From<&Arc<str>> for StringWrapper {
+    fn from(value: &Arc<str>) -> Self {
+        StringWrapper(value.to_string())
+    }
+}
+
+impl From<&StringWrapper> for Arc<str> {
+    fn from(value: &StringWrapper) -> Self {
+        Arc::<str>::from(value.0.clone())
+    }
+}
+
+impl IntoPy<pyo3::PyObject> for StringWrapper {
+    fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
+        self.0.into_py(py)
+    }
+}
+
+impl<'source> FromPyObject<'source> for StringWrapper {
+    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
+        ob.extract().map(StringWrapper)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[pyclass(module = "pyhornedowl.model")]
 pub struct IRI(horned_owl::model::IRI<ArcStr>);
 
@@ -938,34 +983,6 @@ impl IRI {
         IRI(build.iri(iri))
     }
 }
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct StringWrapper(String);
-
-impl From<&Arc<str>> for StringWrapper {
-    fn from(value: &Arc<str>) -> Self {
-        StringWrapper(value.to_string())
-    }
-}
-
-impl From<&StringWrapper> for Arc<str> {
-    fn from(value: &StringWrapper) -> Self {
-        Arc::<str>::from(value.0.clone())
-    }
-}
-
-impl IntoPy<pyo3::PyObject> for StringWrapper {
-    fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
-        self.0.into_py(py)
-    }
-}
-
-impl<'source> FromPyObject<'source> for StringWrapper {
-    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
-        ob.extract().map(StringWrapper)
-    }
-}
-
 
 #[doc = doc!(Facet)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -1196,6 +1213,7 @@ wrapped! {
     pub enum AnnotationValue {
         Literal(Literal),
         IRI(IRI),
+        AnonymousIndividual(AnonymousIndividual),
     }
 }
 
@@ -1429,8 +1447,21 @@ wrapped! {
 }
 
 wrapped! {
+    pub struct DocIRI(pub IRI)
+}
+
+wrapped! {
+    pub struct OntologyID {
+        pub iri: Option<IRI>,
+        pub viri: Option<IRI>,
+    }
+}
+
+wrapped! {
     transparent
-    pub enum Axiom {
+    pub enum Component {
+        OntologyID(OntologyID),
+        DocIRI(DocIRI),
         OntologyAnnotation(OntologyAnnotation),
         Import(Import),
         DeclareClass(DeclareClass),
@@ -1479,8 +1510,8 @@ wrapped! {
 }
 
 wrapped! {
-    pub struct AnnotatedAxiom {
-        pub axiom: Axiom,
+    pub struct AnnotatedComponent {
+        pub component: Component,
         pub ann: BTreeSetWrap<Annotation>,
     }
 }
@@ -1578,7 +1609,7 @@ pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
     module.add_class::<DatatypeLiteral>()?;
     module.add_class::<ObjectProperty>()?;
     module.add_class::<InverseObjectProperty>()?;
-    module.add_class::<AnnotatedAxiom>()?;
+    module.add_class::<AnnotatedComponent>()?;
     module.add_class::<Annotation>()?;
     module.add_class::<AnnotationAssertion>()?;
     module.add_class::<AnnotationProperty>()?;
@@ -1633,6 +1664,8 @@ pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
     module.add_class::<SubObjectPropertyOf>()?;
     module.add_class::<SymmetricObjectProperty>()?;
     module.add_class::<TransitiveObjectProperty>()?;
+    module.add_class::<OntologyID>()?;
+    module.add_class::<DocIRI>()?;
 
     module.add_class::<Facet>()?;
 
@@ -1646,7 +1679,7 @@ pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
         PropertyExpression,
         AnnotationSubject,
         AnnotationValue,
-        Axiom
+        Component
     );
     
     Ok(module)

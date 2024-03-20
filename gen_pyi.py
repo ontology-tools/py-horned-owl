@@ -1,9 +1,20 @@
+import glob
 import typing
-import pyhornedowl.pyhornedowl as pho
 import os
 import re
 
+old_files = glob.glob("pyhornedowl/**/__init__.*", recursive=True)
+
+for f in old_files:
+    os.unlink(f)
+
+
+import pyhornedowl.pyhornedowl as pho
+
+
 os.makedirs("pyhornedowl/model", exist_ok=True)
+os.makedirs("pyhornedowl/reasoner", exist_ok=True)
+
 
 with open("pyhornedowl/__init__.py", "w") as f:
     pyhornedowl_members = [k for k, v in pho.__dict__.items() if isinstance(v, type) or callable(v)]
@@ -51,7 +62,7 @@ with open("pyhornedowl/__init__.pyi", "w") as f:
 
                         f.write(f"def {sign}:\n")
                         doc = "\n".join([f"    {l}" for l in lines[2:]])
-                        f.write(f'    """\n{doc}\n    """\n     ..\n\n')
+                        f.write(f'    """\n{doc}\n    """\n     ...\n\n')
 
             f.write("\n")
 
@@ -60,54 +71,52 @@ with open("pyhornedowl/py.typed", "w"):
     pass
 
 
-with open("pyhornedowl/model/__init__.py", "w") as f:
-    f.write("from ..pyhornedowl import model\n")
-    f.write("import typing\n\n")
+def handle_module(module: str):
+    with open(f"pyhornedowl/{module}/__init__.py", "w") as f:
+        f.write(f"from ..pyhornedowl import {module}\n")
+        f.write("import typing\n\n")
 
-    al = []
+        al = []
 
-    for name, entry in pho.model.__dict__.items():
-        if not isinstance(entry, type) and not type(entry) == typing._UnionGenericAlias:
-            continue
+        for name, entry in getattr(pho, module).__dict__.items():
+            if not isinstance(entry, type) and not type(entry) == typing._UnionGenericAlias:
+                continue
 
-        f.write(f"{name} = model.{name}\n")
-        al.append(name)
-
-    # module_pyi = pyhornedowl.model.__pyi__()
-
-    # al += [l.split("=")[0].strip() for l in module_pyi.split("\n") if len(l.strip()) > 0]    
-
-    # f.write(module_pyi)
-    f.write("\n")
-
-    f.write(f"__all__ = {al}")
-
-with open("pyhornedowl/model/__init__.pyi", "w") as f:
-    f.write("import typing\n")
-    f.write("from typing import *\n\n")
-
-    for name, entry in pho.model.__dict__.items():
-        if isinstance(entry, type):
-            if "__pyi__" in entry.__dict__:
-                pyi: str = entry.__pyi__()
-                pyi = re.sub(r"    from: .*$|from: .*?[,)]", "", pyi)
-                f.write(pyi)
-            else:
-                f.write(f"class {name}:\n")
-
-                for attr_name, attr in entry.__dict__.items():
-                    if attr_name.startswith("_") or attr_name == "from":
-                        continue
-
-                    f.write(f"    {attr_name}: Any\n")
-
-                f.write("    ...\n")
-        elif type(entry) == typing._UnionGenericAlias:
-            f.write(f"{name} = {str(entry).replace('pyhornedowl.model.', '')}")
-        else:
-            continue
+            f.write(f"{name} = {module}.{name}\n")
+            al.append(name)
 
         f.write("\n")
-    
-    # f.write(pyhornedowl.model.__pyi__())
-    f.write("\n")
+
+        f.write(f"__all__ = {al}")
+
+    with open(f"pyhornedowl/{module}/__init__.pyi", "w") as f:
+        f.write("import typing\n")
+        f.write("from typing import *\n\n")
+
+        for name, entry in getattr(pho, module).__dict__.items():
+            if isinstance(entry, type):
+                if "__pyi__" in entry.__dict__:
+                    pyi: str = entry.__pyi__()
+                    pyi = re.sub(r"    from: .*$|from: .*?[,)]", "", pyi)
+                    f.write(pyi)
+                else:
+                    f.write(f"class {name}:\n")
+
+                    for attr_name, attr in entry.__dict__.items():
+                        if attr_name.startswith("_") or attr_name == "from":
+                            continue
+
+                        f.write(f"    {attr_name}: Any\n")
+
+                    f.write("    ...\n")
+            elif type(entry) == typing._UnionGenericAlias:
+                f.write(f"{name} = {str(entry).replace(f'pyhornedowl.{module}.', '')}")
+            else:
+                continue
+
+            f.write("\n")
+
+        f.write("\n")
+
+handle_module("model")
+handle_module("reasoner")
