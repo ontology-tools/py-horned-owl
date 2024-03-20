@@ -103,25 +103,25 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_axioms_for_iri(self, iri: str) -> List[model.AnnotatedAxiom]:
+    def get_axioms_for_iri(self, iri: str) -> List[model.AnnotatedComponent]:
         """
         Gets all axioms for an entity.
         """
         ...
 
-    def get_axioms(self) -> List[model.AnnotatedAxioms]:
+    def get_axioms(self) -> List[model.AnnotatedComponents]:
         """
         Returns all axioms of the ontology.
         """
         ...
 
-    def add_axiom(self, ax: model.Axiom, annotations: Optional[List[model.Annotation]]) -> None:
+    def add_axiom(self, ax: model.Component, annotations: Optional[List[model.Annotation]]) -> None:
         """
         Adds an axiom to the ontology with optional annotations.
         """
         ...
 
-    def remove_axiom(self, ax: model.Axiom) -> None:
+    def remove_axiom(self, ax: model.Component) -> None:
         """
         Removes an axiom from the ontology.
         """
@@ -143,20 +143,20 @@ def open_ontology(ontology: str) -> PyIndexedOntology:
     If `ontology` is a path, the file is loaded. Otherwise, `ontology` is interepreted as an ontology in either owx or owl format.
     Note: Only .owl and .owx files are currently supported.
     """
-     ..
+     ...
 
 
 def get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]:
     """
     Gets all direct and indirect subclasses of an class.
     """
-     ..
+     ...
 
 
 def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
     """
     Gets all direct and indirect super classes of a class.
     """
-     ..
+     ...
 
 

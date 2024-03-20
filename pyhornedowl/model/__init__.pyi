@@ -196,10 +196,10 @@ class InverseObjectProperty:
         ...
     ...
 
-class AnnotatedAxiom:
-    axiom: Axiom
+class AnnotatedComponent:
+    component: Component
     ann: typing.Set[Annotation]
-    def __init__(self, axiom: Axiom, ann: typing.Set[Annotation]):
+    def __init__(self, component: Component, ann: typing.Set[Annotation]):
         ...
     ...
 
@@ -533,6 +533,108 @@ class TransitiveObjectProperty:
         ...
     ...
 
+class OntologyID:
+    iri: typing.Optional[IRI]
+    viri: typing.Optional[IRI]
+    def __init__(self, iri: typing.Optional[IRI], viri: typing.Optional[IRI]):
+        ...
+    ...
+
+class DocIRI:
+    first: IRI
+    def __init__(self, first: IRI):
+        ...
+    ...
+
+
+class Rule:
+    head: typing.List[Atom]
+    body: typing.List[Atom]
+
+    def __init__(self, head: typing.List[Atom], body: typing.List[Atom]):
+        ...
+
+    ...
+
+
+class Variable:
+    first: IRI
+
+    def __init__(self, first: IRI):
+        ...
+
+    ...
+
+
+class BuiltInAtom:
+    pred: IRI
+    args: typing.List[DArgument]
+
+    def __init__(self, pred: IRI, args: typing.List[DArgument]):
+        ...
+
+    ...
+
+
+class ClassAtom:
+    pred: ClassExpression
+    arg: IArgument
+
+    def __init__(self, pred: ClassExpression, arg: IArgument):
+        ...
+
+    ...
+
+
+class DataPropertyAtom:
+    pred: DataProperty
+    args: (DArgument, DArgument)
+
+    def __init__(self, pred: DataProperty, args: (DArgument, DArgument)):
+        ...
+
+    ...
+
+
+class DataRangeAtom:
+    pred: DataRange
+    arg: DArgument
+
+    def __init__(self, pred: DataRange, arg: DArgument):
+        ...
+
+    ...
+
+
+class DifferentIndividualsAtom:
+    first: IArgument
+    second: IArgument
+
+    def __init__(self, first: IArgument, second: IArgument):
+        ...
+
+    ...
+
+
+class ObjectPropertyAtom:
+    pred: ObjectPropertyExpression
+    args: (IArgument, IArgument)
+
+    def __init__(self, pred: ObjectPropertyExpression, args: (IArgument, IArgument)):
+        ...
+
+    ...
+
+
+class SameIndividualAtom:
+    first: IArgument
+    second: IArgument
+
+    def __init__(self, first: IArgument, second: IArgument):
+        ...
+
+    ...
+
 class Facet:
     Length: Facet
     MinLength: Facet
@@ -554,6 +656,8 @@ DataRange = typing.Union[DataIntersectionOf, DataUnionOf, DataComplementOf, Data
 Individual = typing.Union[AnonymousIndividual, NamedIndividual]
 PropertyExpression = typing.Union[InverseObjectProperty, ObjectProperty, DataProperty, AnnotationProperty]
 AnnotationSubject = typing.Union[IRI, AnonymousIndividual]
-AnnotationValue = typing.Union[SimpleLiteral, LanguageLiteral, DatatypeLiteral, IRI]
-Axiom = typing.Union[OntologyAnnotation, Import, DeclareClass, DeclareObjectProperty, DeclareAnnotationProperty, DeclareDataProperty, DeclareNamedIndividual, DeclareDatatype, SubClassOf, EquivalentClasses, DisjointClasses, DisjointUnion, SubObjectPropertyOf, EquivalentObjectProperties, DisjointObjectProperties, InverseObjectProperties, ObjectPropertyDomain, ObjectPropertyRange, FunctionalObjectProperty, InverseFunctionalObjectProperty, ReflexiveObjectProperty, IrreflexiveObjectProperty, SymmetricObjectProperty, AsymmetricObjectProperty, TransitiveObjectProperty, SubDataPropertyOf, EquivalentDataProperties, DisjointDataProperties, DataPropertyDomain, DataPropertyRange, FunctionalDataProperty, DatatypeDefinition, HasKey, SameIndividual, DifferentIndividuals, ClassAssertion, ObjectPropertyAssertion, NegativeObjectPropertyAssertion, DataPropertyAssertion, NegativeDataPropertyAssertion, AnnotationAssertion, SubAnnotationPropertyOf, AnnotationPropertyDomain, AnnotationPropertyRange]
-
+AnnotationValue = typing.Union[SimpleLiteral, LanguageLiteral, DatatypeLiteral, IRI, AnonymousIndividual]
+Component = typing.Union[
+    OntologyID, DocIRI, OntologyAnnotation, Import, DeclareClass, DeclareObjectProperty, DeclareAnnotationProperty, DeclareDataProperty, DeclareNamedIndividual, DeclareDatatype, SubClassOf, EquivalentClasses, DisjointClasses, DisjointUnion, SubObjectPropertyOf, EquivalentObjectProperties, DisjointObjectProperties, InverseObjectProperties, ObjectPropertyDomain, ObjectPropertyRange, FunctionalObjectProperty, InverseFunctionalObjectProperty, ReflexiveObjectProperty, IrreflexiveObjectProperty, SymmetricObjectProperty, AsymmetricObjectProperty, TransitiveObjectProperty, SubDataPropertyOf, EquivalentDataProperties, DisjointDataProperties, DataPropertyDomain, DataPropertyRange, FunctionalDataProperty, DatatypeDefinition, HasKey, SameIndividual, DifferentIndividuals, ClassAssertion, ObjectPropertyAssertion, NegativeObjectPropertyAssertion, DataPropertyAssertion, NegativeDataPropertyAssertion, AnnotationAssertion, SubAnnotationPropertyOf, AnnotationPropertyDomain, AnnotationPropertyRange, Rule]
+IArgument = typing.Union[AnonymousIndividual, NamedIndividual, Variable]
+DArgument = typing.Union[SimpleLiteral, LanguageLiteral, DatatypeLiteral, Variable]

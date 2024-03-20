@@ -1,5 +1,4 @@
 from ..pyhornedowl import model
-import typing
 
 Class = model.Class
 ObjectIntersectionOf = model.ObjectIntersectionOf
@@ -30,7 +29,7 @@ LanguageLiteral = model.LanguageLiteral
 DatatypeLiteral = model.DatatypeLiteral
 ObjectProperty = model.ObjectProperty
 InverseObjectProperty = model.InverseObjectProperty
-AnnotatedAxiom = model.AnnotatedAxiom
+AnnotatedComponent = model.AnnotatedComponent
 Annotation = model.Annotation
 AnnotationAssertion = model.AnnotationAssertion
 AnnotationProperty = model.AnnotationProperty
@@ -82,6 +81,17 @@ SubDataPropertyOf = model.SubDataPropertyOf
 SubObjectPropertyOf = model.SubObjectPropertyOf
 SymmetricObjectProperty = model.SymmetricObjectProperty
 TransitiveObjectProperty = model.TransitiveObjectProperty
+OntologyID = model.OntologyID
+DocIRI = model.DocIRI
+Rule = model.Rule
+Variable = model.Variable
+BuiltInAtom = model.BuiltInAtom
+ClassAtom = model.ClassAtom
+DataPropertyAtom = model.DataPropertyAtom
+DataRangeAtom = model.DataRangeAtom
+DifferentIndividualsAtom = model.DifferentIndividualsAtom
+ObjectPropertyAtom = model.ObjectPropertyAtom
+SameIndividualAtom = model.SameIndividualAtom
 Facet = model.Facet
 ClassExpression = model.ClassExpression
 ObjectPropertyExpression = model.ObjectPropertyExpression
@@ -92,6 +102,29 @@ Individual = model.Individual
 PropertyExpression = model.PropertyExpression
 AnnotationSubject = model.AnnotationSubject
 AnnotationValue = model.AnnotationValue
-Axiom = model.Axiom
+Component = model.Component
+IArgument = model.IArgument
+DArgument = model.DArgument
 
-__all__ = ['Class', 'ObjectIntersectionOf', 'ObjectUnionOf', 'ObjectComplementOf', 'ObjectOneOf', 'ObjectSomeValuesFrom', 'ObjectAllValuesFrom', 'ObjectHasValue', 'ObjectHasSelf', 'ObjectMinCardinality', 'ObjectMaxCardinality', 'ObjectExactCardinality', 'DataSomeValuesFrom', 'DataAllValuesFrom', 'DataHasValue', 'DataMinCardinality', 'DataMaxCardinality', 'DataExactCardinality', 'Datatype', 'DataIntersectionOf', 'DataUnionOf', 'DataComplementOf', 'DataOneOf', 'DatatypeRestriction', 'SimpleLiteral', 'LanguageLiteral', 'DatatypeLiteral', 'ObjectProperty', 'InverseObjectProperty', 'AnnotatedAxiom', 'Annotation', 'AnnotationAssertion', 'AnnotationProperty', 'AnnotationPropertyDomain', 'AnnotationPropertyRange', 'AnonymousIndividual', 'AsymmetricObjectProperty', 'ClassAssertion', 'DataProperty', 'DataPropertyAssertion', 'DataPropertyDomain', 'DataPropertyRange', 'DatatypeDefinition', 'DeclareAnnotationProperty', 'DeclareClass', 'DeclareDataProperty', 'DeclareDatatype', 'DeclareNamedIndividual', 'DeclareObjectProperty', 'DifferentIndividuals', 'DisjointClasses', 'DisjointDataProperties', 'DisjointObjectProperties', 'DisjointUnion', 'EquivalentClasses', 'EquivalentDataProperties', 'EquivalentObjectProperties', 'FacetRestriction', 'FunctionalDataProperty', 'FunctionalObjectProperty', 'HasKey', 'IRI', 'Import', 'InverseFunctionalObjectProperty', 'InverseObjectProperties', 'IrreflexiveObjectProperty', 'NamedIndividual', 'NegativeDataPropertyAssertion', 'NegativeObjectPropertyAssertion', 'ObjectPropertyAssertion', 'ObjectPropertyDomain', 'ObjectPropertyRange', 'OntologyAnnotation', 'ReflexiveObjectProperty', 'SameIndividual', 'SubAnnotationPropertyOf', 'SubClassOf', 'SubDataPropertyOf', 'SubObjectPropertyOf', 'SymmetricObjectProperty', 'TransitiveObjectProperty', 'Facet', 'ClassExpression', 'ObjectPropertyExpression', 'SubObjectPropertyExpression', 'Literal', 'DataRange', 'Individual', 'PropertyExpression', 'AnnotationSubject', 'AnnotationValue', 'Axiom']
+__all__ = ['Class', 'ObjectIntersectionOf', 'ObjectUnionOf', 'ObjectComplementOf', 'ObjectOneOf',
+           'ObjectSomeValuesFrom', 'ObjectAllValuesFrom', 'ObjectHasValue', 'ObjectHasSelf', 'ObjectMinCardinality',
+           'ObjectMaxCardinality', 'ObjectExactCardinality', 'DataSomeValuesFrom', 'DataAllValuesFrom', 'DataHasValue',
+           'DataMinCardinality', 'DataMaxCardinality', 'DataExactCardinality', 'Datatype', 'DataIntersectionOf',
+           'DataUnionOf', 'DataComplementOf', 'DataOneOf', 'DatatypeRestriction', 'SimpleLiteral', 'LanguageLiteral',
+           'DatatypeLiteral', 'ObjectProperty', 'InverseObjectProperty', 'AnnotatedComponent', 'Annotation',
+           'AnnotationAssertion', 'AnnotationProperty', 'AnnotationPropertyDomain', 'AnnotationPropertyRange',
+           'AnonymousIndividual', 'AsymmetricObjectProperty', 'ClassAssertion', 'DataProperty', 'DataPropertyAssertion',
+           'DataPropertyDomain', 'DataPropertyRange', 'DatatypeDefinition', 'DeclareAnnotationProperty', 'DeclareClass',
+           'DeclareDataProperty', 'DeclareDatatype', 'DeclareNamedIndividual', 'DeclareObjectProperty',
+           'DifferentIndividuals', 'DisjointClasses', 'DisjointDataProperties', 'DisjointObjectProperties',
+           'DisjointUnion', 'EquivalentClasses', 'EquivalentDataProperties', 'EquivalentObjectProperties',
+           'FacetRestriction', 'FunctionalDataProperty', 'FunctionalObjectProperty', 'HasKey', 'IRI', 'Import',
+           'InverseFunctionalObjectProperty', 'InverseObjectProperties', 'IrreflexiveObjectProperty', 'NamedIndividual',
+           'NegativeDataPropertyAssertion', 'NegativeObjectPropertyAssertion', 'ObjectPropertyAssertion',
+           'ObjectPropertyDomain', 'ObjectPropertyRange', 'OntologyAnnotation', 'ReflexiveObjectProperty',
+           'SameIndividual', 'SubAnnotationPropertyOf', 'SubClassOf', 'SubDataPropertyOf', 'SubObjectPropertyOf',
+           'SymmetricObjectProperty', 'TransitiveObjectProperty', 'OntologyID', 'DocIRI', 'Rule', 'Variable',
+           'BuiltInAtom', 'ClassAtom', 'DataPropertyAtom', 'DataRangeAtom', 'DifferentIndividualsAtom',
+           'ObjectPropertyAtom', 'SameIndividualAtom', 'Facet', 'ClassExpression', 'ObjectPropertyExpression',
+           'SubObjectPropertyExpression', 'Literal', 'DataRange', 'Individual', 'PropertyExpression',
+           'AnnotationSubject', 'AnnotationValue', 'Component', 'IArgument', 'DArgument']

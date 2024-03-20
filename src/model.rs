@@ -14,6 +14,7 @@ fn to_py_type_str(n: &str, m: String) -> String {
     let box_regex = Regex::new(r"BoxWrap<(.*)>").unwrap();
     let list_regex = Regex::new(r"VecWrap<(.*)>").unwrap();
     let set_regex = Regex::new(r"BTreeSetWrap<(.*)>").unwrap();
+    let option_regex = Regex::new(r"Option<(.*)>").unwrap();
 
     let name = crate_regex.replace_all(n, "$1").to_string();
 
@@ -32,6 +33,12 @@ fn to_py_type_str(n: &str, m: String) -> String {
     if ma.is_some() {
         let inner = to_py_type_str(ma.unwrap()[1].borrow(), m);
         return format!("typing.Set[{}]", inner);
+    }
+
+    ma = option_regex.captures(&name);
+    if ma.is_some() {
+        let inner = to_py_type_str(ma.unwrap()[1].borrow(), m);
+        return format!("typing.Optional[{}]", inner);
     }
 
     if name == "StringWrapper" || name == "&str" || name == "String" {
@@ -731,8 +738,8 @@ trait IntoCompatible<T> {
 }
 
 impl<T, U> IntoCompatible<U> for T
-where
-    U: FromCompatible<T>,
+    where
+        U: FromCompatible<T>,
 {
     fn into_c(self) -> U {
         U::from_c(self)
@@ -781,26 +788,26 @@ impl FromCompatible<IRI> for horned_owl::model::IRI<Arc<str>> {
     }
 }
 
-impl FromCompatible<&horned_owl::model::Facet> for Facet {
-    fn from_c(value: &horned_owl::model::Facet) -> Self {
+impl FromCompatible<&horned_owl::vocab::Facet> for Facet {
+    fn from_c(value: &horned_owl::vocab::Facet) -> Self {
         Facet::from(value)
     }
 }
 
-impl FromCompatible<Facet> for horned_owl::model::Facet {
+impl FromCompatible<Facet> for horned_owl::vocab::Facet {
     fn from_c(value: Facet) -> Self {
         From::from(value.borrow())
     }
 }
 
-impl FromCompatible<&Facet> for horned_owl::model::Facet {
+impl FromCompatible<&Facet> for horned_owl::vocab::Facet {
     fn from_c(value: &Facet) -> Self {
-        horned_owl::model::Facet::from(value)
+        horned_owl::vocab::Facet::from(value)
     }
 }
 
-impl FromCompatible<horned_owl::model::Facet> for Facet {
-    fn from_c(value: horned_owl::model::Facet) -> Self {
+impl FromCompatible<horned_owl::vocab::Facet> for Facet {
+    fn from_c(value: horned_owl::vocab::Facet) -> Self {
         Facet::from(value.borrow())
     }
 }
@@ -811,8 +818,43 @@ impl FromCompatible<&u32> for u32 {
     }
 }
 
+impl<'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
+    where
+        U: FromCompatible<&'a T> {
+    fn from_c(value: &'a Option<T>) -> Self {
+        match value {
+            None => None,
+            Some(x) => Some(U::from_c(x))
+        }
+    }
+}
+
+impl <U, V, S,T> FromCompatible<(S,T)> for (U,V)
+    where
+        U: FromCompatible<S>,
+        V: FromCompatible<T>
+{
+    fn from_c(value: (S, T)) -> Self {
+        match value {
+            (s,t) => (U::from_c(s), V::from_c(t))
+        }
+    }
+}
+
+impl <'a, U, V, S,T> FromCompatible<&'a (S,T)> for (U,V)
+    where
+        U: FromCompatible<&'a S>,
+        V: FromCompatible<&'a T>
+{
+    fn from_c(value: &'a (S, T)) -> Self {
+        match value {
+            (s,t) => (U::from_c(s), V::from_c(t))
+        }
+    }
+}
+
 impl FromCompatible<&BTreeSet<horned_owl::model::Annotation<Arc<str>>>>
-    for BTreeSetWrap<Annotation>
+for BTreeSetWrap<Annotation>
 {
     fn from_c(value: &BTreeSet<horned_owl::model::Annotation<Arc<str>>>) -> Self {
         BTreeSetWrap::<Annotation>::from(value)
@@ -820,7 +862,7 @@ impl FromCompatible<&BTreeSet<horned_owl::model::Annotation<Arc<str>>>>
 }
 
 impl FromCompatible<&BTreeSetWrap<Annotation>>
-    for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
+for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
 {
     fn from_c(value: &BTreeSetWrap<Annotation>) -> Self {
         BTreeSet::<horned_owl::model::Annotation<Arc<str>>>::from(value)
@@ -828,7 +870,7 @@ impl FromCompatible<&BTreeSetWrap<Annotation>>
 }
 
 impl FromCompatible<BTreeSet<horned_owl::model::Annotation<Arc<str>>>>
-    for BTreeSetWrap<Annotation>
+for BTreeSetWrap<Annotation>
 {
     fn from_c(value: BTreeSet<horned_owl::model::Annotation<Arc<str>>>) -> Self {
         FromCompatible::from_c(value.borrow())
@@ -836,7 +878,7 @@ impl FromCompatible<BTreeSet<horned_owl::model::Annotation<Arc<str>>>>
 }
 
 impl FromCompatible<BTreeSetWrap<Annotation>>
-    for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
+for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
 {
     fn from_c(value: BTreeSetWrap<Annotation>) -> Self {
         FromCompatible::from_c(value.borrow())
@@ -890,6 +932,33 @@ impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for BoxWrap<T> {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct StringWrapper(String);
+
+impl From<&Arc<str>> for StringWrapper {
+    fn from(value: &Arc<str>) -> Self {
+        StringWrapper(value.to_string())
+    }
+}
+
+impl From<&StringWrapper> for Arc<str> {
+    fn from(value: &StringWrapper) -> Self {
+        Arc::<str>::from(value.0.clone())
+    }
+}
+
+impl IntoPy<pyo3::PyObject> for StringWrapper {
+    fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
+        self.0.into_py(py)
+    }
+}
+
+impl<'source> FromPyObject<'source> for StringWrapper {
+    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
+        ob.extract().map(StringWrapper)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[pyclass(module = "pyhornedowl.model")]
 pub struct IRI(horned_owl::model::IRI<ArcStr>);
 
@@ -939,34 +1008,6 @@ impl IRI {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct StringWrapper(String);
-
-impl From<&Arc<str>> for StringWrapper {
-    fn from(value: &Arc<str>) -> Self {
-        StringWrapper(value.to_string())
-    }
-}
-
-impl From<&StringWrapper> for Arc<str> {
-    fn from(value: &StringWrapper) -> Self {
-        Arc::<str>::from(value.0.clone())
-    }
-}
-
-impl IntoPy<pyo3::PyObject> for StringWrapper {
-    fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
-        self.0.into_py(py)
-    }
-}
-
-impl<'source> FromPyObject<'source> for StringWrapper {
-    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
-        ob.extract().map(StringWrapper)
-    }
-}
-
-
 #[doc = doc!(Facet)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[pyclass(module = "pyhornedowl.model")]
@@ -1001,53 +1042,55 @@ impl Facet {
     FractionDigits: Facet
     LangRange: Facet
 "
-        .to_owned()
+            .to_owned()
     }
 }
 
-impl From<&Facet> for horned_owl::model::Facet {
+impl From<&Facet> for horned_owl::vocab::Facet {
     fn from(value: &Facet) -> Self {
         match value {
-            Facet::Length => horned_owl::model::Facet::Length,
-            Facet::MinLength => horned_owl::model::Facet::MinLength,
-            Facet::MaxLength => horned_owl::model::Facet::MaxLength,
-            Facet::Pattern => horned_owl::model::Facet::Pattern,
-            Facet::MinInclusive => horned_owl::model::Facet::MinInclusive,
-            Facet::MinExclusive => horned_owl::model::Facet::MinExclusive,
-            Facet::MaxInclusive => horned_owl::model::Facet::MaxInclusive,
-            Facet::MaxExclusive => horned_owl::model::Facet::MaxExclusive,
-            Facet::TotalDigits => horned_owl::model::Facet::TotalDigits,
-            Facet::FractionDigits => horned_owl::model::Facet::FractionDigits,
-            Facet::LangRange => horned_owl::model::Facet::LangRange,
-        }
-    }
-}
-impl From<&horned_owl::model::Facet> for Facet {
-    fn from(value: &horned_owl::model::Facet) -> Self {
-        match value {
-            horned_owl::model::Facet::Length => Facet::Length,
-            horned_owl::model::Facet::MinLength => Facet::MinLength,
-            horned_owl::model::Facet::MaxLength => Facet::MaxLength,
-            horned_owl::model::Facet::Pattern => Facet::Pattern,
-            horned_owl::model::Facet::MinInclusive => Facet::MinInclusive,
-            horned_owl::model::Facet::MinExclusive => Facet::MinExclusive,
-            horned_owl::model::Facet::MaxInclusive => Facet::MaxInclusive,
-            horned_owl::model::Facet::MaxExclusive => Facet::MaxExclusive,
-            horned_owl::model::Facet::TotalDigits => Facet::TotalDigits,
-            horned_owl::model::Facet::FractionDigits => Facet::FractionDigits,
-            horned_owl::model::Facet::LangRange => Facet::LangRange,
+            Facet::Length => horned_owl::vocab::Facet::Length,
+            Facet::MinLength => horned_owl::vocab::Facet::MinLength,
+            Facet::MaxLength => horned_owl::vocab::Facet::MaxLength,
+            Facet::Pattern => horned_owl::vocab::Facet::Pattern,
+            Facet::MinInclusive => horned_owl::vocab::Facet::MinInclusive,
+            Facet::MinExclusive => horned_owl::vocab::Facet::MinExclusive,
+            Facet::MaxInclusive => horned_owl::vocab::Facet::MaxInclusive,
+            Facet::MaxExclusive => horned_owl::vocab::Facet::MaxExclusive,
+            Facet::TotalDigits => horned_owl::vocab::Facet::TotalDigits,
+            Facet::FractionDigits => horned_owl::vocab::Facet::FractionDigits,
+            Facet::LangRange => horned_owl::vocab::Facet::LangRange,
         }
     }
 }
 
-impl From<Facet> for horned_owl::model::Facet {
+impl From<&horned_owl::vocab::Facet> for Facet {
+    fn from(value: &horned_owl::vocab::Facet) -> Self {
+        match value {
+            horned_owl::vocab::Facet::Length => Facet::Length,
+            horned_owl::vocab::Facet::MinLength => Facet::MinLength,
+            horned_owl::vocab::Facet::MaxLength => Facet::MaxLength,
+            horned_owl::vocab::Facet::Pattern => Facet::Pattern,
+            horned_owl::vocab::Facet::MinInclusive => Facet::MinInclusive,
+            horned_owl::vocab::Facet::MinExclusive => Facet::MinExclusive,
+            horned_owl::vocab::Facet::MaxInclusive => Facet::MaxInclusive,
+            horned_owl::vocab::Facet::MaxExclusive => Facet::MaxExclusive,
+            horned_owl::vocab::Facet::TotalDigits => Facet::TotalDigits,
+            horned_owl::vocab::Facet::FractionDigits => Facet::FractionDigits,
+            horned_owl::vocab::Facet::LangRange => Facet::LangRange,
+        }
+    }
+}
+
+impl From<Facet> for horned_owl::vocab::Facet {
     fn from(value: Facet) -> Self {
         value.borrow().into()
     }
 }
-impl From<horned_owl::model::Facet> for Facet {
-    fn from(value: horned_owl::model::Facet) -> Self {
-        value.borrow().into()
+
+impl From<horned_owl::vocab::Facet> for Facet {
+    fn from(value: horned_owl::vocab::Facet) -> Self {
+        (&value).into()
     }
 }
 
@@ -1196,6 +1239,7 @@ wrapped! {
     pub enum AnnotationValue {
         Literal(Literal),
         IRI(IRI),
+        AnonymousIndividual(AnonymousIndividual),
     }
 }
 
@@ -1429,8 +1473,75 @@ wrapped! {
 }
 
 wrapped! {
+    pub struct DocIRI(pub IRI)
+}
+
+wrapped! {
+    pub struct OntologyID {
+        pub iri: Option<IRI>,
+        pub viri: Option<IRI>,
+    }
+}
+
+wrapped! {
+    pub struct Variable(pub IRI)
+}
+
+wrapped! {
     transparent
-    pub enum Axiom {
+    pub enum DArgument {
+        Literal(Literal),
+        Variable(Variable),
+    }
+}
+
+wrapped! {
+    transparent
+    pub enum IArgument {
+        Individual(Individual),
+        Variable(Variable),
+    }
+}
+
+wrapped! {
+    pub enum Atom {
+        BuiltInAtom {
+            pred: IRI,
+            args: VecWrap<DArgument>,
+        },
+        ClassAtom {
+            pred: ClassExpression,
+            arg: IArgument,
+        },
+        DataPropertyAtom {
+            pred: DataProperty,
+            args: (DArgument, DArgument),
+        },
+        DataRangeAtom {
+            pred: DataRange,
+            arg: DArgument,
+        },
+        DifferentIndividualsAtom(IArgument, IArgument),
+        ObjectPropertyAtom {
+            pred: ObjectPropertyExpression,
+            args: (IArgument, IArgument),
+        },
+        SameIndividualAtom(IArgument, IArgument),
+    }
+}
+
+wrapped! {
+    pub struct Rule {
+        pub head: VecWrap<Atom>,
+        pub body: VecWrap<Atom>,
+    }
+}
+
+wrapped! {
+    transparent
+    pub enum Component {
+        OntologyID(OntologyID),
+        DocIRI(DocIRI),
         OntologyAnnotation(OntologyAnnotation),
         Import(Import),
         DeclareClass(DeclareClass),
@@ -1475,12 +1586,13 @@ wrapped! {
         SubAnnotationPropertyOf(SubAnnotationPropertyOf),
         AnnotationPropertyDomain(AnnotationPropertyDomain),
         AnnotationPropertyRange(AnnotationPropertyRange),
+        Rule(Rule),
     }
 }
 
 wrapped! {
-    pub struct AnnotatedAxiom {
-        pub axiom: Axiom,
+    pub struct AnnotatedComponent {
+        pub component: Component,
         pub ann: BTreeSetWrap<Annotation>,
     }
 }
@@ -1578,7 +1690,7 @@ pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
     module.add_class::<DatatypeLiteral>()?;
     module.add_class::<ObjectProperty>()?;
     module.add_class::<InverseObjectProperty>()?;
-    module.add_class::<AnnotatedAxiom>()?;
+    module.add_class::<AnnotatedComponent>()?;
     module.add_class::<Annotation>()?;
     module.add_class::<AnnotationAssertion>()?;
     module.add_class::<AnnotationProperty>()?;
@@ -1633,6 +1745,17 @@ pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
     module.add_class::<SubObjectPropertyOf>()?;
     module.add_class::<SymmetricObjectProperty>()?;
     module.add_class::<TransitiveObjectProperty>()?;
+    module.add_class::<OntologyID>()?;
+    module.add_class::<DocIRI>()?;
+    module.add_class::<Rule>()?;
+    module.add_class::<Variable>()?;
+    module.add_class::<BuiltInAtom>()?;
+    module.add_class::<ClassAtom>()?;
+    module.add_class::<DataPropertyAtom>()?;
+    module.add_class::<DataRangeAtom>()?;
+    module.add_class::<DifferentIndividualsAtom>()?;
+    module.add_class::<ObjectPropertyAtom>()?;
+    module.add_class::<SameIndividualAtom>()?;
 
     module.add_class::<Facet>()?;
 
@@ -1646,8 +1769,10 @@ pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
         PropertyExpression,
         AnnotationSubject,
         AnnotationValue,
-        Axiom
+        Component,
+        IArgument,
+        DArgument
     );
-    
+
     Ok(module)
 }
