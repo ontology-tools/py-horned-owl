@@ -1,6 +1,6 @@
 use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
 use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Component, ComponentKind, Build, ClassExpression, IRI, Kinded, Literal, MutableOntology, Ontology, SubClassOf, OntologyID};
-use horned_owl::vocab::{AnnotationBuiltIn, WithIRI};
+use horned_owl::vocab::{AnnotationBuiltIn};
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
 use pyo3::{IntoPy, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
@@ -129,7 +129,7 @@ impl PyIndexedOntology {
             ann: Annotation {
                 ap: self
                     .build
-                    .annotation_property(AnnotationBuiltIn::LABEL.iri_s().clone()),
+                    .annotation_property(AnnotationBuiltIn::Label.get_iri().clone()),
                 av: AnnotationValue::Literal(Literal::Simple {
                     literal: label.clone(),
                 }),
@@ -150,7 +150,7 @@ impl PyIndexedOntology {
                         ap,
                         av: AnnotationValue::Literal(Literal::Simple { literal: _old }),
                     } => {
-                        if AnnotationBuiltIn::LABEL.iri_s().eq(&ap.0.to_string()) {
+                        if AnnotationBuiltIn::Label.get_iri().to_string().eq(&ap.0.to_string()) {
                             Some(aax.clone())
                         } else {
                             None
@@ -467,7 +467,7 @@ impl PyIndexedOntology {
                         ap,
                         av: AnnotationValue::Literal(Literal::Simple { literal }),
                     } => {
-                        if AnnotationBuiltIn::LABEL.iri_s().eq(&ap.0.to_string()) {
+                        if AnnotationBuiltIn::Label.get_iri().to_string().eq(&ap.0.to_string()) {
                             let _ = &self
                                 .labels_to_iris
                                 .insert(literal.clone(), b.iri(subject.deref()));

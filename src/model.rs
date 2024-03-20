@@ -788,26 +788,26 @@ impl FromCompatible<IRI> for horned_owl::model::IRI<Arc<str>> {
     }
 }
 
-impl FromCompatible<&horned_owl::model::Facet> for Facet {
-    fn from_c(value: &horned_owl::model::Facet) -> Self {
+impl FromCompatible<&horned_owl::vocab::Facet> for Facet {
+    fn from_c(value: &horned_owl::vocab::Facet) -> Self {
         Facet::from(value)
     }
 }
 
-impl FromCompatible<Facet> for horned_owl::model::Facet {
+impl FromCompatible<Facet> for horned_owl::vocab::Facet {
     fn from_c(value: Facet) -> Self {
         From::from(value.borrow())
     }
 }
 
-impl FromCompatible<&Facet> for horned_owl::model::Facet {
+impl FromCompatible<&Facet> for horned_owl::vocab::Facet {
     fn from_c(value: &Facet) -> Self {
-        horned_owl::model::Facet::from(value)
+        horned_owl::vocab::Facet::from(value)
     }
 }
 
-impl FromCompatible<horned_owl::model::Facet> for Facet {
-    fn from_c(value: horned_owl::model::Facet) -> Self {
+impl FromCompatible<horned_owl::vocab::Facet> for Facet {
+    fn from_c(value: horned_owl::vocab::Facet) -> Self {
         Facet::from(value.borrow())
     }
 }
@@ -1022,49 +1022,49 @@ impl Facet {
     }
 }
 
-impl From<&Facet> for horned_owl::model::Facet {
+impl From<&Facet> for horned_owl::vocab::Facet {
     fn from(value: &Facet) -> Self {
         match value {
-            Facet::Length => horned_owl::model::Facet::Length,
-            Facet::MinLength => horned_owl::model::Facet::MinLength,
-            Facet::MaxLength => horned_owl::model::Facet::MaxLength,
-            Facet::Pattern => horned_owl::model::Facet::Pattern,
-            Facet::MinInclusive => horned_owl::model::Facet::MinInclusive,
-            Facet::MinExclusive => horned_owl::model::Facet::MinExclusive,
-            Facet::MaxInclusive => horned_owl::model::Facet::MaxInclusive,
-            Facet::MaxExclusive => horned_owl::model::Facet::MaxExclusive,
-            Facet::TotalDigits => horned_owl::model::Facet::TotalDigits,
-            Facet::FractionDigits => horned_owl::model::Facet::FractionDigits,
-            Facet::LangRange => horned_owl::model::Facet::LangRange,
+            Facet::Length => horned_owl::vocab::Facet::Length,
+            Facet::MinLength => horned_owl::vocab::Facet::MinLength,
+            Facet::MaxLength => horned_owl::vocab::Facet::MaxLength,
+            Facet::Pattern => horned_owl::vocab::Facet::Pattern,
+            Facet::MinInclusive => horned_owl::vocab::Facet::MinInclusive,
+            Facet::MinExclusive => horned_owl::vocab::Facet::MinExclusive,
+            Facet::MaxInclusive => horned_owl::vocab::Facet::MaxInclusive,
+            Facet::MaxExclusive => horned_owl::vocab::Facet::MaxExclusive,
+            Facet::TotalDigits => horned_owl::vocab::Facet::TotalDigits,
+            Facet::FractionDigits => horned_owl::vocab::Facet::FractionDigits,
+            Facet::LangRange => horned_owl::vocab::Facet::LangRange,
         }
     }
 }
-impl From<&horned_owl::model::Facet> for Facet {
-    fn from(value: &horned_owl::model::Facet) -> Self {
+impl From<&horned_owl::vocab::Facet> for Facet {
+    fn from(value: &horned_owl::vocab::Facet) -> Self {
         match value {
-            horned_owl::model::Facet::Length => Facet::Length,
-            horned_owl::model::Facet::MinLength => Facet::MinLength,
-            horned_owl::model::Facet::MaxLength => Facet::MaxLength,
-            horned_owl::model::Facet::Pattern => Facet::Pattern,
-            horned_owl::model::Facet::MinInclusive => Facet::MinInclusive,
-            horned_owl::model::Facet::MinExclusive => Facet::MinExclusive,
-            horned_owl::model::Facet::MaxInclusive => Facet::MaxInclusive,
-            horned_owl::model::Facet::MaxExclusive => Facet::MaxExclusive,
-            horned_owl::model::Facet::TotalDigits => Facet::TotalDigits,
-            horned_owl::model::Facet::FractionDigits => Facet::FractionDigits,
-            horned_owl::model::Facet::LangRange => Facet::LangRange,
+            horned_owl::vocab::Facet::Length => Facet::Length,
+            horned_owl::vocab::Facet::MinLength => Facet::MinLength,
+            horned_owl::vocab::Facet::MaxLength => Facet::MaxLength,
+            horned_owl::vocab::Facet::Pattern => Facet::Pattern,
+            horned_owl::vocab::Facet::MinInclusive => Facet::MinInclusive,
+            horned_owl::vocab::Facet::MinExclusive => Facet::MinExclusive,
+            horned_owl::vocab::Facet::MaxInclusive => Facet::MaxInclusive,
+            horned_owl::vocab::Facet::MaxExclusive => Facet::MaxExclusive,
+            horned_owl::vocab::Facet::TotalDigits => Facet::TotalDigits,
+            horned_owl::vocab::Facet::FractionDigits => Facet::FractionDigits,
+            horned_owl::vocab::Facet::LangRange => Facet::LangRange,
         }
     }
 }
 
-impl From<Facet> for horned_owl::model::Facet {
+impl From<Facet> for horned_owl::vocab::Facet {
     fn from(value: Facet) -> Self {
         value.borrow().into()
     }
 }
-impl From<horned_owl::model::Facet> for Facet {
-    fn from(value: horned_owl::model::Facet) -> Self {
-        value.borrow().into()
+impl From<horned_owl::vocab::Facet> for Facet {
+    fn from(value: horned_owl::vocab::Facet) -> Self {
+        (&value).into()
     }
 }
 

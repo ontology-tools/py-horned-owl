@@ -16,7 +16,6 @@ use crate::reasoner::{Whelk};
 
 use horned_owl::model::*;
 use horned_owl::ontology::iri_mapped::IRIMappedOntology;
-use horned_owl::vocab::WithIRI;
 use horned_owl::io::rdf::reader::IncompleteParse;
 use horned_owl::io::{ParserConfiguration, RDFParserConfiguration};
 use horned_owl::error::HornedError;
