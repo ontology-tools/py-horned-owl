@@ -91,20 +91,48 @@ def handle_module(module: str):
 
     with open(f"pyhornedowl/{module}/__init__.pyi", "w") as f:
         f.write("import typing\n")
-        f.write("from typing import *\n\n")
+        f.write("from typing import *\n")
+        f.write("import pyhornedowl\n\n")
 
         for name, entry in getattr(pho, module).__dict__.items():
             if isinstance(entry, type):
                 if "__pyi__" in entry.__dict__:
                     pyi: str = entry.__pyi__()
-                    pyi = re.sub(r"    from: .*$|from: .*?[,)]", "", pyi)
+                    pyi = re.sub(r"( {4}from: .*\n)|(from: .*?[,)])", "", pyi)
                     f.write(pyi)
                 else:
                     f.write(f"class {name}:\n")
 
+                    if hasattr(entry, "__doc__"):
+                        doc = entry.__doc__
+                        if doc is not None:
+                            lines = doc.splitlines()
+                            if len(lines) > 2:
+                                sign = lines[0]
+
+                                f.write(f"    def {sign}:\n")
+                                doc = "\n".join([f"        {l}" for l in lines[2:]])
+                                f.write(f'        """\n{doc}\n        """\n        ...\n\n')
+
                     for attr_name, attr in entry.__dict__.items():
                         if attr_name.startswith("_") or attr_name == "from":
                             continue
+
+                        if hasattr(attr, "__doc__"):
+                            doc = attr.__doc__
+                            if doc is not None:
+                                lines = doc.splitlines()
+                                if len(lines) > 2:
+                                    sign = lines[0]
+
+                                    if re.match(r".*\bcls\b.*", sign) is not None:
+                                        f.write("    @classmethod\n")
+
+                                    f.write(f"    def {sign}:\n")
+                                    doc = "\n".join([f"        {l}" for l in lines[2:]])
+                                    f.write(f'        """\n{doc}\n        """\n        ...\n\n')
+
+                                    continue
 
                         f.write(f"    {attr_name}: Any\n")
 

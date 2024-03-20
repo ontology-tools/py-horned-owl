@@ -971,6 +971,10 @@ impl IRI {
         self.0.to_string()
     }
 
+    /// parse(cls, value: str) -> IRI
+    ///
+    /// Parses a string to an IRI without utilising cached IRIs. Consider using
+    /// PyIndexedOntology.iri instead
     #[classmethod]
     pub fn parse(_: &PyType, value: String) -> Self {
         let builder = horned_owl::model::Build::new_arc();

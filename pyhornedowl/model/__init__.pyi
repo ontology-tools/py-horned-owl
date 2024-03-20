@@ -1,5 +1,6 @@
 import typing
 from typing import *
+import pyhornedowl
 
 class Class:
     first: IRI
@@ -264,7 +265,6 @@ class DataProperty:
 
 class DataPropertyAssertion:
     dp: DataProperty
-    from: Individual
     to: Literal
     def __init__(self, dp: DataProperty,  to: Literal):
         ...
@@ -403,7 +403,14 @@ class HasKey:
     ...
 
 class IRI:
-    parse: Any
+    @classmethod
+    def parse(cls, value: str) -> IRI:
+        """
+        Parses a string to an IRI without utilising cached IRIs. Consider using
+        PyIndexedOntology.iri instead
+        """
+        ...
+
     ...
 
 class Import:
@@ -439,7 +446,6 @@ class NamedIndividual:
 
 class NegativeDataPropertyAssertion:
     dp: DataProperty
-    from: Individual
     to: Literal
     def __init__(self, dp: DataProperty,  to: Literal):
         ...
@@ -447,7 +453,6 @@ class NegativeDataPropertyAssertion:
 
 class NegativeObjectPropertyAssertion:
     ope: ObjectPropertyExpression
-    from: Individual
     to: Individual
     def __init__(self, ope: ObjectPropertyExpression,  to: Individual):
         ...
@@ -455,7 +460,6 @@ class NegativeObjectPropertyAssertion:
 
 class ObjectPropertyAssertion:
     ope: ObjectPropertyExpression
-    from: Individual
     to: Individual
     def __init__(self, ope: ObjectPropertyExpression,  to: Individual):
         ...

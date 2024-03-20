@@ -25,7 +25,6 @@ use horned_owl::ontology::set::SetOntology;
 use curie::PrefixMapping;
 
 
-use std::ops::Deref;
 use std::path::Path;
 //use failure::Error;
 use std::sync::Arc;

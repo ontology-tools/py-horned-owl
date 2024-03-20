@@ -1,5 +1,5 @@
 use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
-use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Component, ComponentKind, Build, ClassExpression, IRI, Kinded, Literal, MutableOntology, Ontology, SubClassOf, OntologyID};
+use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Component, ComponentKind, Build, ClassExpression, IRI, Kinded, Literal, MutableOntology, SubClassOf, OntologyID};
 use horned_owl::vocab::{AnnotationBuiltIn};
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
