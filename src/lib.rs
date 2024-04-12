@@ -43,7 +43,8 @@ struct PyIndexedOntology {
     //State variables private to Rust, exposed through methods to Python
     labels_to_iris: HashMap<String, IRI<ArcStr>>,
 
-    classes_to_subclasses: HashMap<IRI<ArcStr>, HashSet<IRI<ArcStr>>>, //axiom typed index would give subclass axioms
+    classes_to_subclasses: HashMap<IRI<ArcStr>, HashSet<IRI<ArcStr>>>,
+    //axiom typed index would give subclass axioms
     classes_to_superclasses: HashMap<IRI<ArcStr>, HashSet<IRI<ArcStr>>>,
 
     //The primary store of the axioms is a Horned OWL indexed ontology
@@ -69,9 +70,9 @@ impl Default for PyIndexedOntology {
 #[pymethods]
 impl PyIndexedOntology {
     /// get_id_for_iri(self, iri: str) -> Optional[str]
-    /// 
+    ///
     /// Gets the ID of term by it IRI.
-    /// 
+    ///
     /// If the term does not have an ID, `None` is returned.
     fn get_id_for_iri(&mut self, py: Python, iri: String) -> PyResult<PyObject> {
         let res = self.mapping.shrink_iri(&iri);
@@ -85,9 +86,9 @@ impl PyIndexedOntology {
     }
 
     /// get_iri_for_id(self, id: str) -> Optional[str]
-    /// 
+    ///
     /// Gets the IRI of a term by its ID.
-    /// 
+    ///
     /// If the term does not have an IRI, `None` is returned.
     fn get_iri_for_id(&mut self, py: Python, id: String) -> PyResult<PyObject> {
         let idparts: Vec<&str> = id.split(":").collect();
@@ -110,7 +111,7 @@ impl PyIndexedOntology {
     }
 
     /// add_prefix_mapping(self, iriprefix: str, mappedid: str) -> None
-    /// 
+    ///
     /// Adds the prefix `iriprefix`.
     fn add_prefix_mapping(&mut self, iriprefix: String, mappedid: String) -> PyResult<()> {
         let result = self.mapping.add_prefix(&iriprefix, &mappedid);
@@ -122,9 +123,9 @@ impl PyIndexedOntology {
     }
 
     /// set_label(self, iri: str, label: str) -> None
-    /// 
+    ///
     /// Sets the label of a term by iri.
-    /// 
+    ///
     /// Adds an or updates the `AnnotationAssertion` axiom for `rdfs:label`.
     fn set_label(&mut self, iri: String, label: String) -> PyResult<()> {
         let iri = self.build.iri(iri);
@@ -140,7 +141,7 @@ impl PyIndexedOntology {
                 }),
             },
         })
-        .into();
+            .into();
 
         //If we already have a label, update it:
         let old_ax = &self
@@ -148,9 +149,9 @@ impl PyIndexedOntology {
             .axiom_for_iri(&iri)
             .filter_map(|aax: &AnnotatedAxiom<ArcStr>| match &aax.axiom {
                 Axiom::AnnotationAssertion(AnnotationAssertion {
-                    subject: _subj,
-                    ann,
-                }) => match ann {
+                                               subject: _subj,
+                                               ann,
+                                           }) => match ann {
                     Annotation {
                         ap,
                         av: AnnotationValue::Literal(Literal::Simple { literal: _old }),
@@ -177,9 +178,9 @@ impl PyIndexedOntology {
     }
 
     /// get_iri_for_label(self, label: str) -> Optional[str]
-    /// 
+    ///
     /// Returns the IRI of a term by its label if it exists.
-    /// 
+    ///
     /// If the term does not have a label, `None` is returned.
     fn get_iri_for_label(&mut self, py: Python, label: String) -> PyResult<PyObject> {
         let iri_value = &self.labels_to_iris.get(&label);
@@ -191,7 +192,7 @@ impl PyIndexedOntology {
     }
 
     /// get_iri(self) -> Optional[str]
-    /// 
+    ///
     /// Returns the ontology iri, if it exists.
     fn get_iri(&mut self, py: Python) -> PyResult<PyObject> {
         let iri_value = &self.ontology.id().iri.as_ref();
@@ -203,7 +204,7 @@ impl PyIndexedOntology {
     }
 
     /// get_version_iri(self) -> Optional[str]
-    /// 
+    ///
     /// Returns the ontologys version iri, if it exists.
     fn get_version_iri(&mut self, py: Python) -> PyResult<PyObject> {
         let iri_value = &self.ontology.id().viri.as_ref();
@@ -215,7 +216,7 @@ impl PyIndexedOntology {
     }
 
     /// get_subclasses(self, iri: str) -> Set[str]
-    /// 
+    ///
     /// Gets all subclasses of an entity.
     fn get_subclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
         let iri = self.build.iri(iri);
@@ -230,7 +231,7 @@ impl PyIndexedOntology {
     }
 
     /// get_superclasses(self, iri: str) -> Set[str]
-    /// 
+    ///
     /// Gets all superclasses of an entity.
     fn get_superclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
         let iri = self.build.iri(iri);
@@ -245,7 +246,7 @@ impl PyIndexedOntology {
     }
 
     /// get_classes(self) -> Set[str]
-    /// 
+    ///
     /// Returns the IRIs of all declared classes in the ontology.
     fn get_classes(&mut self) -> PyResult<HashSet<String>> {
         //Get the DeclareClass axioms
@@ -253,7 +254,7 @@ impl PyIndexedOntology {
 
         let classes: HashSet<String> = classes
             .filter_map(|aax| match aax.clone().axiom {
-                Axiom::DeclareClass(dc) => Some(dc.0 .0.to_string()),
+                Axiom::DeclareClass(dc) => Some(dc.0.0.to_string()),
                 _ => None,
             })
             .collect();
@@ -261,7 +262,7 @@ impl PyIndexedOntology {
     }
 
     /// get_object_properties(self) -> Set[str]
-    /// 
+    ///
     /// Returns the IRIs of all declared object properties in the ontology.
     fn get_object_properties(&mut self) -> PyResult<HashSet<String>> {
         //Get the DeclareObjectProperty axioms
@@ -271,7 +272,7 @@ impl PyIndexedOntology {
 
         let object_properties: HashSet<String> = object_properties
             .filter_map(|aax| match aax.clone().axiom {
-                Axiom::DeclareObjectProperty(dop) => Some(dop.0 .0.to_string()),
+                Axiom::DeclareObjectProperty(dop) => Some(dop.0.0.to_string()),
                 _ => None,
             })
             .collect();
@@ -279,9 +280,9 @@ impl PyIndexedOntology {
     }
 
     /// get_annotation(self, class_iri: str, ann_iri: str) -> Optional[str]
-    /// 
+    ///
     /// Gets the first annotated value for an entity and annotation property.
-    /// 
+    ///
     /// Note: If there are multiple annotation axioms for the queried entity and annotation property,
     /// the order is neither necessarily the same as in the ontology neither is it stable.
     /// Get all annotation values with `PyIndexedOntology.get_annotations`.
@@ -305,54 +306,54 @@ impl PyIndexedOntology {
     }
 
     /// get_annotations(self, class_iri: str, ann_iri: str) -> List[str]
-    /// 
+    ///
     /// Gets all annotated value for an entity and annotation property.
-    /// 
+    ///
     /// Note: The order is neither necessarily the same as in the ontology neither is it stable.
     /// Get all annotation values with `PyIndexedOntology.get_annotations`.
     fn get_annotations(&mut self, class_iri: String, ann_iri: String) -> PyResult<Vec<String>> {
         let iri = self.build.iri(class_iri);
 
-        let literal_values : Vec<String> = self.ontology.axiom_for_iri(&iri)
-                                .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
-            match &aax.axiom {
-                Axiom::AnnotationAssertion(AnnotationAssertion{subject:_,ann}) => {
+        let literal_values: Vec<String> = self.ontology.axiom_for_iri(&iri)
+            .filter_map(|aax: &AnnotatedAxiom<ArcStr>| {
+                match &aax.axiom {
+                    Axiom::AnnotationAssertion(AnnotationAssertion { subject: _, ann }) => {
                         match ann {
-                            Annotation {ap, av:  AnnotationValue::Literal(Literal::Simple{literal}) } => {
+                            Annotation { ap, av: AnnotationValue::Literal(Literal::Simple { literal }) } => {
                                 if ann_iri.eq(&ap.0.to_string()) {
                                     Some(literal.clone())
                                 } else {
                                     None
                                 }
-                            },
+                            }
                             //Language { literal: String, lang: String },
-                            Annotation {ap, av:  AnnotationValue::Literal(Literal::Language{literal, lang:_}) } => {
+                            Annotation { ap, av: AnnotationValue::Literal(Literal::Language { literal, lang: _ }) } => {
                                 if ann_iri.eq(&ap.0.to_string()) {
                                     Some(literal.clone())
                                 } else {
                                     None
                                 }
-                            },
+                            }
                             //Datatype { literal: String, datatype_iri: IRI },
-                            Annotation {ap, av:  AnnotationValue::Literal(Literal::Datatype{literal, datatype_iri:_}) } => {
+                            Annotation { ap, av: AnnotationValue::Literal(Literal::Datatype { literal, datatype_iri: _ }) } => {
                                 if ann_iri.eq(&ap.0.to_string()) {
                                     Some(literal.clone())
                                 } else {
                                     None
                                 }
-                            },
+                            }
                             _ => None,
                         }
-                    },
+                    }
                     _ => None,
                 }
-        }).collect();
+            }).collect();
 
         Ok(literal_values)
     }
 
     /// save_to_file(self, file_name: str) -> None
-    /// 
+    ///
     /// Saves the ontology to disk in owx format.
     fn save_to_file(&mut self, file_name: String) -> PyResult<()> {
         let before = Instant::now();
@@ -389,7 +390,7 @@ impl PyIndexedOntology {
     }
 
     /// get_axioms_for_iri(self, iri: str) -> List[model.AnnotatedAxiom]
-    /// 
+    ///
     /// Gets all axioms for an entity.
     fn get_axioms_for_iri(&mut self, py: Python<'_>, iri: String) -> PyResult<Vec<PyObject>> {
         let b = Build::new();
@@ -399,14 +400,14 @@ impl PyIndexedOntology {
             .ontology
             .axiom_for_iri(&iri)
             .map(|a| model::AnnotatedAxiom::from(a))
-            .map(|a: model::AnnotatedAxiom| a.into_py(py) )
+            .map(|a: model::AnnotatedAxiom| a.into_py(py))
             .collect();
 
         Ok(axioms)
     }
 
     /// get_axioms(self) -> List[model.AnnotatedAxioms]
-    /// 
+    ///
     /// Returns all axioms of the ontology.
     fn get_axioms(&mut self, py: Python) -> PyResult<Vec<PyObject>> {
         let r = self
@@ -420,7 +421,7 @@ impl PyIndexedOntology {
     }
 
     /// add_axiom(self, ax: model.Axiom, annotations: Optional[List[model.Annotation]]) -> None
-    /// 
+    ///
     /// Adds an axiom to the ontology with optional annotations.
     fn add_axiom(
         &mut self,
@@ -438,7 +439,7 @@ impl PyIndexedOntology {
     }
 
     /// remove_axiom(self, ax: model.Axiom) -> None
-    /// 
+    ///
     /// Removes an axiom from the ontology.
     fn remove_axiom(&mut self, ax: model::Axiom) -> PyResult<()> {
         let ax: Axiom<Arc<str>> = ax.into();
@@ -454,14 +455,15 @@ impl PyIndexedOntology {
     }
 
     /// iri(self, iri: str) -> model.IRI
-    /// 
+    ///
     /// Creates an new IRI from string.
-    /// 
+    ///
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
     fn iri(&self, iri: String) -> model::IRI {
         model::IRI::new(iri, &self.build)
     }
 }
+
 impl PyIndexedOntology {
     fn insert(&mut self, ax: &AnnotatedAxiom<ArcStr>) -> () {
         let b = Build::new();
@@ -577,9 +579,9 @@ fn open_ontology_rdf(
 
 
 /// open_ontology(ontology: str) -> PyIndexedOntology
-/// 
+///
 /// Opens an ontology from a path or plain text.
-/// 
+///
 /// If `ontology` is a path, the file is loaded. Otherwise, `ontology` is interepreted as an ontology in either owx or owl format.
 /// Note: Only .owl and .owx files are currently supported.
 #[pyfunction]
@@ -643,12 +645,12 @@ fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
 }
 
 /// get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]
-/// 
+///
 /// Gets all direct and indirect subclasses of an class.
 #[pyfunction]
 fn get_descendants(onto: &PyIndexedOntology, parent: &PyString) -> PyResult<HashSet<String>> {
     let mut descendants = HashSet::new();
-    let parent: String = parent.extract().unwrap();
+    let parent: String = parent.extract()?;
 
     let b = Build::new();
     let parentiri = b.iri(parent);
@@ -663,16 +665,17 @@ fn recurse_descendants(
     superclass: &IRI<ArcStr>,
     descendants: &mut HashSet<String>,
 ) {
-    descendants.insert(superclass.into());
-    if onto.classes_to_subclasses.contains_key(superclass) {
-        for cls2 in &mut onto.classes_to_subclasses[superclass].iter() {
-            recurse_descendants(onto, cls2, descendants);
+    if descendants.insert(superclass.into()) {
+        if onto.classes_to_subclasses.contains_key(superclass) {
+            for cls2 in &mut onto.classes_to_subclasses[superclass].iter() {
+                recurse_descendants(onto, cls2, descendants);
+            }
         }
     }
 }
 
 /// get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]
-/// 
+///
 /// Gets all direct and indirect super classes of a class.
 #[pyfunction]
 fn get_ancestors(onto: &PyIndexedOntology, child: &PyString) -> PyResult<HashSet<String>> {
@@ -692,10 +695,11 @@ fn recurse_ancestors(
     subclass: &IRI<ArcStr>,
     ancestors: &mut HashSet<String>,
 ) {
-    ancestors.insert(subclass.into());
-    if onto.classes_to_superclasses.contains_key(subclass) {
-        for cls2 in &mut onto.classes_to_superclasses[subclass].iter() {
-            recurse_ancestors(onto, cls2, ancestors);
+    if ancestors.insert(subclass.into()) {
+        if onto.classes_to_superclasses.contains_key(subclass) {
+            for cls2 in &mut onto.classes_to_superclasses[subclass].iter() {
+                recurse_ancestors(onto, cls2, ancestors);
+            }
         }
     }
 }
