@@ -97,9 +97,10 @@ class PyIndexedOntology:
         """
         ...
 
-    def save_to_file(self, file_name: str) -> None:
+    def save_to_file(self, file_name: str, format: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> None:
         """
-        Saves the ontology to disk in owx format.
+        Saves the ontology to disk. If no format is given it is guessed by the file extension.
+        Defaults to owx
         """
         ...
 

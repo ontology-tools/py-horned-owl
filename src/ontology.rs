@@ -1,18 +1,20 @@
-use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
-use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Component, ComponentKind, Build, ClassExpression, IRI, Kinded, Literal, MutableOntology, SubClassOf, OntologyID};
-use horned_owl::vocab::{AnnotationBuiltIn};
 use std::collections::{BTreeSet, HashMap, HashSet};
-use std::sync::Arc;
-use pyo3::{IntoPy, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
-use curie::{Curie, PrefixMapping};
-use pyo3::exceptions::PyValueError;
-use std::time::Instant;
 use std::fs::File;
-use horned_owl::ontology::component_mapped::{ArcComponentMappedOntology, ComponentMappedOntology};
-use pyo3::types::PyString;
 use std::ops::Deref;
+use std::sync::Arc;
 
-use crate::{model};
+use curie::{Curie, PrefixMapping};
+use horned_bin::path_type;
+use horned_owl::io::ResourceType;
+use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Build, ClassExpression, Component, ComponentKind, IRI, Kinded, Literal, MutableOntology, OntologyID, SubClassOf};
+use horned_owl::ontology::component_mapped::{ArcComponentMappedOntology, ComponentMappedOntology};
+use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
+use horned_owl::vocab::AnnotationBuiltIn;
+use pyo3::{IntoPy, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
+use pyo3::exceptions::PyValueError;
+use pyo3::types::PyString;
+
+use crate::model;
 
 /// Represents a loaded ontology.
 #[pyclass]
@@ -184,7 +186,6 @@ impl PyIndexedOntology {
     ///
     /// Returns the ontologys version iri, if it exists.
     pub fn get_version_iri(&mut self, py: Python) -> PyResult<PyObject> {
-
         let iri_value = self.get_id().and_then(|x| x.viri.as_ref());
         if let Some(iri_value) = iri_value {
             Ok(iri_value.to_string().to_object(py))
@@ -330,11 +331,19 @@ impl PyIndexedOntology {
         Ok(literal_values)
     }
 
-    /// save_to_file(self, file_name: str) -> None
+    /// save_to_file(self, file_name: str, format: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> None
     ///
-    /// Saves the ontology to disk in owx format.
-    pub fn save_to_file(&mut self, file_name: String) -> PyResult<()> {
-        let before = Instant::now();
+    /// Saves the ontology to disk. If no format is given it is guessed by the file extension.
+    /// Defaults to OWL/XML
+    #[pyo3(signature = (file_name, format = None))]
+    pub fn save_to_file(&mut self, file_name: String, format: Option<&str>) -> PyResult<()> {
+        let target_format = match format.map(|s| s.to_lowercase()).as_deref() {
+            Some("owx") => Ok(ResourceType::OWX),
+            Some("ofn") => Ok(ResourceType::OFN),
+            Some("rdf") => Ok(ResourceType::RDF),
+            Some(f) => Err(PyValueError::new_err(format!("Unsupported format '{}'", f))),
+            None => Ok(path_type(file_name.as_ref()).unwrap_or(ResourceType::OWX))
+        }?;
 
         let mut file = File::create(file_name)?;
         let mut amo: ArcComponentMappedOntology = ComponentMappedOntology::new_arc();
@@ -343,20 +352,12 @@ impl PyIndexedOntology {
         for aax in self.ontology.iter() {
             amo.insert(aax.clone());
         }
-        let time_middle = before.elapsed().as_secs();
-        println!(
-            "Finished preparing ontology for saving in {:?} seconds.",
-            time_middle
-        );
-        let before = Instant::now();
 
-        let result = horned_owl::io::owx::writer::write(&mut file, &amo, Some(&self.mapping));
-
-        let time_after = before.elapsed().as_secs();
-        println!(
-            "Finished saving ontology to file in  {:?} seconds.",
-            time_after
-        );
+        let result = match target_format {
+            ResourceType::OFN => horned_owl::io::ofn::writer::write(&mut file, &amo, Some(&self.mapping)),
+            ResourceType::OWX => horned_owl::io::owx::writer::write(&mut file, &amo, Some(&self.mapping)),
+            ResourceType::RDF => horned_owl::io::rdf::writer::write(&mut file, &amo)
+        };
 
         match result {
             Ok(()) => Ok(()),
