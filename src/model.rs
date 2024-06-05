@@ -1,16 +1,14 @@
 use std::{borrow::Borrow, collections::BTreeSet, sync::Arc};
+use std::fmt::Write;
 
 use horned_owl::model::ArcStr;
-
-use pyo3::{exceptions::PyKeyError, prelude::*, types::{PyType, IntoPyDict}, PyObject};
-
 use paste::paste;
+use pyo3::{exceptions::PyKeyError, prelude::*, PyObject, types::{IntoPyDict, PyType}};
 use regex::Regex;
-
-use std::fmt::Write;
 
 fn to_py_type_str(n: &str, m: String) -> String {
     let crate_regex = Regex::new(r"(?m)(?:\w+::)*(\w+)").unwrap();
+    let tuple_regex = Regex::new(r"\(([^,]+),\s*([^,\)]+)\)").unwrap();
     let box_regex = Regex::new(r"BoxWrap<(.*)>").unwrap();
     let list_regex = Regex::new(r"VecWrap<(.*)>").unwrap();
     let set_regex = Regex::new(r"BTreeSetWrap<(.*)>").unwrap();
@@ -18,7 +16,15 @@ fn to_py_type_str(n: &str, m: String) -> String {
 
     let name = crate_regex.replace_all(n, "$1").to_string();
 
-    let mut ma = box_regex.captures(&name);
+    let mut ma = tuple_regex.captures(&name);
+    if ma.is_some() {
+        let matc = ma.unwrap();
+        let inner_0 = to_py_type_str(matc[1].borrow(), m.clone());
+        let inner_1 = to_py_type_str(matc[2].borrow(), m);
+        return format!("typing.Tuple[{}, {}]", inner_0, inner_1);
+    }
+
+    ma = box_regex.captures(&name);
     if ma.is_some() {
         return to_py_type_str(ma.unwrap()[1].borrow(), m);
     }
@@ -338,6 +344,7 @@ macro_rules! wrapped_enum {
                         }
                     }
 
+                    #[cfg(debug_assertions)]
                     #[classmethod]
                     fn __pyi__(_: &PyType) -> String {
                         let mut res = String::new();
@@ -512,6 +519,7 @@ macro_rules! wrapped {
                     }
                 }
 
+                #[cfg(debug_assertions)]
                 #[classmethod]
                 fn __pyi__(_: &PyType) -> String {
                     let mut res = String::new();
@@ -586,6 +594,7 @@ macro_rules! wrapped {
                 )
             }
 
+            #[cfg(debug_assertions)]
             #[classmethod]
             fn __pyi__(_: &PyType) -> String {
                 let mut res = String::new();
@@ -1025,6 +1034,7 @@ pub enum Facet {
     LangRange = 11,
 }
 
+#[cfg(debug_assertions)]
 #[pymethods]
 impl Facet {
     #[classmethod]
@@ -1770,6 +1780,7 @@ pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
         AnnotationSubject,
         AnnotationValue,
         Component,
+        Atom,
         IArgument,
         DArgument
     );

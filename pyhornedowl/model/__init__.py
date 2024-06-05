@@ -103,6 +103,7 @@ PropertyExpression = model.PropertyExpression
 AnnotationSubject = model.AnnotationSubject
 AnnotationValue = model.AnnotationValue
 Component = model.Component
+Atom = model.Atom
 IArgument = model.IArgument
 DArgument = model.DArgument
 
@@ -127,4 +128,4 @@ __all__ = ['Class', 'ObjectIntersectionOf', 'ObjectUnionOf', 'ObjectComplementOf
            'BuiltInAtom', 'ClassAtom', 'DataPropertyAtom', 'DataRangeAtom', 'DifferentIndividualsAtom',
            'ObjectPropertyAtom', 'SameIndividualAtom', 'Facet', 'ClassExpression', 'ObjectPropertyExpression',
            'SubObjectPropertyExpression', 'Literal', 'DataRange', 'Individual', 'PropertyExpression',
-           'AnnotationSubject', 'AnnotationValue', 'Component', 'IArgument', 'DArgument']
+           'AnnotationSubject', 'AnnotationValue', 'Component', 'Atom', 'IArgument', 'DArgument']
