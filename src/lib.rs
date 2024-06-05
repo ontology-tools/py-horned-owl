@@ -547,6 +547,23 @@ fn open_ontology_owx(
     r
 }
 
+fn open_ontology_ofn(
+    ontology: &str,
+    b: &Build<Arc<str>>,
+) -> Result<(SetOntology<ArcStr>, PrefixMapping), HornedError> {
+    let r = if Path::new(&ontology).exists() {
+        let file = File::open(ontology).ok().unwrap();
+        let mut f = BufReader::new(file);
+        horned_owl::io::ofn::reader::read_with_build(&mut f, &b)
+    } else {
+        //just try to parse the string
+        let str_val = ontology.as_bytes();
+        let mut f = BufReader::new(str_val);
+        horned_owl::io::ofn::reader::read_with_build(&mut f, &b)
+    };
+    r
+}
+
 fn open_ontology_rdf(
     ontology: &str,
     b: &Build<Arc<str>>,
@@ -600,6 +617,18 @@ fn open_ontology(ontology: &PyString) -> PyResult<PyIndexedOntology> {
             let iro = IRIMappedOntology::from(o);
             let mut lo = PyIndexedOntology::from(iro);
             lo.mapping = m; //Needed when saving
+            Ok(lo)
+        } else {
+            Err(PyValueError::new_err("Unable to open ontology"))
+        }
+    } else if ontology.ends_with("ofn") {
+        let r2 = open_ontology_ofn(&ontology, &b);
+        if r2.is_ok() {
+            let (o, _) = r2.ok().unwrap();
+            //println!("Got ontology from rdf {:?}",o);
+            let so = SetOntology::from(o);
+            let iro = IRIMappedOntology::from(so);
+            let lo = PyIndexedOntology::from(iro);
             Ok(lo)
         } else {
             Err(PyValueError::new_err("Unable to open ontology"))
