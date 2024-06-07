@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - main
+      - ci_test
     tags:
       - '*'
   pull_request:
@@ -28,10 +29,8 @@ jobs:
             target: x86_64
           - runner: ubuntu-latest
             target: x86
-#          - runner: ubuntu-latest
-#            target: aarch64
-          - runner: ubuntu-latest
-            target: armv7
+          #          - runner: ubuntu-latest
+          #            target: aarch64
           - runner: ubuntu-latest
             target: s390x
           - runner: ubuntu-latest
@@ -92,8 +91,8 @@ jobs:
         platform:
           - runner: windows-latest
             target: x64
-#          - runner: windows-latest
-#            target: x86
+    #          - runner: windows-latest
+    #            target: x86
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -157,7 +156,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [linux, musllinux, windows, macos, sdist]
+    needs: [ linux, musllinux, windows, macos, sdist ]
     steps:
       - uses: actions/download-artifact@v4
       - name: Publish to PyPI
@@ -165,3 +164,60 @@ jobs:
         with:
           command: upload
           args: --non-interactive --skip-existing wheels-*/*
+
+  build-docs:
+    needs: linux
+    runs-on: ubuntu-latest
+    if: "startsWith(github.ref, 'refs/tags/')"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-linux-x86_64
+          path: wheels/
+      - name: "Install packages"
+        run: |
+          pip install -U sphinx sphinx_rtd_theme
+          pip install wheels/*.whl
+      - name: "Build docs"
+        working-directory: docs
+        run: sphinx-build -b html source build
+      - name: Fix permissions
+        run: |
+          chmod -c -R +rX "docs/build/" | while read line; do
+            echo "::warning title=Invalid file permissions automatically fixed::$line"
+          done
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/build
+
+    # Deploy job
+  deploy-docs:
+    # Add a dependency to the build job
+    needs: build-docs
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      contents: read
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
+
+
+
+
