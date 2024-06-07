@@ -46,6 +46,11 @@ impl Default for PyIndexedOntology {
 
 #[pymethods]
 impl PyIndexedOntology {
+    #[new]
+    pub fn new() -> Self {
+        Default::default()
+    }
+
     /// get_id_for_iri(self, iri: str) -> Optional[str]
     ///
     /// Gets the ID of term by it IRI.
