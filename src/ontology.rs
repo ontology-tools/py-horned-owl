@@ -4,7 +4,6 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use curie::{Curie, PrefixMapping};
-use horned_bin::path_type;
 use horned_owl::io::ResourceType;
 use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Build, ClassExpression, Component, ComponentKind, IRI, Kinded, Literal, MutableOntology, OntologyID, SubClassOf};
 use horned_owl::ontology::component_mapped::{ArcComponentMappedOntology, ComponentMappedOntology};
@@ -14,7 +13,8 @@ use pyo3::{IntoPy, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, T
 use pyo3::exceptions::PyValueError;
 use pyo3::types::PyString;
 
-use crate::model;
+
+use crate::{guess_serialization, model, to_py_err};
 
 /// Represents a loaded ontology.
 #[pyclass]
@@ -94,11 +94,7 @@ impl PyIndexedOntology {
     /// Adds the prefix `iriprefix`.
     pub fn add_prefix_mapping(&mut self, iriprefix: String, mappedid: String) -> PyResult<()> {
         let result = self.mapping.add_prefix(&iriprefix, &mappedid);
-        if let Ok(()) = result {
-            Ok(())
-        } else {
-            Err(PyValueError::new_err("Error - prefix is invalid."))
-        }
+        result.map_err(to_py_err!("Error - prefix is invalid."))
     }
 
     /// set_label(self, iri: str, label: str) -> None
@@ -331,19 +327,13 @@ impl PyIndexedOntology {
         Ok(literal_values)
     }
 
-    /// save_to_file(self, file_name: str, format: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> None
+    /// save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> None
     ///
-    /// Saves the ontology to disk. If no format is given it is guessed by the file extension.
+    /// Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
     /// Defaults to OWL/XML
-    #[pyo3(signature = (file_name, format = None))]
-    pub fn save_to_file(&mut self, file_name: String, format: Option<&str>) -> PyResult<()> {
-        let target_format = match format.map(|s| s.to_lowercase()).as_deref() {
-            Some("owx") => Ok(ResourceType::OWX),
-            Some("ofn") => Ok(ResourceType::OFN),
-            Some("rdf") => Ok(ResourceType::RDF),
-            Some(f) => Err(PyValueError::new_err(format!("Unsupported format '{}'", f))),
-            None => Ok(path_type(file_name.as_ref()).unwrap_or(ResourceType::OWX))
-        }?;
+    #[pyo3(signature = (file_name, serialization = None))]
+    pub fn save_to_file(&mut self, file_name: String, serialization: Option<&str>) -> PyResult<()> {
+        let serialization = guess_serialization(&file_name, serialization)?;
 
         let mut file = File::create(file_name)?;
         let mut amo: ArcComponentMappedOntology = ComponentMappedOntology::new_arc();
@@ -353,16 +343,13 @@ impl PyIndexedOntology {
             amo.insert(aax.clone());
         }
 
-        let result = match target_format {
+        let result = match serialization {
             ResourceType::OFN => horned_owl::io::ofn::writer::write(&mut file, &amo, Some(&self.mapping)),
             ResourceType::OWX => horned_owl::io::owx::writer::write(&mut file, &amo, Some(&self.mapping)),
             ResourceType::RDF => horned_owl::io::rdf::writer::write(&mut file, &amo)
         };
 
-        match result {
-            Ok(()) => Ok(()),
-            Err(error) => panic!("Problem saving the ontology to a file: {:?}", error),
-        }
+        result.map_err(to_py_err!("Problem saving the ontology to a file"))
     }
 
     /// get_axioms_for_iri(self, iri: str) -> List[model.AnnotatedComponent]
