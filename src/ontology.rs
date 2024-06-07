@@ -1,18 +1,20 @@
-use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
-use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Component, ComponentKind, Build, ClassExpression, IRI, Kinded, Literal, MutableOntology, SubClassOf, OntologyID};
-use horned_owl::vocab::{AnnotationBuiltIn};
 use std::collections::{BTreeSet, HashMap, HashSet};
-use std::sync::Arc;
-use pyo3::{IntoPy, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
-use curie::{Curie, PrefixMapping};
-use pyo3::exceptions::PyValueError;
-use std::time::Instant;
 use std::fs::File;
-use horned_owl::ontology::component_mapped::{ArcComponentMappedOntology, ComponentMappedOntology};
-use pyo3::types::PyString;
 use std::ops::Deref;
+use std::sync::Arc;
 
-use crate::{model};
+use curie::{Curie, PrefixMapping};
+use horned_owl::io::ResourceType;
+use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Build, ClassExpression, Component, ComponentKind, IRI, Kinded, Literal, MutableOntology, OntologyID, SubClassOf};
+use horned_owl::ontology::component_mapped::{ArcComponentMappedOntology, ComponentMappedOntology};
+use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
+use horned_owl::vocab::AnnotationBuiltIn;
+use pyo3::{IntoPy, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
+use pyo3::exceptions::PyValueError;
+use pyo3::types::PyString;
+
+
+use crate::{guess_serialization, model, to_py_err};
 
 /// Represents a loaded ontology.
 #[pyclass]
@@ -92,11 +94,7 @@ impl PyIndexedOntology {
     /// Adds the prefix `iriprefix`.
     pub fn add_prefix_mapping(&mut self, iriprefix: String, mappedid: String) -> PyResult<()> {
         let result = self.mapping.add_prefix(&iriprefix, &mappedid);
-        if let Ok(()) = result {
-            Ok(())
-        } else {
-            Err(PyValueError::new_err("Error - prefix is invalid."))
-        }
+        result.map_err(to_py_err!("Error - prefix is invalid."))
     }
 
     /// set_label(self, iri: str, label: str) -> None
@@ -184,7 +182,6 @@ impl PyIndexedOntology {
     ///
     /// Returns the ontologys version iri, if it exists.
     pub fn get_version_iri(&mut self, py: Python) -> PyResult<PyObject> {
-
         let iri_value = self.get_id().and_then(|x| x.viri.as_ref());
         if let Some(iri_value) = iri_value {
             Ok(iri_value.to_string().to_object(py))
@@ -330,11 +327,13 @@ impl PyIndexedOntology {
         Ok(literal_values)
     }
 
-    /// save_to_file(self, file_name: str) -> None
+    /// save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> None
     ///
-    /// Saves the ontology to disk in owx format.
-    pub fn save_to_file(&mut self, file_name: String) -> PyResult<()> {
-        let before = Instant::now();
+    /// Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
+    /// Defaults to OWL/XML
+    #[pyo3(signature = (file_name, serialization = None))]
+    pub fn save_to_file(&mut self, file_name: String, serialization: Option<&str>) -> PyResult<()> {
+        let serialization = guess_serialization(&file_name, serialization)?;
 
         let mut file = File::create(file_name)?;
         let mut amo: ArcComponentMappedOntology = ComponentMappedOntology::new_arc();
@@ -343,25 +342,14 @@ impl PyIndexedOntology {
         for aax in self.ontology.iter() {
             amo.insert(aax.clone());
         }
-        let time_middle = before.elapsed().as_secs();
-        println!(
-            "Finished preparing ontology for saving in {:?} seconds.",
-            time_middle
-        );
-        let before = Instant::now();
 
-        let result = horned_owl::io::owx::writer::write(&mut file, &amo, Some(&self.mapping));
+        let result = match serialization {
+            ResourceType::OFN => horned_owl::io::ofn::writer::write(&mut file, &amo, Some(&self.mapping)),
+            ResourceType::OWX => horned_owl::io::owx::writer::write(&mut file, &amo, Some(&self.mapping)),
+            ResourceType::RDF => horned_owl::io::rdf::writer::write(&mut file, &amo)
+        };
 
-        let time_after = before.elapsed().as_secs();
-        println!(
-            "Finished saving ontology to file in  {:?} seconds.",
-            time_after
-        );
-
-        match result {
-            Ok(()) => Ok(()),
-            Err(error) => panic!("Problem saving the ontology to a file: {:?}", error),
-        }
+        result.map_err(to_py_err!("Problem saving the ontology to a file"))
     }
 
     /// get_axioms_for_iri(self, iri: str) -> List[model.AnnotatedComponent]

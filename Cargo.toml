@@ -16,6 +16,7 @@ features = ["abi3-py37", "extension-module", "experimental-inspect"]
 
 [dependencies]
 horned-owl = "1.0.0"
+horned-bin = "1.0.0"
 curie = "0.1.2"
 failure = "0.1.8"
 quote = "1.0"

@@ -97,9 +97,10 @@ class PyIndexedOntology:
         """
         ...
 
-    def save_to_file(self, file_name: str) -> None:
+    def save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> None:
         """
-        Saves the ontology to disk in owx format.
+        Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
+        Defaults to OWL/XML
         """
         ...
 
@@ -140,8 +141,28 @@ def open_ontology(ontology: str) -> PyIndexedOntology:
     """
     Opens an ontology from a path or plain text.
     
-    If `ontology` is a path, the file is loaded. Otherwise, `ontology` is interepreted as an ontology in either owx or owl format.
-    Note: Only .owl and .owx files are currently supported.
+    If `ontology` is a path, the file is loaded. Otherwise, `ontology` is interpreted as an ontology
+    in plain text.
+    If no serialization is specified the serialization is guessed by the file extension or all parsers are tried
+    until one succeeds.
+    """
+     ...
+
+
+def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> PyIndexedOntology:
+    """
+    Opens an ontology from a file
+    
+    If the serialization is not specified it is guessed from the file extension. Defaults to OWL/XML.
+    """
+     ...
+
+
+def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> PyIndexedOntology:
+    """
+    Opens an ontology from plain text.
+    
+    If no serialization is specified, all parsers are tried until one succeeds
     """
      ...
 
