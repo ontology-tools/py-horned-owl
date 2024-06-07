@@ -37,6 +37,7 @@ fn parse_serialization(serialization: Option<&str>) -> Option<ResourceType> {
         Some("owx") => Some(ResourceType::OWX),
         Some("ofn") => Some(ResourceType::OFN),
         Some("rdf") => Some(ResourceType::RDF),
+        Some("owl") => Some(ResourceType::RDF),
         _ => None
     }
 }
@@ -77,7 +78,7 @@ fn open_ontology_rdf<R: BufRead>(
     ).map(|(o, _)| (SetOntology::from(o), Default::default()))
 }
 
-/// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> PyIndexedOntology
+/// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology
 ///
 /// Opens an ontology from a file
 ///
@@ -103,7 +104,7 @@ fn open_ontology_from_file(path: String, serialization: Option<&str>) -> PyResul
     Ok(lo)
 }
 
-/// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> PyIndexedOntology
+/// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology
 ///
 /// Opens an ontology from plain text.
 ///
@@ -130,7 +131,7 @@ fn open_ontology_from_string(ontology: String, serialization: Option<&str>) -> P
     Ok(lo)
 }
 
-/// open_ontology(ontology: str) -> PyIndexedOntology
+/// open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology
 ///
 /// Opens an ontology from a path or plain text.
 ///

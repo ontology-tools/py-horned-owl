@@ -97,7 +97,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> None:
+    def save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> None:
         """
         Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
         Defaults to OWL/XML
@@ -166,7 +166,8 @@ class PyIndexedOntology:
         """
         ...
 
-def open_ontology(ontology: str) -> PyIndexedOntology:
+
+def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology:
     """
     Opens an ontology from a path or plain text.
     
@@ -178,7 +179,7 @@ def open_ontology(ontology: str) -> PyIndexedOntology:
      ...
 
 
-def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> PyIndexedOntology:
+def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology:
     """
     Opens an ontology from a file
     
@@ -187,7 +188,7 @@ def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['o
      ...
 
 
-def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> PyIndexedOntology:
+def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology:
     """
     Opens an ontology from plain text.
     

@@ -330,7 +330,7 @@ impl PyIndexedOntology {
         Ok(literal_values)
     }
 
-    /// save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl','ofn', 'owx']]=None) -> None
+    /// save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> None
     ///
     /// Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
     /// Defaults to OWL/XML
