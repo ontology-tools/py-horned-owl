@@ -470,9 +470,64 @@ impl PyIndexedOntology {
     pub fn iri(&self, iri: String) -> model::IRI {
         model::IRI::new(iri, &self.build)
     }
+
+
+    /// get_descendants(self, parent: str) -> Set[str]
+    ///
+    /// Gets all direct and indirect subclasses of an class.
+    pub fn get_descendants(&self, parent: String) -> PyResult<HashSet<String>> {
+        let mut descendants = HashSet::new();
+
+        let b = Build::new();
+        let parentiri = b.iri(parent);
+
+        self.recurse_descendants(&parentiri, &mut descendants);
+
+        Ok(descendants)
+    }
+
+    /// get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]
+    ///
+    /// Gets all direct and indirect super classes of a class.
+    pub fn get_ancestors(&self, child: String) -> PyResult<HashSet<String>> {
+        let mut ancestors = HashSet::new();
+
+        let b = Build::new();
+        let childiri = b.iri(child);
+
+        self.recurse_ancestors(&childiri, &mut ancestors);
+
+        Ok(ancestors)
+    }
 }
 
 impl PyIndexedOntology {
+    fn recurse_descendants(
+        &self,
+        superclass: &IRI<ArcStr>,
+        descendants: &mut HashSet<String>,
+    ) {
+        descendants.insert(superclass.into());
+        if self.classes_to_subclasses.contains_key(superclass) {
+            for cls2 in &mut self.classes_to_subclasses[superclass].iter() {
+                self.recurse_descendants(cls2, descendants);
+            }
+        }
+    }
+
+    fn recurse_ancestors(
+        &self,
+        subclass: &IRI<ArcStr>,
+        ancestors: &mut HashSet<String>,
+    ) {
+        ancestors.insert(subclass.into());
+        if self.classes_to_superclasses.contains_key(subclass) {
+            for cls2 in &mut self.classes_to_superclasses[subclass].iter() {
+                self.recurse_ancestors(cls2, ancestors);
+            }
+        }
+    }
+
     pub fn insert(&mut self, ax: &AnnotatedComponent<ArcStr>) -> () {
         let b = Build::new();
 
@@ -550,56 +605,19 @@ impl PyIndexedOntology {
 
 /// get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]
 ///
-/// Gets all direct and indirect subclasses of an class.
+/// DEPRECATED: please use `PyIndexedOntology::get_descendants` instead
+/// Gets all direct and indirect subclasses of a class.
 #[pyfunction]
 pub fn get_descendants(onto: &PyIndexedOntology, parent: String) -> PyResult<HashSet<String>> {
-    let mut descendants = HashSet::new();
-
-    let b = Build::new();
-    let parentiri = b.iri(parent);
-
-    recurse_descendants(onto, &parentiri, &mut descendants);
-
-    Ok(descendants)
+    onto.get_descendants(parent)
 }
 
-fn recurse_descendants(
-    onto: &PyIndexedOntology,
-    superclass: &IRI<ArcStr>,
-    descendants: &mut HashSet<String>,
-) {
-    descendants.insert(superclass.into());
-    if onto.classes_to_subclasses.contains_key(superclass) {
-        for cls2 in &mut onto.classes_to_subclasses[superclass].iter() {
-            recurse_descendants(onto, cls2, descendants);
-        }
-    }
-}
 
 /// get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]
 ///
+/// DEPRECATED: please use `PyIndexedOntology::get_ancestors` instead
 /// Gets all direct and indirect super classes of a class.
 #[pyfunction]
 pub fn get_ancestors(onto: &PyIndexedOntology, child: String) -> PyResult<HashSet<String>> {
-    let mut ancestors = HashSet::new();
-
-    let b = Build::new();
-    let childiri = b.iri(child);
-
-    recurse_ancestors(onto, &childiri, &mut ancestors);
-
-    Ok(ancestors)
-}
-
-fn recurse_ancestors(
-    onto: &PyIndexedOntology,
-    subclass: &IRI<ArcStr>,
-    ancestors: &mut HashSet<String>,
-) {
-    ancestors.insert(subclass.into());
-    if onto.classes_to_superclasses.contains_key(subclass) {
-        for cls2 in &mut onto.classes_to_superclasses[subclass].iter() {
-            recurse_ancestors(onto, cls2, ancestors);
-        }
-    }
+    onto.get_ancestors(child)
 }

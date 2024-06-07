@@ -154,6 +154,17 @@ class PyIndexedOntology:
         """
         ...
 
+    def get_descendants(self, parent: str) -> Set[str]:
+        """
+        Gets all direct and indirect subclasses of an class.
+        """
+        ...
+
+    def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
+        """
+        Gets all direct and indirect super classes of a class.
+        """
+        ...
 
 def open_ontology(ontology: str) -> PyIndexedOntology:
     """
@@ -187,13 +198,15 @@ def open_ontology_from_string(ontology: str, serialization: Optional[typing.Lite
 
 def get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]:
     """
-    Gets all direct and indirect subclasses of an class.
+    DEPRECATED: please use `PyIndexedOntology::get_descendants` instead
+    Gets all direct and indirect subclasses of a class.
     """
      ...
 
 
 def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
     """
+    DEPRECATED: please use `PyIndexedOntology::get_ancestors` instead
     Gets all direct and indirect super classes of a class.
     """
      ...
