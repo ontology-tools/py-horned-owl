@@ -19,6 +19,7 @@ docs = dict([(x['name'], x['docs']) for x in data["index"].values() if
              ('struct' in x['inner'] or 'enum' in x['inner'] or 'variant' in x['inner'])])
 
 lines = [f'    ({n}) => {{ {json.dumps(d)} }};' for n, d in docs.items()]
+lines.sort()
 lines.append("    ($t:ident) => {\"\"}")
 
 with open("src/doc.rs", "w") as f:
