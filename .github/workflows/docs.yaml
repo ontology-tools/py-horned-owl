@@ -2,7 +2,6 @@ on:
     push:
       branches:
         - main
-        - ci_test
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
