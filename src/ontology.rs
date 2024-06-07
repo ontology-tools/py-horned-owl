@@ -11,7 +11,6 @@ use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
 use pyo3::{IntoPy, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
 use pyo3::exceptions::PyValueError;
-use pyo3::types::PyString;
 
 
 use crate::{guess_serialization, model, to_py_err};
@@ -507,9 +506,8 @@ impl PyIndexedOntology {
 ///
 /// Gets all direct and indirect subclasses of an class.
 #[pyfunction]
-pub fn get_descendants(onto: &PyIndexedOntology, parent: &PyString) -> PyResult<HashSet<String>> {
+pub fn get_descendants(onto: &PyIndexedOntology, parent: String) -> PyResult<HashSet<String>> {
     let mut descendants = HashSet::new();
-    let parent: String = parent.extract().unwrap();
 
     let b = Build::new();
     let parentiri = b.iri(parent);
@@ -536,9 +534,8 @@ fn recurse_descendants(
 ///
 /// Gets all direct and indirect super classes of a class.
 #[pyfunction]
-pub fn get_ancestors(onto: &PyIndexedOntology, child: &PyString) -> PyResult<HashSet<String>> {
+pub fn get_ancestors(onto: &PyIndexedOntology, child: String) -> PyResult<HashSet<String>> {
     let mut ancestors = HashSet::new();
-    let child: String = child.extract().unwrap();
 
     let b = Build::new();
     let childiri = b.iri(child);
