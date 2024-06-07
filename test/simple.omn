@@ -1,0 +1,4 @@
+Prefix: : <https://example.com/>
+Ontology:
+    Class: A
+    Class: B SubClassOf: A

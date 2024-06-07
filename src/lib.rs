@@ -148,7 +148,7 @@ fn open_ontology(ontology: String, serialization: Option<&str>) -> PyResult<PyIn
 }
 
 #[pymodule]
-fn pyhornedowl(py: Python, m: &PyModule) -> PyResult<()> {
+fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyIndexedOntology>()?;
 
     m.add_function(wrap_pyfunction!(open_ontology, m)?)?;
@@ -158,7 +158,7 @@ fn pyhornedowl(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_ancestors, m)?)?;
 
     let model_sub_module = model::py_module(py)?;
-    m.add_submodule(model_sub_module)?;
+    m.add_submodule(&model_sub_module)?;
 
     Ok(())
 }

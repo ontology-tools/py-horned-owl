@@ -11,7 +11,7 @@ name="pyhornedowl"
 crate-type=["cdylib"]
 
 [dependencies.pyo3]
-version = "0.20"
+version = "0.21"
 features = ["abi3-py37", "extension-module", "experimental-inspect"]
 
 [dependencies]

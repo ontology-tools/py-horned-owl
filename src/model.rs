@@ -326,18 +326,18 @@ macro_rules! wrapped_enum {
                         }
                     }
 
-                    fn __setitem__(&mut self, name: &str, value: &PyAny) -> PyResult<()> {
+                    fn __setitem__(&mut self, name: &str, value: &Bound<'_, PyAny>) -> PyResult<()> {
                         match name {
                             $($(stringify!($field_s) => {
-                                self.$field_s = FromPyObject::extract(value)?;
+                                self.$field_s = value.extract()?;
                                 Ok(())
                             },)*)?
                             $("first" => {
-                                self.0 = FromPyObject::extract(cond!(value, $field_t0))?;
+                                self.0 = cond!(value, $field_t0).extract()?;
                                 Ok(())
                             })?
                             $($("second" => {
-                                self.1 = FromPyObject::extract(cond!(value, $field_t1))?;
+                                self.1 = cond!(value, $field_t1).extract()?;
                                 Ok(())
                             })?)?
                             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
@@ -346,7 +346,7 @@ macro_rules! wrapped_enum {
 
                     #[cfg(debug_assertions)]
                     #[classmethod]
-                    fn __pyi__(_: &PyType) -> String {
+                    fn __pyi__(_: &Bound<'_, PyType>) -> String {
                         let mut res = String::new();
 
                         write!(&mut res, "class {}:\n", stringify!($v_name_full)).unwrap();
@@ -509,10 +509,10 @@ macro_rules! wrapped {
                     }
                 }
 
-                fn __setitem__(&mut self, name: &str, value: &PyAny) -> PyResult<()> {
+                fn __setitem__(&mut self, name: &str, value: &Bound<'_, PyAny>) -> PyResult<()> {
                     match name {
                         $(stringify!($field) => {
-                            self.$field = FromPyObject::extract(value)?;
+                            self.$field = value.extract()?;
                             Ok(())
                         },)*
                         &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
@@ -521,7 +521,7 @@ macro_rules! wrapped {
 
                 #[cfg(debug_assertions)]
                 #[classmethod]
-                fn __pyi__(_: &PyType) -> String {
+                fn __pyi__(_: &Bound<'_, PyType>) -> String {
                     let mut res = String::new();
 
                     write!(&mut res, "class {}:\n", stringify!($name)).unwrap();
@@ -596,7 +596,7 @@ macro_rules! wrapped {
 
             #[cfg(debug_assertions)]
             #[classmethod]
-            fn __pyi__(_: &PyType) -> String {
+            fn __pyi__(_: &Bound<'_, PyType>) -> String {
                 let mut res = String::new();
 
                 write!(&mut res, "class {}:\n", stringify!($name)).unwrap();
@@ -1005,7 +1005,7 @@ impl IRI {
     }
 
     #[classmethod]
-    pub fn parse(_: &PyType, value: String) -> Self {
+    pub fn parse(_: &Bound<'_, PyType>, value: String) -> Self {
         let builder = horned_owl::model::Build::new_arc();
         IRI(builder.iri(value))
     }
@@ -1038,7 +1038,7 @@ pub enum Facet {
 #[pymethods]
 impl Facet {
     #[classmethod]
-    fn __pyi__(_: &PyType) -> String {
+    fn __pyi__(_: &Bound<'_, PyType>) -> String {
         "class Facet:
     Length: Facet
     MinLength: Facet
@@ -1650,24 +1650,24 @@ impl IntoPy<pyo3::PyObject> for BTreeSetWrap<Annotation> {
 macro_rules! add_type_alias {
     ($py:ident, $module:ident, $($name:ident),*) => {
         {
-            let locals = [("typing", $py.import("typing")?), ("m", $module)].into_py_dict($py);
+            let locals = [("typing", &$py.import_bound("typing")?), ("m", &$module)].into_py_dict_bound($py);
 
             let mut code: String;
-            let mut ta: &PyAny;
+            let mut ta: Bound<'_, PyAny>;
 
             $(
                 code = $name::pyi(Some("m".to_string()));
-                ta = $py.eval(&code, None, Some(&locals))?;
-                locals.set_item(stringify!($name), ta)?;
+                ta = $py.eval_bound(&code, None, Some(&locals))?;
+                locals.set_item(stringify!($name), &ta)?;
                 ta.setattr("__doc__",  doc!($name))?;
-                $module.add(stringify!($name), ta)?;
+                $module.add(stringify!($name), &ta)?;
             )*
         }
     };
 }
 
-pub fn py_module(py: Python<'_>) -> PyResult<&PyModule> {
-    let module = PyModule::new(py, "model")?;
+pub fn py_module(py: Python<'_>) -> PyResult<Bound<PyModule>> {
+    let module = PyModule::new_bound(py, "model")?;
 
     // To get all members to export on the documentation website for horned_ows::model execute the following javascript command
     // console.log([...(await Promise.all(Array.from(document.querySelectorAll("a.enum")).filter(x => ["ClassExpression", "ObjectPropertyExpression", "Literal", "DataRange", ""].indexOf(x.innerText) >= 0).map(async a => { html = await(await fetch(a.href)).text(); doc = document.createElement("html"); doc.innerHTML=html; return Array.from(doc.querySelectorAll(".variant")).map(x => x.id.replace("variant.", "")); }))).flatMap(arr => arr.map(x => `module.add_class::<${ x }>()?;`)), ...Array.from(document.querySelectorAll("a.struct")).map(x=>x.innerText).filter(x => ["Build", "OntologyID"].indexOf(x) < 0).map(x => `module.add_class::<${ x }>()?;`)].join("\n"))
