@@ -5,13 +5,12 @@ use std::sync::Arc;
 
 use curie::{Curie, PrefixMapping};
 use horned_owl::io::ResourceType;
-use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Build, ClassExpression, Component, ComponentKind, IRI, Kinded, Literal, MutableOntology, OntologyID, SubClassOf};
+use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Build, ClassExpression, Component, ComponentKind, HigherKinded, IRI, Kinded, Literal, MutableOntology, OntologyID, SubClassOf};
 use horned_owl::ontology::component_mapped::{ArcComponentMappedOntology, ComponentMappedOntology};
 use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
 use pyo3::{IntoPy, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
 use pyo3::exceptions::PyValueError;
-
 
 use crate::{guess_serialization, model, to_py_err};
 
@@ -337,9 +336,9 @@ impl PyIndexedOntology {
         let mut file = File::create(file_name)?;
         let mut amo: ArcComponentMappedOntology = ComponentMappedOntology::new_arc();
 
-        //Copy the axioms into an ComponentMappedOntology as that is what horned owl writes
-        for aax in self.ontology.iter() {
-            amo.insert(aax.clone());
+        //Copy the components into an ComponentMappedOntology as that is what horned owl writes
+        for component in self.ontology.iter() {
+            amo.insert(component.clone());
         }
 
         let result = match serialization {
@@ -361,11 +360,31 @@ impl PyIndexedOntology {
         let axioms = self
             .ontology
             .components_for_iri(&iri)
-            .map(|a| model::AnnotatedComponent::from(a))
+            .filter_map(|a|
+                if a.is_axiom() {
+                    Some(model::AnnotatedComponent::from(a))
+                } else { None })
             .map(|a: model::AnnotatedComponent| a.into_py(py))
             .collect();
 
         Ok(axioms)
+    }
+
+    /// get_components_for_iri(self, iri: str) -> List[model.AnnotatedComponent]
+    ///
+    /// Gets all components (axiom, swrl, and meta component) for an entity.
+    pub fn get_components_for_iri(&mut self, py: Python<'_>, iri: String) -> PyResult<Vec<PyObject>> {
+        let b = Build::new();
+        let iri = b.iri(iri);
+
+        let components = self
+            .ontology
+            .components_for_iri(&iri)
+            .map(model::AnnotatedComponent::from)
+            .map(|a: model::AnnotatedComponent| a.into_py(py))
+            .collect();
+
+        Ok(components)
     }
 
     /// get_axioms(self) -> List[model.AnnotatedComponents]
@@ -375,24 +394,31 @@ impl PyIndexedOntology {
         let r = self
             .ontology
             .iter()
-            .map(|a| a.clone().into())
-            .map(|a: model::AnnotatedComponent| a.into_py(py))
+
+            .filter_map(|a|
+                if a.is_axiom() {
+                    Some(model::AnnotatedComponent::from(a.clone()).into_py(py))
+                } else {
+                    None
+                }
+            )
             .collect();
 
         Ok(r)
     }
 
-    /// add_axiom(self, ax: model.Component, annotations: Optional[List[model.Annotation]]) -> None
+    /// add_axiom(self, component: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None
     ///
     /// Adds an axiom to the ontology with optional annotations.
-    pub fn add_axiom(
+    #[pyo3(signature = (component, annotations = None))]
+    pub fn add_component(
         &mut self,
-        ax: model::Component,
+        component: model::Component,
         annotations: Option<BTreeSet<model::Annotation>>,
     ) -> PyResult<()> {
         let ann: model::BTreeSetWrap<model::Annotation> = annotations.unwrap_or(BTreeSet::new()).into();
         let annotated_axiom = model::AnnotatedComponent {
-            component: ax,
+            component,
             ann,
         };
         self.ontology.insert(annotated_axiom);
@@ -400,11 +426,23 @@ impl PyIndexedOntology {
         Ok(())
     }
 
-    /// remove_axiom(self, ax: model.Component) -> None
+    /// add_axiom(self, ax: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None
     ///
-    /// Removes an axiom from the ontology.
-    pub fn remove_axiom(&mut self, ax: model::Component) -> PyResult<()> {
-        let ax: Component<Arc<str>> = ax.into();
+    /// Synonym for `add_component`
+    #[pyo3(signature = (ax, annotations = None))]
+    pub fn add_axiom(
+        &mut self,
+        ax: model::Component,
+        annotations: Option<BTreeSet<model::Annotation>>,
+    ) -> PyResult<()> {
+        self.add_component(ax, annotations)
+    }
+
+    /// remove_component(self, component: model.Component) -> None
+    ///
+    /// Removes a component from the ontology.
+    pub fn remove_component(&mut self, component: model::Component) -> PyResult<()> {
+        let ax: Component<Arc<str>> = component.into();
         let annotated = self
             .ontology
             .iter()
@@ -416,9 +454,17 @@ impl PyIndexedOntology {
         Ok(())
     }
 
+
+    /// remove_axiom(self, ax: model.Component) -> None
+    ///
+    /// Synonym for `remove_component`
+    pub fn remove_axiom(&mut self, ax: model::Component) -> PyResult<()> {
+        self.remove_component(ax)
+    }
+
     /// iri(self, iri: str) -> model.IRI
     ///
-    /// Creates an new IRI from string.
+    /// Creates a new IRI from string.
     ///
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
     pub fn iri(&self, iri: String) -> model::IRI {

@@ -110,27 +110,45 @@ class PyIndexedOntology:
         """
         ...
 
+    def get_components_for_iri(self, iri: str) -> List[model.AnnotatedComponent]:
+        """
+        Gets all components (axiom, swrl, and meta component) for an entity.
+        """
+        ...
+
     def get_axioms(self) -> List[model.AnnotatedComponents]:
         """
         Returns all axioms of the ontology.
         """
         ...
 
-    def add_axiom(self, ax: model.Component, annotations: Optional[List[model.Annotation]]) -> None:
+    def add_axiom(self, component: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None:
         """
         Adds an axiom to the ontology with optional annotations.
         """
         ...
 
+    def add_axiom(self, ax: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None:
+        """
+        Synonym for `add_component`
+        """
+        ...
+
+    def remove_component(self, component: model.Component) -> None:
+        """
+        Removes a component from the ontology.
+        """
+        ...
+
     def remove_axiom(self, ax: model.Component) -> None:
         """
-        Removes an axiom from the ontology.
+        Synonym for `remove_component`
         """
         ...
 
     def iri(self, iri: str) -> model.IRI:
         """
-        Creates an new IRI from string.
+        Creates a new IRI from string.
         
         Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
         """
