@@ -21,7 +21,7 @@ jobs:
           workflow: "CI.yaml"
           branch: ${{ github.ref }}
           name: wheels-linux-x86_64
-          path: wheels
+          path: wheels/
       - name: "Install packages"
         run: |
           pip install -U sphinx sphinx_rtd_theme
