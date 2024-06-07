@@ -1,5 +1,6 @@
 use std::{borrow::Borrow, collections::BTreeSet, sync::Arc};
 use std::fmt::Write;
+use std::hash::{DefaultHasher, Hasher, Hash};
 
 use horned_owl::model::ArcStr;
 use paste::paste;
@@ -222,7 +223,7 @@ macro_rules! wrapped_enum {
     }) => {
         paste! {
             #[allow(non_camel_case_types)]
-            #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+            #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
             enum [<$name _ Inner>] {
                 $($(
                     $v_name([<$v_name_full>]),
@@ -232,7 +233,7 @@ macro_rules! wrapped_enum {
                 )?)*
             }
 
-            #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+            #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
             pub struct $name([<$name _ Inner>]);
 
             impl ToPyi for $name {
@@ -283,7 +284,7 @@ macro_rules! wrapped_enum {
                     "\n\n",doc!($v_name_full))]
                 #[allow(non_camel_case_types)]
                 #[pyclass(module="pyhornedowl.model")]
-                #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+                #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
                 pub struct [<$v_name_full>]
                     $((
                         #[pyo3(get,set,name="first")]
@@ -372,6 +373,16 @@ macro_rules! wrapped_enum {
                         write!(&mut res, "    ...\n").unwrap();
 
                         res
+                    }
+                    
+                    fn __hash__(&self) -> u64 {
+                        let mut s = DefaultHasher::new();
+                        Hash::hash(&self, &mut s);
+                        s.finish()
+                    }
+
+                    fn __eq__(&self, other: &Self) -> bool {
+                        self == other
                     }
                 }
             )?)*
@@ -485,7 +496,7 @@ macro_rules! wrapped {
                 doc!($name)
             )]
             #[pyclass(module="pyhornedowl.model",mapping)]
-            #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+            #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
             pub struct $name {
                 $(
                     #[pyo3(get,set)]
@@ -539,6 +550,16 @@ macro_rules! wrapped {
 
                     res
                 }
+
+                fn __hash__(&self) -> u64 {
+                    let mut s = DefaultHasher::new();
+                    Hash::hash(&self, &mut s);
+                    s.finish()
+                }
+
+                fn __eq__(&self, other: &Self) -> bool {
+                    self == other
+                }
             }
 
             impl From<&horned_owl::model::$name<ArcStr>> for $name {
@@ -574,7 +595,7 @@ macro_rules! wrapped {
             doc!($name)
         )]
         #[pyclass(module="pyhornedowl.model")]
-        #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+        #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
         pub struct $name (
             #[pyo3(get,set,name="first")]
             pub $type0,
@@ -615,6 +636,16 @@ macro_rules! wrapped {
 
                 res
             }
+
+            fn __hash__(&self) -> u64 {
+                let mut s = DefaultHasher::new();
+                Hash::hash(&self, &mut s);
+                s.finish()
+            }
+
+            fn __eq__(&self, other: &Self) -> bool {
+                self == other
+            }
         }
 
         impl From<&horned_owl::model::$name<ArcStr>> for $name {
@@ -642,7 +673,7 @@ macro_rules! wrapped {
     (transparent pub enum $name:ident {
         $($v_name:ident ( $field:ty ),)*
     }) => {
-        #[derive(Debug, FromPyObject, Clone, PartialEq, Eq, PartialOrd, Ord)]
+        #[derive(Debug, FromPyObject, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
         pub enum $name {
             $(
                 #[pyo3(transparent)]
@@ -898,7 +929,7 @@ trait ToPyi {
     fn pyi(module: Option<String>) -> String;
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct VecWrap<T>(Vec<T>);
 
 impl<T> From<Vec<T>> for VecWrap<T> {
@@ -925,7 +956,7 @@ impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for VecWrap<T> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BoxWrap<T>(Box<T>);
 
 impl<'source, T: FromPyObject<'source>> FromPyObject<'source> for BoxWrap<T> {
@@ -940,7 +971,7 @@ impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for BoxWrap<T> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct StringWrapper(String);
 
 impl From<&Arc<str>> for StringWrapper {
@@ -967,7 +998,7 @@ impl<'source> FromPyObject<'source> for StringWrapper {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[pyclass(module = "pyhornedowl.model")]
 pub struct IRI(horned_owl::model::IRI<ArcStr>);
 
@@ -1018,7 +1049,7 @@ impl IRI {
 }
 
 #[doc = doc!(Facet)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[pyclass(module = "pyhornedowl.model")]
 pub enum Facet {
     Length = 1,
@@ -1053,6 +1084,16 @@ impl Facet {
     LangRange: Facet
 "
             .to_owned()
+    }
+
+    fn __hash__(&self) -> u64 {
+        let mut s = DefaultHasher::new();
+        Hash::hash(&self, &mut s);
+        s.finish()
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self == other
     }
 }
 
@@ -1607,7 +1648,7 @@ wrapped! {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BTreeSetWrap<T>(BTreeSet<T>);
 
 impl<T> From<BTreeSet<T>> for BTreeSetWrap<T> {
