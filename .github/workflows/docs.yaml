@@ -21,9 +21,7 @@ jobs:
           workflow: "CI.yaml"
           branch: ${{ github.ref }}
           name: wheels-linux-x86_64
-      - name: "Extract artifact"
-        run: >
-          find . && mkdir wheels && cd wheels && unzip ../wheels-linux-x86_64.zip
+          path: wheels
       - name: "Install packages"
         run: |
           pip install -U sphinx sphinx_rtd_theme
