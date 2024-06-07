@@ -23,7 +23,7 @@ jobs:
           name: wheels-linux-x86_64
       - name: "Extract artifact"
         run: >
-          mkdir wheels && cd wheels && unzip ../wheels-linux-x86_64.zip
+          find . && mkdir wheels && cd wheels && unzip ../wheels-linux-x86_64.zip
       - name: "Install packages"
         run: |
           pip install -U sphinx sphinx_rtd_theme
