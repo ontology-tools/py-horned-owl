@@ -1,40 +1,18 @@
 import typing
+import unittest
 from tempfile import NamedTemporaryFile
 
-import os.path
-import unittest
 import pyhornedowl
-from pyhornedowl.model import *
-
-
-def r(*args: str) -> str:
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), "resources", *args))
-
-
-def res(resource: str) -> str:
-    with open(r(resource)) as f:
-        return f.read()
-
-
-def simple_ontology() -> pyhornedowl.PyIndexedOntology:
-    onto = pyhornedowl.PyIndexedOntology()
-    onto.add_axiom(DeclareClass(Class(onto.iri("https://example.com/A"))))
-    onto.add_axiom(DeclareClass(Class(onto.iri("https://example.com/B"))))
-    onto.add_axiom(SubClassOf(
-        Class(onto.iri("https://example.com/A")),
-        Class(onto.iri("https://example.com/B"))))
-
-    return onto
-
+from test_base import r, res, simple_ontology
 
 SERIALIZATIONS: typing.List[typing.Literal['ofn', 'owx', 'owl']] = ['ofn', 'owx', 'owl']
 
 
-class IO(unittest.TestCase):
+class IOTestCase(unittest.TestCase):
 
     def assertOntologiesEqual(self, actual, expected):
-        self.assertSetEqual(set(actual.get_axioms()), set(expected.get_axioms()), "Axioms do not match!")
-        self.assertEqual(actual.get_iri(), expected.get_iri(), "Ontology IRIs do not match!")
+        self.assertSetEqual(set(expected.get_axioms()), set(actual.get_axioms()), "Axioms do not match!")
+        self.assertEqual(expected.get_iri(), actual.get_iri(), "Ontology IRIs do not match!")
 
     @unittest.skip("Functional syntax parser parses others formats without errors others panic")
     def test_load_simple_from_string_generic_guess(self):

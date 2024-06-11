@@ -12,7 +12,7 @@ crate-type=["cdylib"]
 
 [dependencies.pyo3]
 version = "0.21"
-features = ["abi3-py37", "extension-module", "experimental-inspect"]
+features = ["abi3-py37", "extension-module", "experimental-inspect", "multiple-pymethods"]
 
 [dependencies]
 horned-owl = "1.0.0"

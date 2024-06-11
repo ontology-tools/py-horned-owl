@@ -61,7 +61,7 @@ with open("pyhornedowl/__init__.pyi", "w") as f:
 
                         f.write(f"def {sign}:\n")
                         doc = "\n".join([f"    {l}" for l in lines[2:]])
-                        f.write(f'    """\n{doc}\n    """\n     ...\n\n')
+                        f.write(f'    """\n{doc}\n    """\n    ...\n\n')
 
             f.write("\n")
 

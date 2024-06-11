@@ -1,5 +1,3 @@
-Prefix(:=<https://example.com/>)
-Prefix(dc:=<http://purl.org/dc/elements/1.1/>)
 Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
 Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
 Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
@@ -8,15 +6,22 @@ Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
 
 
 Ontology(
-Declaration(Class(:A))
-Declaration(Class(:B))
+Declaration(Class(<https://example.com/A>))
+Declaration(Class(<https://example.com/B>))
+
+
 ############################
 #   Classes
 ############################
 
-# Class: :B (:B)
+# Class: <https://example.com/A> (ClassA)
 
-SubClassOf(:B :A)
+AnnotationAssertion(rdfs:label <https://example.com/A> "ClassA")
+
+# Class: <https://example.com/B> (ClassB)
+
+AnnotationAssertion(rdfs:label <https://example.com/B> "ClassB")
+SubClassOf(<https://example.com/B> <https://example.com/A>)
 
 
 )
