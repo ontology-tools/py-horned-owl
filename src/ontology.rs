@@ -413,11 +413,12 @@ impl PyIndexedOntology {
         annotations: Option<BTreeSet<model::Annotation>>,
     ) -> PyResult<()> {
         let ann: model::BTreeSetWrap<model::Annotation> = annotations.unwrap_or(BTreeSet::new()).into();
-        let annotated_axiom = model::AnnotatedComponent {
+        let annotated_component: AnnotatedComponent<ArcStr> = model::AnnotatedComponent {
             component,
             ann,
         }.into();
-        self.insert(&annotated_axiom);
+        self.insert(&annotated_component);
+        self.ontology.insert(annotated_component);
 
         Ok(())
     }
