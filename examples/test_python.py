@@ -1,6 +1,7 @@
+import time
+
 import pyhornedowl
 from pyhornedowl.model import *
-import time
 
 print("Loading ontology")
 
