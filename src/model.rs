@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::BTreeSet, sync::Arc};
-use std::fmt::Write;
-use std::hash::{DefaultHasher, Hasher, Hash};
+use std::fmt::{Display, Write};
+use std::hash::{DefaultHasher, Hash, Hasher};
 
 use horned_owl::model::ArcStr;
 use paste::paste;
@@ -481,6 +481,25 @@ macro_rules! wrapped_enum {
             wrapped_base! {$name}
         }
     };
+}
+
+macro_rules! named {
+    (pub struct $name:ident ( pub $type0:ty $(, pub $type1:ty)?)) => {
+        wrapped!(pub struct $name ( pub $type0 $(, pub $type1)?));
+
+        impl Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{}", self.0.0.to_string())
+            }
+        }
+
+        #[pymethods]
+        impl $name {
+            fn __str__(&self) -> String {
+                self.to_string()
+            }
+        }
+    }
 }
 
 macro_rules! wrapped {
@@ -974,6 +993,18 @@ impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for BoxWrap<T> {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct StringWrapper(String);
 
+impl From<String> for StringWrapper {
+    fn from(value: String) -> Self {
+        StringWrapper(value)
+    }
+}
+
+impl From<StringWrapper> for String {
+    fn from(value: StringWrapper) -> Self {
+        value.0
+    }
+}
+
 impl From<&Arc<str>> for StringWrapper {
     fn from(value: &Arc<str>) -> Self {
         StringWrapper(value.to_string())
@@ -1023,6 +1054,12 @@ impl From<&IRI> for horned_owl::model::IRI<ArcStr> {
 impl From<&horned_owl::model::IRI<ArcStr>> for IRI {
     fn from(value: &horned_owl::model::IRI<ArcStr>) -> Self {
         IRI(value.clone())
+    }
+}
+
+impl From<IRI> for String {
+    fn from(value: IRI) -> Self {
+        value.0.to_string()
     }
 }
 
@@ -1145,12 +1182,13 @@ impl From<horned_owl::vocab::Facet> for Facet {
     }
 }
 
-wrapped! { pub struct Class(pub IRI) }
-wrapped! { pub struct AnonymousIndividual(pub StringWrapper) }
-wrapped! { pub struct NamedIndividual(pub IRI) }
-wrapped! { pub struct ObjectProperty(pub IRI) }
-wrapped! { pub struct Datatype(pub IRI) }
-wrapped! { pub struct DataProperty(pub IRI) }
+named! { pub struct Class(pub IRI) }
+named! { pub struct AnonymousIndividual(pub StringWrapper) }
+named! { pub struct NamedIndividual(pub IRI) }
+named! { pub struct ObjectProperty(pub IRI) }
+named! { pub struct Datatype(pub IRI) }
+named! { pub struct DataProperty(pub IRI) }
+
 wrapped! { pub struct FacetRestriction {
     pub f: Facet,
     pub l: Literal,
