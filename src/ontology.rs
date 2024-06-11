@@ -105,8 +105,9 @@ impl PyIndexedOntology {
     /// Sets the label of a term by iri.
     ///
     /// Adds an or updates the `AnnotationAssertion` axiom for `rdfs:label`.
-    pub fn set_label(&mut self, iri: String, label: String) -> PyResult<()> {
-        let iri = self.build.iri(iri);
+    #[pyo3[signature = (iri, label, *, absolute = true)]]
+    pub fn set_label(&mut self, iri: String, label: String, absolute: Option<bool>) -> PyResult<()> {
+        let iri: IRI<ArcStr> = self.iri(iri, absolute)?.into();
 
         let ax1: AnnotatedComponent<ArcStr> = Component::AnnotationAssertion(AnnotationAssertion {
             subject: iri.clone().into(),
@@ -193,11 +194,12 @@ impl PyIndexedOntology {
         }
     }
 
-    /// get_subclasses(self, iri: str) -> Set[str]
+    /// get_subclasses(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all subclasses of an entity.
-    pub fn get_subclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
-        let iri = self.build.iri(iri);
+    #[pyo3[signature = (iri, iri_is_absolute = None)]]
+    pub fn get_subclasses(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<HashSet<String>> {
+        let iri: IRI<ArcStr> = self.iri(iri, iri_is_absolute)?.into();
 
         let subclasses = self.classes_to_subclasses.get(&iri);
         if let Some(subclss) = subclasses {
@@ -208,11 +210,12 @@ impl PyIndexedOntology {
         }
     }
 
-    /// get_superclasses(self, iri: str) -> Set[str]
+    /// get_superclasses(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all superclasses of an entity.
-    pub fn get_superclasses(&mut self, iri: String) -> PyResult<HashSet<String>> {
-        let iri = self.build.iri(iri);
+    #[pyo3[signature = (iri, iri_is_absolute = None)]]
+    pub fn get_superclasses(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<HashSet<String>> {
+        let iri: IRI<ArcStr> = self.iri(iri, iri_is_absolute)?.into();
 
         let superclasses = self.classes_to_superclasses.get(&iri);
         if let Some(superclss) = superclasses {
@@ -257,68 +260,50 @@ impl PyIndexedOntology {
         Ok(object_properties)
     }
 
-    /// get_annotation(self, class_iri: str, ann_iri: str) -> Optional[str]
+    /// get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> List[str]
     ///
     /// Gets the first annotated value for an entity and annotation property.
     ///
     /// Note: If there are multiple annotation axioms for the queried entity and annotation property,
     /// the order is neither necessarily the same as in the ontology neither is it stable.
     /// Get all annotation values with `PyIndexedOntology.get_annotations`.
+    #[pyo3[signature = (class_iri, ann_iri, *, class_iri_is_absolute = None, ann_iri_is_absolute = None)]]
     pub fn get_annotation(
         &mut self,
-        py: Python,
         class_iri: String,
         ann_iri: String,
-    ) -> PyResult<PyObject> {
-        let annots = self.get_annotations(class_iri, ann_iri);
-
-        let mut literal_value = ().to_object(py);
-
-        if let Ok(literal_values) = annots {
-            if !literal_values.is_empty() {
-                literal_value = literal_values.into_iter().next().to_object(py);
-            }
-        }
-
-        Ok(literal_value)
+        class_iri_is_absolute: Option<bool>,
+        ann_iri_is_absolute: Option<bool>,
+    ) -> PyResult<Option<String>> {
+        self.get_annotations(class_iri, ann_iri, class_iri_is_absolute, ann_iri_is_absolute)
+            .map(|x| x.first().map(Into::into))
     }
 
-    /// get_annotations(self, class_iri: str, ann_iri: str) -> List[str]
+    /// get_annotations(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> List[str]
     ///
     /// Gets all annotated value for an entity and annotation property.
     ///
     /// Note: The order is neither necessarily the same as in the ontology neither is it stable.
     /// Get all annotation values with `PyIndexedOntology.get_annotations`.
-    pub fn get_annotations(&mut self, class_iri: String, ann_iri: String) -> PyResult<Vec<String>> {
-        let iri = self.build.iri(class_iri);
-
-        let literal_values: Vec<String> = self.ontology.components_for_iri(&iri)
+    #[pyo3[signature = (class_iri, ann_iri, *, class_iri_is_absolute = None, ann_iri_is_absolute = None)]]
+    pub fn get_annotations(&mut self, class_iri: String, ann_iri: String, class_iri_is_absolute: Option<bool>, ann_iri_is_absolute: Option<bool>) -> PyResult<Vec<String>> {
+        let class_iri: IRI<ArcStr> = self.iri(class_iri, class_iri_is_absolute)?.into();
+        let ann_iri: IRI<ArcStr> = self.iri(ann_iri, ann_iri_is_absolute)?.into();
+        let literal_values: Vec<String> = self.ontology.components_for_iri(&class_iri)
             .filter_map(|aax: &AnnotatedComponent<ArcStr>| {
                 match &aax.component {
                     Component::AnnotationAssertion(AnnotationAssertion { subject: _, ann }) => {
                         match ann {
                             Annotation { ap, av: AnnotationValue::Literal(Literal::Simple { literal }) } => {
-                                if ann_iri.eq(&ap.0.to_string()) {
-                                    Some(literal.clone())
-                                } else {
-                                    None
-                                }
+                                if ann_iri.eq(&ap.0) { Some(literal.clone()) } else { None }
                             }
                             //Language { literal: String, lang: String },
                             Annotation { ap, av: AnnotationValue::Literal(Literal::Language { literal, lang: _ }) } => {
-                                if ann_iri.eq(&ap.0.to_string()) {
-                                    Some(literal.clone())
-                                } else {
-                                    None
-                                }
+                                if ann_iri.eq(&ap.0) { Some(literal.clone()) } else { None }
                             }
                             //Datatype { literal: String, datatype_iri: IRI },
                             Annotation { ap, av: AnnotationValue::Literal(Literal::Datatype { literal, datatype_iri: _ }) } => {
-                                if ann_iri.eq(&ap.0.to_string()) {
-                                    Some(literal.clone())
-                                } else {
-                                    None
-                                }
+                                if ann_iri.eq(&ap.0) { Some(literal.clone()) } else { None }
                             }
                             _ => None,
                         }
@@ -355,12 +340,12 @@ impl PyIndexedOntology {
         result.map_err(to_py_err!("Problem saving the ontology to a file"))
     }
 
-    /// get_axioms_for_iri(self, iri: str) -> List[model.AnnotatedComponent]
+    /// get_axioms_for_iri(self, iri: str, iri_is_absolute: Optional[bool] = None) -> List[model.AnnotatedComponent]
     ///
     /// Gets all axioms for an entity.
-    pub fn get_axioms_for_iri(&mut self, py: Python<'_>, iri: String) -> PyResult<Vec<PyObject>> {
-        let b = Build::new();
-        let iri = b.iri(iri);
+    #[pyo3[signature = (iri, *, iri_is_absolute = None)]]
+    pub fn get_axioms_for_iri(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<Vec<model::AnnotatedComponent>> {
+        let iri: IRI<ArcStr> = self.iri(iri, iri_is_absolute)?.into();
 
         let axioms = self
             .ontology
@@ -369,24 +354,22 @@ impl PyIndexedOntology {
                 if a.is_axiom() {
                     Some(model::AnnotatedComponent::from(a))
                 } else { None })
-            .map(|a: model::AnnotatedComponent| a.into_py(py))
             .collect();
 
         Ok(axioms)
     }
 
-    /// get_components_for_iri(self, iri: str) -> List[model.AnnotatedComponent]
+    /// get_components_for_iri(self, iri: str, iri_is_absolute: Optional[bool] = None) -> List[model.AnnotatedComponent]
     ///
     /// Gets all components (axiom, swrl, and meta component) for an entity.
-    pub fn get_components_for_iri(&mut self, py: Python<'_>, iri: String) -> PyResult<Vec<PyObject>> {
-        let b = Build::new();
-        let iri = b.iri(iri);
+    #[pyo3[signature = (iri, *, iri_is_absolute = None)]]
+    pub fn get_components_for_iri(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<Vec<model::AnnotatedComponent>> {
+        let iri: IRI<ArcStr> = self.iri(iri, iri_is_absolute)?.into();
 
         let components = self
             .ontology
             .components_for_iri(&iri)
             .map(model::AnnotatedComponent::from)
-            .map(|a: model::AnnotatedComponent| a.into_py(py))
             .collect();
 
         Ok(components)
@@ -467,40 +450,61 @@ impl PyIndexedOntology {
         self.remove_component(ax)
     }
 
-    /// iri(self, iri: str) -> model.IRI
+    /// iri(self, iri: str, *, absolute: Optional[bool] = True) -> model.IRI
     ///
     /// Creates a new IRI from string.
     ///
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
     pub fn iri(&self, iri: String) -> model::IRI {
         model::IRI::new(iri, &self.build)
+    /// If `absolute` is None it is guessed by the occurrence of `"://"` in the IRI whether the iri
+    /// is absolute or not.
+    #[pyo3[signature = (iri, *, absolute = true)]]
+    pub fn iri(&self, iri: String, absolute: Option<bool>) -> PyResult<model::IRI> {
+        let absolute = absolute.unwrap_or_else(|| iri.contains("://"));
+        let r = if absolute {
+            model::IRI::new(iri, &self.build)
+        } else {
+            self.curie(iri)?
+        };
+        Ok(r)
     }
 
 
-    /// get_descendants(self, parent: str) -> Set[str]
+    /// curie(self, iri: str) -> model.IRI
     ///
-    /// Gets all direct and indirect subclasses of an class.
-    pub fn get_descendants(&self, parent: String) -> PyResult<HashSet<String>> {
+    /// Creates a new IRI from CURIE string.
+    ///
+    /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
+    pub fn curie(&self, curie: String) -> PyResult<model::IRI> {
+        let iri = self.mapping.expand_curie_string(&curie).map_err(to_py_err!("Invalid curie"))?;
+        Ok(model::IRI::new(iri, &self.build))
+    }
+
+
+    /// get_descendants(self, parent: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
+    ///
+    /// Gets all direct and indirect subclasses of a class.
+    #[pyo3[signature = (parent_iri, *, iri_is_absolute = None)]]
+    pub fn get_descendants(&self, parent_iri: String, iri_is_absolute: Option<bool>) -> PyResult<HashSet<String>> {
         let mut descendants = HashSet::new();
+        let parent_iri: IRI<ArcStr> = self.iri(parent_iri, iri_is_absolute)?.into();
 
-        let b = Build::new();
-        let parentiri = b.iri(parent);
-
-        self.recurse_descendants(&parentiri, &mut descendants);
+        self.recurse_descendants(&parent_iri, &mut descendants);
 
         Ok(descendants)
     }
 
-    /// get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]
+    /// get_ancestors(onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all direct and indirect super classes of a class.
-    pub fn get_ancestors(&self, child: String) -> PyResult<HashSet<String>> {
+    #[pyo3[signature = (child_iri, *, iri_is_absolute = None)]]
+    pub fn get_ancestors(&self, child_iri: String, iri_is_absolute: Option<bool>) -> PyResult<HashSet<String>> {
         let mut ancestors = HashSet::new();
 
-        let b = Build::new();
-        let childiri = b.iri(child);
+        let child_iri: IRI<ArcStr> = self.iri(child_iri, iri_is_absolute)?.into();
 
-        self.recurse_ancestors(&childiri, &mut ancestors);
+        self.recurse_ancestors(&child_iri, &mut ancestors);
 
         Ok(ancestors)
     }
@@ -614,7 +618,7 @@ impl PyIndexedOntology {
 /// Gets all direct and indirect subclasses of a class.
 #[pyfunction]
 pub fn get_descendants(onto: &PyIndexedOntology, parent: String) -> PyResult<HashSet<String>> {
-    onto.get_descendants(parent)
+    onto.get_descendants(parent, Some(true))
 }
 
 
@@ -624,5 +628,5 @@ pub fn get_descendants(onto: &PyIndexedOntology, parent: String) -> PyResult<Has
 /// Gets all direct and indirect super classes of a class.
 #[pyfunction]
 pub fn get_ancestors(onto: &PyIndexedOntology, child: String) -> PyResult<HashSet<String>> {
-    onto.get_ancestors(child)
+    onto.get_ancestors(child, Some(true))
 }
