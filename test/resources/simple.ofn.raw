@@ -8,6 +8,7 @@ Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
 Ontology(
 Declaration(Class(<https://example.com/A>))
 Declaration(Class(<https://example.com/B>))
+Declaration(Class(<https://example.com/C>))
 
 
 ############################

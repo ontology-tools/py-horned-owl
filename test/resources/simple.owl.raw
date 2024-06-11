@@ -35,6 +35,12 @@
         <rdfs:subClassOf rdf:resource="https://example.com/A"/>
         <rdfs:label>ClassB</rdfs:label>
     </Class>
+    
+
+
+    <!-- https://example.com/C -->
+
+    <Class rdf:about="https://example.com/C"/>
 </rdf:RDF>
 
 

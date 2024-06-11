@@ -123,12 +123,12 @@ impl PyIndexedOntology {
         Ok(())
     }
 
-    /// set_label(self, iri: str, label: str, *, absolute: Optional[bool] = True) -> None
+    /// set_label(self, iri: str, label: str, *, absolute: Optional[bool] = None) -> None
     ///
     /// Sets the label of a term by iri.
     ///
     /// Adds an or updates the `AnnotationAssertion` axiom for `rdfs:label`.
-    #[pyo3[signature = (iri, label, *, absolute = true)]]
+    #[pyo3[signature = (iri, label, *, absolute = None)]]
     pub fn set_label(&mut self, iri: String, label: String, absolute: Option<bool>) -> PyResult<()> {
         let iri: IRI<ArcStr> = self.iri(iri, absolute)?.into();
 
@@ -268,7 +268,7 @@ impl PyIndexedOntology {
         Ok(object_properties)
     }
 
-    /// get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> List[str]
+    /// get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> Optional[str]
     ///
     /// Gets the first annotated value for an entity and annotation property.
     ///
@@ -398,6 +398,21 @@ impl PyIndexedOntology {
                     None
                 }
             )
+            .collect();
+
+        Ok(r)
+    }
+
+
+    /// get_components(self) -> List[model.AnnotatedComponent]
+    ///
+    /// Returns all axioms of the ontology.
+    pub fn get_components(&mut self) -> PyResult<Vec<model::AnnotatedComponent>> {
+        let r = self
+            .ontology
+            .iter()
+
+            .map(model::AnnotatedComponent::from)
             .collect();
 
         Ok(r)

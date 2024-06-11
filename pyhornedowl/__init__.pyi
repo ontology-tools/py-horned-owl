@@ -33,7 +33,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def set_label(self, iri: str, label: str, *, absolute: Optional[bool] = True) -> None:
+    def set_label(self, iri: str, label: str, *, absolute: Optional[bool] = None) -> None:
         """
         Sets the label of a term by iri.
         
@@ -86,7 +86,7 @@ class PyIndexedOntology:
         ...
 
     def get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None,
-                       ann_iri_is_absolute: Optional[bool] = None) -> List[str]:
+                       ann_iri_is_absolute: Optional[bool] = None) -> Optional[str]:
         """
         Gets the first annotated value for an entity and annotation property.
         
@@ -127,6 +127,12 @@ class PyIndexedOntology:
         ...
 
     def get_axioms(self) -> List[model.AnnotatedComponent]:
+        """
+        Returns all axioms of the ontology.
+        """
+        ...
+
+    def get_components(self) -> List[model.AnnotatedComponent]:
         """
         Returns all axioms of the ontology.
         """

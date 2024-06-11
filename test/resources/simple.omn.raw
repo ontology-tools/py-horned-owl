@@ -4,3 +4,4 @@ Ontology:
         Annotations: rdfs:label "ClassA"
     Class: B SubClassOf: A
         Annotations: rdfs:label "ClassB"
+    Class: C

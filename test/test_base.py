@@ -19,6 +19,7 @@ def simple_ontology_comps() -> list[Component]:
     return [
         DeclareClass(Class(IRI.parse("https://example.com/A"))),
         DeclareClass(Class(IRI.parse("https://example.com/B"))),
+        DeclareClass(Class(IRI.parse("https://example.com/C"))),
         SubClassOf(
             Class(IRI.parse("https://example.com/A")),
             Class(IRI.parse("https://example.com/B"))),

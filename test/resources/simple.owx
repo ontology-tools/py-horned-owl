@@ -16,6 +16,9 @@
     <Declaration>
         <Class IRI="https://example.com/B"/>
     </Declaration>
+    <Declaration>
+        <Class IRI="https://example.com/C"/>
+    </Declaration>
     <SubClassOf>
         <Class IRI="https://example.com/B"/>
         <Class IRI="https://example.com/A"/>
