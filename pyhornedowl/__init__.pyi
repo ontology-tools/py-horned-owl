@@ -3,7 +3,14 @@ from typing import *
 
 import model
 
+
 class PyIndexedOntology:
+    def add_default_prefix_names(self) -> None:
+        """
+        Adds the prefix for rdf, rdfs, xsd, and owl
+        """
+        ...
+
     def get_id_for_iri(self, iri: str) -> Optional[str]:
         """
         Gets the ID of term by it IRI.
@@ -217,9 +224,9 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_descendants(self, parent: str) -> Set[str]:
+    def declare_annotation_property(self, iri: str, *, absolute: Optional[bool] = None) -> bool:
         """
-        Gets all direct and indirect subclasses of an class.
+        Convenience method to add a Declare(annotationProperty(iri)) axiom.
         """
         ...
 

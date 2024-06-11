@@ -52,6 +52,22 @@ impl PyIndexedOntology {
         Default::default()
     }
 
+    /// add_default_prefix_names(self) -> None
+    ///
+    /// Adds the prefix for rdf, rdfs, xsd, and owl
+    pub fn add_default_prefix_names(&mut self) -> PyResult<()> {
+        self.mapping.add_prefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+            .map_err(to_py_err!("Error while adding predefined prefix 'rdf'"))?;
+        self.mapping.add_prefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#")
+            .map_err(to_py_err!("Error while adding predefined prefix 'rdfs'"))?;
+        self.mapping.add_prefix("xsd", "http://www.w3.org/2001/XMLSchema#")
+            .map_err(to_py_err!("Error while adding predefined prefix 'xsd'"))?;
+        self.mapping.add_prefix("owl", "http://www.w3.org/2002/07/owl#")
+            .map_err(to_py_err!("Error while adding predefined prefix 'owl'"))?;
+
+        Ok(())
+    }
+
     /// get_id_for_iri(self, iri: str) -> Optional[str]
     ///
     /// Gets the ID of term by it IRI.
