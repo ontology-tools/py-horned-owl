@@ -98,10 +98,16 @@ impl PyIndexedOntology {
     /// Adds the prefix `iriprefix`.
     pub fn add_prefix_mapping(&mut self, iriprefix: String, mappedid: String) -> PyResult<()> {
         let result = self.mapping.add_prefix(&iriprefix, &mappedid);
-        result.map_err(to_py_err!("Error - prefix is invalid."))
+        let _ = result.map_err(to_py_err!("Error - prefix is invalid."))?;
+
+        if iriprefix.is_empty() {
+            self.mapping.set_default(mappedid.as_str());
+        }
+
+        Ok(())
     }
 
-    /// set_label(self, iri: str, label: str) -> None
+    /// set_label(self, iri: str, label: str, *, absolute: Optional[bool] = True) -> None
     ///
     /// Sets the label of a term by iri.
     ///
