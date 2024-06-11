@@ -119,13 +119,13 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_axioms(self) -> List[model.AnnotatedComponents]:
+    def get_axioms(self) -> List[model.AnnotatedComponent]:
         """
         Returns all axioms of the ontology.
         """
         ...
 
-    def add_axiom(self, component: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None:
+    def add_component(self, component: model.Component, annotations: Optional[List[model.Annotation]] = None) -> None:
         """
         Adds an axiom to the ontology with optional annotations.
         """
@@ -265,7 +265,7 @@ def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', '
     If no serialization is specified the serialization is guessed by the file extension or all parsers are tried
     until one succeeds.
     """
-     ...
+    ...
 
 
 def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology:
@@ -274,7 +274,7 @@ def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['o
     
     If the serialization is not specified it is guessed from the file extension. Defaults to OWL/XML.
     """
-     ...
+    ...
 
 
 def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology:
@@ -283,7 +283,7 @@ def open_ontology_from_string(ontology: str, serialization: Optional[typing.Lite
     
     If no serialization is specified, all parsers are tried until one succeeds
     """
-     ...
+    ...
 
 
 def get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]:
@@ -291,7 +291,7 @@ def get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]:
     DEPRECATED: please use `PyIndexedOntology::get_descendants` instead
     Gets all direct and indirect subclasses of a class.
     """
-     ...
+    ...
 
 
 def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
@@ -299,6 +299,4 @@ def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
     DEPRECATED: please use `PyIndexedOntology::get_ancestors` instead
     Gets all direct and indirect super classes of a class.
     """
-     ...
-
-
+    ...

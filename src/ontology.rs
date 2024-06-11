@@ -9,10 +9,11 @@ use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, Ann
 use horned_owl::ontology::component_mapped::{ArcComponentMappedOntology, ComponentMappedOntology};
 use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
-use pyo3::{IntoPy, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
+use pyo3::{pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
 use pyo3::exceptions::PyValueError;
 
 use crate::{guess_serialization, model, to_py_err};
+use crate::model::AnonymousIndividual;
 
 /// Represents a loaded ontology.
 #[pyclass]
@@ -161,37 +162,22 @@ impl PyIndexedOntology {
     /// Returns the IRI of a term by its label if it exists.
     ///
     /// If the term does not have a label, `None` is returned.
-    pub fn get_iri_for_label(&mut self, py: Python, label: String) -> PyResult<PyObject> {
-        let iri_value = &self.labels_to_iris.get(&label);
-        if let Some(iri_value) = iri_value {
-            Ok(iri_value.to_string().to_object(py))
-        } else {
-            Ok(().to_object(py))
-        }
+    pub fn get_iri_for_label(&mut self, label: String) -> PyResult<Option<model::IRI>> {
+        Ok(self.labels_to_iris.get(&label).map(model::IRI::from))
     }
 
     /// get_iri(self) -> Optional[str]
     ///
     /// Returns the ontology iri, if it exists.
-    pub fn get_iri(&mut self, py: Python) -> PyResult<PyObject> {
-        let iri_value = &self.get_id().and_then(|x| x.iri.as_ref());
-        if let Some(iri_value) = iri_value {
-            Ok(iri_value.to_string().to_object(py))
-        } else {
-            Ok(().to_object(py))
-        }
+    pub fn get_iri(&mut self) -> PyResult<Option<model::IRI>> {
+        Ok(self.get_id().and_then(|x| x.iri.as_ref()).map(model::IRI::from))
     }
 
     /// get_version_iri(self) -> Optional[str]
     ///
     /// Returns the ontologys version iri, if it exists.
-    pub fn get_version_iri(&mut self, py: Python) -> PyResult<PyObject> {
-        let iri_value = self.get_id().and_then(|x| x.viri.as_ref());
-        if let Some(iri_value) = iri_value {
-            Ok(iri_value.to_string().to_object(py))
-        } else {
-            Ok(().to_object(py))
-        }
+    pub fn get_version_iri(&mut self) -> PyResult<Option<model::IRI>> {
+        Ok(self.get_id().and_then(|x| x.viri.as_ref()).map(model::IRI::from))
     }
 
     /// get_subclasses(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
@@ -375,17 +361,17 @@ impl PyIndexedOntology {
         Ok(components)
     }
 
-    /// get_axioms(self) -> List[model.AnnotatedComponents]
+    /// get_axioms(self) -> List[model.AnnotatedComponent]
     ///
     /// Returns all axioms of the ontology.
-    pub fn get_axioms(&mut self, py: Python) -> PyResult<Vec<PyObject>> {
+    pub fn get_axioms(&mut self) -> PyResult<Vec<model::AnnotatedComponent>> {
         let r = self
             .ontology
             .iter()
 
             .filter_map(|a|
                 if a.is_axiom() {
-                    Some(model::AnnotatedComponent::from(a.clone()).into_py(py))
+                    Some(model::AnnotatedComponent::from(a.clone()))
                 } else {
                     None
                 }
@@ -395,7 +381,7 @@ impl PyIndexedOntology {
         Ok(r)
     }
 
-    /// add_axiom(self, component: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None
+    /// add_component(self, component: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None
     ///
     /// Adds an axiom to the ontology with optional annotations.
     #[pyo3(signature = (component, annotations = None))]
@@ -455,8 +441,6 @@ impl PyIndexedOntology {
     /// Creates a new IRI from string.
     ///
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
-    pub fn iri(&self, iri: String) -> model::IRI {
-        model::IRI::new(iri, &self.build)
     /// If `absolute` is None it is guessed by the occurrence of `"://"` in the IRI whether the iri
     /// is absolute or not.
     #[pyo3[signature = (iri, *, absolute = true)]]
@@ -479,6 +463,104 @@ impl PyIndexedOntology {
     pub fn curie(&self, curie: String) -> PyResult<model::IRI> {
         let iri = self.mapping.expand_curie_string(&curie).map_err(to_py_err!("Invalid curie"))?;
         Ok(model::IRI::new(iri, &self.build))
+    }
+
+    /// clazz(self, iri: str, *, absolute: Optional[bool]=None) -> model.Class
+    ///
+    /// Convenience method to create a Class from an IRI.
+    ///
+    /// Uses the `iri` method to cache native IRI instances.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn clazz(&self, iri: String, absolute: Option<bool>) -> PyResult<model::Class> {
+        Ok(model::Class(self.iri(iri, absolute)?))
+    }
+
+    /// declare_class(self, iri: str, *, absolute: Optional[bool]=None) -> bool
+    ///
+    /// Convenience method to add a Declare(Class(iri)) axiom.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn declare_class(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
+        Ok(self.ontology.declare::<horned_owl::model::Class<ArcStr>>(self.clazz(iri, absolute)?.into()))
+    }
+
+    /// object_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.ObjectProperty
+    ///
+    /// Convenience method to create an ObjectProperty from an IRI.
+    ///
+    /// Uses the `iri` method to cache native IRI instances.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn object_property(&self, iri: String, absolute: Option<bool>) -> PyResult<model::ObjectProperty> {
+        Ok(model::ObjectProperty(self.iri(iri, absolute)?))
+    }
+
+    /// declare_object_property(self, iri: str, *, absolute: Optional[bool]=None) -> bool
+    ///
+    /// Convenience method to add a Declare(ObjectProperty(iri)) axiom.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn declare_object_property(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
+        Ok(self.ontology.declare::<horned_owl::model::ObjectProperty<ArcStr>>(self.object_property(iri, absolute)?.into()))
+    }
+
+    /// data_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.DataProperty
+    ///
+    /// Convenience method to create a DataProperty from an IRI.
+    ///
+    /// Uses the `iri` method to cache native IRI instances.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn data_property(&self, iri: String, absolute: Option<bool>) -> PyResult<model::DataProperty> {
+        Ok(model::DataProperty(self.iri(iri, absolute)?))
+    }
+
+    /// declare_data_property(self, iri: str, *, absolute: Optional[bool]=None) -> bool
+    ///
+    /// Convenience method to add a Declare(DataProperty(iri)) axiom.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn declare_data_property(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
+        Ok(self.ontology.declare::<horned_owl::model::DataProperty<ArcStr>>(self.data_property(iri, absolute)?.into()))
+    }
+
+    /// annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.annotationProperty
+    ///
+    /// Convenience method to create an annotationProperty from an IRI.
+    ///
+    /// Uses the `iri` method to cache native IRI instances.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn annotation_property(&self, iri: String, absolute: Option<bool>) -> PyResult<model::AnnotationProperty> {
+        Ok(model::AnnotationProperty(self.iri(iri, absolute)?))
+    }
+
+    /// declare_annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> bool
+    ///
+    /// Convenience method to add a Declare(annotationProperty(iri)) axiom.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn declare_annotation_property(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
+        Ok(self.ontology.declare::<horned_owl::model::AnnotationProperty<ArcStr>>(self.annotation_property(iri, absolute)?.into()))
+    }
+
+    /// named_individual(self, iri: str, *, absolute: Optional[bool]=None) -> model.NamedIndividual
+    ///
+    /// Convenience method to create a NamedIndividual from an IRI.
+    ///
+    /// Uses the `iri` method to cache native IRI instances.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn named_individual(&self, iri: String, absolute: Option<bool>) -> PyResult<model::NamedIndividual> {
+        Ok(model::NamedIndividual(self.iri(iri, absolute)?))
+    }
+
+    /// declare_individual(self, iri: str, *, absolute: Optional[bool]=None) -> bool
+    ///
+    /// Convenience method to add a Declare(NamedIndividual(iri)) axiom.
+    #[pyo3[signature = (iri, *, absolute = None)]]
+    pub fn declare_individual(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
+        Ok(self.ontology.declare::<horned_owl::model::NamedIndividual<ArcStr>>(self.named_individual(iri, absolute)?.into()))
+    }
+
+
+    /// anonymous_individual(self, iri: str) -> model.AnonymousIndividual
+    ///
+    /// Convenience method to create an AnonymousIndividual from a string.
+    pub fn anonymous_individual(&self, name: String) -> model::AnonymousIndividual {
+        AnonymousIndividual(name.into())
     }
 
 
