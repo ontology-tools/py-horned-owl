@@ -11,7 +11,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_id_for_iri(self, iri: str) -> Optional[str]:
+    def get_id_for_iri(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Optional[str]:
         """
         Gets the ID of term by it IRI.
         

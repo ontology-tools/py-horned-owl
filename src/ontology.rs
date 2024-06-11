@@ -68,19 +68,21 @@ impl PyIndexedOntology {
         Ok(())
     }
 
-    /// get_id_for_iri(self, iri: str) -> Optional[str]
+    /// get_id_for_iri(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Optional[str]
     ///
     /// Gets the ID of term by it IRI.
     ///
     /// If the term does not have an ID, `None` is returned.
-    pub fn get_id_for_iri(&mut self, py: Python, iri: String) -> PyResult<PyObject> {
-        let res = self.mapping.shrink_iri(&iri);
+    #[pyo3[signature = (iri, *, iri_is_absolute = None)]]
+    pub fn get_id_for_iri(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<Option<String>> {
+        let iri: String = self.iri(iri, iri_is_absolute)?.into();
+        let res = self.mapping.shrink_iri(iri.as_str());
 
         if let Ok(curie) = res {
-            Ok(curie.to_string().to_object(py))
+            Ok(Some(curie.to_string()))
         } else {
             //Return null
-            Ok(().to_object(py))
+            Ok(None)
         }
     }
 
