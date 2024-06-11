@@ -184,8 +184,8 @@ impl PyIndexedOntology {
     /// Returns the IRI of a term by its label if it exists.
     ///
     /// If the term does not have a label, `None` is returned.
-    pub fn get_iri_for_label(&mut self, label: String) -> PyResult<Option<model::IRI>> {
-        Ok(self.labels_to_iris.get(&label).map(model::IRI::from))
+    pub fn get_iri_for_label(&mut self, label: String) -> PyResult<Option<String>> {
+        Ok(self.labels_to_iris.get(&label).map(String::from))
     }
 
     /// get_iri(self) -> Optional[str]
@@ -416,8 +416,8 @@ impl PyIndexedOntology {
         let annotated_axiom = model::AnnotatedComponent {
             component,
             ann,
-        };
-        self.ontology.insert(annotated_axiom);
+        }.into();
+        self.insert(&annotated_axiom);
 
         Ok(())
     }
@@ -651,7 +651,7 @@ impl PyIndexedOntology {
                         ap,
                         av: AnnotationValue::Literal(Literal::Simple { literal }),
                     } => {
-                        if AnnotationBuiltIn::Label.to_string().eq(&ap.0.to_string()) {
+                        if AnnotationBuiltIn::Label.underlying().eq(&ap.0.to_string()) {
                             let _ = &self
                                 .labels_to_iris
                                 .insert(literal.clone(), b.iri(subject.deref()));
