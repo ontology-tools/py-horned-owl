@@ -3,7 +3,6 @@ from typing import *
 
 import model
 
-
 class PyIndexedOntology:
     def add_default_prefix_names(self) -> None:
         """
@@ -85,8 +84,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None,
-                       ann_iri_is_absolute: Optional[bool] = None) -> Optional[str]:
+    def get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> Optional[str]:
         """
         Gets the first annotated value for an entity and annotation property.
         
@@ -96,8 +94,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_annotations(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None,
-                        ann_iri_is_absolute: Optional[bool] = None) -> List[str]:
+    def get_annotations(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> List[str]:
         """
         Gets all annotated value for an entity and annotation property.
         
@@ -119,8 +116,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_components_for_iri(self, iri: str, iri_is_absolute: Optional[bool] = None) -> List[
-        model.AnnotatedComponent]:
+    def get_components_for_iri(self, iri: str, iri_is_absolute: Optional[bool] = None) -> List[model.AnnotatedComponent]:
         """
         Gets all components (axiom, swrl, and meta component) for an entity.
         """
@@ -138,7 +134,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def add_component(self, component: model.Component, annotations: Optional[List[model.Annotation]] = None) -> None:
+    def add_component(self, component: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None:
         """
         Adds an axiom to the ontology with optional annotations.
         """
@@ -180,7 +176,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def clazz(self, iri: str, *, absolute: Optional[bool] = None) -> model.Class:
+    def clazz(self, iri: str, *, absolute: Optional[bool]=None) -> model.Class:
         """
         Convenience method to create a Class from an IRI.
         
@@ -188,13 +184,13 @@ class PyIndexedOntology:
         """
         ...
 
-    def declare_class(self, iri: str, *, absolute: Optional[bool] = None) -> bool:
+    def declare_class(self, iri: str, *, absolute: Optional[bool]=None) -> bool:
         """
         Convenience method to add a Declare(Class(iri)) axiom.
         """
         ...
 
-    def object_property(self, iri: str, *, absolute: Optional[bool] = None) -> model.ObjectProperty:
+    def object_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.ObjectProperty:
         """
         Convenience method to create an ObjectProperty from an IRI.
         
@@ -202,13 +198,13 @@ class PyIndexedOntology:
         """
         ...
 
-    def declare_object_property(self, iri: str, *, absolute: Optional[bool] = None) -> bool:
+    def declare_object_property(self, iri: str, *, absolute: Optional[bool]=None) -> bool:
         """
         Convenience method to add a Declare(ObjectProperty(iri)) axiom.
         """
         ...
 
-    def data_property(self, iri: str, *, absolute: Optional[bool] = None) -> model.DataProperty:
+    def data_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.DataProperty:
         """
         Convenience method to create a DataProperty from an IRI.
         
@@ -216,13 +212,13 @@ class PyIndexedOntology:
         """
         ...
 
-    def declare_data_property(self, iri: str, *, absolute: Optional[bool] = None) -> bool:
+    def declare_data_property(self, iri: str, *, absolute: Optional[bool]=None) -> bool:
         """
         Convenience method to add a Declare(DataProperty(iri)) axiom.
         """
         ...
 
-    def annotation_property(self, iri: str, *, absolute: Optional[bool] = None) -> model.annotationProperty:
+    def annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.annotationProperty:
         """
         Convenience method to create an annotationProperty from an IRI.
         
@@ -230,13 +226,13 @@ class PyIndexedOntology:
         """
         ...
 
-    def declare_annotation_property(self, iri: str, *, absolute: Optional[bool] = None) -> bool:
+    def declare_annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> bool:
         """
         Convenience method to add a Declare(annotationProperty(iri)) axiom.
         """
         ...
 
-    def named_individual(self, iri: str, *, absolute: Optional[bool] = None) -> model.NamedIndividual:
+    def named_individual(self, iri: str, *, absolute: Optional[bool]=None) -> model.NamedIndividual:
         """
         Convenience method to create a NamedIndividual from an IRI.
         
@@ -244,7 +240,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def declare_individual(self, iri: str, *, absolute: Optional[bool] = None) -> bool:
+    def declare_individual(self, iri: str, *, absolute: Optional[bool]=None) -> bool:
         """
         Convenience method to add a Declare(NamedIndividual(iri)) axiom.
         """
@@ -313,3 +309,5 @@ def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
     Gets all direct and indirect super classes of a class.
     """
     ...
+
+

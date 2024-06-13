@@ -1,0 +1,8 @@
+[package]
+name = "horned-perf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+horned-owl = "1.0.0"
+horned-bin = "1.0.0"
