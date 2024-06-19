@@ -213,6 +213,7 @@ macro_rules! wrapped_base {
     };
 }
 
+#[cfg(pyi)]
 macro_rules! extensions_pyi {
     (ClassExpression, $v_name:ident) => {
         "
@@ -447,7 +448,7 @@ macro_rules! wrapped_enum {
                         }
                     }
 
-                    #[cfg(debug_assertions)]
+                    #[cfg(pyi)]
                     #[classmethod]
                     fn __pyi__(_: &Bound<'_, PyType>) -> String {
                         let mut res = String::new();
@@ -661,7 +662,7 @@ macro_rules! wrapped {
                     }
                 }
 
-                #[cfg(debug_assertions)]
+                #[cfg(pyi)]
                 #[classmethod]
                 fn __pyi__(_: &Bound<'_, PyType>) -> String {
                     let mut res = String::new();
@@ -746,7 +747,7 @@ macro_rules! wrapped {
                 )
             }
 
-            #[cfg(debug_assertions)]
+            #[cfg(pyi)]
             #[classmethod]
             fn __pyi__(_: &Bound<'_, PyType>) -> String {
                 let mut res = String::new();
@@ -815,7 +816,6 @@ macro_rules! wrapped {
             )*
         }
 
-        #[cfg(debug_assertions)]
         impl ToPyi for $name {
             #[allow(unused_assignments)]
             fn pyi(module: Option<String>) -> String {
@@ -1061,8 +1061,6 @@ for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
     }
 }
 
-
-#[cfg(debug_assertions)]
 trait ToPyi {
     fn pyi(module: Option<String>) -> String;
 }
@@ -1227,9 +1225,9 @@ pub enum Facet {
     LangRange = 11,
 }
 
-#[cfg(debug_assertions)]
 #[pymethods]
 impl Facet {
+    #[cfg(pyi)]
     #[classmethod]
     fn __pyi__(_: &Bound<'_, PyType>) -> String {
         "class Facet:
