@@ -213,6 +213,82 @@ macro_rules! wrapped_base {
     };
 }
 
+macro_rules! extensions_pyi {
+    (ClassExpression, $v_name:ident) => {
+        "
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        \"\"\"Intersection of two class expressions\"\"\"
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        \"\"\"Union of two class expressions\"\"\"
+        ...
+
+
+    def __invert__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        \"\"\"Complement of a class expression\"\"\"
+        ...
+"
+    };
+    ($($_:tt)+) => {""}
+}
+
+macro_rules! extensions {
+    (ClassExpression, $v_name:ident) => {
+        #[pymethods]
+        impl $v_name {
+            /// that(self, ce: ClassExpression) -> ObjectIntersectionOf
+            ///
+            /// Intersection of two class expressions
+            fn that(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectIntersectionOf> {
+                self.__and__(obj)
+            }
+
+            fn __and__(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectIntersectionOf> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectIntersectionOf(vec![self.clone().into(), ce].into()))
+            }
+
+            fn __or__(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectUnionOf> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectUnionOf(vec![self.clone().into(), ce].into()))
+            }
+
+            fn __invert__(&self) -> ObjectComplementOf {
+                ObjectComplementOf(Box::<ClassExpression>::new(self.clone().into()).into())
+            }
+        }
+    };
+    (ObjectPropertyExpression, $v_name:ident) => {
+        #[pymethods]
+        impl $v_name {
+            fn some(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectSomeValuesFrom> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectSomeValuesFrom{
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn only(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectAllValuesFrom> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectAllValuesFrom{
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn __invert__(&self) -> InverseObjectProperty {
+                match self {
+                    InverseObjectProperty(i) => i.clone(),
+                    ObjectProperty(i) => InverseObjectProperty(i.clone())
+                }
+            }
+        }
+    };
+    ( $ ( $ _: tt) + ) => {}
+}
+
 macro_rules! wrapped_enum {
     (pub enum $name:ident {
         $(
@@ -236,6 +312,7 @@ macro_rules! wrapped_enum {
             #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
             pub struct $name([<$name _ Inner>]);
 
+            #[cfg(debug_assertions)]
             impl ToPyi for $name {
                 #[allow(unused_assignments)]
                 fn pyi(module: Option<String>) -> String {
@@ -301,8 +378,14 @@ macro_rules! wrapped_enum {
                         )*
                     })?
 
+                impl From<$v_name_full> for $name {
+                    fn from(value: $v_name_full) -> Self {
+                        $name([<$name _ Inner>]::$v_name(value))
+                    }
+                }
+
                 #[pymethods]
-                impl [<$v_name_full >] {
+                impl [<$v_name_full>] {
                     #[new]
                     fn new(
                         $(first: $field_t0, $(second: $field_t1)?)?
@@ -370,6 +453,7 @@ macro_rules! wrapped_enum {
                             write!(&mut res, ", second: {}", to_py_type::<$field_t1>(String::new())).unwrap();
                         )?)?
                         write!(&mut res, "):\n        ...\n").unwrap();
+                        write!(&mut res, extensions_pyi!($name, $v_name_full)).unwrap();
                         write!(&mut res, "    ...\n").unwrap();
 
                         res
@@ -385,6 +469,18 @@ macro_rules! wrapped_enum {
                         self == other
                     }
                 }
+
+                extensions!($name, $v_name_full);
+            )?)*
+            $($(
+
+                impl From<$v_name_transparent> for $name {
+                    fn from(value: $v_name_transparent) -> Self {
+                        $name([<$name _ Inner>]::$v_name_transparent(value))
+                    }
+                }
+
+                extensions!($name, $v_name_transparent);
             )?)*
 
             impl From<&horned_owl::model::$name<ArcStr>> for $name {
@@ -700,6 +796,7 @@ macro_rules! wrapped {
             )*
         }
 
+        #[cfg(debug_assertions)]
         impl ToPyi for $name {
             #[allow(unused_assignments)]
             fn pyi(module: Option<String>) -> String {
@@ -944,6 +1041,8 @@ for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
     }
 }
 
+
+#[cfg(debug_assertions)]
 trait ToPyi {
     fn pyi(module: Option<String>) -> String;
 }
@@ -977,6 +1076,12 @@ impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for VecWrap<T> {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BoxWrap<T>(Box<T>);
+
+impl<T> From<Box<T>> for BoxWrap<T> {
+    fn from(value: Box<T>) -> Self {
+        BoxWrap(value)
+    }
+}
 
 impl<'source, T: FromPyObject<'source>> FromPyObject<'source> for BoxWrap<T> {
     fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
@@ -1866,3 +1971,5 @@ pub fn py_module(py: Python<'_>) -> PyResult<Bound<PyModule>> {
 
     Ok(module)
 }
+
+

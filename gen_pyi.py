@@ -8,12 +8,9 @@ old_files = glob.glob("pyhornedowl/**/__init__.*", recursive=True)
 for f in old_files:
     os.unlink(f)
 
-
 import pyhornedowl.pyhornedowl as pho
 
-
 os.makedirs("pyhornedowl/model", exist_ok=True)
-
 
 with open("pyhornedowl/__init__.py", "w") as f:
     pyhornedowl_members = [k for k, v in pho.__dict__.items() if isinstance(v, type) or callable(v)]
@@ -26,6 +23,8 @@ with open("pyhornedowl/__init__.py", "w") as f:
     f.write("__all__ = [")
     f.write(", ".join([f'"{n}"' for n in pyhornedowl_members]))
     f.write("]\n")
+
+implemented_magic = [f"__{x}__" for x in ["invert", "and", "or", "invert"]]
 
 with open("pyhornedowl/__init__.pyi", "w") as f:
     f.write("import typing\n")
@@ -56,7 +55,7 @@ with open("pyhornedowl/__init__.pyi", "w") as f:
                     f.write("    \"\"\"\n")
 
             for member_name, member in entry.__dict__.items():
-                if member_name.startswith("_"):
+                if member_name.startswith("_") and member_name not in implemented_magic:
                     continue
                 
                 # E.g. for enums
@@ -109,7 +108,6 @@ with open("pyhornedowl/__init__.pyi", "w") as f:
 
             f.write("\n")
 
-
 with open("pyhornedowl/py.typed", "w"):
     pass
 
@@ -143,6 +141,22 @@ def handle_module(module: str):
                     pyi: str = entry.__pyi__()
                     pyi = re.sub(r"    from: .*$|from: .*?[,)]", "", pyi)
                     f.write(pyi)
+
+                    # Also look for methods
+                    for member_name, member in entry.__dict__.items():
+                        if member_name.startswith("_") and member_name not in implemented_magic:
+                            continue
+
+                        if hasattr(member, "__doc__"):
+                            doc = member.__doc__
+                            if doc is not None:
+                                lines = doc.splitlines()
+                                if len(lines) > 2:
+                                    sign = lines[0]
+
+                                    f.write(f"    def {sign}:\n")
+                                    doc = "\n".join([f"        {l}" for l in lines[2:]])
+                                    f.write(f'        """\n{doc}\n        """\n        ...\n\n')
                 else:
                     f.write(f"class {name}:\n")
 
@@ -161,5 +175,6 @@ def handle_module(module: str):
             f.write("\n")
 
         f.write("\n")
+
 
 handle_module("model")
