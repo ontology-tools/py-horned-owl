@@ -14,6 +14,9 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   quickstart
+   installation
    usage
+   details
    api
 
