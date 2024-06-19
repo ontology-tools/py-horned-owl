@@ -1,8 +1,7 @@
 import unittest
 
 from pyhornedowl import PyIndexedOntology
-from pyhornedowl.model import ObjectComplementOf, ObjectIntersectionOf, ObjectUnionOf, InverseObjectProperty, \
-    ObjectSomeValuesFrom
+from pyhornedowl.model import *
 
 
 class ClassExpressionBuilderTestCase(unittest.TestCase):
@@ -60,6 +59,16 @@ class ClassExpressionBuilderTestCase(unittest.TestCase):
 
         expected = ObjectSomeValuesFrom(op, c)
         actual = op.some(c)
+
+        self.assertEqual(expected, actual)
+
+    def test_ce_only(self):
+        o = PyIndexedOntology()
+        c = o.clazz("https://example.com/A")
+        op = o.object_property("https://example.com/op")
+
+        expected = ObjectAllValuesFrom(op, c)
+        actual = op.only(c)
 
         self.assertEqual(expected, actual)
 
