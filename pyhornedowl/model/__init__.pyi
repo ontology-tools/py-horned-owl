@@ -410,9 +410,28 @@ class ObjectProperty:
         """Existentional relationship"""
         ...
 
-
     def only(self, ce: ClassExpression) -> ObjectAllValuesFrom:
         """Universal relationship"""
+        ...
+
+    def has_value(self, individual: Individual) -> ObjectHasValue:
+        """Existential relationship to an individual"""
+        ...
+
+    def has_self(self) -> ObjectHasSelf:
+        """Individuals with relation to themselves"""
+        ...
+
+    def min(self, n: int, ce: ClassExpression) -> ObjectMinCardinality:
+        """Minimum cardinality relationship"""
+        ...
+
+    def max(self, n: int, ce: ClassExpression) -> ObjectMaxCardinality:
+        """Maximum cardinality relationship"""
+        ...
+
+    def exact(self, n: int, ce: ClassExpression) -> ObjectExactCardinality:
+        """Exact cardinality relationship"""
         ...
 
     def __invert__(self) -> ObjectPropertyExpression:
@@ -429,9 +448,28 @@ class InverseObjectProperty:
         """Existentional relationship"""
         ...
 
-
     def only(self, ce: ClassExpression) -> ObjectAllValuesFrom:
         """Universal relationship"""
+        ...
+
+    def has_value(self, individual: Individual) -> ObjectHasValue:
+        """Existential relationship to an individual"""
+        ...
+
+    def has_self(self) -> ObjectHasSelf:
+        """Individuals with relation to themselves"""
+        ...
+
+    def min(self, n: int, ce: ClassExpression) -> ObjectMinCardinality:
+        """Minimum cardinality relationship"""
+        ...
+
+    def max(self, n: int, ce: ClassExpression) -> ObjectMaxCardinality:
+        """Maximum cardinality relationship"""
+        ...
+
+    def exact(self, n: int, ce: ClassExpression) -> ObjectExactCardinality:
+        """Exact cardinality relationship"""
         ...
 
     def __invert__(self) -> ObjectPropertyExpression:

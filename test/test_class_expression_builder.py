@@ -72,6 +72,55 @@ class ClassExpressionBuilderTestCase(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
+    def test_ce_min(self):
+        o = PyIndexedOntology()
+        c = o.clazz("https://example.com/A")
+        op = o.object_property("https://example.com/op")
+
+        expected = ObjectMinCardinality(2, op, c)
+        actual = op.min(2, c)
+
+        self.assertEqual(expected, actual)
+
+    def test_ce_max(self):
+        o = PyIndexedOntology()
+        c = o.clazz("https://example.com/A")
+        op = o.object_property("https://example.com/op")
+
+        expected = ObjectMaxCardinality(2, op, c)
+        actual = op.max(2, c)
+
+        self.assertEqual(expected, actual)
+
+    def test_ce_exact(self):
+        o = PyIndexedOntology()
+        c = o.clazz("https://example.com/A")
+        op = o.object_property("https://example.com/op")
+
+        expected = ObjectExactCardinality(2, op, c)
+        actual = op.exact(2, c)
+
+        self.assertEqual(expected, actual)
+
+    def test_ce_has_value(self):
+        o = PyIndexedOntology()
+        op = o.object_property("https://example.com/op")
+        i = o.named_individual("https://example.com/I")
+
+        expected = ObjectHasValue(op, i)
+        actual = op.has_value(i)
+
+        self.assertEqual(expected, actual)
+
+    def test_ce_has_self(self):
+        o = PyIndexedOntology()
+        op = o.object_property("https://example.com/op")
+
+        expected = ObjectHasSelf(op)
+        actual = op.has_self()
+
+        self.assertEqual(expected, actual)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -237,9 +237,28 @@ macro_rules! extensions_pyi {
         \"\"\"Existentional relationship\"\"\"
         ...
 
-
     def only(self, ce: ClassExpression) -> ObjectAllValuesFrom:
         \"\"\"Universal relationship\"\"\"
+        ...
+
+    def has_value(self, individual: Individual) -> ObjectHasValue:
+        \"\"\"Existential relationship to an individual\"\"\"
+        ...
+
+    def has_self(self) -> ObjectHasSelf:
+        \"\"\"Individuals with relation to themselves\"\"\"
+        ...
+
+    def min(self, n: int, ce: ClassExpression) -> ObjectMinCardinality:
+        \"\"\"Minimum cardinality relationship\"\"\"
+        ...
+
+    def max(self, n: int, ce: ClassExpression) -> ObjectMaxCardinality:
+        \"\"\"Maximum cardinality relationship\"\"\"
+        ...
+
+    def exact(self, n: int, ce: ClassExpression) -> ObjectExactCardinality:
+        \"\"\"Exact cardinality relationship\"\"\"
         ...
 
     def __invert__(self) -> ObjectPropertyExpression:
@@ -285,6 +304,45 @@ macro_rules! extensions {
             fn only(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectAllValuesFrom> {
                 let ce: ClassExpression = obj.extract()?;
                 Ok(ObjectAllValuesFrom {
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn has_value(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectHasValue> {
+                let i: Individual = obj.extract()?;
+                Ok(ObjectHasValue{
+                    ope: self.clone().into(),
+                    i
+                })
+            }
+
+            fn has_self(&self) -> PyResult<ObjectHasSelf> {
+                Ok(ObjectHasSelf(self.clone().into()))
+            }
+
+            fn min(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectMinCardinality> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectMinCardinality {
+                    n,
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn max(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectMaxCardinality> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectMaxCardinality {
+                    n,
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn exact(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectExactCardinality> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectExactCardinality {
+                    n,
                     ope: self.clone().into(),
                     bce: Box::new(ce).into(),
                 })
