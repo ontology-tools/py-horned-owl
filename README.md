@@ -13,7 +13,7 @@ To install the published library:
 To build locally from sources, you will need [Rust](https://www.rust-lang.org/tools/install), [PyO3](https://github.com/PyO3/pyo3) and [Maturin](https://github.com/PyO3/maturin). 
 
 Check out this repository: 
-`git clone https://github.com/jannahastings/py-horned-owl/`
+`git clone https://github.com/ontology-tools/py-horned-owl/`
 
 In the directory py-horned-owl, create and activate a virtual Python environment: 
 
@@ -48,7 +48,7 @@ for c in onto.get_classes():
 
 ```
 
-For more information please visit the [documentation](https://jannahastings.github.io/py-horned-owl/). 
+For more information please visit the [documentation](https://ontology-tools.github.io/py-horned-owl/). 
 
 
 
