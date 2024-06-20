@@ -9,7 +9,6 @@ on:
   push:
     branches:
       - main
-      - ci_test
     tags:
       - '*'
   pull_request:
@@ -168,7 +167,7 @@ jobs:
   build-docs:
     needs: linux
     runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/')"
+    if: "startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
