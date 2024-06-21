@@ -15,8 +15,8 @@ version = "0.21"
 features = ["abi3-py37", "extension-module", "experimental-inspect", "multiple-pymethods"]
 
 [dependencies]
-horned-owl = "1.0.0"
-horned-bin = "1.0.0"
+horned-owl = {path= "../horned-owl"}
+horned-bin = {path= "../horned-owl/horned-bin"}
 curie = "0.1.2"
 failure = "0.1.8"
 quote = "1.0"

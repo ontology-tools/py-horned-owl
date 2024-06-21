@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-//use failure::Error;
 use std::sync::Arc;
 
 use curie::PrefixMapping;
@@ -9,8 +8,7 @@ use horned_bin::path_type;
 use horned_owl::error::HornedError;
 use horned_owl::io::{ParserConfiguration, RDFParserConfiguration, ResourceType};
 use horned_owl::model::*;
-use horned_owl::ontology::iri_mapped::IRIMappedOntology;
-use horned_owl::ontology::set::SetOntology;
+use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedIndex, IRIMappedOntology};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
@@ -53,29 +51,31 @@ fn guess_serialization(path: &String, serialization: Option<&str>) -> PyResult<R
 fn open_ontology_owx<R: BufRead>(
     content: &mut R,
     b: &Build<Arc<str>>,
-) -> Result<(SetOntology<ArcStr>, PrefixMapping), HornedError> {
-    horned_owl::io::owx::reader::read_with_build(content, &b)
+) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
+    let (o, m) = horned_owl::io::owx::reader::read_with_build(content, &b)?;
+    Ok((o.into(), m))
 }
 
 fn open_ontology_ofn<R: BufRead>(
     content: &mut R,
     b: &Build<Arc<str>>,
-) -> Result<(SetOntology<ArcStr>, PrefixMapping), HornedError> {
-    horned_owl::io::ofn::reader::read_with_build(content, &b)
+) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
+    let (o, m) = horned_owl::io::ofn::reader::read_with_build(content, &b)?;
+    Ok((o.into(), m))
 }
 
 fn open_ontology_rdf<R: BufRead>(
     content: &mut R,
     b: &Build<ArcStr>,
-) -> Result<(SetOntology<ArcStr>, PrefixMapping), HornedError> {
+) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
     horned_owl::io::rdf::reader::read_with_build::<ArcStr, ArcAnnotatedComponent, R>(
         content,
-        &b,
+        &b, 
         ParserConfiguration {
             rdf: RDFParserConfiguration { lax: true },
             ..Default::default()
         },
-    ).map(|(o, _)| (SetOntology::from(o), Default::default()))
+    ).map(|(o, _)| (o.into(), PrefixMapping::default()))
 }
 
 /// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology
@@ -92,14 +92,13 @@ fn open_ontology_from_file(path: String, serialization: Option<&str>) -> PyResul
 
     let b = Build::new_arc();
 
-    let (onto, mapping) = match serialization {
+    let (imo, mapping) = match serialization {
         ResourceType::OFN => open_ontology_ofn(&mut f, &b),
         ResourceType::OWX => open_ontology_owx(&mut f, &b),
         ResourceType::RDF => open_ontology_rdf(&mut f, &b)
     }.map_err(to_py_err!("Failed to open ontology"))?;
 
-    let iro = IRIMappedOntology::from(onto);
-    let mut lo = PyIndexedOntology::from(iro);
+    let mut lo = PyIndexedOntology::from(imo);
     lo.mapping = mapping; //Needed when saving
     Ok(lo)
 }
@@ -116,7 +115,7 @@ fn open_ontology_from_string(ontology: String, serialization: Option<&str>) -> P
 
     let b = Build::new_arc();
 
-    let (onto, mapping) = match serialization {
+    let (imo, mapping) = match serialization {
         Some(ResourceType::OFN) => open_ontology_ofn(&mut f, &b),
         Some(ResourceType::OWX) => open_ontology_owx(&mut f, &b),
         Some(ResourceType::RDF) => open_ontology_rdf(&mut f, &b),
@@ -125,8 +124,7 @@ fn open_ontology_from_string(ontology: String, serialization: Option<&str>) -> P
             .or_else(|_| open_ontology_owx(&mut f, &b))
     }.map_err(to_py_err!("Failed to open ontology"))?;
 
-    let iro = IRIMappedOntology::from(onto);
-    let mut lo = PyIndexedOntology::from(iro);
+    let mut lo = PyIndexedOntology::from(imo);
     lo.mapping = mapping; //Needed when saving
     Ok(lo)
 }
