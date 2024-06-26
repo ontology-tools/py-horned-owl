@@ -1,6 +1,10 @@
 [package]
 name = "py-horned-owl"
+<<<<<<< Updated upstream
 version = "1.0.0-dev.1"
+=======
+version = "1.0.0-dev1"
+>>>>>>> Stashed changes
 authors = ["Janna Hastings <j.hastings@ucl.ac.uk>"]
 edition = "2018"
 
