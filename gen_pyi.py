@@ -28,39 +28,76 @@ with open("pyhornedowl/__init__.py", "w") as f:
     f.write("]\n")
 
 with open("pyhornedowl/__init__.pyi", "w") as f:
-    f.write("import typing\nfrom typing import *\n\n")
+    f.write("import typing\n")
+    f.write("from typing import *\n")
+    f.write("from typing_extensions import deprecated\n\n")
     f.write("import model\n")
     f.write("\n")
 
     for name, entry in pho.__dict__.items():
         if isinstance(entry, type):
             f.write(f"class {name}:\n")
+            # There appears to be a bug with pyo3. Documentation on enum 
+            # variants is not attached to their mapped python types. Hence we 
+            # use a workarround of adding their documentation to the enum in
+            # the style: "<MemberName>: <doc string>".
+            member_docs = {}
+            if hasattr(entry, "__doc__"):
+                entry_doc = entry.__doc__
+                if entry_doc is not None:
+                    f.write("    \"\"\"\n")
+                    for line in entry_doc.splitlines():
+                        member_doc_m = re.match(r"^(\w+): (.*)$", line)
+                        if member_doc_m:
+                            member_docs[member_doc_m.group(1)]=member_doc_m.group(2)
+                        else:
+                            f.write(f"    {line}\n")
+
+                    f.write("    \"\"\"\n")
 
             for member_name, member in entry.__dict__.items():
                 if member_name.startswith("_"):
                     continue
-
-                if hasattr(member, "__doc__"):
+                
+                # E.g. for enums
+                if isinstance(member, entry):
+                    f.write(f"    {member_name}: typing.Self\n")
+                    if member_name in member_docs or hasattr(member, "__doc__") and member.__doc__ is not None:
+                        doc = member_docs.get(member_name, getattr(member, "__doc__"))
+                        f.write("    \"\"\"\n")
+                        for line in doc.splitlines():
+                            f.write(f"    {line}\n")
+                        f.write("    \"\"\"\n")
+                elif hasattr(member, "__doc__"):
                     doc = member.__doc__
                     if doc is not None:
                         lines = doc.splitlines()
                         if len(lines) > 2:
-                            sign = lines[0]
+                            annotations_end = lines.index(next(x for x in lines if not x.startswith("@")), 0)
+                            annotations = lines[:annotations_end]
+                            sign = lines[annotations_end] 
+
+                            for ann in annotations:
+                                f.write(f"    {ann}\n")
 
                             f.write(f"    def {sign}:\n")
-                            doc = "\n".join([f"        {l}" for l in lines[2:]])
+                            doc = "\n".join([f"        {l}" for l in lines[annotations_end+2:]])
                             f.write(f'        """\n{doc}\n        """\n        ...\n\n')
-
-        if callable(entry):
+            f.write("\n")
+        elif callable(entry):
             if hasattr(entry, "__doc__"):
                 doc = entry.__doc__
                 if doc is not None:
                     lines = doc.splitlines()
                     if len(lines) > 2:
-                        sign = lines[0]
+                        annotations_end = lines.index(next(x for x in lines if not x.startswith("@")), 0)
+                        annotations = lines[:annotations_end]
+                        sign = lines[annotations_end] 
 
+                        for ann in annotations:
+                            f.write(f"{ann}\n")
                         f.write(f"def {sign}:\n")
-                        doc = "\n".join([f"    {l}" for l in lines[2:]])
+                        doc = "\n".join([f"    {l}" for l in lines[annotations_end+2:]])
                         f.write(f'    """\n{doc}\n    """\n    ...\n\n')
 
             f.write("\n")
@@ -90,7 +127,8 @@ def handle_module(module: str):
 
     with open(f"pyhornedowl/{module}/__init__.pyi", "w") as f:
         f.write("import typing\n")
-        f.write("from typing import *\n\n")
+        f.write("from typing import *\n")
+        f.write("from typing_extensions import deprecated\n\n")
 
         for name, entry in getattr(pho, module).__dict__.items():
             if isinstance(entry, type):
