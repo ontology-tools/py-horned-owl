@@ -13,7 +13,7 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
-use crate::ontology::{get_ancestors, get_descendants, PyIndexedOntology};
+use crate::ontology::{get_ancestors, get_descendants, PyIndexedOntology, IndexCreationStrategy};
 
 #[macro_use]
 mod doc;
@@ -51,22 +51,25 @@ fn guess_serialization(path: &String, serialization: Option<&str>) -> PyResult<R
 fn open_ontology_owx<R: BufRead>(
     content: &mut R,
     b: &Build<Arc<str>>,
+    index_strategy: IndexCreationStrategy
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
     let (o, m) = horned_owl::io::owx::reader::read_with_build(content, &b)?;
-    Ok((o.into(), m))
+    Ok((PyIndexedOntology::from_set_ontology(o, index_strategy), m))
 }
 
 fn open_ontology_ofn<R: BufRead>(
     content: &mut R,
     b: &Build<Arc<str>>,
+    index_strategy: IndexCreationStrategy
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
     let (o, m) = horned_owl::io::ofn::reader::read_with_build(content, &b)?;
-    Ok((o.into(), m))
+    Ok((PyIndexedOntology::from_set_ontology(o, index_strategy), m))
 }
 
 fn open_ontology_rdf<R: BufRead>(
     content: &mut R,
     b: &Build<ArcStr>,
+    index_strategy: IndexCreationStrategy
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
     horned_owl::io::rdf::reader::read_with_build::<ArcStr, ArcAnnotatedComponent, R>(
         content,
@@ -75,7 +78,7 @@ fn open_ontology_rdf<R: BufRead>(
             rdf: RDFParserConfiguration { lax: true },
             ..Default::default()
         },
-    ).map(|(o, _)| (o.into(), PrefixMapping::default()))
+    ).map(|(o, _)| (PyIndexedOntology::from_rdf_ontology(o, index_strategy), PrefixMapping::default()))
 }
 
 /// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology
@@ -83,8 +86,8 @@ fn open_ontology_rdf<R: BufRead>(
 /// Opens an ontology from a file
 ///
 /// If the serialization is not specified it is guessed from the file extension. Defaults to OWL/XML.
-#[pyfunction(signature = (path, serialization = None))]
-fn open_ontology_from_file(path: String, serialization: Option<&str>) -> PyResult<PyIndexedOntology> {
+#[pyfunction(signature = (path, serialization = None, index_strategy = IndexCreationStrategy::OnQuery))]
+fn open_ontology_from_file(path: String, serialization: Option<&str>, index_strategy: IndexCreationStrategy) -> PyResult<PyIndexedOntology> {
     let serialization = guess_serialization(&path, serialization)?;
 
     let file = File::open(path)?;
@@ -92,15 +95,14 @@ fn open_ontology_from_file(path: String, serialization: Option<&str>) -> PyResul
 
     let b = Build::new_arc();
 
-    let (imo, mapping) = match serialization {
-        ResourceType::OFN => open_ontology_ofn(&mut f, &b),
-        ResourceType::OWX => open_ontology_owx(&mut f, &b),
-        ResourceType::RDF => open_ontology_rdf(&mut f, &b)
+    let (mut pio, mapping) = match serialization {
+        ResourceType::OFN => open_ontology_ofn(&mut f, &b, index_strategy),
+        ResourceType::OWX => open_ontology_owx(&mut f, &b, index_strategy),
+        ResourceType::RDF => open_ontology_rdf(&mut f, &b, index_strategy)
     }.map_err(to_py_err!("Failed to open ontology"))?;
 
-    let mut lo = PyIndexedOntology::from(imo);
-    lo.mapping = mapping; //Needed when saving
-    Ok(lo)
+    pio.mapping = mapping;
+    Ok(pio)
 }
 
 /// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology
@@ -108,20 +110,20 @@ fn open_ontology_from_file(path: String, serialization: Option<&str>) -> PyResul
 /// Opens an ontology from plain text.
 ///
 /// If no serialization is specified, all parsers are tried until one succeeds
-#[pyfunction(signature = (ontology, serialization = None))]
-fn open_ontology_from_string(ontology: String, serialization: Option<&str>) -> PyResult<PyIndexedOntology> {
+#[pyfunction(signature = (ontology, serialization = None, index_strategy = IndexCreationStrategy::OnQuery))]
+fn open_ontology_from_string(ontology: String, serialization: Option<&str>, index_strategy: IndexCreationStrategy) -> PyResult<PyIndexedOntology> {
     let serialization = parse_serialization(serialization);
     let mut f = BufReader::new(ontology.as_bytes());
 
     let b = Build::new_arc();
 
     let (imo, mapping) = match serialization {
-        Some(ResourceType::OFN) => open_ontology_ofn(&mut f, &b),
-        Some(ResourceType::OWX) => open_ontology_owx(&mut f, &b),
-        Some(ResourceType::RDF) => open_ontology_rdf(&mut f, &b),
-        None => open_ontology_ofn(&mut f, &b)
-            .or_else(|_| open_ontology_rdf(&mut f, &b))
-            .or_else(|_| open_ontology_owx(&mut f, &b))
+        Some(ResourceType::OFN) => open_ontology_ofn(&mut f, &b, index_strategy),
+        Some(ResourceType::OWX) => open_ontology_owx(&mut f, &b, index_strategy),
+        Some(ResourceType::RDF) => open_ontology_rdf(&mut f, &b, index_strategy),
+        None => open_ontology_ofn(&mut f, &b, index_strategy)
+            .or_else(|_| open_ontology_rdf(&mut f, &b, index_strategy))
+            .or_else(|_| open_ontology_owx(&mut f, &b, index_strategy))
     }.map_err(to_py_err!("Failed to open ontology"))?;
 
     let mut lo = PyIndexedOntology::from(imo);
@@ -137,12 +139,12 @@ fn open_ontology_from_string(ontology: String, serialization: Option<&str>) -> P
 /// in plain text.
 /// If no serialization is specified the serialization is guessed by the file extension or all parsers are tried
 /// until one succeeds.
-#[pyfunction(signature = (ontology, serialization = None))]
-fn open_ontology(ontology: String, serialization: Option<&str>) -> PyResult<PyIndexedOntology> {
+#[pyfunction(signature = (ontology, serialization = None, index_strategy = IndexCreationStrategy::OnQuery))]
+fn open_ontology(ontology: String, serialization: Option<&str>, index_strategy: IndexCreationStrategy) -> PyResult<PyIndexedOntology> {
     if Path::exists(ontology.as_ref()) {
-        open_ontology_from_file(ontology, serialization)
+        open_ontology_from_file(ontology, serialization, index_strategy)
     } else {
-        open_ontology_from_string(ontology, serialization)
+        open_ontology_from_string(ontology, serialization, index_strategy)
     }
 }
 
