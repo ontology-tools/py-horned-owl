@@ -1,5 +1,6 @@
 import typing
 from typing import *
+from typing_extensions import deprecated
 
 class Class:
     first: IRI

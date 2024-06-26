@@ -25,6 +25,10 @@ use crate::{guess_serialization, model, to_py_err};
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
 /// Values to indicate when to build the additional indexes.
+/// 
+/// OnLoad: Create the additional indexes when the ontology is loaded
+/// OnQuery: Create the additional indexes only when they are needed
+/// Explicit: Only create the additional indexes when explicity requested
 pub enum IndexCreationStrategy {
     /// Create the additional indexes when the ontology is loaded
     OnLoad,
@@ -770,7 +774,7 @@ impl PyIndexedOntology {
         ))
     }
 
-    /// annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.annotationProperty
+    /// annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.AnnotationProperty
     ///
     /// Convenience method to create an annotationProperty from an IRI.
     ///
@@ -848,7 +852,7 @@ impl PyIndexedOntology {
         Ok(descendants)
     }
 
-    /// get_ancestors(onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
+    /// get_ancestors(self, onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all direct and indirect super classes of a class.
     #[pyo3[signature = (child_iri, *, iri_is_absolute = None)]]
@@ -866,9 +870,12 @@ impl PyIndexedOntology {
         Ok(ancestors)
     }
 
+    /// build_iri_index(self) -> None
+    /// 
+    /// Builds an index by iri (IRIMappedIndex).
     pub fn build_iri_index(&mut self) -> () {
         if self.iri_index.is_some() {
-            return ();
+            return;
         }
 
         let mut iri_index = IRIMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
@@ -880,9 +887,12 @@ impl PyIndexedOntology {
         self.iri_index = Some(iri_index);
     }
 
+    /// component_index(self) -> None
+    /// 
+    /// Builds an index by component kind (ComponentMappedIndex).
     pub fn build_component_index(&mut self) {
         if self.component_index.is_some() {
-            ()
+            return;
         }
 
         let mut component_index = ComponentMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
@@ -892,6 +902,29 @@ impl PyIndexedOntology {
         }
 
         self.component_index = Some(component_index);
+    }
+
+    /// build_indexes(self) -> None
+    /// 
+    /// Builds indexes to allow (a quicker) access to axioms and entities.
+    pub fn build_indexes(&mut self) {
+        match (&self.iri_index, &self.component_index) {
+            (Some(_), Some(_)) => return,
+            (Some(_), None) => return self.build_component_index(),
+            (None, Some(_)) => return self.build_iri_index(),
+            _ => {}
+        }
+
+        let mut component_index = ComponentMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
+        let mut iri_index = IRIMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
+
+        for c in self.set_index.members() {
+            component_index.index_insert(c.clone());
+            iri_index.index_insert(c.clone());
+        }
+
+        self.component_index = Some(component_index);
+        self.iri_index = Some(iri_index);
     }
 }
 
@@ -969,18 +1002,18 @@ impl PyIndexedOntology {
     }
 }
 
+/// @deprecated("please use `PyIndexedOntology.get_descendants` instead")
 /// get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]
 ///
-/// DEPRECATED: please use `PyIndexedOntology::get_descendants` instead
 /// Gets all direct and indirect subclasses of a class.
 #[pyfunction]
 pub fn get_descendants(onto: &PyIndexedOntology, parent: String) -> PyResult<HashSet<String>> {
     onto.get_descendants(parent, Some(true))
 }
 
+/// @deprecated(please use `PyIndexedOntology.get_ancestors` instead)
 /// get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]
 ///
-/// DEPRECATED: please use `PyIndexedOntology::get_ancestors` instead
 /// Gets all direct and indirect super classes of a class.
 #[pyfunction]
 pub fn get_ancestors(onto: &PyIndexedOntology, child: String) -> PyResult<HashSet<String>> {

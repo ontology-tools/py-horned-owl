@@ -1,9 +1,13 @@
 import typing
 from typing import *
+from typing_extensions import deprecated
 
 import model
 
 class PyIndexedOntology:
+    """
+    Represents a loaded ontology.
+    """
     def add_default_prefix_names(self) -> None:
         """
         Adds the prefix for rdf, rdfs, xsd, and owl
@@ -218,7 +222,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.annotationProperty:
+    def annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.AnnotationProperty:
         """
         Convenience method to create an annotationProperty from an IRI.
         
@@ -258,14 +262,50 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_ancestors(onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]:
+    def get_ancestors(self, onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]:
         """
         Gets all direct and indirect super classes of a class.
         """
         ...
 
+    def build_iri_index(self) -> None:
+        """
+        Builds an index by iri (IRIMappedIndex).
+        """
+        ...
 
-def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology:
+    def component_index(self) -> None:
+        """
+        Builds an index by component kind (ComponentMappedIndex).
+        """
+        ...
+
+    def build_indexes(self) -> None:
+        """
+        Builds indexes to allow (a quicker) access to axioms and entities.
+        """
+        ...
+
+
+class IndexCreationStrategy:
+    """
+    Values to indicate when to build the additional indexes.
+    
+    """
+    OnLoad: typing.Self
+    """
+    Create the additional indexes when the ontology is loaded
+    """
+    OnQuery: typing.Self
+    """
+    Create the additional indexes only when they are needed
+    """
+    Explicit: typing.Self
+    """
+    Only create the additional indexes when explicity requested
+    """
+
+def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from a path or plain text.
     
@@ -277,7 +317,7 @@ def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', '
     ...
 
 
-def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology:
+def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from a file
     
@@ -286,7 +326,7 @@ def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['o
     ...
 
 
-def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology:
+def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from plain text.
     
@@ -295,17 +335,17 @@ def open_ontology_from_string(ontology: str, serialization: Optional[typing.Lite
     ...
 
 
+@deprecated("please use `PyIndexedOntology.get_descendants` instead")
 def get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]:
     """
-    DEPRECATED: please use `PyIndexedOntology::get_descendants` instead
     Gets all direct and indirect subclasses of a class.
     """
     ...
 
 
+@deprecated(please use `PyIndexedOntology.get_ancestors` instead)
 def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
     """
-    DEPRECATED: please use `PyIndexedOntology::get_ancestors` instead
     Gets all direct and indirect super classes of a class.
     """
     ...

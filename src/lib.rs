@@ -8,7 +8,6 @@ use horned_bin::path_type;
 use horned_owl::error::HornedError;
 use horned_owl::io::{ParserConfiguration, RDFParserConfiguration, ResourceType};
 use horned_owl::model::*;
-use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedIndex, IRIMappedOntology};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
@@ -81,7 +80,7 @@ fn open_ontology_rdf<R: BufRead>(
     ).map(|(o, _)| (PyIndexedOntology::from_rdf_ontology(o, index_strategy), PrefixMapping::default()))
 }
 
-/// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology
+/// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
 ///
 /// Opens an ontology from a file
 ///
@@ -105,7 +104,7 @@ fn open_ontology_from_file(path: String, serialization: Option<&str>, index_stra
     Ok(pio)
 }
 
-/// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology
+/// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
 ///
 /// Opens an ontology from plain text.
 ///
@@ -131,7 +130,7 @@ fn open_ontology_from_string(ontology: String, serialization: Option<&str>, inde
     Ok(lo)
 }
 
-/// open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> PyIndexedOntology
+/// open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
 ///
 /// Opens an ontology from a path or plain text.
 ///
@@ -151,6 +150,7 @@ fn open_ontology(ontology: String, serialization: Option<&str>, index_strategy: 
 #[pymodule]
 fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyIndexedOntology>()?;
+    m.add_class::<IndexCreationStrategy>()?;
 
     m.add_function(wrap_pyfunction!(open_ontology, m)?)?;
     m.add_function(wrap_pyfunction!(open_ontology_from_file, m)?)?;
