@@ -17,6 +17,7 @@ Contents
    quickstart
    installation
    usage
+   performance
    details
    api
 

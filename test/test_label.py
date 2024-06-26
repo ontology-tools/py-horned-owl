@@ -30,6 +30,9 @@ class LabelTestCase(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
+        all_labels = o.get_annotations("A", "rdfs:label")
+        self.assertEqual([expected], all_labels)
+
     def test_add_label(self):
         o = simple_ontology()
 

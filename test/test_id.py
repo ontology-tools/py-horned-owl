@@ -1,6 +1,6 @@
 import unittest
 
-from test.test_base import simple_ontology
+from test_base import simple_ontology
 
 
 class IdTestCase(unittest.TestCase):

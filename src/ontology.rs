@@ -1,19 +1,50 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
-use std::ops::Deref;
 use std::sync::Arc;
 
 use curie::{Curie, PrefixMapping};
+use horned_owl::io::rdf::reader::RDFOntology;
 use horned_owl::io::ResourceType;
-use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationValue, ArcStr, Build, ClassExpression, Component, ComponentKind, HigherKinded, IRI, Kinded, Literal, MutableOntology, OntologyID, SubClassOf};
-use horned_owl::ontology::component_mapped::{ArcComponentMappedOntology, ComponentMappedOntology};
-use horned_owl::ontology::iri_mapped::{ArcIRIMappedOntology, IRIMappedOntology};
+use horned_owl::model::{
+    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
+    ArcAnnotatedComponent, ArcStr, Build, Component, ComponentKind, HigherKinded, Literal,
+    MutableOntology, Ontology, OntologyID, IRI,
+};
+use horned_owl::ontology::component_mapped::{
+    ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
+};
+use horned_owl::ontology::indexed::OntologyIndex;
+use horned_owl::ontology::iri_mapped::IRIMappedIndex;
+use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
-use pyo3::{pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
 use pyo3::exceptions::PyValueError;
+use pyo3::{pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
 
 use crate::{guess_serialization, model, to_py_err};
-use crate::model::AnonymousIndividual;
+
+#[pyclass]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
+/// Values to indicate when to build the additional indexes.
+/// 
+/// OnLoad: Create the additional indexes when the ontology is loaded
+/// OnQuery: Create the additional indexes only when they are needed
+/// Explicit: Only create the additional indexes when explicity requested
+pub enum IndexCreationStrategy {
+    /// Create the additional indexes when the ontology is loaded
+    OnLoad,
+
+    /// Create the additional indexes only when they are needed
+    OnQuery,
+
+    /// Only create the additional indexes when explicity requested
+    Explicit,
+}
+
+impl Default for IndexCreationStrategy {
+    fn default() -> Self {
+        IndexCreationStrategy::OnQuery
+    }
+}
 
 /// Represents a loaded ontology.
 #[pyclass]
@@ -26,10 +57,14 @@ pub struct PyIndexedOntology {
     pub classes_to_superclasses: HashMap<IRI<ArcStr>, HashSet<IRI<ArcStr>>>,
 
     //The primary store of the axioms is a Horned OWL indexed ontology
-    pub ontology: ArcIRIMappedOntology,
+    pub iri_index: Option<IRIMappedIndex<ArcStr, ArcAnnotatedComponent>>,
+    pub component_index: Option<ComponentMappedIndex<ArcStr, ArcAnnotatedComponent>>,
+    pub set_index: SetIndex<ArcStr, ArcAnnotatedComponent>,
     //Need this for converting IRIs to IDs and for saving again afterwards
     pub mapping: PrefixMapping,
     pub build: Build<ArcStr>,
+
+    pub index_strategy: IndexCreationStrategy,
 }
 
 impl Default for PyIndexedOntology {
@@ -38,31 +73,80 @@ impl Default for PyIndexedOntology {
             labels_to_iris: Default::default(),
             classes_to_subclasses: Default::default(),
             classes_to_superclasses: Default::default(),
-            ontology: ArcIRIMappedOntology::new_arc(),
+            iri_index: None,
+            component_index: None,
+            set_index: Default::default(),
             mapping: Default::default(),
             build: Build::new_arc(),
+            index_strategy: IndexCreationStrategy::OnQuery,
         }
+    }
+}
+
+impl Ontology<ArcStr> for PyIndexedOntology {}
+impl MutableOntology<ArcStr> for PyIndexedOntology {
+    fn insert<AA>(&mut self, ax: AA) -> bool
+    where
+        AA: Into<AnnotatedComponent<ArcStr>>,
+    {
+        self.insert(ax.into().into())
+    }
+
+    fn take(&mut self, ax: &AnnotatedComponent<ArcStr>) -> Option<AnnotatedComponent<ArcStr>> {
+        if let Some(ref mut iri_index) = &mut self.iri_index {
+            iri_index.index_take(ax);
+        }
+        if let Some(ref mut component_index) = &mut self.component_index {
+            component_index.index_take(ax);
+        }
+        self.set_index.index_take(ax)
+    }
+}
+
+impl From<RDFOntology<ArcStr, ArcAnnotatedComponent>> for PyIndexedOntology {
+    fn from(value: RDFOntology<ArcStr, ArcAnnotatedComponent>) -> Self {
+        Self::from_rdf_ontology(value, Default::default())
+    }
+}
+
+impl From<SetOntology<ArcStr>> for PyIndexedOntology {
+    fn from(value: SetOntology<ArcStr>) -> Self {
+        Self::from_set_ontology(value, Default::default())
     }
 }
 
 #[pymethods]
 impl PyIndexedOntology {
     #[new]
-    pub fn new() -> Self {
-        Default::default()
+    #[pyo3(signature = (index_strategy = IndexCreationStrategy::OnQuery))]
+    pub fn new(index_strategy: IndexCreationStrategy) -> Self {
+        let mut s = Self::default();
+
+        if index_strategy == IndexCreationStrategy::OnLoad {
+            s.iri_index = Default::default();
+            s.component_index = Default::default();
+        }
+
+        s.index_strategy = index_strategy;
+
+        s
     }
 
     /// add_default_prefix_names(self) -> None
     ///
     /// Adds the prefix for rdf, rdfs, xsd, and owl
     pub fn add_default_prefix_names(&mut self) -> PyResult<()> {
-        self.mapping.add_prefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        self.mapping
+            .add_prefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
             .map_err(to_py_err!("Error while adding predefined prefix 'rdf'"))?;
-        self.mapping.add_prefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#")
+        self.mapping
+            .add_prefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#")
             .map_err(to_py_err!("Error while adding predefined prefix 'rdfs'"))?;
-        self.mapping.add_prefix("xsd", "http://www.w3.org/2001/XMLSchema#")
+        self.mapping
+            .add_prefix("xsd", "http://www.w3.org/2001/XMLSchema#")
             .map_err(to_py_err!("Error while adding predefined prefix 'xsd'"))?;
-        self.mapping.add_prefix("owl", "http://www.w3.org/2002/07/owl#")
+        self.mapping
+            .add_prefix("owl", "http://www.w3.org/2002/07/owl#")
             .map_err(to_py_err!("Error while adding predefined prefix 'owl'"))?;
 
         Ok(())
@@ -74,7 +158,11 @@ impl PyIndexedOntology {
     ///
     /// If the term does not have an ID, `None` is returned.
     #[pyo3[signature = (iri, *, iri_is_absolute = None)]]
-    pub fn get_id_for_iri(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<Option<String>> {
+    pub fn get_id_for_iri(
+        &mut self,
+        iri: String,
+        iri_is_absolute: Option<bool>,
+    ) -> PyResult<Option<String>> {
         let iri: String = self.iri(iri, iri_is_absolute)?.into();
         let res = self.mapping.shrink_iri(iri.as_str());
 
@@ -131,31 +219,39 @@ impl PyIndexedOntology {
     ///
     /// Adds an or updates the `AnnotationAssertion` axiom for `rdfs:label`.
     #[pyo3[signature = (iri, label, *, absolute = None)]]
-    pub fn set_label(&mut self, iri: String, label: String, absolute: Option<bool>) -> PyResult<()> {
+    pub fn set_label(
+        &mut self,
+        iri: String,
+        label: String,
+        absolute: Option<bool>,
+    ) -> PyResult<()> {
         let iri: IRI<ArcStr> = self.iri(iri, absolute)?.into();
 
         let ax1: AnnotatedComponent<ArcStr> = Component::AnnotationAssertion(AnnotationAssertion {
             subject: iri.clone().into(),
             ann: Annotation {
-                ap: self
-                    .build
-                    .annotation_property(AnnotationBuiltIn::Label),
+                ap: self.build.annotation_property(AnnotationBuiltIn::Label),
                 av: AnnotationValue::Literal(Literal::Simple {
                     literal: label.clone(),
                 }),
             },
         })
-            .into();
+        .into();
+
+        let components = if let Some(ref mut iri_index) = &mut self.iri_index {
+            Box::new(iri_index.component_for_iri(&iri))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
 
         //If we already have a label, update it:
-        let old_ax = &self
-            .ontology
-            .components_for_iri(&iri)
+        let old_ax = &components
             .filter_map(|aax: &AnnotatedComponent<ArcStr>| match &aax.component {
                 Component::AnnotationAssertion(AnnotationAssertion {
-                                                   subject: _subj,
-                                                   ann,
-                                               }) => match ann {
+                    subject: AnnotationSubject::IRI(subj),
+                    ann,
+                }) if subj == &iri => match ann {
                     Annotation {
                         ap,
                         av: AnnotationValue::Literal(Literal::Simple { literal: _old }),
@@ -173,11 +269,10 @@ impl PyIndexedOntology {
             .next();
 
         if let Some(old_ax) = old_ax {
-            self.ontology.update_axiom(old_ax, ax1);
-        } else {
-            //If no label already, just add one
-            self.ontology.insert(ax1);
+            self.take(old_ax);
         }
+
+        self.insert(Arc::new(ax1));
         Ok(())
     }
 
@@ -187,28 +282,60 @@ impl PyIndexedOntology {
     ///
     /// If the term does not have a label, `None` is returned.
     pub fn get_iri_for_label(&mut self, label: String) -> PyResult<Option<String>> {
-        Ok(self.labels_to_iris.get(&label).map(String::from))
+        let components = if let Some(ref mut component_index) = &mut self.component_index {
+            Box::new(component_index.annotation_assertion())
+                as Box<dyn Iterator<Item = &AnnotationAssertion<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter().filter_map(|c| match c {
+                AnnotatedComponent {component: Component::AnnotationAssertion(a), ..} => Some(a),
+                _ => None
+            }))
+        };
+
+        let mut labels = components.filter_map(|ax| match ax {
+            AnnotationAssertion {
+                subject: AnnotationSubject::IRI(subj),
+                ann:
+                    Annotation {
+                        ap,
+                        av: AnnotationValue::Literal(Literal::Simple { literal }),
+                    },
+            } if *literal == label && AnnotationBuiltIn::Label.underlying().eq(&ap.0.to_string()) => Some(subj),
+            _ => None,
+        });
+
+        Ok(labels.next().map(|i| i.to_string()))
     }
 
     /// get_iri(self) -> Optional[str]
     ///
     /// Returns the ontology iri, if it exists.
     pub fn get_iri(&mut self) -> PyResult<Option<model::IRI>> {
-        Ok(self.get_id().and_then(|x| x.iri.as_ref()).map(model::IRI::from))
+        Ok(self
+            .get_id()
+            .and_then(|x| x.iri.as_ref())
+            .map(model::IRI::from))
     }
 
     /// get_version_iri(self) -> Optional[str]
     ///
     /// Returns the ontologys version iri, if it exists.
     pub fn get_version_iri(&mut self) -> PyResult<Option<model::IRI>> {
-        Ok(self.get_id().and_then(|x| x.viri.as_ref()).map(model::IRI::from))
+        Ok(self
+            .get_id()
+            .and_then(|x| x.viri.as_ref())
+            .map(model::IRI::from))
     }
 
     /// get_subclasses(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all subclasses of an entity.
     #[pyo3[signature = (iri, iri_is_absolute = None)]]
-    pub fn get_subclasses(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<HashSet<String>> {
+    pub fn get_subclasses(
+        &mut self,
+        iri: String,
+        iri_is_absolute: Option<bool>,
+    ) -> PyResult<HashSet<String>> {
         let iri: IRI<ArcStr> = self.iri(iri, iri_is_absolute)?.into();
 
         let subclasses = self.classes_to_subclasses.get(&iri);
@@ -224,7 +351,11 @@ impl PyIndexedOntology {
     ///
     /// Gets all superclasses of an entity.
     #[pyo3[signature = (iri, iri_is_absolute = None)]]
-    pub fn get_superclasses(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<HashSet<String>> {
+    pub fn get_superclasses(
+        &mut self,
+        iri: String,
+        iri_is_absolute: Option<bool>,
+    ) -> PyResult<HashSet<String>> {
         let iri: IRI<ArcStr> = self.iri(iri, iri_is_absolute)?.into();
 
         let superclasses = self.classes_to_superclasses.get(&iri);
@@ -241,14 +372,20 @@ impl PyIndexedOntology {
     /// Returns the IRIs of all declared classes in the ontology.
     pub fn get_classes(&mut self) -> PyResult<HashSet<String>> {
         //Get the DeclareClass axioms
-        let classes = self.ontology.component_for_kind(ComponentKind::DeclareClass);
+        let classes = if let Some(ref mut component_index) = &mut self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::DeclareClass))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
 
-        let classes: HashSet<String> = classes
-            .filter_map(|aax| match aax.clone().component {
-                Component::DeclareClass(dc) => Some(dc.0.0.to_string()),
+        let classes = classes
+            .filter_map(|aax| match &aax.component {
+                Component::DeclareClass(dc) => Some(dc.0 .0.to_string()),
                 _ => None,
             })
             .collect();
+
         Ok(classes)
     }
 
@@ -257,13 +394,16 @@ impl PyIndexedOntology {
     /// Returns the IRIs of all declared object properties in the ontology.
     pub fn get_object_properties(&mut self) -> PyResult<HashSet<String>> {
         //Get the DeclareObjectProperty axioms
-        let object_properties = self
-            .ontology
-            .component_for_kind(ComponentKind::DeclareObjectProperty);
+        let object_properties = if let Some(ref mut component_index) = &mut self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::DeclareObjectProperty))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
 
         let object_properties: HashSet<String> = object_properties
             .filter_map(|aax| match aax.clone().component {
-                Component::DeclareObjectProperty(dop) => Some(dop.0.0.to_string()),
+                Component::DeclareObjectProperty(dop) => Some(dop.0 .0.to_string()),
                 _ => None,
             })
             .collect();
@@ -285,8 +425,13 @@ impl PyIndexedOntology {
         class_iri_is_absolute: Option<bool>,
         ann_iri_is_absolute: Option<bool>,
     ) -> PyResult<Option<String>> {
-        self.get_annotations(class_iri, ann_iri, class_iri_is_absolute, ann_iri_is_absolute)
-            .map(|x| x.first().map(Into::into))
+        self.get_annotations(
+            class_iri,
+            ann_iri,
+            class_iri_is_absolute,
+            ann_iri_is_absolute,
+        )
+        .map(|x| x.first().map(Into::into))
     }
 
     /// get_annotations(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> List[str]
@@ -296,13 +441,27 @@ impl PyIndexedOntology {
     /// Note: The order is neither necessarily the same as in the ontology neither is it stable.
     /// Get all annotation values with `PyIndexedOntology.get_annotations`.
     #[pyo3[signature = (class_iri, ann_iri, *, class_iri_is_absolute = None, ann_iri_is_absolute = None)]]
-    pub fn get_annotations(&mut self, class_iri: String, ann_iri: String, class_iri_is_absolute: Option<bool>, ann_iri_is_absolute: Option<bool>) -> PyResult<Vec<String>> {
+    pub fn get_annotations(
+        &mut self,
+        class_iri: String,
+        ann_iri: String,
+        class_iri_is_absolute: Option<bool>,
+        ann_iri_is_absolute: Option<bool>,
+    ) -> PyResult<Vec<String>> {
         let class_iri: IRI<ArcStr> = self.iri(class_iri, class_iri_is_absolute)?.into();
         let ann_iri: IRI<ArcStr> = self.iri(ann_iri, ann_iri_is_absolute)?.into();
-        let literal_values: Vec<String> = self.ontology.components_for_iri(&class_iri)
+
+        let components = if let Some(iri_index) = &self.iri_index {
+            Box::new(iri_index.component_for_iri(&class_iri))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
+
+        let literal_values = components
             .filter_map(|aax: &AnnotatedComponent<ArcStr>| {
                 match &aax.component {
-                    Component::AnnotationAssertion(AnnotationAssertion { subject: _, ann }) => {
+                    Component::AnnotationAssertion(AnnotationAssertion { subject: AnnotationSubject::IRI(s), ann }) if &class_iri == s => {
                         match ann {
                             Annotation { ap, av: AnnotationValue::Literal(Literal::Simple { literal }) } => {
                                 if ann_iri.eq(&ap.0) { Some(literal.clone()) } else { None }
@@ -337,14 +496,18 @@ impl PyIndexedOntology {
         let mut amo: ArcComponentMappedOntology = ComponentMappedOntology::new_arc();
 
         //Copy the components into an ComponentMappedOntology as that is what horned owl writes
-        for component in self.ontology.iter() {
+        for component in (&self.set_index).into_iter() {
             amo.insert(component.clone());
         }
 
         let result = match serialization {
-            ResourceType::OFN => horned_owl::io::ofn::writer::write(&mut file, &amo, Some(&self.mapping)),
-            ResourceType::OWX => horned_owl::io::owx::writer::write(&mut file, &amo, Some(&self.mapping)),
-            ResourceType::RDF => horned_owl::io::rdf::writer::write(&mut file, &amo)
+            ResourceType::OFN => {
+                horned_owl::io::ofn::writer::write(&mut file, &amo, Some(&self.mapping))
+            }
+            ResourceType::OWX => {
+                horned_owl::io::owx::writer::write(&mut file, &amo, Some(&self.mapping))
+            }
+            ResourceType::RDF => horned_owl::io::rdf::writer::write(&mut file, &amo),
         };
 
         result.map_err(to_py_err!("Problem saving the ontology to a file"))
@@ -354,66 +517,104 @@ impl PyIndexedOntology {
     ///
     /// Gets all axioms for an entity.
     #[pyo3[signature = (iri, *, iri_is_absolute = None)]]
-    pub fn get_axioms_for_iri(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<Vec<model::AnnotatedComponent>> {
+    pub fn get_axioms_for_iri(
+        &mut self,
+        iri: String,
+        iri_is_absolute: Option<bool>,
+    ) -> PyResult<Vec<model::AnnotatedComponent>> {
         let iri: IRI<ArcStr> = self.iri(iri, iri_is_absolute)?.into();
 
-        let axioms = self
-            .ontology
-            .components_for_iri(&iri)
-            .filter_map(|a|
-                if a.is_axiom() {
-                    Some(model::AnnotatedComponent::from(a))
-                } else { None })
-            .collect();
+        let iri_index = if let Some(index) = &self.iri_index {
+            Some(index)
+        } else {
+            if self.index_strategy == IndexCreationStrategy::OnQuery {
+                self.build_iri_index();
+            }
+            if let Some(index) = &self.iri_index {
+                Some(index)
+            } else {
+                None
+            }
+        };
 
-        Ok(axioms)
+        if let Some(iri_index) = iri_index {
+            let axioms = iri_index
+                .component_for_iri(&iri)
+                .filter_map(|a| {
+                    if a.is_axiom() {
+                        Some(model::AnnotatedComponent::from(a))
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+
+            Ok(axioms)
+        } else {
+            return Err(PyValueError::new_err("IRI index not yet build!"));
+        }
     }
 
     /// get_components_for_iri(self, iri: str, iri_is_absolute: Optional[bool] = None) -> List[model.AnnotatedComponent]
     ///
     /// Gets all components (axiom, swrl, and meta component) for an entity.
     #[pyo3[signature = (iri, *, iri_is_absolute = None)]]
-    pub fn get_components_for_iri(&mut self, iri: String, iri_is_absolute: Option<bool>) -> PyResult<Vec<model::AnnotatedComponent>> {
+    pub fn get_components_for_iri(
+        &mut self,
+        iri: String,
+        iri_is_absolute: Option<bool>,
+    ) -> PyResult<Vec<model::AnnotatedComponent>> {
         let iri: IRI<ArcStr> = self.iri(iri, iri_is_absolute)?.into();
 
-        let components = self
-            .ontology
-            .components_for_iri(&iri)
-            .map(model::AnnotatedComponent::from)
-            .collect();
+        let iri_index = if let Some(index) = &self.iri_index {
+            Some(index)
+        } else {
+            if self.index_strategy == IndexCreationStrategy::OnQuery {
+                self.build_iri_index();
+            }
+            if let Some(index) = &self.iri_index {
+                Some(index)
+            } else {
+                None
+            }
+        };
 
-        Ok(components)
+        if let Some(iri_index) = iri_index {
+            let components = iri_index
+                .component_for_iri(&iri)
+                .map(model::AnnotatedComponent::from)
+                .collect();
+
+            Ok(components)
+        } else {
+            Err(PyValueError::new_err("IRI index not yet build!"))
+        }
     }
 
     /// get_axioms(self) -> List[model.AnnotatedComponent]
     ///
     /// Returns all axioms of the ontology.
     pub fn get_axioms(&mut self) -> PyResult<Vec<model::AnnotatedComponent>> {
-        let r = self
-            .ontology
-            .iter()
-
-            .filter_map(|a|
+        let r = (&self.set_index)
+            .into_iter()
+            .filter_map(|a| {
                 if a.is_axiom() {
                     Some(model::AnnotatedComponent::from(a.clone()))
                 } else {
                     None
                 }
-            )
+            })
             .collect();
 
         Ok(r)
     }
 
-
     /// get_components(self) -> List[model.AnnotatedComponent]
     ///
     /// Returns all axioms of the ontology.
     pub fn get_components(&mut self) -> PyResult<Vec<model::AnnotatedComponent>> {
-        let r = self
-            .ontology
-            .iter()
-
+        let r = (&self.set_index)
+            .into_iter()
             .map(model::AnnotatedComponent::from)
             .collect();
 
@@ -429,13 +630,11 @@ impl PyIndexedOntology {
         component: model::Component,
         annotations: Option<BTreeSet<model::Annotation>>,
     ) -> PyResult<()> {
-        let ann: model::BTreeSetWrap<model::Annotation> = annotations.unwrap_or(BTreeSet::new()).into();
-        let annotated_component: AnnotatedComponent<ArcStr> = model::AnnotatedComponent {
-            component,
-            ann,
-        }.into();
-        self.insert(&annotated_component);
-        self.ontology.insert(annotated_component);
+        let ann: model::BTreeSetWrap<model::Annotation> =
+            annotations.unwrap_or(BTreeSet::new()).into();
+        let annotated_component: AnnotatedComponent<ArcStr> =
+            model::AnnotatedComponent { component, ann }.into();
+        self.insert(Arc::new(annotated_component));
 
         Ok(())
     }
@@ -457,17 +656,15 @@ impl PyIndexedOntology {
     /// Removes a component from the ontology.
     pub fn remove_component(&mut self, component: model::Component) -> PyResult<()> {
         let ax: Component<Arc<str>> = component.into();
-        let annotated = self
-            .ontology
-            .iter()
+        let annotated = (&self.set_index)
+            .into_iter()
             .find(|a| a.component == ax)
             .ok_or(PyValueError::new_err("args"))?
             .to_owned();
-        self.ontology.remove(&annotated);
+        self.take(&annotated);
 
         Ok(())
     }
-
 
     /// remove_axiom(self, ax: model.Component) -> None
     ///
@@ -494,14 +691,16 @@ impl PyIndexedOntology {
         Ok(r)
     }
 
-
     /// curie(self, iri: str) -> model.IRI
     ///
     /// Creates a new IRI from CURIE string.
     ///
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
     pub fn curie(&self, curie: String) -> PyResult<model::IRI> {
-        let iri = self.mapping.expand_curie_string(&curie).map_err(to_py_err!("Invalid curie"))?;
+        let iri = self
+            .mapping
+            .expand_curie_string(&curie)
+            .map_err(to_py_err!("Invalid curie"))?;
         Ok(model::IRI::new(iri, &self.build))
     }
 
@@ -520,7 +719,7 @@ impl PyIndexedOntology {
     /// Convenience method to add a Declare(Class(iri)) axiom.
     #[pyo3[signature = (iri, *, absolute = None)]]
     pub fn declare_class(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
-        Ok(self.ontology.declare::<horned_owl::model::Class<ArcStr>>(self.clazz(iri, absolute)?.into()))
+        Ok(self.declare::<horned_owl::model::Class<ArcStr>>(self.clazz(iri, absolute)?.into()))
     }
 
     /// object_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.ObjectProperty
@@ -529,7 +728,11 @@ impl PyIndexedOntology {
     ///
     /// Uses the `iri` method to cache native IRI instances.
     #[pyo3[signature = (iri, *, absolute = None)]]
-    pub fn object_property(&self, iri: String, absolute: Option<bool>) -> PyResult<model::ObjectProperty> {
+    pub fn object_property(
+        &self,
+        iri: String,
+        absolute: Option<bool>,
+    ) -> PyResult<model::ObjectProperty> {
         Ok(model::ObjectProperty(self.iri(iri, absolute)?))
     }
 
@@ -537,8 +740,14 @@ impl PyIndexedOntology {
     ///
     /// Convenience method to add a Declare(ObjectProperty(iri)) axiom.
     #[pyo3[signature = (iri, *, absolute = None)]]
-    pub fn declare_object_property(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
-        Ok(self.ontology.declare::<horned_owl::model::ObjectProperty<ArcStr>>(self.object_property(iri, absolute)?.into()))
+    pub fn declare_object_property(
+        &mut self,
+        iri: String,
+        absolute: Option<bool>,
+    ) -> PyResult<bool> {
+        Ok(self.declare::<horned_owl::model::ObjectProperty<ArcStr>>(
+            self.object_property(iri, absolute)?.into(),
+        ))
     }
 
     /// data_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.DataProperty
@@ -547,7 +756,11 @@ impl PyIndexedOntology {
     ///
     /// Uses the `iri` method to cache native IRI instances.
     #[pyo3[signature = (iri, *, absolute = None)]]
-    pub fn data_property(&self, iri: String, absolute: Option<bool>) -> PyResult<model::DataProperty> {
+    pub fn data_property(
+        &self,
+        iri: String,
+        absolute: Option<bool>,
+    ) -> PyResult<model::DataProperty> {
         Ok(model::DataProperty(self.iri(iri, absolute)?))
     }
 
@@ -556,16 +769,22 @@ impl PyIndexedOntology {
     /// Convenience method to add a Declare(DataProperty(iri)) axiom.
     #[pyo3[signature = (iri, *, absolute = None)]]
     pub fn declare_data_property(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
-        Ok(self.ontology.declare::<horned_owl::model::DataProperty<ArcStr>>(self.data_property(iri, absolute)?.into()))
+        Ok(self.declare::<horned_owl::model::DataProperty<ArcStr>>(
+            self.data_property(iri, absolute)?.into(),
+        ))
     }
 
-    /// annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.annotationProperty
+    /// annotation_property(self, iri: str, *, absolute: Optional[bool]=None) -> model.AnnotationProperty
     ///
     /// Convenience method to create an annotationProperty from an IRI.
     ///
     /// Uses the `iri` method to cache native IRI instances.
     #[pyo3[signature = (iri, *, absolute = None)]]
-    pub fn annotation_property(&self, iri: String, absolute: Option<bool>) -> PyResult<model::AnnotationProperty> {
+    pub fn annotation_property(
+        &self,
+        iri: String,
+        absolute: Option<bool>,
+    ) -> PyResult<model::AnnotationProperty> {
         Ok(model::AnnotationProperty(self.iri(iri, absolute)?))
     }
 
@@ -573,8 +792,16 @@ impl PyIndexedOntology {
     ///
     /// Convenience method to add a Declare(annotationProperty(iri)) axiom.
     #[pyo3[signature = (iri, *, absolute = None)]]
-    pub fn declare_annotation_property(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
-        Ok(self.ontology.declare::<horned_owl::model::AnnotationProperty<ArcStr>>(self.annotation_property(iri, absolute)?.into()))
+    pub fn declare_annotation_property(
+        &mut self,
+        iri: String,
+        absolute: Option<bool>,
+    ) -> PyResult<bool> {
+        Ok(
+            self.declare::<horned_owl::model::AnnotationProperty<ArcStr>>(
+                self.annotation_property(iri, absolute)?.into(),
+            ),
+        )
     }
 
     /// named_individual(self, iri: str, *, absolute: Optional[bool]=None) -> model.NamedIndividual
@@ -583,7 +810,11 @@ impl PyIndexedOntology {
     ///
     /// Uses the `iri` method to cache native IRI instances.
     #[pyo3[signature = (iri, *, absolute = None)]]
-    pub fn named_individual(&self, iri: String, absolute: Option<bool>) -> PyResult<model::NamedIndividual> {
+    pub fn named_individual(
+        &self,
+        iri: String,
+        absolute: Option<bool>,
+    ) -> PyResult<model::NamedIndividual> {
         Ok(model::NamedIndividual(self.iri(iri, absolute)?))
     }
 
@@ -592,23 +823,27 @@ impl PyIndexedOntology {
     /// Convenience method to add a Declare(NamedIndividual(iri)) axiom.
     #[pyo3[signature = (iri, *, absolute = None)]]
     pub fn declare_individual(&mut self, iri: String, absolute: Option<bool>) -> PyResult<bool> {
-        Ok(self.ontology.declare::<horned_owl::model::NamedIndividual<ArcStr>>(self.named_individual(iri, absolute)?.into()))
+        Ok(self.declare::<horned_owl::model::NamedIndividual<ArcStr>>(
+            self.named_individual(iri, absolute)?.into(),
+        ))
     }
-
 
     /// anonymous_individual(self, iri: str) -> model.AnonymousIndividual
     ///
     /// Convenience method to create an AnonymousIndividual from a string.
     pub fn anonymous_individual(&self, name: String) -> model::AnonymousIndividual {
-        AnonymousIndividual(name.into())
+        model::AnonymousIndividual(name.into())
     }
-
 
     /// get_descendants(self, parent: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all direct and indirect subclasses of a class.
     #[pyo3[signature = (parent_iri, *, iri_is_absolute = None)]]
-    pub fn get_descendants(&self, parent_iri: String, iri_is_absolute: Option<bool>) -> PyResult<HashSet<String>> {
+    pub fn get_descendants(
+        &self,
+        parent_iri: String,
+        iri_is_absolute: Option<bool>,
+    ) -> PyResult<HashSet<String>> {
         let mut descendants = HashSet::new();
         let parent_iri: IRI<ArcStr> = self.iri(parent_iri, iri_is_absolute)?.into();
 
@@ -617,11 +852,15 @@ impl PyIndexedOntology {
         Ok(descendants)
     }
 
-    /// get_ancestors(onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
+    /// get_ancestors(self, onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all direct and indirect super classes of a class.
     #[pyo3[signature = (child_iri, *, iri_is_absolute = None)]]
-    pub fn get_ancestors(&self, child_iri: String, iri_is_absolute: Option<bool>) -> PyResult<HashSet<String>> {
+    pub fn get_ancestors(
+        &self,
+        child_iri: String,
+        iri_is_absolute: Option<bool>,
+    ) -> PyResult<HashSet<String>> {
         let mut ancestors = HashSet::new();
 
         let child_iri: IRI<ArcStr> = self.iri(child_iri, iri_is_absolute)?.into();
@@ -630,14 +869,67 @@ impl PyIndexedOntology {
 
         Ok(ancestors)
     }
+
+    /// build_iri_index(self) -> None
+    /// 
+    /// Builds an index by iri (IRIMappedIndex).
+    pub fn build_iri_index(&mut self) -> () {
+        if self.iri_index.is_some() {
+            return;
+        }
+
+        let mut iri_index = IRIMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
+
+        for c in self.set_index.members() {
+            iri_index.index_insert(c.clone());
+        }
+
+        self.iri_index = Some(iri_index);
+    }
+
+    /// component_index(self) -> None
+    /// 
+    /// Builds an index by component kind (ComponentMappedIndex).
+    pub fn build_component_index(&mut self) {
+        if self.component_index.is_some() {
+            return;
+        }
+
+        let mut component_index = ComponentMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
+
+        for c in self.set_index.members() {
+            component_index.index_insert(c.clone());
+        }
+
+        self.component_index = Some(component_index);
+    }
+
+    /// build_indexes(self) -> None
+    /// 
+    /// Builds indexes to allow (a quicker) access to axioms and entities.
+    pub fn build_indexes(&mut self) {
+        match (&self.iri_index, &self.component_index) {
+            (Some(_), Some(_)) => return,
+            (Some(_), None) => return self.build_component_index(),
+            (None, Some(_)) => return self.build_iri_index(),
+            _ => {}
+        }
+
+        let mut component_index = ComponentMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
+        let mut iri_index = IRIMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
+
+        for c in self.set_index.members() {
+            component_index.index_insert(c.clone());
+            iri_index.index_insert(c.clone());
+        }
+
+        self.component_index = Some(component_index);
+        self.iri_index = Some(iri_index);
+    }
 }
 
 impl PyIndexedOntology {
-    fn recurse_descendants(
-        &self,
-        superclass: &IRI<ArcStr>,
-        descendants: &mut HashSet<String>,
-    ) {
+    fn recurse_descendants(&self, superclass: &IRI<ArcStr>, descendants: &mut HashSet<String>) {
         descendants.insert(superclass.into());
         if self.classes_to_subclasses.contains_key(superclass) {
             for cls2 in &mut self.classes_to_subclasses[superclass].iter() {
@@ -646,11 +938,7 @@ impl PyIndexedOntology {
         }
     }
 
-    fn recurse_ancestors(
-        &self,
-        subclass: &IRI<ArcStr>,
-        ancestors: &mut HashSet<String>,
-    ) {
+    fn recurse_ancestors(&self, subclass: &IRI<ArcStr>, ancestors: &mut HashSet<String>) {
         ancestors.insert(subclass.into());
         if self.classes_to_superclasses.contains_key(subclass) {
             for cls2 in &mut self.classes_to_superclasses[subclass].iter() {
@@ -659,94 +947,73 @@ impl PyIndexedOntology {
         }
     }
 
-    pub fn insert(&mut self, ax: &AnnotatedComponent<ArcStr>) -> () {
-        let b = Build::new();
-
-        match ax.kind() {
-            ComponentKind::AnnotationAssertion => match ax.clone().component {
-                Component::AnnotationAssertion(AnnotationAssertion { subject, ann }) => match ann {
-                    Annotation {
-                        ap,
-                        av: AnnotationValue::Literal(Literal::Simple { literal }),
-                    } => {
-                        if AnnotationBuiltIn::Label.underlying().eq(&ap.0.to_string()) {
-                            let _ = &self
-                                .labels_to_iris
-                                .insert(literal.clone(), b.iri(subject.deref()));
-                        }
-                    }
-                    _ => (),
-                },
-                _ => (),
-            },
-            ComponentKind::SubClassOf => {
-                match ax.clone().component {
-                    Component::SubClassOf(SubClassOf { sup, sub }) => {
-                        match sup {
-                            ClassExpression::Class(c) => {
-                                match sub {
-                                    ClassExpression::Class(d) => {
-                                        //Direct subclasses only
-                                        let _ = &self
-                                            .classes_to_subclasses
-                                            .entry(c.0.clone())
-                                            .or_insert(HashSet::new())
-                                            .insert(d.0.clone());
-                                        let _ = &self
-                                            .classes_to_superclasses
-                                            .entry(d.0.clone())
-                                            .or_insert(HashSet::new())
-                                            .insert(c.0.clone());
-                                    }
-                                    _ => (),
-                                }
-                            }
-                            _ => (),
-                        }
-                    }
-                    _ => (),
-                }
-            }
-            _ => (),
+    pub fn insert(&mut self, ax: ArcAnnotatedComponent) -> bool {
+        if let Some(ref mut iri_index) = &mut self.iri_index {
+            iri_index.index_insert(ax.clone());
         }
-    }
-
-    pub fn from(iro: IRIMappedOntology<ArcStr, Arc<AnnotatedComponent<ArcStr>>>) -> PyIndexedOntology {
-        let mut ino = PyIndexedOntology::default();
-
-        for ax in iro.iter() {
-            ino.insert(&ax);
+        if let Some(ref mut component_index) = &mut self.component_index {
+            component_index.index_insert(ax.clone());
         }
-
-        ino.ontology = iro;
-
-        ino
+        self.set_index.index_insert(ax)
     }
 
     fn get_id(&mut self) -> Option<&OntologyID<ArcStr>> {
-        match self.ontology.component_for_kind(ComponentKind::OntologyID).next() {
-            Some(horned_owl::model::AnnotatedComponent::<ArcStr> {
-                     component: Component::OntologyID(id),
-                     ann: _
-                 }) => Some(id),
-            _ => None
+        let components = if let Some(component_index) = &self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::OntologyID))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
+
+        components
+            .filter_map(|c| match c {
+                horned_owl::model::AnnotatedComponent::<ArcStr> {
+                    component: Component::OntologyID(id),
+                    ann: _,
+                } => Some(id),
+                _ => None,
+            })
+            .next()
+    }
+
+    pub fn from_set_ontology(
+        value: SetOntology<ArcStr>,
+        index_strategy: IndexCreationStrategy,
+    ) -> Self {
+        let mut pio = Self::new(index_strategy);
+
+        for cmp in value {
+            pio.insert(Arc::new(cmp));
         }
+
+        pio
+    }
+
+    pub fn from_rdf_ontology(
+        value: RDFOntology<ArcStr, ArcAnnotatedComponent>,
+        index_strategy: IndexCreationStrategy,
+    ) -> Self {
+        let mut pio = Self::new(index_strategy);
+        let (set_index, _, _) = value.index();
+
+        pio.set_index = set_index;
+
+        pio
     }
 }
 
+/// @deprecated("please use `PyIndexedOntology.get_descendants` instead")
 /// get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]
 ///
-/// DEPRECATED: please use `PyIndexedOntology::get_descendants` instead
 /// Gets all direct and indirect subclasses of a class.
 #[pyfunction]
 pub fn get_descendants(onto: &PyIndexedOntology, parent: String) -> PyResult<HashSet<String>> {
     onto.get_descendants(parent, Some(true))
 }
 
-
+/// @deprecated(please use `PyIndexedOntology.get_ancestors` instead)
 /// get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]
 ///
-/// DEPRECATED: please use `PyIndexedOntology::get_ancestors` instead
 /// Gets all direct and indirect super classes of a class.
 #[pyfunction]
 pub fn get_ancestors(onto: &PyIndexedOntology, child: String) -> PyResult<HashSet<String>> {
