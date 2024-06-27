@@ -40,8 +40,8 @@ def simple_ontology_comps_annotated() -> list[AnnotatedComponent]:
 
 def simple_ontology() -> pyhornedowl.PyIndexedOntology:
     onto = pyhornedowl.PyIndexedOntology()
-    onto.add_default_prefix_names()
-    onto.add_prefix_mapping("", "https://example.com/")
+    onto.prefix_mapping.add_default_prefix_names()
+    onto.prefix_mapping.add_prefix("", "https://example.com/")
 
     for c in simple_ontology_comps():
         onto.add_component(c)

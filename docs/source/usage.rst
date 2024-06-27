@@ -57,24 +57,6 @@ An exception to this is the the function :func:`PyIndexedOntology.curie <pyhorne
 
 
 
-.. note::
-    Similar to the OWL Manchester Syntax, for the empty prefix the colon can be omitted.
-
-    .. code-block:: python
-
-        import pyhornedowl
-
-        ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
-        ontology.add_prefix_mapping("", "https://example.com/")
-
-        i1 = ontology.iri("https://example.com/test/A")
-        i2 = ontology.iri(":A")
-        i3 = ontology.iri("A")
-
-        assert i1 == i2 == i3
-
-
-
 Prefixes
 --------
 
@@ -100,12 +82,12 @@ Classes, Individuals, Data- and Objectproperties can be created using convenienc
     o = pyhornedowl.open_ontology("path/to/ontology.owl")
     o.add_prefix_mapping("", "https://example.com/")
 
-    c = o.clazz("A")
-    op = o.object_property("op")
-    dp = o.data_property("dp")
-    ap = o.annotation_property("ap")
-    i = o.named_individual("I")
-    n = o.anonymous_individual("n")
+    c = o.clazz(":A")
+    op = o.object_property(":op")
+    dp = o.data_property(":dp")
+    ap = o.annotation_property(":ap")
+    i = o.named_individual(":I")
+    n = o.anonymous_individual(":n")
 
 
 Write class expressions
@@ -123,9 +105,9 @@ Instead of writing class expressions as nested constructor calls, some expressio
     o = pyhornedowl.PyIndexedOntology()
     o.add_prefix_mapping("", "https://example.com/")
 
-    A = o.clazz("A")
-    B = o.clazz("B")
-    C = o.clazz("C")
+    A = o.clazz(":A")
+    B = o.clazz(":B")
+    C = o.clazz(":C")
     r = o.object_property("r")
 
     assert A & B == ObjectIntersectionOf([A, B])

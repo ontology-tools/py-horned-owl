@@ -8,12 +8,6 @@ class PyIndexedOntology:
     """
     Represents a loaded ontology.
     """
-    def add_default_prefix_names(self) -> None:
-        """
-        Adds the prefix for rdf, rdfs, xsd, and owl
-        """
-        ...
-
     def get_id_for_iri(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Optional[str]:
         """
         Gets the ID of term by it IRI.
@@ -27,12 +21,6 @@ class PyIndexedOntology:
         Gets the IRI of a term by its ID.
         
         If the term does not have an IRI, `None` is returned.
-        """
-        ...
-
-    def add_prefix_mapping(self, iriprefix: str, mappedid: str) -> None:
-        """
-        Adds the prefix `iriprefix`.
         """
         ...
 
@@ -286,6 +274,11 @@ class PyIndexedOntology:
         """
         ...
 
+    prefix_mapping: PrefixMapping
+    """
+    The prefix mapping
+    """
+
 
 class IndexCreationStrategy:
     """
@@ -304,6 +297,38 @@ class IndexCreationStrategy:
     """
     Only create the additional indexes when explicity requested
     """
+
+class PrefixMapping:
+    def add_default_prefix_names(self) -> None:
+        """
+        Adds the prefix for rdf, rdfs, xsd, and owl
+        """
+        ...
+
+    def add_prefix(self, iriprefix: str, mappedid: str) -> None:
+        """
+        Adds the prefix `iriprefix`.
+        """
+        ...
+
+    def remove_prefix(self, iriprefix: str) -> None:
+        """
+        Remove a prefix from the mapping.
+        """
+        ...
+
+    def expand_curie(self, curie: str) -> str:
+        """
+        Expands a curie. Throws a ValueError if the prefix is invalid or unknown
+        """
+        ...
+
+    def shring_iri(self, iri: str) -> str:
+        """
+        Shrinks an absolute IRI to a CURIE. Throws a ValueError on failure
+        """
+        ...
+
 
 def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
@@ -343,7 +368,7 @@ def get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]:
     ...
 
 
-@deprecated(please use `PyIndexedOntology.get_ancestors` instead)
+@deprecated("please use `PyIndexedOntology.get_ancestors` instead")
 def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
     """
     Gets all direct and indirect super classes of a class.

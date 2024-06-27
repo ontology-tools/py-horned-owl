@@ -80,9 +80,16 @@ with open("pyhornedowl/__init__.pyi", "w") as f:
                             for ann in annotations:
                                 f.write(f"    {ann}\n")
 
-                            f.write(f"    def {sign}:\n")
-                            doc = "\n".join([f"        {l}" for l in lines[annotations_end+2:]])
-                            f.write(f'        """\n{doc}\n        """\n        ...\n\n')
+                            if callable(member):
+                                f.write(f"    def {sign}:\n")
+                                doc = "\n".join([f"        {l}" for l in lines[annotations_end+2:]])
+                                f.write(f'        """\n{doc}\n        """\n        ...\n\n')
+                            else:
+                                f.write(f"    {sign}\n")
+                                doc = "\n".join([f"    {l}" for l in lines[annotations_end+2:]])
+                                f.write(f'    """\n{doc}\n    """\n\n')
+                                
+                    
             f.write("\n")
         elif callable(entry):
             if hasattr(entry, "__doc__"):
