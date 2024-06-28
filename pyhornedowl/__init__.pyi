@@ -95,12 +95,6 @@ class PyIndexedOntology:
         """
         ...
 
-    def save_to_bytes(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx']) -> bytes:
-        """
-        Saves the ontology to a byte buffer.
-        """
-        ...
-
     def save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx']) -> str:
         """
         Saves the ontology to a UTF8 string.
@@ -150,13 +144,13 @@ class PyIndexedOntology:
         """
         ...
 
-    def remove_component(self, component: model.Component) -> None:
+    def remove_component(self, component: model.Component) -> bool:
         """
         Removes a component from the ontology.
         """
         ...
 
-    def remove_axiom(self, ax: model.Component) -> None:
+    def remove_axiom(self, ax: model.Component) ->  bool:
         """
         Synonym for `remove_component`
         """

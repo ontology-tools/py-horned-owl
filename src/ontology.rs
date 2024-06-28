@@ -19,7 +19,6 @@ use horned_owl::ontology::iri_mapped::IRIMappedIndex;
 use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
 use pyo3::exceptions::PyValueError;
-use pyo3::types::PyBytes;
 use pyo3::{pyclass, pyfunction, pymethods, Bound, Py, PyObject, PyResult, Python, ToPyObject};
 
 use crate::prefix_mapping::PrefixMapping;
@@ -93,7 +92,14 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
     where
         AA: Into<AnnotatedComponent<ArcStr>>,
     {
-        self.insert(ax.into().into())
+        let ax: ArcAnnotatedComponent = ax.into().into();
+        if let Some(ref mut iri_index) = &mut self.iri_index {
+            iri_index.index_insert(ax.clone());
+        }
+        if let Some(ref mut component_index) = &mut self.component_index {
+            component_index.index_insert(ax.clone());
+        }
+        self.set_index.index_insert(ax)
     }
 
     fn take(&mut self, ax: &AnnotatedComponent<ArcStr>) -> Option<AnnotatedComponent<ArcStr>> {
@@ -104,6 +110,16 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
             component_index.index_take(ax);
         }
         self.set_index.index_take(ax)
+    }
+
+    fn remove(&mut self, ax: &AnnotatedComponent<ArcStr>) -> bool {
+        if let Some(ref mut iri_index) = &mut self.iri_index {
+            iri_index.index_remove(ax);
+        }
+        if let Some(ref mut component_index) = &mut self.component_index {
+            component_index.index_remove(ax);
+        }
+        self.set_index.index_remove(ax)
     }
 }
 
@@ -255,7 +271,7 @@ impl PyIndexedOntology {
             self.take(old_ax);
         }
 
-        self.insert(Arc::new(ax1));
+        self.insert(ax1);
         Ok(())
     }
 
@@ -638,7 +654,7 @@ impl PyIndexedOntology {
             annotations.unwrap_or(BTreeSet::new()).into();
         let annotated_component: AnnotatedComponent<ArcStr> =
             model::AnnotatedComponent { component, ann }.into();
-        self.insert(Arc::new(annotated_component));
+        self.insert(annotated_component);
 
         Ok(())
     }
@@ -655,25 +671,23 @@ impl PyIndexedOntology {
         self.add_component(ax, annotations)
     }
 
-    /// remove_component(self, component: model.Component) -> None
+    /// remove_component(self, component: model.Component) -> bool
     ///
     /// Removes a component from the ontology.
-    pub fn remove_component(&mut self, component: model::Component) -> PyResult<()> {
+    pub fn remove_component(&mut self, component: model::Component) -> PyResult<bool> {
         let ax: Component<Arc<str>> = component.into();
         let annotated = (&self.set_index)
             .into_iter()
             .find(|a| a.component == ax)
             .ok_or(PyValueError::new_err("args"))?
             .to_owned();
-        self.take(&annotated);
-
-        Ok(())
+        Ok(self.remove(&annotated))
     }
 
-    /// remove_axiom(self, ax: model.Component) -> None
+    /// remove_axiom(self, ax: model.Component) ->  bool
     ///
     /// Synonym for `remove_component`
-    pub fn remove_axiom(&mut self, ax: model::Component) -> PyResult<()> {
+    pub fn remove_axiom(&mut self, ax: model::Component) -> PyResult<bool> {
         self.remove_component(ax)
     }
 
@@ -980,16 +994,6 @@ impl PyIndexedOntology {
         }
     }
 
-    pub fn insert(&mut self, ax: ArcAnnotatedComponent) -> bool {
-        if let Some(ref mut iri_index) = &mut self.iri_index {
-            iri_index.index_insert(ax.clone());
-        }
-        if let Some(ref mut component_index) = &mut self.component_index {
-            component_index.index_insert(ax.clone());
-        }
-        self.set_index.index_insert(ax)
-    }
-
     fn get_id(&mut self) -> Option<&OntologyID<ArcStr>> {
         let components = if let Some(component_index) = &self.component_index {
             Box::new(component_index.component_for_kind(ComponentKind::OntologyID))
@@ -1016,7 +1020,7 @@ impl PyIndexedOntology {
         let mut pio = Self::new(index_strategy);
 
         for cmp in value {
-            pio.insert(Arc::new(cmp));
+            pio.insert(cmp);
         }
 
         pio
