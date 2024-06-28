@@ -213,6 +213,161 @@ macro_rules! wrapped_base {
     };
 }
 
+#[cfg(pyi)]
+macro_rules! extensions_pyi {
+    (ClassExpression, $v_name:ident) => {
+        "
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        \"\"\"Intersection of two class expressions\"\"\"
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        \"\"\"Union of two class expressions\"\"\"
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        \"\"\"Complement of a class expression\"\"\"
+        ...
+"
+    };
+
+    (ObjectPropertyExpression, $v_name:ident) => {
+        "
+    def some(self, ce: ClassExpression) -> ObjectSomeValuesFrom:
+        \"\"\"Existentional relationship\"\"\"
+        ...
+
+    def only(self, ce: ClassExpression) -> ObjectAllValuesFrom:
+        \"\"\"Universal relationship\"\"\"
+        ...
+
+    def has_value(self, individual: Individual) -> ObjectHasValue:
+        \"\"\"Existential relationship to an individual\"\"\"
+        ...
+
+    def has_self(self) -> ObjectHasSelf:
+        \"\"\"Individuals with relation to themselves\"\"\"
+        ...
+
+    def min(self, n: int, ce: ClassExpression) -> ObjectMinCardinality:
+        \"\"\"Minimum cardinality relationship\"\"\"
+        ...
+
+    def max(self, n: int, ce: ClassExpression) -> ObjectMaxCardinality:
+        \"\"\"Maximum cardinality relationship\"\"\"
+        ...
+
+    def exact(self, n: int, ce: ClassExpression) -> ObjectExactCardinality:
+        \"\"\"Exact cardinality relationship\"\"\"
+        ...
+
+    def __invert__(self) -> ObjectPropertyExpression:
+        \"\"\"Inverse of object property expression\"\"\"
+        ...
+"
+    };
+    ($($_:tt)+) => {
+        ""
+    };
+}
+
+macro_rules! extensions {
+    (ClassExpression, $v_name:ident) => {
+        #[pymethods]
+        impl $v_name {
+            fn __and__(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectIntersectionOf> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectIntersectionOf(vec![self.clone().into(), ce].into()))
+            }
+
+            fn __or__(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectUnionOf> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectUnionOf(vec![self.clone().into(), ce].into()))
+            }
+
+            fn __invert__(&self) -> ObjectComplementOf {
+                ObjectComplementOf(Box::<ClassExpression>::new(self.clone().into()).into())
+            }
+        }
+    };
+    (ObjectPropertyExpression, $v_name:ident) => {
+        #[pymethods]
+        impl $v_name {
+            fn some(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectSomeValuesFrom> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectSomeValuesFrom {
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn only(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectAllValuesFrom> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectAllValuesFrom {
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn has_value(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectHasValue> {
+                let i: Individual = obj.extract()?;
+                Ok(ObjectHasValue{
+                    ope: self.clone().into(),
+                    i
+                })
+            }
+
+            fn has_self(&self) -> PyResult<ObjectHasSelf> {
+                Ok(ObjectHasSelf(self.clone().into()))
+            }
+
+            fn min(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectMinCardinality> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectMinCardinality {
+                    n,
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn max(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectMaxCardinality> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectMaxCardinality {
+                    n,
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn exact(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectExactCardinality> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectExactCardinality {
+                    n,
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn __invert__(&self) -> ObjectPropertyExpression {
+                let ope: ObjectPropertyExpression = self.clone().into();
+                let inner: ObjectPropertyExpression_Inner = match ope.0 {
+                    ObjectPropertyExpression_Inner::InverseObjectProperty(
+                        InverseObjectProperty(i),
+                    ) => ObjectPropertyExpression_Inner::ObjectProperty(i),
+                    ObjectPropertyExpression_Inner::ObjectProperty(i) => {
+                        ObjectPropertyExpression_Inner::InverseObjectProperty(
+                            InverseObjectProperty(i),
+                        )
+                }
+                };
+
+                ObjectPropertyExpression(inner)
+            }
+        }
+    };
+    ( $ ( $ _: tt) + ) => {};
+}
+
 macro_rules! wrapped_enum {
     (pub enum $name:ident {
         $(
@@ -301,8 +456,14 @@ macro_rules! wrapped_enum {
                         )*
                     })?
 
+                impl From<$v_name_full> for $name {
+                    fn from(value: $v_name_full) -> Self {
+                        $name([<$name _ Inner>]::$v_name(value))
+                    }
+                }
+
                 #[pymethods]
-                impl [<$v_name_full >] {
+                impl [<$v_name_full>] {
                     #[new]
                     fn new(
                         $(first: $field_t0, $(second: $field_t1)?)?
@@ -345,7 +506,7 @@ macro_rules! wrapped_enum {
                         }
                     }
 
-                    #[cfg(debug_assertions)]
+                    #[cfg(pyi)]
                     #[classmethod]
                     fn __pyi__(_: &Bound<'_, PyType>) -> String {
                         let mut res = String::new();
@@ -370,6 +531,7 @@ macro_rules! wrapped_enum {
                             write!(&mut res, ", second: {}", to_py_type::<$field_t1>(String::new())).unwrap();
                         )?)?
                         write!(&mut res, "):\n        ...\n").unwrap();
+                        write!(&mut res, extensions_pyi!($name, $v_name_full)).unwrap();
                         write!(&mut res, "    ...\n").unwrap();
 
                         res
@@ -383,6 +545,15 @@ macro_rules! wrapped_enum {
 
                     fn __eq__(&self, other: &Self) -> bool {
                         self == other
+                    }
+                }
+
+                extensions!($name, $v_name_full);
+            )?)*
+            $($(
+                impl From<$v_name_transparent> for $name {
+                    fn from(value: $v_name_transparent) -> Self {
+                        $name([<$name _ Inner>]::$v_name_transparent(value))
                     }
                 }
             )?)*
@@ -484,8 +655,8 @@ macro_rules! wrapped_enum {
 }
 
 macro_rules! named {
-    (pub struct $name:ident ( pub $type0:ty $(, pub $type1:ty)?)) => {
-        wrapped!(pub struct $name ( pub $type0 $(, pub $type1)?));
+    (pub struct $name:ident ( pub $type0:ty $(, pub $type1:ty)?) $(extends $super:ty)?) => {
+        wrapped!(pub struct $name ( pub $type0 $(, pub $type1)?) $(extends $super)?);
 
         impl Display for $name {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -549,7 +720,7 @@ macro_rules! wrapped {
                     }
                 }
 
-                #[cfg(debug_assertions)]
+                #[cfg(pyi)]
                 #[classmethod]
                 fn __pyi__(_: &Bound<'_, PyType>) -> String {
                     let mut res = String::new();
@@ -602,7 +773,7 @@ macro_rules! wrapped {
         }
 
     };
-    (pub struct $name:ident ( pub $type0:ty $(, pub $type1:ty)?)) => { paste! {
+    (pub struct $name:ident ( pub $type0:ty $(, pub $type1:ty)?) $(extends $sup:ty)?) => { paste! {
 
         #[doc = concat!(
             stringify!($name),
@@ -634,7 +805,7 @@ macro_rules! wrapped {
                 )
             }
 
-            #[cfg(debug_assertions)]
+            #[cfg(pyi)]
             #[classmethod]
             fn __pyi__(_: &Bound<'_, PyType>) -> String {
                 let mut res = String::new();
@@ -651,6 +822,7 @@ macro_rules! wrapped {
                     write!(&mut res, ", second: {}", to_py_type::<$type1>(String::new())).unwrap();
                 )?
                 write!(&mut res, "):\n        ...\n").unwrap();
+                $(write!(&mut res, extensions_pyi!($sup, $name)).unwrap();)?
                 write!(&mut res, "    ...\n").unwrap();
 
                 res
@@ -685,6 +857,8 @@ macro_rules! wrapped {
                 )
             }
         }
+
+        $(extensions!($sup, $name);)?
 
         wrapped_base! {$name}
 
@@ -879,11 +1053,12 @@ impl FromCompatible<&u32> for u32 {
 
 impl<'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
     where
-        U: FromCompatible<&'a T> {
+    U: FromCompatible<&'a T>,
+{
     fn from_c(value: &'a Option<T>) -> Self {
         match value {
             None => None,
-            Some(x) => Some(U::from_c(x))
+            Some(x) => Some(U::from_c(x)),
         }
     }
 }
@@ -891,11 +1066,11 @@ impl<'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
 impl<U, V, S, T> FromCompatible<(S, T)> for (U, V)
     where
         U: FromCompatible<S>,
-        V: FromCompatible<T>
+    V: FromCompatible<T>,
 {
     fn from_c(value: (S, T)) -> Self {
         match value {
-            (s, t) => (U::from_c(s), V::from_c(t))
+            (s, t) => (U::from_c(s), V::from_c(t)),
         }
     }
 }
@@ -903,11 +1078,11 @@ impl<U, V, S, T> FromCompatible<(S, T)> for (U, V)
 impl<'a, U, V, S, T> FromCompatible<&'a (S, T)> for (U, V)
     where
         U: FromCompatible<&'a S>,
-        V: FromCompatible<&'a T>
+    V: FromCompatible<&'a T>,
 {
     fn from_c(value: &'a (S, T)) -> Self {
         match value {
-            (s, t) => (U::from_c(s), V::from_c(t))
+            (s, t) => (U::from_c(s), V::from_c(t)),
         }
     }
 }
@@ -977,6 +1152,12 @@ impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for VecWrap<T> {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BoxWrap<T>(Box<T>);
+
+impl<T> From<Box<T>> for BoxWrap<T> {
+    fn from(value: Box<T>) -> Self {
+        BoxWrap(value)
+    }
+}
 
 impl<'source, T: FromPyObject<'source>> FromPyObject<'source> for BoxWrap<T> {
     fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
@@ -1102,9 +1283,9 @@ pub enum Facet {
     LangRange = 11,
 }
 
-#[cfg(debug_assertions)]
 #[pymethods]
 impl Facet {
+    #[cfg(pyi)]
     #[classmethod]
     fn __pyi__(_: &Bound<'_, PyType>) -> String {
         "class Facet:
@@ -1182,10 +1363,10 @@ impl From<horned_owl::vocab::Facet> for Facet {
     }
 }
 
-named! { pub struct Class(pub IRI) }
+named! { pub struct Class(pub IRI) extends ClassExpression }
 named! { pub struct AnonymousIndividual(pub StringWrapper) }
 named! { pub struct NamedIndividual(pub IRI) }
-named! { pub struct ObjectProperty(pub IRI) }
+named! { pub struct ObjectProperty(pub IRI) extends ObjectPropertyExpression }
 named! { pub struct Datatype(pub IRI) }
 named! { pub struct DataProperty(pub IRI) }
 
@@ -1866,3 +2047,5 @@ pub fn py_module(py: Python<'_>) -> PyResult<Bound<PyModule>> {
 
     Ok(module)
 }
+
+

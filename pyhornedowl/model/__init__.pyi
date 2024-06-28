@@ -6,11 +6,35 @@ class Class:
     first: IRI
     def __init__(self, first: IRI):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class ObjectIntersectionOf:
     first: typing.List[ClassExpression]
     def __init__(self, first: typing.List[ClassExpression]):
+        ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
         ...
     ...
 
@@ -18,17 +42,53 @@ class ObjectUnionOf:
     first: typing.List[ClassExpression]
     def __init__(self, first: typing.List[ClassExpression]):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class ObjectComplementOf:
     first: ClassExpression
     def __init__(self, first: ClassExpression):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class ObjectOneOf:
     first: typing.List[Individual]
     def __init__(self, first: typing.List[Individual]):
+        ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
         ...
     ...
 
@@ -37,12 +97,36 @@ class ObjectSomeValuesFrom:
     bce: ClassExpression
     def __init__(self, ope: ObjectPropertyExpression, bce: ClassExpression):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class ObjectAllValuesFrom:
     ope: ObjectPropertyExpression
     bce: ClassExpression
     def __init__(self, ope: ObjectPropertyExpression, bce: ClassExpression):
+        ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
         ...
     ...
 
@@ -51,11 +135,35 @@ class ObjectHasValue:
     i: Individual
     def __init__(self, ope: ObjectPropertyExpression, i: Individual):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class ObjectHasSelf:
     first: ObjectPropertyExpression
     def __init__(self, first: ObjectPropertyExpression):
+        ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
         ...
     ...
 
@@ -65,6 +173,18 @@ class ObjectMinCardinality:
     bce: ClassExpression
     def __init__(self, n: int, ope: ObjectPropertyExpression, bce: ClassExpression):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class ObjectMaxCardinality:
@@ -72,6 +192,18 @@ class ObjectMaxCardinality:
     ope: ObjectPropertyExpression
     bce: ClassExpression
     def __init__(self, n: int, ope: ObjectPropertyExpression, bce: ClassExpression):
+        ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
         ...
     ...
 
@@ -81,12 +213,36 @@ class ObjectExactCardinality:
     bce: ClassExpression
     def __init__(self, n: int, ope: ObjectPropertyExpression, bce: ClassExpression):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class DataSomeValuesFrom:
     dp: DataProperty
     dr: DataRange
     def __init__(self, dp: DataProperty, dr: DataRange):
+        ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
         ...
     ...
 
@@ -95,12 +251,36 @@ class DataAllValuesFrom:
     dr: DataRange
     def __init__(self, dp: DataProperty, dr: DataRange):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class DataHasValue:
     dp: DataProperty
     l: Literal
     def __init__(self, dp: DataProperty, l: Literal):
+        ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
         ...
     ...
 
@@ -110,6 +290,18 @@ class DataMinCardinality:
     dr: DataRange
     def __init__(self, n: int, dp: DataProperty, dr: DataRange):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class DataMaxCardinality:
@@ -118,6 +310,18 @@ class DataMaxCardinality:
     dr: DataRange
     def __init__(self, n: int, dp: DataProperty, dr: DataRange):
         ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
     ...
 
 class DataExactCardinality:
@@ -125,6 +329,18 @@ class DataExactCardinality:
     dp: DataProperty
     dr: DataRange
     def __init__(self, n: int, dp: DataProperty, dr: DataRange):
+        ...
+
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
         ...
     ...
 
@@ -189,11 +405,75 @@ class ObjectProperty:
     first: IRI
     def __init__(self, first: IRI):
         ...
+
+    def some(self, ce: ClassExpression) -> ObjectSomeValuesFrom:
+        """Existentional relationship"""
+        ...
+
+    def only(self, ce: ClassExpression) -> ObjectAllValuesFrom:
+        """Universal relationship"""
+        ...
+
+    def has_value(self, individual: Individual) -> ObjectHasValue:
+        """Existential relationship to an individual"""
+        ...
+
+    def has_self(self) -> ObjectHasSelf:
+        """Individuals with relation to themselves"""
+        ...
+
+    def min(self, n: int, ce: ClassExpression) -> ObjectMinCardinality:
+        """Minimum cardinality relationship"""
+        ...
+
+    def max(self, n: int, ce: ClassExpression) -> ObjectMaxCardinality:
+        """Maximum cardinality relationship"""
+        ...
+
+    def exact(self, n: int, ce: ClassExpression) -> ObjectExactCardinality:
+        """Exact cardinality relationship"""
+        ...
+
+    def __invert__(self) -> ObjectPropertyExpression:
+        """Inverse of object property expression"""
+        ...
     ...
 
 class InverseObjectProperty:
     first: ObjectProperty
     def __init__(self, first: ObjectProperty):
+        ...
+
+    def some(self, ce: ClassExpression) -> ObjectSomeValuesFrom:
+        """Existentional relationship"""
+        ...
+
+    def only(self, ce: ClassExpression) -> ObjectAllValuesFrom:
+        """Universal relationship"""
+        ...
+
+    def has_value(self, individual: Individual) -> ObjectHasValue:
+        """Existential relationship to an individual"""
+        ...
+
+    def has_self(self) -> ObjectHasSelf:
+        """Individuals with relation to themselves"""
+        ...
+
+    def min(self, n: int, ce: ClassExpression) -> ObjectMinCardinality:
+        """Minimum cardinality relationship"""
+        ...
+
+    def max(self, n: int, ce: ClassExpression) -> ObjectMaxCardinality:
+        """Maximum cardinality relationship"""
+        ...
+
+    def exact(self, n: int, ce: ClassExpression) -> ObjectExactCardinality:
+        """Exact cardinality relationship"""
+        ...
+
+    def __invert__(self) -> ObjectPropertyExpression:
+        """Inverse of object property expression"""
         ...
     ...
 
