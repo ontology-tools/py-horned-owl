@@ -105,14 +105,23 @@ class IOTestCase(unittest.TestCase):
             with self.subTest(serialization=s):
                 with NamedTemporaryFile(suffix=f".{s}.raw") as f:
                     original = simple_ontology()
+                    original.prefix_mapping.remove_prefix("")
                     original.save_to_file(f.name, s)
-                    
-                    if s == 'owx':
-                        self.skipTest('Empty prefix is currently rendered weird in xml (xmlns:="https://example.com/")')
 
                     actual = pyhornedowl.open_ontology_from_file(f.name, s)
 
                     self.assertOntologiesEqual(original, actual)
+                    
+    def test_write_simple_to_string(self):
+        for s in SERIALIZATIONS:
+            with self.subTest(serialization=s):
+                original = simple_ontology()
+                original.prefix_mapping.remove_prefix("")
+                o = original.save_to_string(s)
+
+                actual = pyhornedowl.open_ontology_from_string(o, s)
+
+                self.assertOntologiesEqual(original, actual)
 
 
 if __name__ == '__main__':

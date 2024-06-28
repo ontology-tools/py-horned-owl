@@ -1,5 +1,6 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
+use std::io::Write;
 use std::sync::Arc;
 
 use curie::Curie;
@@ -18,10 +19,11 @@ use horned_owl::ontology::iri_mapped::IRIMappedIndex;
 use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
 use pyo3::exceptions::PyValueError;
+use pyo3::types::PyBytes;
 use pyo3::{pyclass, pyfunction, pymethods, Bound, Py, PyObject, PyResult, Python, ToPyObject};
 
 use crate::prefix_mapping::PrefixMapping;
-use crate::{guess_serialization, model, to_py_err};
+use crate::{guess_serialization, model, parse_serialization, to_py_err};
 
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -185,7 +187,7 @@ impl PyIndexedOntology {
     }
 
     /// prefix_mapping: PrefixMapping
-    /// 
+    ///
     /// The prefix mapping
     #[getter]
     pub fn get_prefix_mapping<'py>(&self, py: Python<'py>) -> PyResult<&Bound<'py, PrefixMapping>> {
@@ -477,6 +479,25 @@ impl PyIndexedOntology {
         Ok(literal_values)
     }
 
+    /// save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx']) -> str
+    ///
+    /// Saves the ontology to a UTF8 string.
+    pub fn save_to_string(
+        &mut self,
+        py: Python<'_>,
+        serialization: &str,
+    ) -> PyResult<String> {
+        let serialization = parse_serialization(Some(serialization)).ok_or(
+            PyValueError::new_err(format!("Unknown serialization {}", serialization)),
+        )?;
+
+        let mut writer = Vec::<u8>::new();
+
+        self.save_to_buf(py, &mut writer, serialization)?;
+
+        String::from_utf8(writer).map_err(to_py_err!("Failed to save ontology to UTF-8"))
+    }
+
     /// save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> None
     ///
     /// Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
@@ -489,28 +510,9 @@ impl PyIndexedOntology {
         serialization: Option<&str>,
     ) -> PyResult<()> {
         let serialization = guess_serialization(&file_name, serialization)?;
-
         let mut file = File::create(file_name)?;
-        let mut amo: ArcComponentMappedOntology = ComponentMappedOntology::new_arc();
 
-        //Copy the components into an ComponentMappedOntology as that is what horned owl writes
-        for component in (&self.set_index).into_iter() {
-            amo.insert(component.clone());
-        }
-
-        let mapping = self.mapping.borrow_mut(py);
-
-        let result = match serialization {
-            ResourceType::OFN => {
-                horned_owl::io::ofn::writer::write(&mut file, &amo, Some(&mapping.0))
-            }
-            ResourceType::OWX => {
-                horned_owl::io::owx::writer::write(&mut file, &amo, Some(&mapping.0))
-            }
-            ResourceType::RDF => horned_owl::io::rdf::writer::write(&mut file, &amo),
-        };
-
-        result.map_err(to_py_err!("Problem saving the ontology to a file"))
+        self.save_to_buf(py, &mut file, serialization)
     }
 
     /// get_axioms_for_iri(self, iri: str, iri_is_absolute: Optional[bool] = None) -> List[model.AnnotatedComponent]
@@ -1030,6 +1032,35 @@ impl PyIndexedOntology {
         pio.set_index = set_index;
 
         pio
+    }
+
+    fn save_to_buf<W: Write>(
+        &mut self,
+        py: Python<'_>,
+        w: &mut W,
+        serialization: ResourceType,
+    ) -> PyResult<()> {
+        let mut file = w;
+        let mut amo: ArcComponentMappedOntology = ComponentMappedOntology::new_arc();
+
+        //Copy the components into an ComponentMappedOntology as that is what horned owl writes
+        for component in (&self.set_index).into_iter() {
+            amo.insert(component.clone());
+        }
+
+        let mapping = self.mapping.borrow_mut(py);
+
+        let result = match serialization {
+            ResourceType::OFN => {
+                horned_owl::io::ofn::writer::write(&mut file, &amo, Some(&mapping.0))
+            }
+            ResourceType::OWX => {
+                horned_owl::io::owx::writer::write(&mut file, &amo, Some(&mapping.0))
+            }
+            ResourceType::RDF => horned_owl::io::rdf::writer::write(&mut file, &amo),
+        };
+
+        result.map_err(to_py_err!("Problem saving the ontology to a file"))
     }
 }
 

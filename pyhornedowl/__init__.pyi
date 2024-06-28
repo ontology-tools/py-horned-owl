@@ -95,6 +95,18 @@ class PyIndexedOntology:
         """
         ...
 
+    def save_to_bytes(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx']) -> bytes:
+        """
+        Saves the ontology to a byte buffer.
+        """
+        ...
+
+    def save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx']) -> str:
+        """
+        Saves the ontology to a UTF8 string.
+        """
+        ...
+
     def save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> None:
         """
         Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
