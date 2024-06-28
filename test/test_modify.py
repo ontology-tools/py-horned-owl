@@ -37,7 +37,8 @@ class ModifyTestCase(unittest.TestCase):
         axioms = set(o.get_axioms())
         axiom = SubClassOf(o.clazz(":A"), o.clazz(":B"))
 
-        o.remove_axiom(axiom)
+        removed = o.remove_axiom(axiom)
+        self.assertTrue(removed, "Axiom was not removed!")
 
         expected = axioms - {AnnotatedComponent(axiom, set())}
         actual = set(o.get_axioms())
@@ -47,13 +48,15 @@ class ModifyTestCase(unittest.TestCase):
     def test_remove_collect_by_iri(self):
         o = simple_ontology()
 
-        axioms = set(o.get_axioms_for_iri(":A"))
+        axioms = set(o.get_components_for_iri(":A"))
         axiom = SubClassOf(o.clazz(":A"), o.clazz(":B"))
 
-        o.remove_axiom(axiom)
+        removed = o.remove_axiom(axiom)
+        
+        self.assertTrue(removed, "Axiom was not removed!")
 
         expected = axioms - {AnnotatedComponent(axiom, set())}
-        actual = set(o.get_axioms_for_iri(":A"))
+        actual = set(o.get_components_for_iri(":A"))
 
         self.assertSetEqual(expected, actual)
 
