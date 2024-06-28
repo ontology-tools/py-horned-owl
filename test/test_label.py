@@ -16,7 +16,7 @@ class LabelTestCase(unittest.TestCase):
         o = simple_ontology()
 
         expected = None
-        actual = o.get_iri_for_label("C")
+        actual = o.get_iri_for_label("ClassZ")
 
         self.assertEqual(expected, actual)
 
@@ -24,22 +24,22 @@ class LabelTestCase(unittest.TestCase):
         o = simple_ontology()
 
         expected = "NewClassA"
-        o.set_label("A", expected)
+        o.set_label(":A", expected)
 
-        actual = o.get_annotation("A", "rdfs:label")
+        actual = o.get_annotation(":A", "rdfs:label")
 
         self.assertEqual(expected, actual)
 
-        all_labels = o.get_annotations("A", "rdfs:label")
+        all_labels = o.get_annotations(":A", "rdfs:label")
         self.assertEqual([expected], all_labels)
 
     def test_add_label(self):
         o = simple_ontology()
 
         expected = "ClassC"
-        o.set_label("C", expected)
+        o.set_label(":C", expected)
 
-        actual = o.get_annotation("C", "rdfs:label")
+        actual = o.get_annotation(":C", "rdfs:label")
 
         self.assertEqual(expected, actual)
 

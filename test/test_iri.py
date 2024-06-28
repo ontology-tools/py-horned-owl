@@ -9,7 +9,7 @@ class IRITestCase(unittest.TestCase):
 
     def test_absolute_iri(self):
         o = PyIndexedOntology()
-        o.add_prefix_mapping("example", "https://example.com/test#")
+        o.prefix_mapping.add_prefix("example", "https://example.com/test#")
 
         expected = "https://example.com/test#A"
         self.assertEqual(expected, str(o.iri(expected)))
@@ -17,17 +17,16 @@ class IRITestCase(unittest.TestCase):
 
     def test_expand_curie(self):
         o = PyIndexedOntology()
-        o.add_prefix_mapping("example", "https://example.com/test#")
+        o.prefix_mapping.add_prefix("example", "https://example.com/test#")
 
         self.assertEqual("https://example.com/test#A", str(o.curie("example:A")))
         self.assertEqual("https://example.com/test#A", str(o.iri("example:A", absolute=False)))
 
     def test_expand_curie_empty_prefix(self):
         o = PyIndexedOntology()
-        o.add_prefix_mapping("", "https://example.com/test#")
+        o.prefix_mapping.add_prefix("", "https://example.com/test#")
 
         self.assertEqual("https://example.com/test#A", str(o.curie(":A")))
-        self.assertEqual("https://example.com/test#A", str(o.curie("A")))
 
     def test_expand_curie_unknown_prefix(self):
         o = PyIndexedOntology()
@@ -37,7 +36,7 @@ class IRITestCase(unittest.TestCase):
 
     def test_iri_guess_curie(self):
         o = PyIndexedOntology()
-        o.add_prefix_mapping("ex", "https://example.com/test#")
+        o.prefix_mapping.add_prefix("ex", "https://example.com/test#")
 
         expected = "https://example.com/test#A"
 
@@ -46,7 +45,7 @@ class IRITestCase(unittest.TestCase):
 
     def test_iri_guess_absolute(self):
         o = PyIndexedOntology()
-        o.add_prefix_mapping("ex", "https://example.com/test#")
+        o.prefix_mapping.add_prefix("ex", "https://example.com/test#")
 
         expected = "https://example.com/test#A"
 
@@ -79,7 +78,7 @@ class IRITestCase(unittest.TestCase):
             AnnotationAssertion(o.iri("https://example.com/A"),
                                 Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
         }}
-        actual = o.get_axioms_for_iri("A", iri_is_absolute=False)
+        actual = o.get_axioms_for_iri(":A", iri_is_absolute=False)
 
         self.assertSetEqual(expected, set(actual))
 
@@ -109,7 +108,7 @@ class IRITestCase(unittest.TestCase):
             AnnotationAssertion(o.iri("https://example.com/A"),
                                 Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
         }}
-        actual = o.get_axioms_for_iri("A")
+        actual = o.get_axioms_for_iri(":A")
 
         self.assertSetEqual(expected, set(actual))
 
