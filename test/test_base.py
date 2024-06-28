@@ -1,5 +1,7 @@
 import os
 
+from typing import List
+
 import pyhornedowl
 from pyhornedowl.model import *
 
@@ -15,7 +17,7 @@ def res(resource: str) -> str:
         return f.read()
 
 
-def simple_ontology_comps() -> list[Component]:
+def simple_ontology_comps() -> List[Component]:
     return [
         DeclareClass(Class(IRI.parse("https://example.com/A"))),
         DeclareClass(Class(IRI.parse("https://example.com/B"))),
@@ -34,7 +36,7 @@ def simple_ontology_comps() -> list[Component]:
     ]
 
 
-def simple_ontology_comps_annotated() -> list[AnnotatedComponent]:
+def simple_ontology_comps_annotated() -> List[AnnotatedComponent]:
     return [AnnotatedComponent(x, set()) for x in simple_ontology_comps()]
 
 

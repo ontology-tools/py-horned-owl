@@ -167,7 +167,7 @@ jobs:
   build-docs:
     needs: linux
     runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'"
+    if: "startsWith(github.ref, 'refs/tags/') || (github.ref == 'main' && github.event_name == 'workflow_dispatch')"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
