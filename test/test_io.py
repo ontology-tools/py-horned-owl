@@ -35,6 +35,23 @@ class IOTestCase(unittest.TestCase):
 
                 self.assertOntologiesEqual(actual, expected)
 
+    def test_load_simple_from_string_explicit_wrong_serialization(self):
+        content = res(f"simple.owl")
+        with self.assertRaises(ValueError):
+            pyhornedowl.open_ontology(content, "something")
+
+        with self.assertRaises(TypeError):
+            pyhornedowl.open_ontology(content, 42)
+
+
+    def test_load_simple_from_string_implicit_fail(self):
+        content = "Lorem ipsum dolor sit amet"
+        with self.assertRaises(ValueError):
+            o = pyhornedowl.open_ontology(content)
+            pass
+
+
+
     def test_load_simple_from_string_explicit(self):
         for s in SERIALIZATIONS:
             with self.subTest(serialization=s):

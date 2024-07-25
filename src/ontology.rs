@@ -8,8 +8,8 @@ use horned_owl::io::rdf::reader::RDFOntology;
 use horned_owl::io::ResourceType;
 use horned_owl::model::{
     AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
-    ArcAnnotatedComponent, ArcStr, Build, Component, ComponentKind, HigherKinded, Literal,
-    MutableOntology, Ontology, OntologyID, IRI,
+    ArcAnnotatedComponent, ArcStr, Build, Component, ComponentKind, HigherKinded, IRI,
+    Literal, MutableOntology, Ontology, OntologyID,
 };
 use horned_owl::ontology::component_mapped::{
     ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
@@ -18,11 +18,11 @@ use horned_owl::ontology::indexed::OntologyIndex;
 use horned_owl::ontology::iri_mapped::IRIMappedIndex;
 use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
+use pyo3::{Bound, Py, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
 use pyo3::exceptions::PyValueError;
-use pyo3::{pyclass, pyfunction, pymethods, Bound, Py, PyObject, PyResult, Python, ToPyObject};
 
-use crate::prefix_mapping::PrefixMapping;
 use crate::{guess_serialization, model, parse_serialization, to_py_err};
+use crate::prefix_mapping::PrefixMapping;
 
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -503,9 +503,7 @@ impl PyIndexedOntology {
         py: Python<'_>,
         serialization: &str,
     ) -> PyResult<String> {
-        let serialization = parse_serialization(Some(serialization)).ok_or(
-            PyValueError::new_err(format!("Unknown serialization {}", serialization)),
-        )?;
+        let serialization = parse_serialization(serialization)?;
 
         let mut writer = Vec::<u8>::new();
 

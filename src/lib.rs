@@ -27,26 +27,21 @@ macro_rules! to_py_err {
     };
 }
 
-fn parse_serialization(serialization: Option<&str>) -> Option<ResourceType> {
-    match serialization.map(|s| s.to_lowercase()).as_deref() {
-        Some("owx") => Some(ResourceType::OWX),
-        Some("ofn") => Some(ResourceType::OFN),
-        Some("rdf") => Some(ResourceType::RDF),
-        Some("owl") => Some(ResourceType::RDF),
-        _ => None,
+fn parse_serialization(serialization: &str) -> PyResult<ResourceType> {
+    match serialization {
+        "owx" => Ok(ResourceType::OWX),
+        "ofn" => Ok(ResourceType::OFN),
+        "rdf" => Ok(ResourceType::RDF),
+        "owl" => Ok(ResourceType::RDF),
+        s => Err(PyValueError::new_err(format!("Unknown serialization {}", s)))
     }
 }
 
-fn guess_serialization(path: &String, serialization: Option<&str>) -> PyResult<ResourceType> {
-    parse_serialization(serialization).map(Ok).unwrap_or(
-        match serialization.map(|s| s.to_lowercase()).as_deref() {
-            Some(f) => Err(PyValueError::new_err(format!(
-                "Unsupported serialization '{}'",
-                f
-            ))),
-            None => Ok(path_type(path.as_ref()).unwrap_or(ResourceType::OWX)),
-        },
-    )
+pub fn guess_serialization(path: &String, serialization: Option<&str>) -> PyResult<ResourceType> {
+    match serialization {
+        Some(s) => parse_serialization(s),
+        None => Ok(path_type(path.as_ref()).unwrap_or(ResourceType::OWX))
+    }
 }
 
 fn open_ontology_owx<R: BufRead>(
@@ -93,7 +88,9 @@ fn open_ontology_rdf<R: BufRead>(
 /// Opens an ontology from a file
 ///
 /// If the serialization is not specified it is guessed from the file extension. Defaults to OWL/XML.
-#[pyfunction(signature = (path, serialization = None, index_strategy = IndexCreationStrategy::OnQuery))]
+#[pyfunction(
+    signature = (path, serialization = None, index_strategy = IndexCreationStrategy::OnQuery)
+)]
 fn open_ontology_from_file(
     py: Python<'_>,
     path: String,
@@ -112,7 +109,7 @@ fn open_ontology_from_file(
         ResourceType::OWX => open_ontology_owx(&mut f, &b, index_strategy),
         ResourceType::RDF => open_ontology_rdf(&mut f, &b, index_strategy),
     }
-    .map_err(to_py_err!("Failed to open ontology"))?;
+        .map_err(to_py_err!("Failed to open ontology"))?;
 
     pio.mapping = Py::new(py, prefix_mapping::PrefixMapping::from(mapping))?;
     Ok(pio)
@@ -123,14 +120,19 @@ fn open_ontology_from_file(
 /// Opens an ontology from plain text.
 ///
 /// If no serialization is specified, all parsers are tried until one succeeds
-#[pyfunction(signature = (ontology, serialization = None, index_strategy = IndexCreationStrategy::OnQuery))]
+#[pyfunction(
+    signature = (ontology, serialization = None, index_strategy = IndexCreationStrategy::OnQuery)
+)]
 fn open_ontology_from_string(
     py: Python<'_>,
     ontology: String,
     serialization: Option<&str>,
     index_strategy: IndexCreationStrategy,
 ) -> PyResult<PyIndexedOntology> {
-    let serialization = parse_serialization(serialization);
+    let serialization = match serialization {
+        None => Ok(None),
+        Some(s) => parse_serialization(s).map(Some)
+    }?;
     let mut f = BufReader::new(ontology.as_bytes());
 
     let b = Build::new_arc();
@@ -139,11 +141,11 @@ fn open_ontology_from_string(
         Some(ResourceType::OFN) => open_ontology_ofn(&mut f, &b, index_strategy),
         Some(ResourceType::OWX) => open_ontology_owx(&mut f, &b, index_strategy),
         Some(ResourceType::RDF) => open_ontology_rdf(&mut f, &b, index_strategy),
-        None => open_ontology_ofn(&mut f, &b, index_strategy)
-            .or_else(|_| open_ontology_rdf(&mut f, &b, index_strategy))
+        None => open_ontology_rdf(&mut f, &b, index_strategy)
+            .or_else(|_| open_ontology_ofn(&mut f, &b, index_strategy))
             .or_else(|_| open_ontology_owx(&mut f, &b, index_strategy)),
     }
-    .map_err(to_py_err!("Failed to open ontology"))?;
+        .map_err(to_py_err!("Failed to open ontology"))?;
 
     pio.mapping = Py::new(py, prefix_mapping::PrefixMapping::from(mapping))?;
     Ok(pio)
@@ -157,7 +159,9 @@ fn open_ontology_from_string(
 /// in plain text.
 /// If no serialization is specified the serialization is guessed by the file extension or all parsers are tried
 /// until one succeeds.
-#[pyfunction(signature = (ontology, serialization = None, index_strategy = IndexCreationStrategy::OnQuery))]
+#[pyfunction(
+    signature = (ontology, serialization = None, index_strategy = IndexCreationStrategy::OnQuery)
+)]
 fn open_ontology(
     py: Python<'_>,
     ontology: String,
