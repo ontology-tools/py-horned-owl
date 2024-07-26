@@ -92,8 +92,6 @@ Classes, Individuals, Data- and Objectproperties can be created using convenienc
 
 Write class expressions
 -----------------------
-.. warning::
-    Experimental feature! Only available on latest development branch!
 
 Instead of writing class expressions as nested constructor calls, some expressions can be expressed using operators.
 
