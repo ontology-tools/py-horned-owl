@@ -144,9 +144,9 @@ fn open_ontology_from_string(
         Some(ResourceType::OFN) => open_ontology_ofn(&mut f, &b),
         Some(ResourceType::OWX) => open_ontology_owx(&mut f, &b),
         Some(ResourceType::RDF) => open_ontology_rdf(&mut f, &b, index_strategy),
-        None => open_ontology_rdf(&mut f, &b, index_strategy)
-            .or_else(|_| open_ontology_ofn(&mut f, &b))
-            .or_else(|_| open_ontology_owx(&mut f, &b)),
+        None => open_ontology_owx(&mut BufReader::new(ontology.as_bytes()), &b)
+            .or_else(|_| open_ontology_ofn(&mut BufReader::new(ontology.as_bytes()), &b))
+            .or_else(|_| open_ontology_rdf(&mut BufReader::new(ontology.as_bytes()), &b, index_strategy)),
     }
     .map_err(to_py_err!("Failed to open ontology"))?;
 

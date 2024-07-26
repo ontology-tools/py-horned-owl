@@ -14,7 +14,6 @@ class IOTestCase(unittest.TestCase):
         self.assertSetEqual(set(expected.get_axioms()), set(actual.get_axioms()), "Axioms do not match!")
         self.assertEqual(expected.get_iri(), actual.get_iri(), "Ontology IRIs do not match!")
 
-    @unittest.skip("Functional syntax parser parses others formats without errors others panic")
     def test_load_simple_from_string_generic_guess(self):
         for s in SERIALIZATIONS:
             with self.subTest(serialization=s):

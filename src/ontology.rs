@@ -914,7 +914,7 @@ impl PyIndexedOntology {
 
         let mut iri_index = IRIMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
 
-        for c in self.set_index.members() {
+        for c in self.set_index.iter() {
             iri_index.index_insert(c.clone());
         }
 
@@ -931,7 +931,7 @@ impl PyIndexedOntology {
 
         let mut component_index = ComponentMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
 
-        for c in self.set_index.members() {
+        for c in self.set_index.iter() {
             component_index.index_insert(c.clone());
         }
 
@@ -952,7 +952,7 @@ impl PyIndexedOntology {
         let mut component_index = ComponentMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
         let mut iri_index = IRIMappedIndex::<ArcStr, ArcAnnotatedComponent>::new();
 
-        for c in self.set_index.members() {
+        for c in self.set_index.iter() {
             component_index.index_insert(c.clone());
             iri_index.index_insert(c.clone());
         }
