@@ -33,33 +33,32 @@ fn parse_serialization(serialization: &str) -> PyResult<ResourceType> {
         "ofn" => Ok(ResourceType::OFN),
         "rdf" => Ok(ResourceType::RDF),
         "owl" => Ok(ResourceType::RDF),
-        s => Err(PyValueError::new_err(format!("Unknown serialization {}", s)))
+        s => Err(PyValueError::new_err(format!(
+            "Unknown serialization {}",
+            s
+        ))),
     }
 }
 
 pub fn guess_serialization(path: &String, serialization: Option<&str>) -> PyResult<ResourceType> {
     match serialization {
         Some(s) => parse_serialization(s),
-        None => Ok(path_type(path.as_ref()).unwrap_or(ResourceType::OWX))
+        None => Ok(path_type(path.as_ref()).unwrap_or(ResourceType::OWX)),
     }
 }
 
 fn open_ontology_owx<R: BufRead>(
     content: &mut R,
     b: &Build<Arc<str>>,
-    index_strategy: IndexCreationStrategy,
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
-    let (o, m) = horned_owl::io::owx::reader::read_with_build(content, &b)?;
-    Ok((PyIndexedOntology::from_set_ontology(o, index_strategy), m))
+    horned_owl::io::owx::reader::read_with_build(content, &b)
 }
 
 fn open_ontology_ofn<R: BufRead>(
     content: &mut R,
     b: &Build<Arc<str>>,
-    index_strategy: IndexCreationStrategy,
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
-    let (o, m) = horned_owl::io::ofn::reader::read_with_build(content, &b)?;
-    Ok((PyIndexedOntology::from_set_ontology(o, index_strategy), m))
+    horned_owl::io::ofn::reader::read_with_build(content, &b)
 }
 
 fn open_ontology_rdf<R: BufRead>(
@@ -105,11 +104,15 @@ fn open_ontology_from_file(
     let b = Build::new_arc();
 
     let (mut pio, mapping) = match serialization {
-        ResourceType::OFN => open_ontology_ofn(&mut f, &b, index_strategy),
-        ResourceType::OWX => open_ontology_owx(&mut f, &b, index_strategy),
+        ResourceType::OFN => open_ontology_ofn(&mut f, &b),
+        ResourceType::OWX => open_ontology_owx(&mut f, &b),
         ResourceType::RDF => open_ontology_rdf(&mut f, &b, index_strategy),
     }
-        .map_err(to_py_err!("Failed to open ontology"))?;
+    .map_err(to_py_err!("Failed to open ontology"))?;
+
+    if let IndexCreationStrategy::OnLoad = index_strategy {
+        pio.build_indexes()
+    }
 
     pio.mapping = Py::new(py, prefix_mapping::PrefixMapping::from(mapping))?;
     Ok(pio)
@@ -131,21 +134,26 @@ fn open_ontology_from_string(
 ) -> PyResult<PyIndexedOntology> {
     let serialization = match serialization {
         None => Ok(None),
-        Some(s) => parse_serialization(s).map(Some)
+        Some(s) => parse_serialization(s).map(Some),
     }?;
     let mut f = BufReader::new(ontology.as_bytes());
 
     let b = Build::new_arc();
 
     let (mut pio, mapping) = match serialization {
-        Some(ResourceType::OFN) => open_ontology_ofn(&mut f, &b, index_strategy),
-        Some(ResourceType::OWX) => open_ontology_owx(&mut f, &b, index_strategy),
+        Some(ResourceType::OFN) => open_ontology_ofn(&mut f, &b),
+        Some(ResourceType::OWX) => open_ontology_owx(&mut f, &b),
         Some(ResourceType::RDF) => open_ontology_rdf(&mut f, &b, index_strategy),
         None => open_ontology_rdf(&mut f, &b, index_strategy)
-            .or_else(|_| open_ontology_ofn(&mut f, &b, index_strategy))
-            .or_else(|_| open_ontology_owx(&mut f, &b, index_strategy)),
+            .or_else(|_| open_ontology_ofn(&mut f, &b))
+            .or_else(|_| open_ontology_owx(&mut f, &b)),
     }
-        .map_err(to_py_err!("Failed to open ontology"))?;
+    .map_err(to_py_err!("Failed to open ontology"))?;
+
+
+    if let IndexCreationStrategy::OnLoad = index_strategy {
+        pio.build_indexes()
+    }
 
     pio.mapping = Py::new(py, prefix_mapping::PrefixMapping::from(mapping))?;
     Ok(pio)

@@ -4,7 +4,7 @@ use std::io::Write;
 use std::sync::Arc;
 
 use curie::Curie;
-use horned_owl::io::rdf::reader::RDFOntology;
+use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
 use horned_owl::model::{
     AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
@@ -123,17 +123,6 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
     }
 }
 
-impl From<RDFOntology<ArcStr, ArcAnnotatedComponent>> for PyIndexedOntology {
-    fn from(value: RDFOntology<ArcStr, ArcAnnotatedComponent>) -> Self {
-        Self::from_rdf_ontology(value, Default::default())
-    }
-}
-
-impl From<SetOntology<ArcStr>> for PyIndexedOntology {
-    fn from(value: SetOntology<ArcStr>) -> Self {
-        Self::from_set_ontology(value, Default::default())
-    }
-}
 
 #[pymethods]
 impl PyIndexedOntology {
@@ -1025,7 +1014,7 @@ impl PyIndexedOntology {
     }
 
     pub fn from_rdf_ontology(
-        value: RDFOntology<ArcStr, ArcAnnotatedComponent>,
+        value: ConcreteRDFOntology<ArcStr, ArcAnnotatedComponent>,
         index_strategy: IndexCreationStrategy,
     ) -> Self {
         let mut pio = Self::new(index_strategy);
