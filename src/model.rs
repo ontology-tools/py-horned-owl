@@ -1,10 +1,15 @@
-use std::{borrow::Borrow, collections::BTreeSet, sync::Arc};
 use std::fmt::{Display, Write};
 use std::hash::{DefaultHasher, Hash, Hasher};
+use std::{borrow::Borrow, collections::BTreeSet, sync::Arc};
 
 use horned_owl::model::ArcStr;
 use paste::paste;
-use pyo3::{exceptions::PyKeyError, prelude::*, PyObject, types::{IntoPyDict, PyType}};
+use pyo3::{
+    exceptions::PyKeyError,
+    prelude::*,
+    types::{IntoPyDict, PyType},
+    PyObject,
+};
 use regex::Regex;
 
 fn to_py_type_str(n: &str, m: String) -> String {
@@ -311,9 +316,9 @@ macro_rules! extensions {
 
             fn has_value(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectHasValue> {
                 let i: Individual = obj.extract()?;
-                Ok(ObjectHasValue{
+                Ok(ObjectHasValue {
                     ope: self.clone().into(),
-                    i
+                    i,
                 })
             }
 
@@ -358,7 +363,7 @@ macro_rules! extensions {
                         ObjectPropertyExpression_Inner::InverseObjectProperty(
                             InverseObjectProperty(i),
                         )
-                }
+                    }
                 };
 
                 ObjectPropertyExpression(inner)
@@ -536,7 +541,7 @@ macro_rules! wrapped_enum {
 
                         res
                     }
-                    
+
                     fn __hash__(&self) -> u64 {
                         let mut s = DefaultHasher::new();
                         Hash::hash(&self, &mut s);
@@ -668,6 +673,10 @@ macro_rules! named {
         impl $name {
             fn __str__(&self) -> String {
                 self.to_string()
+            }
+
+            fn __repr__(&self) -> String {
+                format!("{}(\"{}\")", stringify!($name), self.to_string())
             }
         }
     }
@@ -971,8 +980,8 @@ trait IntoCompatible<T> {
 }
 
 impl<T, U> IntoCompatible<U> for T
-    where
-        U: FromCompatible<T>,
+where
+    U: FromCompatible<T>,
 {
     fn into_c(self) -> U {
         U::from_c(self)
@@ -1052,7 +1061,7 @@ impl FromCompatible<&u32> for u32 {
 }
 
 impl<'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
-    where
+where
     U: FromCompatible<&'a T>,
 {
     fn from_c(value: &'a Option<T>) -> Self {
@@ -1064,8 +1073,8 @@ impl<'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
 }
 
 impl<U, V, S, T> FromCompatible<(S, T)> for (U, V)
-    where
-        U: FromCompatible<S>,
+where
+    U: FromCompatible<S>,
     V: FromCompatible<T>,
 {
     fn from_c(value: (S, T)) -> Self {
@@ -1076,8 +1085,8 @@ impl<U, V, S, T> FromCompatible<(S, T)> for (U, V)
 }
 
 impl<'a, U, V, S, T> FromCompatible<&'a (S, T)> for (U, V)
-    where
-        U: FromCompatible<&'a S>,
+where
+    U: FromCompatible<&'a S>,
     V: FromCompatible<&'a T>,
 {
     fn from_c(value: &'a (S, T)) -> Self {
@@ -1088,7 +1097,7 @@ impl<'a, U, V, S, T> FromCompatible<&'a (S, T)> for (U, V)
 }
 
 impl FromCompatible<&BTreeSet<horned_owl::model::Annotation<Arc<str>>>>
-for BTreeSetWrap<Annotation>
+    for BTreeSetWrap<Annotation>
 {
     fn from_c(value: &BTreeSet<horned_owl::model::Annotation<Arc<str>>>) -> Self {
         BTreeSetWrap::<Annotation>::from(value)
@@ -1096,7 +1105,7 @@ for BTreeSetWrap<Annotation>
 }
 
 impl FromCompatible<&BTreeSetWrap<Annotation>>
-for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
+    for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
 {
     fn from_c(value: &BTreeSetWrap<Annotation>) -> Self {
         BTreeSet::<horned_owl::model::Annotation<Arc<str>>>::from(value)
@@ -1104,7 +1113,7 @@ for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
 }
 
 impl FromCompatible<BTreeSet<horned_owl::model::Annotation<Arc<str>>>>
-for BTreeSetWrap<Annotation>
+    for BTreeSetWrap<Annotation>
 {
     fn from_c(value: BTreeSet<horned_owl::model::Annotation<Arc<str>>>) -> Self {
         FromCompatible::from_c(value.borrow())
@@ -1112,7 +1121,7 @@ for BTreeSetWrap<Annotation>
 }
 
 impl FromCompatible<BTreeSetWrap<Annotation>>
-for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
+    for BTreeSet<horned_owl::model::Annotation<Arc<str>>>
 {
     fn from_c(value: BTreeSetWrap<Annotation>) -> Self {
         FromCompatible::from_c(value.borrow())
@@ -1301,7 +1310,7 @@ impl Facet {
     FractionDigits: Facet
     LangRange: Facet
 "
-            .to_owned()
+        .to_owned()
     }
 
     fn __hash__(&self) -> u64 {
@@ -1364,11 +1373,36 @@ impl From<horned_owl::vocab::Facet> for Facet {
 }
 
 named! { pub struct Class(pub IRI) extends ClassExpression }
+impl From<IRI> for Class {
+    fn from(value: IRI) -> Self {
+        Self(value)
+    }
+}
 named! { pub struct AnonymousIndividual(pub StringWrapper) }
 named! { pub struct NamedIndividual(pub IRI) }
+impl From<IRI> for NamedIndividual {
+    fn from(value: IRI) -> Self {
+        Self(value)
+    }
+}
 named! { pub struct ObjectProperty(pub IRI) extends ObjectPropertyExpression }
+impl From<IRI> for ObjectProperty {
+    fn from(value: IRI) -> Self {
+        Self(value)
+    }
+}
 named! { pub struct Datatype(pub IRI) }
+impl From<IRI> for Datatype {
+    fn from(value: IRI) -> Self {
+        Self(value)
+    }
+}
 named! { pub struct DataProperty(pub IRI) }
+impl From<IRI> for DataProperty {
+    fn from(value: IRI) -> Self {
+        Self(value)
+    }
+}
 
 wrapped! { pub struct FacetRestriction {
     pub f: Facet,
@@ -2029,7 +2063,9 @@ pub fn py_module(py: Python<'_>) -> PyResult<Bound<PyModule>> {
 
     module.add_class::<Facet>()?;
 
-    add_type_alias!(py, module,
+    add_type_alias!(
+        py,
+        module,
         ClassExpression,
         ObjectPropertyExpression,
         SubObjectPropertyExpression,
@@ -2047,5 +2083,3 @@ pub fn py_module(py: Python<'_>) -> PyResult<Bound<PyModule>> {
 
     Ok(module)
 }
-
-

@@ -1,5 +1,6 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
+use std::hash::Hash;
 use std::io::Write;
 use std::sync::Arc;
 
@@ -8,8 +9,8 @@ use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
 use horned_owl::model::{
     AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
-    ArcAnnotatedComponent, ArcStr, Build, Component, ComponentKind, HigherKinded, IRI,
-    Literal, MutableOntology, Ontology, OntologyID,
+    ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind,
+    HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI,
 };
 use horned_owl::ontology::component_mapped::{
     ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
@@ -18,11 +19,14 @@ use horned_owl::ontology::indexed::OntologyIndex;
 use horned_owl::ontology::iri_mapped::IRIMappedIndex;
 use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
-use pyo3::{Bound, Py, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
 use pyo3::exceptions::PyValueError;
+use pyo3::types::PyAnyMethods;
+use pyo3::{
+    pyclass, pyfunction, pymethods, Bound, FromPyObject, IntoPy, Py, PyAny, PyObject, PyResult, Python, ToPyObject
+};
 
-use crate::{guess_serialization, model, parse_serialization, to_py_err};
 use crate::prefix_mapping::PrefixMapping;
+use crate::{guess_serialization, model, parse_serialization, to_py_err};
 
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -54,10 +58,6 @@ pub struct PyIndexedOntology {
     //State variables private to Rust, exposed through methods to Python
     pub labels_to_iris: HashMap<String, IRI<ArcStr>>,
 
-    pub classes_to_subclasses: HashMap<IRI<ArcStr>, HashSet<IRI<ArcStr>>>,
-    //axiom typed index would give subclass axioms
-    pub classes_to_superclasses: HashMap<IRI<ArcStr>, HashSet<IRI<ArcStr>>>,
-
     //The primary store of the axioms is a Horned OWL indexed ontology
     pub iri_index: Option<IRIMappedIndex<ArcStr, ArcAnnotatedComponent>>,
     pub component_index: Option<ComponentMappedIndex<ArcStr, ArcAnnotatedComponent>>,
@@ -73,8 +73,6 @@ impl Default for PyIndexedOntology {
     fn default() -> Self {
         Python::with_gil(|py| PyIndexedOntology {
             labels_to_iris: Default::default(),
-            classes_to_subclasses: Default::default(),
-            classes_to_superclasses: Default::default(),
             iri_index: None,
             component_index: None,
             set_index: Default::default(),
@@ -122,7 +120,6 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
         self.set_index.index_remove(ax)
     }
 }
-
 
 #[pymethods]
 impl PyIndexedOntology {
@@ -322,52 +319,40 @@ impl PyIndexedOntology {
             .map(model::IRI::from))
     }
 
-    /// get_subclasses(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
+    /// get_subclasses(self, iri: typing.Union[str, Class], iri_is_absolute: Optional[bool] = None) -> Set[Class]
     ///
     /// Gets all subclasses of an entity.
     #[pyo3[signature = (iri, iri_is_absolute = None)]]
-    pub fn get_subclasses(
+    pub fn get_subclasses<'py>(
         &mut self,
-        py: Python<'_>,
-        iri: String,
+        py: Python<'py>,
+        iri: Bound<'py, PyAny>,
         iri_is_absolute: Option<bool>,
-    ) -> PyResult<HashSet<String>> {
-        let iri: IRI<ArcStr> = self.iri(py, iri, iri_is_absolute)?.into();
+    ) -> PyResult<HashSet<model::Class>> {
+        let parent = &self.extract_entity::<model::Class, _>(py, iri, iri_is_absolute)?;
 
-        let subclasses = self.classes_to_subclasses.get(&iri);
-        if let Some(subclss) = subclasses {
-            let subclasses: HashSet<String> = subclss.iter().map(|sc| sc.to_string()).collect();
-            Ok(subclasses)
-        } else {
-            Ok(HashSet::new())
-        }
+        Ok(self.get_subclasses_(parent))
     }
 
-    /// get_superclasses(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
+    /// get_superclasses(self, iri: typing.Union[Class, str], iri_is_absolute: Optional[bool] = None) -> Set[Class]
     ///
     /// Gets all superclasses of an entity.
     #[pyo3[signature = (iri, iri_is_absolute = None)]]
-    pub fn get_superclasses(
+    pub fn get_superclasses<'py>(
         &mut self,
-        py: Python<'_>,
-        iri: String,
+        py: Python<'py>,
+        iri: Bound<'py, PyAny>,
         iri_is_absolute: Option<bool>,
-    ) -> PyResult<HashSet<String>> {
-        let iri: IRI<ArcStr> = self.iri(py, iri, iri_is_absolute)?.into();
+    ) -> PyResult<HashSet<model::Class>> {
+        let child = &self.extract_entity::<model::Class, _>(py, iri, iri_is_absolute)?;
 
-        let superclasses = self.classes_to_superclasses.get(&iri);
-        if let Some(superclss) = superclasses {
-            let superclasses: HashSet<String> = superclss.iter().map(|sc| sc.to_string()).collect();
-            Ok(superclasses)
-        } else {
-            Ok(HashSet::new())
-        }
+        Ok(self.get_superclasses_(child))
     }
 
-    /// get_classes(self) -> Set[str]
+    /// get_classes(self) -> Set[Class]
     ///
     /// Returns the IRIs of all declared classes in the ontology.
-    pub fn get_classes(&mut self) -> PyResult<HashSet<String>> {
+    pub fn get_classes(&mut self) -> PyResult<HashSet<model::Class>> {
         //Get the DeclareClass axioms
         let classes = if let Some(ref mut component_index) = &mut self.component_index {
             Box::new(component_index.component_for_kind(ComponentKind::DeclareClass))
@@ -378,7 +363,7 @@ impl PyIndexedOntology {
 
         let classes = classes
             .filter_map(|aax| match &aax.component {
-                Component::DeclareClass(dc) => Some(dc.0 .0.to_string()),
+                Component::DeclareClass(dc) => Some(dc.0.clone().into()),
                 _ => None,
             })
             .collect();
@@ -386,10 +371,10 @@ impl PyIndexedOntology {
         Ok(classes)
     }
 
-    /// get_object_properties(self) -> Set[str]
+    /// get_object_properties(self) -> Set[ObjectProperty]
     ///
     /// Returns the IRIs of all declared object properties in the ontology.
-    pub fn get_object_properties(&mut self) -> PyResult<HashSet<String>> {
+    pub fn get_object_properties(&mut self) -> PyResult<HashSet<model::ObjectProperty>> {
         //Get the DeclareObjectProperty axioms
         let object_properties = if let Some(ref mut component_index) = &mut self.component_index {
             Box::new(component_index.component_for_kind(ComponentKind::DeclareObjectProperty))
@@ -398,9 +383,9 @@ impl PyIndexedOntology {
             Box::new((&self.set_index).into_iter())
         };
 
-        let object_properties: HashSet<String> = object_properties
+        let object_properties: HashSet<model::ObjectProperty> = object_properties
             .filter_map(|aax| match aax.clone().component {
-                Component::DeclareObjectProperty(dop) => Some(dop.0 .0.to_string()),
+                Component::DeclareObjectProperty(dop) => Some(dop.0 .clone().into()),
                 _ => None,
             })
             .collect();
@@ -487,11 +472,7 @@ impl PyIndexedOntology {
     /// save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx']) -> str
     ///
     /// Saves the ontology to a UTF8 string.
-    pub fn save_to_string(
-        &mut self,
-        py: Python<'_>,
-        serialization: &str,
-    ) -> PyResult<String> {
+    pub fn save_to_string(&mut self, py: Python<'_>, serialization: &str) -> PyResult<String> {
         let serialization = parse_serialization(serialization)?;
 
         let mut writer = Vec::<u8>::new();
@@ -867,41 +848,46 @@ impl PyIndexedOntology {
         model::AnonymousIndividual(name.into())
     }
 
-    /// get_descendants(self, parent: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
+    /// get_descendants(self, parent: typing.Union[Class, ObjectProperty, DataProperty]) -> Set[typing.Union[Class, ObjectProperty, DataProperty]]
     ///
     /// Gets all direct and indirect subclasses of a class.
-    #[pyo3[signature = (parent_iri, *, iri_is_absolute = None)]]
-    pub fn get_descendants(
+    #[pyo3[signature = (parent, *, iri_is_absolute = None)]]
+    pub fn get_descendants<'py>(
         &self,
-        py: Python<'_>,
-        parent_iri: String,
+        py: Python<'py>,
+        parent: Bound<'py, PyAny>,
         iri_is_absolute: Option<bool>,
-    ) -> PyResult<HashSet<String>> {
-        let mut descendants = HashSet::new();
-        let parent_iri: IRI<ArcStr> = self.iri(py, parent_iri, iri_is_absolute)?.into();
+    ) -> PyResult<PyObject> {
+        if let Ok(c) = self.extract_entity::<model::Class, _>(py, parent, iri_is_absolute) {
+            let mut descendants = HashSet::new();
 
-        self.recurse_descendants(&parent_iri, &mut descendants);
+            self.recurse_class_descendants(&c, &mut descendants);
 
-        Ok(descendants)
+            Ok(descendants.into_iter().map(model::Class::from).collect::<HashSet<_>>().into_py(py))
+        } else {
+            Ok(HashSet::<model::Class>::new().into_py(py))
+        }
     }
 
     /// get_ancestors(self, onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all direct and indirect super classes of a class.
-    #[pyo3[signature = (child_iri, *, iri_is_absolute = None)]]
+    #[pyo3[signature = (child, *, iri_is_absolute = None)]]
     pub fn get_ancestors(
         &self,
         py: Python<'_>,
-        child_iri: String,
+        child: Bound<PyAny>,
         iri_is_absolute: Option<bool>,
-    ) -> PyResult<HashSet<String>> {
-        let mut ancestors = HashSet::new();
+    ) -> PyResult<PyObject> {
+        if let Ok(c) = self.extract_entity::<model::Class, _>(py, child, iri_is_absolute) {
+            let mut ancestors = HashSet::new();
 
-        let child_iri: IRI<ArcStr> = self.iri(py, child_iri, iri_is_absolute)?.into();
+            self.recurse_class_ancestors(&c, &mut ancestors);
 
-        self.recurse_ancestors(&child_iri, &mut ancestors);
-
-        Ok(ancestors)
+            Ok(ancestors.into_iter().map(model::Class::from).collect::<HashSet<_>>().into_py(py))
+        } else {
+            Ok(HashSet::<model::Class>::new().into_py(py))
+        }
     }
 
     /// build_iri_index(self) -> None
@@ -963,21 +949,90 @@ impl PyIndexedOntology {
 }
 
 impl PyIndexedOntology {
-    fn recurse_descendants(&self, superclass: &IRI<ArcStr>, descendants: &mut HashSet<String>) {
-        descendants.insert(superclass.into());
-        if self.classes_to_subclasses.contains_key(superclass) {
-            for cls2 in &mut self.classes_to_subclasses[superclass].iter() {
-                self.recurse_descendants(cls2, descendants);
-            }
+    fn extract_entity<'py, S, T>(&self, py: Python, c: Bound<'py, PyAny>, iri_is_absolute: Option<bool>) -> PyResult<T>
+    where
+        S: FromPyObject<'py> + From<model::IRI>,
+        T: From<S>,
+    {
+        c.extract()
+            .or_else(|_| Ok(S::from(self.iri(py, c.extract()?, iri_is_absolute)?)))
+            .map(T::from)
+    }
+
+    fn get_subclasses_<T: From<Class<ArcStr>> + Eq + Hash>(
+        &self,
+        parent: &Class<Arc<str>>,
+    ) -> HashSet<T> {
+        let components = if let Some(component_index) = &self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::SubClassOf))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
+
+        components
+            .filter_map(|c| match c {
+                AnnotatedComponent {
+                    component:
+                        Component::SubClassOf(SubClassOf {
+                            sup: ClassExpression::Class(sup),
+                            sub: ClassExpression::Class(sub),
+                        }),
+                    ann: _,
+                } if sup == parent => Some(T::from(sub.clone())),
+                _ => None,
+            })
+            .collect()
+    }
+
+    
+    fn get_superclasses_<T: From<Class<ArcStr>> + Eq + Hash>(
+        &self,
+        child: &Class<Arc<str>>,
+    ) -> HashSet<T> {
+        let components = if let Some(component_index) = &self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::SubClassOf))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
+
+        components
+            .filter_map(|c| match c {
+                AnnotatedComponent {
+                    component:
+                        Component::SubClassOf(SubClassOf {
+                            sup: ClassExpression::Class(sup),
+                            sub: ClassExpression::Class(sub),
+                        }),
+                    ann: _,
+                } if sub == child => Some(T::from(sup.clone())),
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn recurse_class_descendants(
+        &self,
+        parent: &Class<ArcStr>,
+        descendants: &mut HashSet<Class<ArcStr>>
+    ) {
+        descendants.insert(parent.clone());
+
+        for e in self.get_subclasses_(parent) {
+            self.recurse_class_descendants(&e, descendants);
         }
     }
 
-    fn recurse_ancestors(&self, subclass: &IRI<ArcStr>, ancestors: &mut HashSet<String>) {
-        ancestors.insert(subclass.into());
-        if self.classes_to_superclasses.contains_key(subclass) {
-            for cls2 in &mut self.classes_to_superclasses[subclass].iter() {
-                self.recurse_ancestors(cls2, ancestors);
-            }
+    fn recurse_class_ancestors(
+        &self,
+        child: &Class<ArcStr>,
+        descendants: &mut HashSet<Class<ArcStr>>
+    ) {
+        descendants.insert(child.clone());
+
+        for e in self.get_superclasses_(child) {
+            self.recurse_class_ancestors(&e, descendants);
         }
     }
 
@@ -1063,8 +1118,8 @@ impl PyIndexedOntology {
 pub fn get_descendants(
     py: Python<'_>,
     onto: &PyIndexedOntology,
-    parent: String,
-) -> PyResult<HashSet<String>> {
+    parent: Bound<PyAny>,
+) -> PyResult<PyObject> {
     onto.get_descendants(py, parent, Some(true))
 }
 
@@ -1076,7 +1131,7 @@ pub fn get_descendants(
 pub fn get_ancestors(
     py: Python<'_>,
     onto: &PyIndexedOntology,
-    child: String,
-) -> PyResult<HashSet<String>> {
+    child: Bound<PyAny>,
+) -> PyResult<PyObject> {
     onto.get_ancestors(py, child, Some(true))
 }
