@@ -15,8 +15,8 @@ version = "0.21"
 features = ["abi3-py37", "extension-module", "experimental-inspect", "multiple-pymethods"]
 
 [dependencies]
-horned-owl = {git = "https://github.com/b-gehrke/horned-owl.git", branch = "feature/iter_method_from_set_index"}
-horned-bin = {git = "https://github.com/b-gehrke/horned-owl.git", branch = "feature/iter_method_from_set_index"}
+horned-owl = {git = "https://github.com/b-gehrke/horned-owl.git", branch = "feature/iter_method_for_set_index"}
+horned-bin = {git = "https://github.com/b-gehrke/horned-owl.git", branch = "feature/iter_method_for_set_index"}
 # horned-owl = {path = "../horned-owl"}
 # horned-bin = {path = "../horned-owl/horned-bin"}
 curie = "0.1.2"
