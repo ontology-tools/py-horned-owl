@@ -5,9 +5,12 @@
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <Prefix name="ex1" IRI="https://example.com/1"/>
+    <Prefix name="ex2" IRI="https://example.com/2"/>
+<Prefix name="" IRI="https://example.com/"/>
+    <Prefix name="ex3" IRI="https://example.com/3"/>
     <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
     <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
-<Prefix name="" IRI="https://example.com/"/>
     <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
     <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
     <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
@@ -15,25 +18,14 @@
         <Class IRI="https://example.com/A"/>
     </Declaration>
     <Declaration>
-        <Class IRI="https://example.com/B"/>
+        <Class abbreviatedIRI="ex1:A"/>
     </Declaration>
     <Declaration>
-        <Class IRI="https://example.com/C"/>
+        <Class abbreviatedIRI="ex2:A"/>
     </Declaration>
-    <SubClassOf>
-        <Class IRI="https://example.com/B"/>
-        <Class IRI="https://example.com/A"/>
-    </SubClassOf>
-    <AnnotationAssertion>
-        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
-        <IRI>https://example.com/A</IRI>
-        <Literal>ClassA</Literal>
-    </AnnotationAssertion>
-    <AnnotationAssertion>
-        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
-        <IRI>https://example.com/B</IRI>
-        <Literal>ClassB</Literal>
-    </AnnotationAssertion>
+    <Declaration>
+        <Class abbreviatedIRI="ex3:A"/>
+    </Declaration>
 </Ontology>
 
 

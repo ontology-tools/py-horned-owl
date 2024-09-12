@@ -1,4 +1,5 @@
 import glob
+import inspect
 import os
 import re
 import typing
@@ -24,7 +25,8 @@ with open("pyhornedowl/__init__.py", "w") as f:
     f.write(", ".join([f'"{n}"' for n in pyhornedowl_members]))
     f.write("]\n")
 
-implemented_magic = [f"__{x}__" for x in ["invert", "and", "or", "invert"]]
+implemented_magic = [f"__{x}__" for x in
+                     ["invert", "and", "or", "invert", "iter", "getitem", "setitem", "contains", "len", "delitem"]]
 
 with open("pyhornedowl/__init__.pyi", "w") as f:
     f.write("import typing\n")
@@ -67,7 +69,10 @@ with open("pyhornedowl/__init__.pyi", "w") as f:
                         for line in doc.splitlines():
                             f.write(f"    {line}\n")
                         f.write("    \"\"\"\n")
-                elif hasattr(member, "__doc__"):
+
+                    continue
+
+                if hasattr(member, "__doc__"):
                     doc = member.__doc__
                     if doc is not None:
                         lines = doc.splitlines()
@@ -87,6 +92,13 @@ with open("pyhornedowl/__init__.pyi", "w") as f:
                                 f.write(f"    {sign}\n")
                                 doc = "\n".join([f"    {l}" for l in lines[annotations_end+2:]])
                                 f.write(f'    """\n{doc}\n    """\n\n')
+
+                            continue
+
+                if callable(member):
+                    f.write(f"    def {member_name}{inspect.signature(member)}:\n        ...\n\n")
+
+                    continue
                                 
                     
             f.write("\n")

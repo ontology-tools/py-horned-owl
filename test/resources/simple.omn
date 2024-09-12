@@ -1,7 +1,9 @@
 Prefix: : <https://example.com/>
+
 Ontology:
-    Class: A
+    Class: :A
         Annotations: rdfs:label "ClassA"
-    Class: B SubClassOf: A
+    Class: :B
         Annotations: rdfs:label "ClassB"
-    Class: C
+        SubClassOf: :A
+    Class: :C

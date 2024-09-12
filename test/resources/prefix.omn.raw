@@ -1,0 +1,10 @@
+Prefix: : <https://example.com/>
+Prefix: ex1: <https://example.com/1>
+Prefix: ex2: <https://example.com/2>
+Prefix: ex3: <https://example.com/3>
+Ontology:
+    Class: ex1:A
+    Class: ex2:A
+    Class: ex3:A
+    Class: A
+
