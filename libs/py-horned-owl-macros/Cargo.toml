@@ -1,0 +1,12 @@
+[package]
+name = "py-horned-owl-macros"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+syn = { version = "*", features = ["full"] }
+quote = "*"
+proc-macro2 = "*"
+
+[lib]
+proc-macro = true
