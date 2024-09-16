@@ -60,7 +60,7 @@ An exception to this is the the function :func:`PyIndexedOntology.curie <pyhorne
 Prefixes
 --------
 
-By default, no prefixes are defined. The standard prefixes for ``rdf``, ``rdfs``, ``xsd``, and ``owl`` can be added via the :func:`PyIndexedOntology.add_default_prefix_names <pyhornedowl.PyIndexedOntology.add_default_prefix_names>`. Other prefixes can be added using the :func:`PyIndexedOntology.add_prefix_mapping <pyhornedowl.PyIndexedOntology.add_prefix_mapping>` method. 
+The registered prefixes are accessible via :func:`PyIndexedOntology.prefix_mapping <pyhornedowl.PyIndexedOntology.prefix_mapping>`. By default, no prefixes are defined. The standard prefixes for ``rdf``, ``rdfs``, ``xsd``, and ``owl`` can be added via the :func:`PrefixMapping.add_default_prefix_names <pyhornedowl.PrefixMapping.add_default_prefix_names>`. Other prefixes can be added using the :func:`PrefixMapping.add_prefix <pyhornedowl.PrefixMapping.add_prefix>` method. Alternatively, prefixes can be added, changed, or deleted using
 
 .. code-block:: python
 
@@ -68,9 +68,61 @@ By default, no prefixes are defined. The standard prefixes for ``rdf``, ``rdfs``
 
     ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
 
-    ontology.add_default_prefix_names()
-    ontology.add_prefix_mapping("ex", "https://example.com/")
+    ontology.prefix_mapping.add_default_prefix_names()
+    ontology.prefix_mapping.add_prefix("ex", "https://example.com/")
+    ontology.prefix_mapping['foo'] = "https://example.com/foo#"
+    print(ontology.prefix_mapping['foo']) # "https://example.com/foo#"
+    print('foo' in ontology.prefix_mapping) # True
+    del ontology.prefix_mapping['foo']
+    print('foo' in ontology.prefix_mapping) # False
 
+    for prefix, iri in ontology.prefix_mapping:
+        print(f"{prefix}: <{iri}>")
+
+
+Querying the ontology
+---------------------
+
+Get axioms
+^^^^^^^^^^
+Use :func:`PyIndexedOntology.get_axioms <pyhornedowl.PyIndexedOntology.get_axioms>` to get all axioms of an ontology.
+
+Use :func:`PyIndexedOntology.get_components <pyhornedowl.PyIndexedOntology.get_components>` to get all components of an ontology. Components include additional constructs like rules.
+
+Use :func:`PyIndexedOntology.get_axioms_for_iri <pyhornedowl.PyIndexedOntology.get_axioms_for_iri>` to get all axioms that a occurs in. This contains axioms where the IRI occurs, for example, in nested class expressions.
+
+If you want to query axioms for an entity by their OBO ID, ensure, that a prefix is added. Then, you can use :func:`PyIndexedOntology.get_axioms_for_iri <pyhornedowl.PyIndexedOntology.get_axioms_for_iri>` as IDs are just CURIEs.
+
+The following example loaded an ontology ``ontology`` with the following content:
+
+.. code-block::
+
+    Prefix: : <https://example.com/ontology#>
+    Prefix: EX: <https://example.com/ontology#>
+    Ontology:
+        Class: B
+        Class: C
+            SubClassOf: r some B
+
+        ObjectProperty: r
+
+
+
+.. code-block:: python
+
+    axioms = ontology.get_axioms()
+    assert set(axioms) == {
+        AnnotatedComponent(DeclareClass(ontology.clazz("https://example.com/A")), set())
+    }
+
+
+
+- get axioms
+- get subclasses
+- get superclasses
+- get annotations
+- get parents
+- Convert to and from and use OBO IDs
 
 Create entities
 ---------------

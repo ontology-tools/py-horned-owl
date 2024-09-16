@@ -4,6 +4,7 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 
 use horned_owl::model::ArcStr;
 use paste::paste;
+use py_horned_owl_macros::pho_mapped;
 use pyo3::{exceptions::PyKeyError, prelude::*, PyObject, types::{IntoPyDict, PyType}};
 use regex::Regex;
 
@@ -674,7 +675,7 @@ macro_rules! named {
 }
 
 macro_rules! wrapped {
-    (pub struct $name:ident { $(pub $field:ident: $type:ty,)* }) => {
+    (pub struct $name:ident { $(pub $field:ident$( as $py_field:ident)?: $type:ty,)* }) => {
         paste! {
 
             #[doc = concat!(
@@ -1866,6 +1867,9 @@ wrapped! {
         pub ann: BTreeSetWrap<Annotation>,
     }
 }
+
+
+
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BTreeSetWrap<T>(BTreeSet<T>);

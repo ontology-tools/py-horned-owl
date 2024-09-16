@@ -3,684 +3,295 @@ from typing import *
 from typing_extensions import deprecated
 
 class Class:
-    first: IRI
-    def __init__(self, first: IRI):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    first: Any
     ...
 
 class ObjectIntersectionOf:
-    first: typing.List[ClassExpression]
-    def __init__(self, first: typing.List[ClassExpression]):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    first: Any
     ...
 
 class ObjectUnionOf:
-    first: typing.List[ClassExpression]
-    def __init__(self, first: typing.List[ClassExpression]):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    first: Any
     ...
 
 class ObjectComplementOf:
-    first: ClassExpression
-    def __init__(self, first: ClassExpression):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    first: Any
     ...
 
 class ObjectOneOf:
-    first: typing.List[Individual]
-    def __init__(self, first: typing.List[Individual]):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    first: Any
     ...
 
 class ObjectSomeValuesFrom:
-    ope: ObjectPropertyExpression
-    bce: ClassExpression
-    def __init__(self, ope: ObjectPropertyExpression, bce: ClassExpression):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    ope: Any
+    bce: Any
     ...
 
 class ObjectAllValuesFrom:
-    ope: ObjectPropertyExpression
-    bce: ClassExpression
-    def __init__(self, ope: ObjectPropertyExpression, bce: ClassExpression):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    bce: Any
+    ope: Any
     ...
 
 class ObjectHasValue:
-    ope: ObjectPropertyExpression
-    i: Individual
-    def __init__(self, ope: ObjectPropertyExpression, i: Individual):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    i: Any
+    ope: Any
     ...
 
 class ObjectHasSelf:
-    first: ObjectPropertyExpression
-    def __init__(self, first: ObjectPropertyExpression):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    first: Any
     ...
 
 class ObjectMinCardinality:
-    n: int
-    ope: ObjectPropertyExpression
-    bce: ClassExpression
-    def __init__(self, n: int, ope: ObjectPropertyExpression, bce: ClassExpression):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    ope: Any
+    n: Any
+    bce: Any
     ...
 
 class ObjectMaxCardinality:
-    n: int
-    ope: ObjectPropertyExpression
-    bce: ClassExpression
-    def __init__(self, n: int, ope: ObjectPropertyExpression, bce: ClassExpression):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    bce: Any
+    n: Any
+    ope: Any
     ...
 
 class ObjectExactCardinality:
-    n: int
-    ope: ObjectPropertyExpression
-    bce: ClassExpression
-    def __init__(self, n: int, ope: ObjectPropertyExpression, bce: ClassExpression):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    bce: Any
+    ope: Any
+    n: Any
     ...
 
 class DataSomeValuesFrom:
-    dp: DataProperty
-    dr: DataRange
-    def __init__(self, dp: DataProperty, dr: DataRange):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    dr: Any
+    dp: Any
     ...
 
 class DataAllValuesFrom:
-    dp: DataProperty
-    dr: DataRange
-    def __init__(self, dp: DataProperty, dr: DataRange):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    dp: Any
+    dr: Any
     ...
 
 class DataHasValue:
-    dp: DataProperty
-    l: Literal
-    def __init__(self, dp: DataProperty, l: Literal):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    dp: Any
+    l: Any
     ...
 
 class DataMinCardinality:
-    n: int
-    dp: DataProperty
-    dr: DataRange
-    def __init__(self, n: int, dp: DataProperty, dr: DataRange):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    n: Any
+    dp: Any
+    dr: Any
     ...
 
 class DataMaxCardinality:
-    n: int
-    dp: DataProperty
-    dr: DataRange
-    def __init__(self, n: int, dp: DataProperty, dr: DataRange):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    dr: Any
+    dp: Any
+    n: Any
     ...
 
 class DataExactCardinality:
-    n: int
-    dp: DataProperty
-    dr: DataRange
-    def __init__(self, n: int, dp: DataProperty, dr: DataRange):
-        ...
-
-    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Intersection of two class expressions"""
-        ...
-
-    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
-        """Union of two class expressions"""
-        ...
-
-    def __invert__(self) -> ObjectIntersectionOf:
-        """Complement of a class expression"""
-        ...
+    dr: Any
+    n: Any
+    dp: Any
     ...
 
 class Datatype:
-    first: IRI
-    def __init__(self, first: IRI):
-        ...
+    first: Any
     ...
 
 class DataIntersectionOf:
-    first: typing.List[DataRange]
-    def __init__(self, first: typing.List[DataRange]):
-        ...
+    first: Any
     ...
 
 class DataUnionOf:
-    first: typing.List[DataRange]
-    def __init__(self, first: typing.List[DataRange]):
-        ...
+    first: Any
     ...
 
 class DataComplementOf:
-    first: DataRange
-    def __init__(self, first: DataRange):
-        ...
+    first: Any
     ...
 
 class DataOneOf:
-    first: typing.List[Literal]
-    def __init__(self, first: typing.List[Literal]):
-        ...
+    first: Any
     ...
 
 class DatatypeRestriction:
-    first: Datatype
-    second: typing.List[FacetRestriction]
-    def __init__(self, first: Datatype, second: typing.List[FacetRestriction]):
-        ...
+    first: Any
+    second: Any
     ...
 
 class SimpleLiteral:
-    literal: str
-    def __init__(self, literal: str):
-        ...
+    literal: Any
     ...
 
 class LanguageLiteral:
-    literal: str
-    lang: str
-    def __init__(self, literal: str, lang: str):
-        ...
+    literal: Any
+    lang: Any
     ...
 
 class DatatypeLiteral:
-    literal: str
-    datatype_iri: IRI
-    def __init__(self, literal: str, datatype_iri: IRI):
-        ...
+    datatype_iri: Any
+    literal: Any
     ...
 
 class ObjectProperty:
-    first: IRI
-    def __init__(self, first: IRI):
-        ...
-
-    def some(self, ce: ClassExpression) -> ObjectSomeValuesFrom:
-        """Existentional relationship"""
-        ...
-
-    def only(self, ce: ClassExpression) -> ObjectAllValuesFrom:
-        """Universal relationship"""
-        ...
-
-    def has_value(self, individual: Individual) -> ObjectHasValue:
-        """Existential relationship to an individual"""
-        ...
-
-    def has_self(self) -> ObjectHasSelf:
-        """Individuals with relation to themselves"""
-        ...
-
-    def min(self, n: int, ce: ClassExpression) -> ObjectMinCardinality:
-        """Minimum cardinality relationship"""
-        ...
-
-    def max(self, n: int, ce: ClassExpression) -> ObjectMaxCardinality:
-        """Maximum cardinality relationship"""
-        ...
-
-    def exact(self, n: int, ce: ClassExpression) -> ObjectExactCardinality:
-        """Exact cardinality relationship"""
-        ...
-
-    def __invert__(self) -> ObjectPropertyExpression:
-        """Inverse of object property expression"""
-        ...
+    some: Any
+    only: Any
+    has_value: Any
+    has_self: Any
+    min: Any
+    max: Any
+    exact: Any
+    first: Any
     ...
 
 class InverseObjectProperty:
-    first: ObjectProperty
-    def __init__(self, first: ObjectProperty):
-        ...
-
-    def some(self, ce: ClassExpression) -> ObjectSomeValuesFrom:
-        """Existentional relationship"""
-        ...
-
-    def only(self, ce: ClassExpression) -> ObjectAllValuesFrom:
-        """Universal relationship"""
-        ...
-
-    def has_value(self, individual: Individual) -> ObjectHasValue:
-        """Existential relationship to an individual"""
-        ...
-
-    def has_self(self) -> ObjectHasSelf:
-        """Individuals with relation to themselves"""
-        ...
-
-    def min(self, n: int, ce: ClassExpression) -> ObjectMinCardinality:
-        """Minimum cardinality relationship"""
-        ...
-
-    def max(self, n: int, ce: ClassExpression) -> ObjectMaxCardinality:
-        """Maximum cardinality relationship"""
-        ...
-
-    def exact(self, n: int, ce: ClassExpression) -> ObjectExactCardinality:
-        """Exact cardinality relationship"""
-        ...
-
-    def __invert__(self) -> ObjectPropertyExpression:
-        """Inverse of object property expression"""
-        ...
+    some: Any
+    only: Any
+    has_value: Any
+    has_self: Any
+    min: Any
+    max: Any
+    exact: Any
+    first: Any
     ...
 
 class AnnotatedComponent:
-    component: Component
-    ann: typing.Set[Annotation]
-    def __init__(self, component: Component, ann: typing.Set[Annotation]):
-        ...
+    component: Any
+    ann: Any
     ...
 
 class Annotation:
-    ap: AnnotationProperty
-    av: AnnotationValue
-    def __init__(self, ap: AnnotationProperty, av: AnnotationValue):
-        ...
+    ap: Any
+    av: Any
     ...
 
 class AnnotationAssertion:
-    subject: AnnotationSubject
-    ann: Annotation
-    def __init__(self, subject: AnnotationSubject, ann: Annotation):
-        ...
+    subject: Any
+    ann: Any
     ...
 
 class AnnotationProperty:
-    first: IRI
-    def __init__(self, first: IRI):
-        ...
+    first: Any
     ...
 
 class AnnotationPropertyDomain:
-    ap: AnnotationProperty
-    iri: IRI
-    def __init__(self, ap: AnnotationProperty, iri: IRI):
-        ...
+    iri: Any
+    ap: Any
     ...
 
 class AnnotationPropertyRange:
-    ap: AnnotationProperty
-    iri: IRI
-    def __init__(self, ap: AnnotationProperty, iri: IRI):
-        ...
+    ap: Any
+    iri: Any
     ...
 
 class AnonymousIndividual:
-    first: str
-    def __init__(self, first: str):
-        ...
+    first: Any
     ...
 
 class AsymmetricObjectProperty:
-    first: ObjectPropertyExpression
-    def __init__(self, first: ObjectPropertyExpression):
-        ...
+    first: Any
     ...
 
 class ClassAssertion:
-    ce: ClassExpression
-    i: Individual
-    def __init__(self, ce: ClassExpression, i: Individual):
-        ...
+    ce: Any
+    i: Any
     ...
 
 class DataProperty:
-    first: IRI
-    def __init__(self, first: IRI):
-        ...
+    first: Any
     ...
 
 class DataPropertyAssertion:
-    dp: DataProperty
-    from: Individual
-    to: Literal
-    def __init__(self, dp: DataProperty,  to: Literal):
-        ...
+    dp: Any
+    to: Any
     ...
 
 class DataPropertyDomain:
-    dp: DataProperty
-    ce: ClassExpression
-    def __init__(self, dp: DataProperty, ce: ClassExpression):
-        ...
+    ce: Any
+    dp: Any
     ...
 
 class DataPropertyRange:
-    dp: DataProperty
-    dr: DataRange
-    def __init__(self, dp: DataProperty, dr: DataRange):
-        ...
+    dp: Any
+    dr: Any
     ...
 
 class DatatypeDefinition:
-    kind: Datatype
-    range: DataRange
-    def __init__(self, kind: Datatype, range: DataRange):
-        ...
+    kind: Any
+    range: Any
     ...
 
 class DeclareAnnotationProperty:
-    first: AnnotationProperty
-    def __init__(self, first: AnnotationProperty):
-        ...
+    first: Any
     ...
 
 class DeclareClass:
-    first: Class
-    def __init__(self, first: Class):
-        ...
+    first: Any
     ...
 
 class DeclareDataProperty:
-    first: DataProperty
-    def __init__(self, first: DataProperty):
-        ...
+    first: Any
     ...
 
 class DeclareDatatype:
-    first: Datatype
-    def __init__(self, first: Datatype):
-        ...
+    first: Any
     ...
 
 class DeclareNamedIndividual:
-    first: NamedIndividual
-    def __init__(self, first: NamedIndividual):
-        ...
+    first: Any
     ...
 
 class DeclareObjectProperty:
-    first: ObjectProperty
-    def __init__(self, first: ObjectProperty):
-        ...
+    first: Any
     ...
 
 class DifferentIndividuals:
-    first: typing.List[Individual]
-    def __init__(self, first: typing.List[Individual]):
-        ...
+    first: Any
     ...
 
 class DisjointClasses:
-    first: typing.List[ClassExpression]
-    def __init__(self, first: typing.List[ClassExpression]):
-        ...
+    first: Any
     ...
 
 class DisjointDataProperties:
-    first: typing.List[DataProperty]
-    def __init__(self, first: typing.List[DataProperty]):
-        ...
+    first: Any
     ...
 
 class DisjointObjectProperties:
-    first: typing.List[ObjectPropertyExpression]
-    def __init__(self, first: typing.List[ObjectPropertyExpression]):
-        ...
+    first: Any
     ...
 
 class DisjointUnion:
-    first: Class
-    second: typing.List[ClassExpression]
-    def __init__(self, first: Class, second: typing.List[ClassExpression]):
-        ...
+    second: Any
+    first: Any
     ...
 
 class EquivalentClasses:
-    first: typing.List[ClassExpression]
-    def __init__(self, first: typing.List[ClassExpression]):
-        ...
+    first: Any
     ...
 
 class EquivalentDataProperties:
-    first: typing.List[DataProperty]
-    def __init__(self, first: typing.List[DataProperty]):
-        ...
+    first: Any
     ...
 
 class EquivalentObjectProperties:
-    first: typing.List[ObjectPropertyExpression]
-    def __init__(self, first: typing.List[ObjectPropertyExpression]):
-        ...
+    first: Any
     ...
 
 class FacetRestriction:
-    f: Facet
-    l: Literal
-    def __init__(self, f: Facet, l: Literal):
-        ...
+    l: Any
+    f: Any
     ...
 
 class FunctionalDataProperty:
-    first: DataProperty
-    def __init__(self, first: DataProperty):
-        ...
+    first: Any
     ...
 
 class FunctionalObjectProperty:
-    first: ObjectPropertyExpression
-    def __init__(self, first: ObjectPropertyExpression):
-        ...
+    first: Any
     ...
 
 class HasKey:
-    ce: ClassExpression
-    vpe: typing.List[PropertyExpression]
-    def __init__(self, ce: ClassExpression, vpe: typing.List[PropertyExpression]):
-        ...
+    ce: Any
+    vpe: Any
     ...
 
 class IRI:
@@ -688,219 +299,157 @@ class IRI:
     ...
 
 class Import:
-    first: IRI
-    def __init__(self, first: IRI):
-        ...
+    first: Any
     ...
 
 class InverseFunctionalObjectProperty:
-    first: ObjectPropertyExpression
-    def __init__(self, first: ObjectPropertyExpression):
-        ...
+    first: Any
     ...
 
 class InverseObjectProperties:
-    first: ObjectProperty
-    second: ObjectProperty
-    def __init__(self, first: ObjectProperty, second: ObjectProperty):
-        ...
+    second: Any
+    first: Any
     ...
 
 class IrreflexiveObjectProperty:
-    first: ObjectPropertyExpression
-    def __init__(self, first: ObjectPropertyExpression):
-        ...
+    first: Any
     ...
 
 class NamedIndividual:
-    first: IRI
-    def __init__(self, first: IRI):
-        ...
+    first: Any
     ...
 
 class NegativeDataPropertyAssertion:
-    dp: DataProperty
-    from: Individual
-    to: Literal
-    def __init__(self, dp: DataProperty,  to: Literal):
-        ...
+    dp: Any
+    to: Any
     ...
 
 class NegativeObjectPropertyAssertion:
-    ope: ObjectPropertyExpression
-    from: Individual
-    to: Individual
-    def __init__(self, ope: ObjectPropertyExpression,  to: Individual):
-        ...
+    ope: Any
+    to: Any
     ...
 
 class ObjectPropertyAssertion:
-    ope: ObjectPropertyExpression
-    from: Individual
-    to: Individual
-    def __init__(self, ope: ObjectPropertyExpression,  to: Individual):
-        ...
+    to: Any
+    ope: Any
     ...
 
 class ObjectPropertyDomain:
-    ope: ObjectPropertyExpression
-    ce: ClassExpression
-    def __init__(self, ope: ObjectPropertyExpression, ce: ClassExpression):
-        ...
+    ope: Any
+    ce: Any
     ...
 
 class ObjectPropertyRange:
-    ope: ObjectPropertyExpression
-    ce: ClassExpression
-    def __init__(self, ope: ObjectPropertyExpression, ce: ClassExpression):
-        ...
+    ope: Any
+    ce: Any
     ...
 
 class OntologyAnnotation:
-    first: Annotation
-    def __init__(self, first: Annotation):
-        ...
+    first: Any
     ...
 
 class ReflexiveObjectProperty:
-    first: ObjectPropertyExpression
-    def __init__(self, first: ObjectPropertyExpression):
-        ...
+    first: Any
     ...
 
 class SameIndividual:
-    first: typing.List[Individual]
-    def __init__(self, first: typing.List[Individual]):
-        ...
+    first: Any
     ...
 
 class SubAnnotationPropertyOf:
-    sup: AnnotationProperty
-    sub: AnnotationProperty
-    def __init__(self, sup: AnnotationProperty, sub: AnnotationProperty):
-        ...
+    sup: Any
+    sub: Any
     ...
 
 class SubClassOf:
-    sup: ClassExpression
-    sub: ClassExpression
-    def __init__(self, sup: ClassExpression, sub: ClassExpression):
-        ...
+    sup: Any
+    sub: Any
     ...
 
 class SubDataPropertyOf:
-    sup: DataProperty
-    sub: DataProperty
-    def __init__(self, sup: DataProperty, sub: DataProperty):
-        ...
+    sub: Any
+    sup: Any
     ...
 
 class SubObjectPropertyOf:
-    sup: ObjectPropertyExpression
-    sub: SubObjectPropertyExpression
-    def __init__(self, sup: ObjectPropertyExpression, sub: SubObjectPropertyExpression):
-        ...
+    sub: Any
+    sup: Any
     ...
 
 class SymmetricObjectProperty:
-    first: ObjectPropertyExpression
-    def __init__(self, first: ObjectPropertyExpression):
-        ...
+    first: Any
     ...
 
 class TransitiveObjectProperty:
-    first: ObjectPropertyExpression
-    def __init__(self, first: ObjectPropertyExpression):
-        ...
+    first: Any
     ...
 
 class OntologyID:
-    iri: typing.Optional[IRI]
-    viri: typing.Optional[IRI]
-    def __init__(self, iri: typing.Optional[IRI], viri: typing.Optional[IRI]):
-        ...
+    iri: Any
+    viri: Any
     ...
 
 class DocIRI:
-    first: IRI
-    def __init__(self, first: IRI):
-        ...
+    first: Any
     ...
 
 class Rule:
-    head: typing.List[Atom]
-    body: typing.List[Atom]
-    def __init__(self, head: typing.List[Atom], body: typing.List[Atom]):
-        ...
+    body: Any
+    head: Any
     ...
 
 class Variable:
-    first: IRI
-    def __init__(self, first: IRI):
-        ...
+    first: Any
     ...
 
 class BuiltInAtom:
-    pred: IRI
-    args: typing.List[DArgument]
-    def __init__(self, pred: IRI, args: typing.List[DArgument]):
-        ...
+    args: Any
+    pred: Any
     ...
 
 class ClassAtom:
-    pred: ClassExpression
-    arg: IArgument
-    def __init__(self, pred: ClassExpression, arg: IArgument):
-        ...
+    arg: Any
+    pred: Any
     ...
 
 class DataPropertyAtom:
-    pred: DataProperty
-    args: typing.Tuple[DArgument, DArgument]
-    def __init__(self, pred: DataProperty, args: typing.Tuple[DArgument, DArgument]):
-        ...
+    args: Any
+    pred: Any
     ...
 
 class DataRangeAtom:
-    pred: DataRange
-    arg: DArgument
-    def __init__(self, pred: DataRange, arg: DArgument):
-        ...
+    arg: Any
+    pred: Any
     ...
 
 class DifferentIndividualsAtom:
-    first: IArgument
-    second: IArgument
-    def __init__(self, first: IArgument, second: IArgument):
-        ...
+    first: Any
+    second: Any
     ...
 
 class ObjectPropertyAtom:
-    pred: ObjectPropertyExpression
-    args: typing.Tuple[IArgument, IArgument]
-    def __init__(self, pred: ObjectPropertyExpression, args: typing.Tuple[IArgument, IArgument]):
-        ...
+    pred: Any
+    args: Any
     ...
 
 class SameIndividualAtom:
-    first: IArgument
-    second: IArgument
-    def __init__(self, first: IArgument, second: IArgument):
-        ...
+    second: Any
+    first: Any
     ...
 
 class Facet:
-    Length: Facet
-    MinLength: Facet
-    MaxLength: Facet
-    Pattern: Facet
-    MinInclusive: Facet
-    MinExclusive: Facet
-    MaxInclusive: Facet
-    MaxExclusive: Facet
-    TotalDigits: Facet
-    FractionDigits: Facet
-    LangRange: Facet
+    Length: Any
+    MinLength: Any
+    MaxLength: Any
+    Pattern: Any
+    MinInclusive: Any
+    MinExclusive: Any
+    MaxInclusive: Any
+    MaxExclusive: Any
+    TotalDigits: Any
+    FractionDigits: Any
+    LangRange: Any
+    ...
 
 ClassExpression = typing.Union[ObjectIntersectionOf, ObjectUnionOf, ObjectComplementOf, ObjectOneOf, ObjectSomeValuesFrom, ObjectAllValuesFrom, ObjectHasValue, ObjectHasSelf, ObjectMinCardinality, ObjectMaxCardinality, ObjectExactCardinality, DataSomeValuesFrom, DataAllValuesFrom, DataHasValue, DataMinCardinality, DataMaxCardinality, DataExactCardinality, Class]
 ObjectPropertyExpression = typing.Union[InverseObjectProperty, ObjectProperty]

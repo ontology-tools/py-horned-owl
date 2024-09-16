@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, OnceLock};
 
 use curie::PrefixMapping;
 use horned_bin::path_type;
@@ -19,6 +19,7 @@ mod doc;
 mod model;
 mod ontology;
 mod prefix_mapping;
+mod model_test;
 
 #[macro_export]
 macro_rules! to_py_err {
@@ -183,6 +184,101 @@ fn open_ontology(
     }
 }
 
+fn iri_builder() -> &'static Mutex<Build<ArcStr>> {
+    static PY_BUILD: OnceLock<Mutex<Build<ArcStr>>> = OnceLock::new();
+    PY_BUILD.get_or_init(|| Mutex::new(Build::new_arc()))
+}
+
+#[pyfunction(name="iri")]
+fn py_iri(iri: String) -> model::IRI {
+    iri(iri).into()
+}
+
+fn iri(iri: String) -> IRI<ArcStr> {
+    iri_builder().lock().unwrap().iri(iri)
+}
+
+#[pyfunction(name="clazz")]
+fn py_clazz(iri: String) -> model::Class {
+    clazz(iri).into()
+}
+
+fn clazz(iri: String) -> Class<ArcStr> {
+    iri_builder().lock().unwrap().class(iri)
+}
+
+#[pyfunction(name="object_property")]
+fn py_object_property(iri: String) -> model::ObjectProperty {
+    object_property(iri).into()
+}
+
+fn object_property(iri: String) -> ObjectProperty<ArcStr> {
+    iri_builder().lock().unwrap().object_property(iri)
+}
+
+#[pyfunction(name="op")]
+fn py_op(iri: String) -> model::ObjectProperty {
+    op(iri).into()
+}
+
+fn op(iri: String) -> ObjectProperty<ArcStr> {
+    iri_builder().lock().unwrap().object_property(iri)
+}
+
+#[pyfunction(name="data_property")]
+fn py_data_property(iri: String) -> model::DataProperty {
+    data_property(iri).into()
+}
+
+fn data_property(iri: String) -> DataProperty<ArcStr> {
+    iri_builder().lock().unwrap().data_property(iri)
+}
+
+#[pyfunction(name="dp")]
+fn py_dp(iri: String) -> model::DataProperty {
+    dp(iri).into()
+}
+
+fn dp(iri: String) -> DataProperty<ArcStr> {
+    iri_builder().lock().unwrap().data_property(iri)
+}
+
+#[pyfunction(name="annotation_property")]
+fn py_annotation_property(iri: String) -> model::AnnotationProperty {
+    annotation_property(iri).into()
+}
+
+fn annotation_property(iri: String) -> AnnotationProperty<ArcStr> {
+    iri_builder().lock().unwrap().annotation_property(iri)
+}
+
+#[pyfunction(name="ap")]
+fn py_ap(iri: String) -> model::AnnotationProperty {
+    ap(iri).into()
+}
+
+fn ap(iri: String) -> AnnotationProperty<ArcStr> {
+    iri_builder().lock().unwrap().annotation_property(iri)
+}
+
+#[pyfunction(name="named_individual")]
+fn py_named_individual(iri: String) -> model::NamedIndividual {
+    named_individual(iri).into()
+}
+
+fn named_individual(iri: String) -> NamedIndividual<ArcStr> {
+    iri_builder().lock().unwrap().named_individual(iri)
+}
+
+#[pyfunction(name="i")]
+fn py_i(iri: String) -> model::NamedIndividual {
+    i(iri).into()
+}
+
+fn i(iri: String) -> NamedIndividual<ArcStr> {
+    iri_builder().lock().unwrap().named_individual(iri)
+}
+
 #[pymodule]
 fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyIndexedOntology>()?;
@@ -194,6 +290,17 @@ fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(open_ontology_from_string, m)?)?;
     m.add_function(wrap_pyfunction!(get_descendants, m)?)?;
     m.add_function(wrap_pyfunction!(get_ancestors, m)?)?;
+    m.add_function(wrap_pyfunction!(py_iri, m)?)?;
+    m.add_function(wrap_pyfunction!(py_clazz, m)?)?;
+    m.add_function(wrap_pyfunction!(py_object_property, m)?)?;
+    m.add_function(wrap_pyfunction!(py_op, m)?)?;
+    m.add_function(wrap_pyfunction!(py_data_property, m)?)?;
+    m.add_function(wrap_pyfunction!(py_dp, m)?)?;
+    m.add_function(wrap_pyfunction!(py_annotation_property, m)?)?;
+    m.add_function(wrap_pyfunction!(py_ap, m)?)?;
+    m.add_function(wrap_pyfunction!(py_named_individual, m)?)?;
+    m.add_function(wrap_pyfunction!(py_i, m)?)?;
+    
 
     let model_sub_module = model::py_module(py)?;
     m.add_submodule(&model_sub_module)?;
