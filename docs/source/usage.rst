@@ -32,7 +32,7 @@ Use the :func:`PyIndexedOntology.save_to_file <pyhornedowl.PyIndexedOntology.sav
    ontology.save_to_file("path/to/ontology", serialization='ofn')
    
 
-IRIs and CURIEs
+IRIs, CURIEs, and OBO IDs
 --------------------------
 The preferred way to create IRIs is through an ontology instance as it enables Horned-OWLs caching mechanism. Alternatively, they can be created by hand using :func:`IRI.parse <pyhornedowl.model.IRI.parse>`.
 
@@ -53,9 +53,15 @@ The :func:`PyIndexedOntology.iri <pyhornedowl.PyIndexedOntology.iri>` function g
 An exception to this is the the function :func:`PyIndexedOntology.curie <pyhornedowl.PyIndexedOntology.curie>` which only accepts CURIEs.
 
 .. note::
-    To create a curie the prefix must be defined.
+    To work with CURIEs their prefix must be defined.
 
+Expanding and shrinking IRIs and CURIEs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The methods :func:`PrefixMapping.expand_curie <pyhornedowl.PrefixMapping.expand_curie>` and :func:`PrefixMapping.shrink_iri <pyhornedowl.PrefixMapping.shrink_iri>` can be used to expand CURIEs or shrink IRIs.
 
+OBO IDs
+^^^^^^^
+OBO IDs are usually just CURIEs. When the prefix is defined, an OBO ID can be used anywhere where a CURIE can be supplied. Similarly, an OBO ID can be expanded to their full IRI using :func:`PrefixMapping.expand_curie <pyhornedowl.PrefixMapping.expand_curie>` and :func:`PrefixMapping.shrink_iri <pyhornedowl.PrefixMapping.shrink_iri>`.
 
 Prefixes
 --------
@@ -89,7 +95,7 @@ Use :func:`PyIndexedOntology.get_axioms <pyhornedowl.PyIndexedOntology.get_axiom
 
 Use :func:`PyIndexedOntology.get_components <pyhornedowl.PyIndexedOntology.get_components>` to get all components of an ontology. Components include additional constructs like rules.
 
-Use :func:`PyIndexedOntology.get_axioms_for_iri <pyhornedowl.PyIndexedOntology.get_axioms_for_iri>` to get all axioms that a occurs in. This contains axioms where the IRI occurs, for example, in nested class expressions.
+Use :func:`PyIndexedOntology.get_axioms_for_iri <pyhornedowl.PyIndexedOntology.get_axioms_for_iri>` to get all axioms that a occurs in. This includes axioms where the IRI occurs, for example, in nested class expressions.
 
 If you want to query axioms for an entity by their OBO ID, ensure, that a prefix is added. Then, you can use :func:`PyIndexedOntology.get_axioms_for_iri <pyhornedowl.PyIndexedOntology.get_axioms_for_iri>` as IDs are just CURIEs.
 
@@ -99,8 +105,12 @@ The following example loaded an ontology ``ontology`` with the following content
 
     Prefix: : <https://example.com/ontology#>
     Prefix: EX: <https://example.com/ontology#>
+    Prefix: BFO: <http://purl.obolibrary.org/obo/BFO_>
     Ontology:
         Class: B
+            Annotation: rdfs:label "The class of all B"
+            Annotation: rdfs:label "The class of all B"@en
+            Annotation: rdfs:label "Die Klasse aller B"@de
         Class: C
             SubClassOf: r some B
 
@@ -111,18 +121,16 @@ The following example loaded an ontology ``ontology`` with the following content
 .. code-block:: python
 
     axioms = ontology.get_axioms()
-    assert set(axioms) == {
-        AnnotatedComponent(DeclareClass(ontology.clazz("https://example.com/A")), set())
-    }
 
+    # Get all subclasses of a class by their IRI/ID/CURIE
+    subclasses = ontology.get_subclasses("BFO:0000001")
 
+    # Get all superclasses of a class by their IRI/ID/CURIE
+    superclasses = ontology.get_superclasses("EX:B")
 
-- get axioms
-- get subclasses
-- get superclasses
-- get annotations
-- get parents
-- Convert to and from and use OBO IDs
+    # Get all annotations of an annotation property for an entity by their IRI/ID/CURIE
+    labels = ontology.get_annotations("ex:B", "rdfs:label")
+
 
 Create entities
 ---------------
@@ -166,4 +174,4 @@ Instead of writing class expressions as nested constructor calls, some expressio
     assert ~r == InverseObjectProperty(r)
     assert r.some(A) == ObjectSomeValuesFrom(r, A)
     assert r.only(A) == ObjectAllValuesFrom(r, A)
-    assert r.some(A & B | (~r).only(C)) == ObjectSomeValuesFrom(r, ObjectUnionOf([ObjectIntersectionOf([A, B]), ObjectAllValuesFrom(InverseObjectProperty(r), C)]))
+    assert r.some((A & B) | (~r).only(C)) == ObjectSomeValuesFrom(r, ObjectUnionOf([ObjectIntersectionOf([A, B]), ObjectAllValuesFrom(InverseObjectProperty(r), C)]))
