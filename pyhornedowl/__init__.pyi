@@ -4,6 +4,7 @@ from typing_extensions import deprecated
 
 import model
 
+
 class PyIndexedOntology:
     """
     Represents a loaded ontology.
@@ -305,6 +306,24 @@ class IndexCreationStrategy:
     """
 
 class PrefixMapping:
+    def __iter__(self, /):
+        ...
+
+    def __len__(self, /):
+        ...
+
+    def __getitem__(self, key, /):
+        ...
+
+    def __setitem__(self, key, value, /):
+        ...
+
+    def __delitem__(self, key, /):
+        ...
+
+    def __contains__(self, key, /):
+        ...
+
     def add_default_prefix_names(self) -> None:
         """
         Adds the prefix for rdf, rdfs, xsd, and owl
@@ -329,7 +348,7 @@ class PrefixMapping:
         """
         ...
 
-    def shring_iri(self, iri: str) -> str:
+    def shrink_iri(self, iri: str) -> str:
         """
         Shrinks an absolute IRI to a CURIE. Throws a ValueError on failure
         """

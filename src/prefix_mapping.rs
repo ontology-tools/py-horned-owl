@@ -26,8 +26,35 @@ impl From<PrefixMapping> for curie::PrefixMapping {
     }
 }
 
+#[pyclass]
+struct Iter {
+    inner: std::vec::IntoIter<(String, String)>
+}
+
+#[pymethods]
+impl Iter {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+        slf
+    }
+
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<(String, String)> {
+        slf.inner.next()
+    }
+}
+
 #[pymethods]
 impl PrefixMapping {
+
+    /// __iter__(self) -> typing.Iterable[typing.Tuple[str, str]]
+    ///
+    /// Get an iterator over all prefixes
+    fn __iter__(slf: PyRef<'_, Self>) -> PyResult<Py<Iter>> {
+        let iter = Iter {
+            inner: slf.0.mappings().map(|(x,y)| ((x.clone(), y.clone()))).collect::<Vec<(String, String)>>().into_iter(),
+        };
+        Py::new(slf.py(), iter)
+    }
+
     pub fn __getitem__(&self, key: &str) -> PyResult<String> {
         self.0
             .expand_curie(&curie::Curie::new(Some(key), ""))
@@ -102,7 +129,7 @@ impl PrefixMapping {
             .map_err(to_py_err!("Invalid or unknown prefix"))
     }
 
-    /// shring_iri(self, iri: str) -> str
+    /// shrink_iri(self, iri: str) -> str
     ///
     /// Shrinks an absolute IRI to a CURIE. Throws a ValueError on failure
     pub fn shrink_iri(&self, iri: &str) -> PyResult<String> {

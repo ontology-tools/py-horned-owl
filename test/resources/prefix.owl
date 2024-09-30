@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <rdf:RDF xmlns="http://www.w3.org/2002/07/owl#"
      xml:base="http://www.w3.org/2002/07/owl"
+     xmlns:ex1="https://example.com/1"
+     xmlns:ex2="https://example.com/2"
+     xmlns:ex3="https://example.com/3"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
@@ -23,24 +26,25 @@
 
     <!-- https://example.com/A -->
 
-    <Class rdf:about="https://example.com/A">
-        <rdfs:label>ClassA</rdfs:label>
-    </Class>
+    <Class rdf:about="https://example.com/A"/>
     
 
 
-    <!-- https://example.com/B -->
+    <!-- https://example.com/1A -->
 
-    <Class rdf:about="https://example.com/B">
-        <rdfs:subClassOf rdf:resource="https://example.com/A"/>
-        <rdfs:label>ClassB</rdfs:label>
-    </Class>
+    <Class rdf:about="https://example.com/1A"/>
     
 
 
-    <!-- https://example.com/C -->
+    <!-- https://example.com/2A -->
 
-    <Class rdf:about="https://example.com/C"/>
+    <Class rdf:about="https://example.com/2A"/>
+    
+
+
+    <!-- https://example.com/3A -->
+
+    <Class rdf:about="https://example.com/3A"/>
 </rdf:RDF>
 
 
