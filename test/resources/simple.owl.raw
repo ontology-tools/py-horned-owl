@@ -41,6 +41,14 @@
     <!-- https://example.com/C -->
 
     <Class rdf:about="https://example.com/C"/>
+    
+
+
+    <!-- https://example.com/D -->
+
+    <Class rdf:about="https://example.com/D">
+        <rdfs:subClassOf rdf:resource="https://example.com/B"/>
+    </Class>
 </rdf:RDF>
 
 
