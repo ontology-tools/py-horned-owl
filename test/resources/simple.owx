@@ -20,9 +20,16 @@
     <Declaration>
         <Class IRI="https://example.com/C"/>
     </Declaration>
+    <Declaration>
+        <Class IRI="https://example.com/D"/>
+    </Declaration>
     <SubClassOf>
         <Class IRI="https://example.com/B"/>
         <Class IRI="https://example.com/A"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="https://example.com/D"/>
+        <Class IRI="https://example.com/B"/>
     </SubClassOf>
     <AnnotationAssertion>
         <AnnotationProperty abbreviatedIRI="rdfs:label"/>

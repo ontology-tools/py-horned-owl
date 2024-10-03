@@ -1,7 +1,5 @@
 import os
 
-from typing import List
-
 import pyhornedowl
 from pyhornedowl.model import *
 
@@ -22,9 +20,13 @@ def simple_ontology_comps() -> List[Component]:
         DeclareClass(Class(IRI.parse("https://example.com/A"))),
         DeclareClass(Class(IRI.parse("https://example.com/B"))),
         DeclareClass(Class(IRI.parse("https://example.com/C"))),
+        DeclareClass(Class(IRI.parse("https://example.com/D"))),
         SubClassOf(
-            Class(IRI.parse("https://example.com/A")),
-            Class(IRI.parse("https://example.com/B"))),
+            sup=Class(IRI.parse("https://example.com/A")),
+            sub=Class(IRI.parse("https://example.com/B"))),
+        SubClassOf(
+            sup=Class(IRI.parse("https://example.com/B")),
+            sub=Class(IRI.parse("https://example.com/D"))),
         AnnotationAssertion(
             IRI.parse("https://example.com/A"),
             Annotation(AnnotationProperty(IRI.parse(RDFS_LABEL)),

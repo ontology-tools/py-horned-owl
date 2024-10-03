@@ -7,9 +7,7 @@ use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
 use horned_owl::model::{
-    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
-    ArcAnnotatedComponent, ArcStr, Build, Component, ComponentKind, HigherKinded, IRI,
-    Literal, MutableOntology, Ontology, OntologyID,
+    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue, ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI
 };
 use horned_owl::ontology::component_mapped::{
     ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
@@ -325,8 +323,8 @@ impl PyIndexedOntology {
     /// get_subclasses(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all subclasses of an entity.
-    #[pyo3[signature = (iri, iri_is_absolute = None)]]
-    pub fn get_subclasses(
+    #[pyo3[name="get_subclasses", signature = (iri, iri_is_absolute = None)]]
+    pub fn py_get_subclasses(
         &mut self,
         py: Python<'_>,
         iri: String,
@@ -334,20 +332,16 @@ impl PyIndexedOntology {
     ) -> PyResult<HashSet<String>> {
         let iri: IRI<ArcStr> = self.iri(py, iri, iri_is_absolute)?.into();
 
-        let subclasses = self.classes_to_subclasses.get(&iri);
-        if let Some(subclss) = subclasses {
-            let subclasses: HashSet<String> = subclss.iter().map(|sc| sc.to_string()).collect();
-            Ok(subclasses)
-        } else {
-            Ok(HashSet::new())
-        }
+        let classes: HashSet<String> = self.get_subclasses(&iri).into_iter().map(|i| i.to_string()).collect();
+
+        Ok(classes)
     }
 
     /// get_superclasses(self, iri: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all superclasses of an entity.
-    #[pyo3[signature = (iri, iri_is_absolute = None)]]
-    pub fn get_superclasses(
+    #[pyo3[name="get_superclasses", signature = (iri, iri_is_absolute = None)]]
+    pub fn py_get_superclasses(
         &mut self,
         py: Python<'_>,
         iri: String,
@@ -355,13 +349,9 @@ impl PyIndexedOntology {
     ) -> PyResult<HashSet<String>> {
         let iri: IRI<ArcStr> = self.iri(py, iri, iri_is_absolute)?.into();
 
-        let superclasses = self.classes_to_superclasses.get(&iri);
-        if let Some(superclss) = superclasses {
-            let superclasses: HashSet<String> = superclss.iter().map(|sc| sc.to_string()).collect();
-            Ok(superclasses)
-        } else {
-            Ok(HashSet::new())
-        }
+        let classes: HashSet<String> = self.get_superclasses(&iri).into_iter().map(|i| i.to_string()).collect();
+
+        Ok(classes)
     }
 
     /// get_classes(self) -> Set[str]
@@ -882,10 +872,10 @@ impl PyIndexedOntology {
 
         self.recurse_descendants(&parent_iri, &mut descendants);
 
-        Ok(descendants)
+        Ok(descendants.into_iter().map(|c| c.to_string()).collect())
     }
 
-    /// get_ancestors(self, onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
+    /// get_ancestors(self, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]
     ///
     /// Gets all direct and indirect super classes of a class.
     #[pyo3[signature = (child_iri, *, iri_is_absolute = None)]]
@@ -901,7 +891,7 @@ impl PyIndexedOntology {
 
         self.recurse_ancestors(&child_iri, &mut ancestors);
 
-        Ok(ancestors)
+        Ok(ancestors.into_iter().map(|c| c.to_string()).collect())
     }
 
     /// build_iri_index(self) -> None
@@ -963,21 +953,57 @@ impl PyIndexedOntology {
 }
 
 impl PyIndexedOntology {
-    fn recurse_descendants(&self, superclass: &IRI<ArcStr>, descendants: &mut HashSet<String>) {
-        descendants.insert(superclass.into());
-        if self.classes_to_subclasses.contains_key(superclass) {
-            for cls2 in &mut self.classes_to_subclasses[superclass].iter() {
-                self.recurse_descendants(cls2, descendants);
-            }
+    pub fn get_subclasses(&self, iri: &IRI<ArcStr>) -> HashSet<IRI<ArcStr>> {
+        let subclass_axioms = if let Some(ref component_index) = &self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::SubClassOf))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
+
+        subclass_axioms
+            .filter_map(|aax| match &aax.component {
+                Component::SubClassOf(SubClassOf{
+                    sub: ClassExpression::Class(Class(sub)),
+                    sup: ClassExpression::Class(Class(sup))}) if sup == iri => Some(sub.clone()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    pub fn get_superclasses(&self, iri: &IRI<ArcStr>) -> HashSet<IRI<ArcStr>> {
+        let subclass_axioms = if let Some(ref component_index) = &self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::SubClassOf))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
+
+        subclass_axioms
+            .filter_map(|aax| match &aax.component {
+                Component::SubClassOf(SubClassOf{
+                    sub: ClassExpression::Class(Class(sub)),
+                    sup: ClassExpression::Class(Class(sup))}) if sub == iri => Some(sup.clone()),
+                _ => None,
+            })
+            .collect()
+    } 
+
+    fn recurse_descendants(&self, superclass: &IRI<ArcStr>, descendants: &mut HashSet<IRI<ArcStr>>) {
+        let subclasses = self.get_subclasses(superclass);
+
+        for cls in subclasses.into_iter() {
+            self.recurse_descendants(&cls, descendants);
+            descendants.insert(cls);
         }
     }
 
-    fn recurse_ancestors(&self, subclass: &IRI<ArcStr>, ancestors: &mut HashSet<String>) {
-        ancestors.insert(subclass.into());
-        if self.classes_to_superclasses.contains_key(subclass) {
-            for cls2 in &mut self.classes_to_superclasses[subclass].iter() {
-                self.recurse_ancestors(cls2, ancestors);
-            }
+    fn recurse_ancestors(&self, subclass: &IRI<ArcStr>, ancestors: &mut HashSet<IRI<ArcStr>>) {
+        let superclasses = self.get_superclasses(subclass);
+
+        for cls in superclasses.into_iter() {
+            self.recurse_ancestors(&cls, ancestors);
+            ancestors.insert(cls);
         }
     }
 

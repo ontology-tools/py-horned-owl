@@ -10,6 +10,7 @@ Ontology(
 Declaration(Class(<https://example.com/A>))
 Declaration(Class(<https://example.com/B>))
 Declaration(Class(<https://example.com/C>))
+Declaration(Class(<https://example.com/D>))
 
 
 ############################
@@ -24,6 +25,10 @@ AnnotationAssertion(rdfs:label <https://example.com/A> "ClassA")
 
 AnnotationAssertion(rdfs:label <https://example.com/B> "ClassB")
 SubClassOf(<https://example.com/B> <https://example.com/A>)
+
+# Class: <https://example.com/D> (<https://example.com/D>)
+
+SubClassOf(<https://example.com/D> <https://example.com/B>)
 
 
 )

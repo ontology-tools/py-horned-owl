@@ -7,3 +7,5 @@ Ontology:
         Annotations: rdfs:label "ClassB"
         SubClassOf: :A
     Class: :C
+    Class: :D
+        SubClassOf: :B
