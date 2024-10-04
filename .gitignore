@@ -5,6 +5,7 @@ Cargo.lock
 
 .idea
 .code
+.vscode
 
 **/__pycache__
 docs/source/generated
