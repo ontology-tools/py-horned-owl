@@ -1,6 +1,6 @@
-use std::{borrow::Borrow, collections::BTreeSet, sync::Arc};
+use std::{borrow::Borrow, collections::{BTreeSet,hash_map::DefaultHasher}, sync::Arc};
 use std::fmt::{Display, Write};
-use std::hash::{DefaultHasher, Hash, Hasher};
+use std::hash::{Hash, Hasher};
 
 use horned_owl::model::ArcStr;
 use paste::paste;

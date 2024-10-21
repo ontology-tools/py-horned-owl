@@ -10,3 +10,5 @@ Cargo.lock
 **/__pycache__
 docs/source/generated
 docs/build
+
+venv

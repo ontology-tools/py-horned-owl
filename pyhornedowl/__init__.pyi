@@ -4,7 +4,6 @@ from typing_extensions import deprecated
 
 import model
 
-
 class PyIndexedOntology:
     """
     Represents a loaded ontology.
@@ -257,7 +256,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_ancestors(self, onto: PyIndexedOntology, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]:
+    def get_ancestors(self, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]:
         """
         Gets all direct and indirect super classes of a class.
         """
