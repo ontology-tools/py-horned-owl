@@ -106,9 +106,9 @@ impl PrefixMapping {
         let result = self.0.add_prefix(&iriprefix, &mappedid);
         result.map_err(to_py_err!("Error - prefix is invalid."))?;
 
-        // if iriprefix.is_empty() {
-        //     self.0.set_default(mappedid.as_str());
-        // }
+        if iriprefix.is_empty() {
+            self.0.set_default(mappedid.as_str());
+        }
 
         Ok(())
     }
@@ -118,6 +118,15 @@ impl PrefixMapping {
     /// Remove a prefix from the mapping.
     pub fn remove_prefix(&mut self, prefix: &str) {
         self.0.remove_prefix(prefix);
+
+        if prefix == "" {
+            let mut new_mapping = curie::PrefixMapping::default();
+            for (p, v) in self.0.mappings() {
+                new_mapping.add_prefix(p, v).expect("Cannot happen since self.0 contains only valid prefix mappings");
+            }
+
+            self.0 = new_mapping;
+        }
     }
 
     /// expand_curie(self, curie: str) -> str

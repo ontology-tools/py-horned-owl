@@ -153,6 +153,7 @@ impl PyIndexedOntology {
     ) -> PyResult<Option<String>> {
         let iri: String = self.iri(py, iri, iri_is_absolute)?.into();
         let mapping = self.mapping.borrow_mut(py);
+
         let res = mapping.0.shrink_iri(iri.as_str());
 
         if let Ok(curie) = res {
@@ -196,6 +197,13 @@ impl PyIndexedOntology {
     pub fn get_prefix_mapping<'py>(&self, py: Python<'py>) -> PyResult<&Bound<'py, PrefixMapping>> {
         let mapping = self.mapping.bind(py);
         Ok(mapping)
+    }
+    
+    /// add_prefix_mapping(self, iriprefix: str, mappedid: str) -> None
+    ///
+    /// Adds the prefix `iriprefix`.
+    pub fn add_prefix_mapping<'py>(&mut self, py: Python<'py>, iriprefix: String, mappedid: String) -> PyResult<()> {
+        self.mapping.borrow_mut(py).add_prefix(iriprefix, mappedid)
     }
 
     /// set_label(self, iri: str, label: str, *, absolute: Optional[bool] = None) -> None
@@ -1065,7 +1073,7 @@ impl PyIndexedOntology {
             amo.insert(component.clone());
         }
 
-        let mapping = self.mapping.borrow_mut(py);
+        let mapping = self.mapping.borrow(py);
 
         let result = match serialization {
             ResourceType::OFN => {

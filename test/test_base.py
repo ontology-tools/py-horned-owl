@@ -1,5 +1,7 @@
 import os
 
+from typing import List
+
 import pyhornedowl
 from pyhornedowl.model import *
 

@@ -1,5 +1,6 @@
 import unittest
 
+import pyhornedowl
 from test_base import simple_ontology
 
 
@@ -15,29 +16,29 @@ class IdTestCase(unittest.TestCase):
         self.assertNotEqual(expected, actual)
 
     def test_id_from_absolute(self):
-        o = simple_ontology()
-        o.prefix_mapping.add_prefix("ex", "https://example.com/")
+        o = pyhornedowl.PyIndexedOntology()
+        o.prefix_mapping.add_prefix("EX", "https://example.com/")
 
-        expected = ":A"
+        expected = "EX:A"
         actual = o.get_id_for_iri("https://example.com/A")
 
         self.assertEqual(expected, actual)
 
     def test_id_from_curie_empty_prefix(self):
-        o = simple_ontology()
-        o.prefix_mapping.add_prefix("ex", "https://example.com/")
+        o = pyhornedowl.PyIndexedOntology()
+        o.prefix_mapping.add_prefix("", "https://example.com/")
 
-        expected = ":A"
+        expected = "A"
         actual = o.get_id_for_iri(":A")
 
         self.assertEqual(expected, actual)
 
     def test_id_from_curie_defined_prefix(self):
-        o = simple_ontology()
-        o.prefix_mapping.add_prefix("ex", "https://example.com/")
+        o = pyhornedowl.PyIndexedOntology()
+        o.prefix_mapping.add_prefix("EX", "https://example.com/")
 
-        expected = ":A"
-        actual = o.get_id_for_iri("ex:A")
+        expected = "EX:A"
+        actual = o.get_id_for_iri("EX:A")
 
         self.assertEqual(expected, actual)
 

@@ -24,6 +24,12 @@ class PyIndexedOntology:
         """
         ...
 
+    def add_prefix_mapping(self, iriprefix: str, mappedid: str) -> None:
+        """
+        Adds the prefix `iriprefix`.
+        """
+        ...
+
     def set_label(self, iri: str, label: str, *, absolute: Optional[bool] = None) -> None:
         """
         Sets the label of a term by iri.
