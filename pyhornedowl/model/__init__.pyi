@@ -1,5 +1,5 @@
 import typing
-from typing import *
+from typing import (Any)
 from typing_extensions import deprecated
 
 class Class:
@@ -545,9 +545,9 @@ class DataProperty:
 
 class DataPropertyAssertion:
     dp: DataProperty
-    from: Individual
+    from_: Individual
     to: Literal
-    def __init__(self, dp: DataProperty,  to: Literal):
+    def __init__(self, dp: DataProperty, from_: Individual, to: Literal):
         ...
     ...
 
@@ -720,25 +720,25 @@ class NamedIndividual:
 
 class NegativeDataPropertyAssertion:
     dp: DataProperty
-    from: Individual
+    from_: Individual
     to: Literal
-    def __init__(self, dp: DataProperty,  to: Literal):
+    def __init__(self, dp: DataProperty, from_: Individual, to: Literal):
         ...
     ...
 
 class NegativeObjectPropertyAssertion:
     ope: ObjectPropertyExpression
-    from: Individual
+    from_: Individual
     to: Individual
-    def __init__(self, ope: ObjectPropertyExpression,  to: Individual):
+    def __init__(self, ope: ObjectPropertyExpression, from_: Individual, to: Individual):
         ...
     ...
 
 class ObjectPropertyAssertion:
     ope: ObjectPropertyExpression
-    from: Individual
+    from_: Individual
     to: Individual
-    def __init__(self, ope: ObjectPropertyExpression,  to: Individual):
+    def __init__(self, ope: ObjectPropertyExpression, from_: Individual, to: Individual):
         ...
     ...
 

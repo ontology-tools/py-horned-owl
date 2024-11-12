@@ -13,6 +13,9 @@ import pyhornedowl.pyhornedowl as pho
 
 os.makedirs("pyhornedowl/model", exist_ok=True)
 
+with open("pyhornedowl/py.typed", "w"):
+    pass
+
 with open("pyhornedowl/__init__.py", "w") as f:
     pyhornedowl_members = [k for k, v in pho.__dict__.items() if isinstance(v, type) or callable(v)]
 
@@ -120,10 +123,6 @@ with open("pyhornedowl/__init__.pyi", "w") as f:
 
             f.write("\n")
 
-with open("pyhornedowl/py.typed", "w"):
-    pass
-
-
 def handle_module(module: str):
     with open(f"pyhornedowl/{module}/__init__.py", "w") as f:
         f.write(f"from ..pyhornedowl import {module}\n")
@@ -144,14 +143,15 @@ def handle_module(module: str):
 
     with open(f"pyhornedowl/{module}/__init__.pyi", "w") as f:
         f.write("import typing\n")
-        f.write("from typing import *\n")
+        f.write("from typing import (Any)\n")
         f.write("from typing_extensions import deprecated\n\n")
 
         for name, entry in getattr(pho, module).__dict__.items():
             if isinstance(entry, type):
+                # Use designated PYI generation method for fields and constructor from Rust if present
                 if "__pyi__" in entry.__dict__:
                     pyi: str = entry.__pyi__()
-                    pyi = re.sub(r"    from: .*$|from: .*?[,)]", "", pyi)
+                    pyi = re.sub(r"( {0,4})from: (.*$|.*?[,)])", r"\1from_: \2", pyi, flags=re.MULTILINE)
                     f.write(pyi)
 
                     # Also look for methods
@@ -170,6 +170,7 @@ def handle_module(module: str):
                                     doc = "\n".join([f"        {l}" for l in lines[2:]])
                                     f.write(f'        """\n{doc}\n        """\n        ...\n\n')
                 else:
+                    # Add generic info for classes without PYI method.
                     f.write(f"class {name}:\n")
 
                     for attr_name, attr in entry.__dict__.items():

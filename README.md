@@ -7,23 +7,30 @@ An experimental bridge from horned-owl to python using PyO3.
 ### Published version 
 To install the published library: 
 
-`pip install py_horned_owl`
+```
+pip install py_horned_owl
+```
 
 ### From sources
 To build locally from sources, you will need [Rust](https://www.rust-lang.org/tools/install), [PyO3](https://github.com/PyO3/pyo3) and [Maturin](https://github.com/PyO3/maturin). 
 
-Check out this repository: 
-`git clone https://github.com/ontology-tools/py-horned-owl/`
+Check out this repository and create and activate a virtual Python environment in the directory of your local copy: 
 
-In the directory py-horned-owl, create and activate a virtual Python environment: 
-
-`virtualenv py-horned-owl`
-
-`source bin/activate`
+```
+virtualenv py-horned-owl
+source bin/activate
+```
 
 Then you can get maturin to build the library and install it into the virtual Python environment with: 
 
 `maturin develop`
+
+To build the python stubs compile with the `pyi` cfg flag and run `gen_pyi.py`
+
+```bash
+maturin develop -- --cfg pyi --check-cfg "cfg(pyi)"
+python3 gen_pyi.py
+```
 
 
 ## Usage
@@ -32,7 +39,7 @@ The library supports loading ontologies from `.owl` (RDF-XML) and `.owx` (OWL-XM
 
 Example of simple usage:
 
-```
+```py
 import pyhornedowl
 
 ontoname = "family.owx"
