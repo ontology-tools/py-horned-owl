@@ -271,6 +271,14 @@ macro_rules! extensions_pyi {
     };
 }
 
+macro_rules! repr {
+    ($name:ident, String) => { self.$name },
+    ($name:ident, Vec<$type:ty>) => { fmt!("{}=
+    ($name:ident, $type:$ty) => { 
+        fmt!("{}={}", stringify!($name), 
+    }
+}
+
 macro_rules! extensions {
     (ClassExpression, $v_name:ident) => {
         #[pymethods]
@@ -476,6 +484,18 @@ macro_rules! wrapped_enum {
                         $({
                             $($field_s: $field_s.into(),)*
                         })?
+                    }
+
+                    fn __repr__(&self) -> PyResult<String> {
+                        let mut res = String::new();
+                        write!(&mut res, "{}(", stringify!($v_name_full)).unwrap();
+                        
+                        $($(
+                            write!(&mut res, "{}={},", stringify!($field_s), repr!($field_s, $type_s))
+                        )*)?
+
+                        write!(&mut res, ")");
+                        Ok(res)
                     }
 
 
