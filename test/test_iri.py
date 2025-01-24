@@ -58,8 +58,8 @@ class IRITestCase(unittest.TestCase):
         expected = {AnnotatedComponent(x, set()) for x in {
             DeclareClass(o.clazz("https://example.com/A")),
             (SubClassOf(
-                o.clazz("https://example.com/A"),
-                o.clazz("https://example.com/B"))),
+                o.clazz("https://example.com/B"),
+                o.clazz("https://example.com/A"))),
             AnnotationAssertion(o.iri("https://example.com/A"),
                                 Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
         }}
@@ -73,8 +73,8 @@ class IRITestCase(unittest.TestCase):
         expected = {AnnotatedComponent(x, set()) for x in {
             DeclareClass(o.clazz("https://example.com/A")),
             (SubClassOf(
-                o.clazz("https://example.com/A"),
-                o.clazz("https://example.com/B"))),
+                o.clazz("https://example.com/B"),
+                o.clazz("https://example.com/A"))),
             AnnotationAssertion(o.iri("https://example.com/A"),
                                 Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
         }}
@@ -88,8 +88,8 @@ class IRITestCase(unittest.TestCase):
         expected = {AnnotatedComponent(x, set()) for x in {
             DeclareClass(o.clazz("https://example.com/A")),
             (SubClassOf(
-                o.clazz("https://example.com/A"),
-                o.clazz("https://example.com/B"))),
+                o.clazz("https://example.com/B"),
+                o.clazz("https://example.com/A"))),
             AnnotationAssertion(o.iri("https://example.com/A"),
                                 Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
         }}
@@ -103,8 +103,8 @@ class IRITestCase(unittest.TestCase):
         expected = {AnnotatedComponent(x, set()) for x in {
             DeclareClass(o.clazz("https://example.com/A")),
             (SubClassOf(
-                o.clazz("https://example.com/A"),
-                o.clazz("https://example.com/B"))),
+                o.clazz("https://example.com/B"),
+                o.clazz("https://example.com/A"))),
             AnnotationAssertion(o.iri("https://example.com/A"),
                                 Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
         }}

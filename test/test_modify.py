@@ -35,7 +35,7 @@ class ModifyTestCase(unittest.TestCase):
         o = simple_ontology()
 
         axioms = set(o.get_axioms())
-        axiom = SubClassOf(o.clazz(":A"), o.clazz(":B"))
+        axiom = SubClassOf(o.clazz(":B"), o.clazz(":A"))
 
         removed = o.remove_axiom(axiom)
         self.assertTrue(removed, "Axiom was not removed!")
@@ -50,7 +50,7 @@ class ModifyTestCase(unittest.TestCase):
 
         all_axioms = set(o.get_axioms())
         axioms = set(o.get_components_for_iri(":A"))
-        axiom = SubClassOf(o.clazz(":A"), o.clazz(":B"))
+        axiom = SubClassOf(o.clazz(":B"), o.clazz(":A"))
         ann_axiom = AnnotatedComponent(axiom, set())
 
         removed = o.remove_axiom(axiom)
