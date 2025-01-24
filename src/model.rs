@@ -1554,8 +1554,8 @@ wrapped! {
 
 wrapped! {
     pub struct SubClassOf {
-        pub sup: ClassExpression,
         pub sub: ClassExpression,
+        pub sup: ClassExpression,
     }
 }
 

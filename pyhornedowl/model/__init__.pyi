@@ -782,9 +782,9 @@ class SubAnnotationPropertyOf:
     ...
 
 class SubClassOf:
-    sup: ClassExpression
     sub: ClassExpression
-    def __init__(self, sup: ClassExpression, sub: ClassExpression):
+    sup: ClassExpression
+    def __init__(self, sub: ClassExpression, sup: ClassExpression):
         ...
     ...
 
