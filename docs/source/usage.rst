@@ -106,7 +106,7 @@ Instead of writing class expressions as nested constructor calls, some expressio
     A = o.clazz(":A")
     B = o.clazz(":B")
     C = o.clazz(":C")
-    r = o.object_property("r")
+    r = o.object_property(":r")
 
     assert A & B == ObjectIntersectionOf([A, B])
     assert A | B == ObjectUnionOf([A, B])
