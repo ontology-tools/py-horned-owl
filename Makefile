@@ -8,9 +8,9 @@ mdev: model docs
 pyi: venv
 	venv/bin/python3 scripts/gen_pyi.py
 
-docs: venv
-	[ -f ../horned-owl ] || git clone https://github.com/phillord/horned-owl.git ../horned-owl
-	rustup install nightly
+docs: src/doc.rs
+
+src/doc.rs: venv
 	venv/bin/python3 scripts/build_doc.py
 
 model: venv
