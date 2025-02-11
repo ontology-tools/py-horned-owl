@@ -1,0 +1,28 @@
+
+{%- for v_name, variant in model.variants.items() if not variant.transparent %}
+    {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name) %}
+    {%- if not variant.transparent %}
+class {{ v_name_full }}:
+    {%- for field, type in variant.fields | fields %}
+    {{ field | as_py_name }}: {{ type | as_py_type}}
+    {%- endfor %}
+
+    def __init__(self,
+    {%- for field, type in variant.fields | fields -%}
+        {{ field | as_py_name }}: {{ type | as_py_type}},
+    {%- endfor -%}):
+        ...
+    {% endif %}
+
+{%- from 'extensions.pyi.jinja2' import include_extensions %}
+{{ include_extensions(model.extensions, v_name_full) }}
+    ...
+{%- endfor %}
+
+{{ model.name }} = typing.Union[
+        {%- for v_name, variant in model.variants.items() -%}
+        {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)-%}
+            {{ v_name_full }},
+        {%- endfor -%}
+        ]
+

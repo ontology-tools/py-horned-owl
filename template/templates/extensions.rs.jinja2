@@ -1,5 +1,6 @@
 {%- macro include_extensions(extensions, name) %}
 {%- if "named" in extensions %}
+    /******** EXTENSION "named" for {{ name }} ********/
     impl Display for {{ name }} {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             write!(f, "{}", self.0.0.to_string())
@@ -14,6 +15,7 @@
     }
 {%- endif %}
 {%- if "class-expression" in extensions %}
+    /******** EXTENSION "class-expression" for {{ name }} ********/
     #[pymethods]
     impl {{ name }} {
         fn __and__(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectIntersectionOf> {
@@ -32,6 +34,7 @@
     }
 {%- endif %}
 {%- if "object-property-expression" in extensions %}
+    /******** EXTENSION "object-property-expression" for {{ name }} ********/
        #[pymethods]
         impl {{ name }} {
             fn some(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectSomeValuesFrom> {

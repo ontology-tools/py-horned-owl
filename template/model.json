@@ -7,14 +7,14 @@
     ],
     "extensions": [
       "named",
-      "ClassExpression"
+      "class-expression"
     ]
   },
   {
     "type": "tuple-struct",
     "name": "AnonymousIndividual",
     "fields": [
-      "String"
+      "StringWrapper"
     ],
     "extensions": [
       "named"
@@ -135,10 +135,10 @@
     "type": "enum",
     "name": "DataRange",
     "variants": {
-      "DataType": {
+      "Datatype": {
         "type": "tuple-struct",
         "fields": [
-          "DataType"
+          "Datatype"
         ],
         "transparent": true
       },
@@ -532,8 +532,8 @@
     "type": "tuple-struct",
     "name": "InverseObjectProperties",
     "fields": [
-      "ObjectPropertyExpression",
-      "ObjectPropertyExpression"
+      "ObjectProperty",
+      "ObjectProperty"
     ]
   },
   {
@@ -634,12 +634,12 @@
     "name": "DataPropertyDomain",
     "fields": {
       "dp": "DataProperty",
-      "dr": "ClassExpression"
+      "ce": "ClassExpression"
     }
   },
   {
     "type": "named-struct",
-    "name": "DataRange",
+    "name": "DataPropertyRange",
     "fields": {
       "dp": "DataProperty",
       "dr": "DataRange"

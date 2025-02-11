@@ -1,0 +1,15 @@
+class {{ model.name }}:
+    {%- for typ in model.fields %}
+    {{ loop.index0 | as_py_name }}: {{ typ | as_py_type }}
+    {%- endfor %}
+
+    def __init__(self,
+    {%- for typ in model.fields -%}
+    {{ loop.index0 | as_py_name }}: {{ typ | as_py_type }},
+    {%- endfor -%} /):
+        ...
+
+{% from 'extensions.pyi.jinja2' import include_extensions -%}
+{{ include_extensions(model.extensions, v_name_full) }}
+    ...
+

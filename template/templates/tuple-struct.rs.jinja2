@@ -10,8 +10,9 @@
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct {{ model.name }} (
 {%- for typ in model.fields %}
+    #[doc="{{ loop.index0 | as_py_name }}: {{ type | as_py_type }}"]
     #[pyo3(get,set,name="{{ loop.index0 | as_py_name }}")]
-    pub {{ typ | as_rust_type }}
+    pub {{ typ | as_rust_type }},
 {%- endfor %}
 );
 
@@ -20,7 +21,7 @@ impl {{ model.name }} {
     #[new]
     fn new({%- for typ in model.fields -%}{{ loop.index0 | as_py_name }}: {{ typ | as_rust_type }},{%- endfor -%}) -> Self {
         {{ model.name }} (
-        {%- for typ in model.fields -%}{{ loop.index0 | as_py_name }}{%- endfor -%}
+        {%- for typ in model.fields -%}{{ loop.index0 | as_py_name }}, {%- endfor -%}
         )
     }
 
@@ -63,7 +64,7 @@ impl From<&horned_owl::model::{{ model.name }}<ArcStr>> for {{ model.name }} {
 
         {{ model.name }} (
 {%- for type in model.fields %}
-    IntoCompatible::<{{ type | as_rust_type }}>::into_c(value.{{ loop.index0 }}.borrow()),
+    IntoCompatible::<{{ type | as_rust_type }}>::into_c(&value.{{ loop.index0 }}),
 {%- endfor %}
         )
     }
@@ -73,10 +74,10 @@ impl From<&{{ model.name }}> for horned_owl::model::{{ model.name }}<ArcStr> {
     fn from(value: &{{ model.name }}) -> Self {
         horned_owl::model::{{ model.name }}::<ArcStr> (
 {%- for type in model.fields %}
-    value.{{ loop.index0 }}.borrow().into_c(),
+    IntoCompatible::into_c(&value.{{ loop.index0 }}),
 {%- endfor %}
         )
     }
 }
 
-{% include 'base.jinja2' %}
+{% include 'base.rs.jinja2' %}

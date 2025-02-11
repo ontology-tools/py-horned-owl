@@ -1,6 +1,6 @@
 {% set name = variant.name if variant is defined else model.name %}
 
-
+/**************** Base implementations for {{ name }} ****************/
 impl FromCompatible<horned_owl::model::{{ name }}<ArcStr>> for {{ name }} {
     fn from_c(value: horned_owl::model::{{ name }}<ArcStr>) -> Self {
         {{ name }}::from(value)
@@ -39,7 +39,7 @@ impl From<{{ name }}> for horned_owl::model::{{ name }}<ArcStr> {
 
 impl From<&BoxWrap<{{ name }}>> for Box<horned_owl::model::{{ name }}<ArcStr>> {
     fn from(value: &BoxWrap<{{ name }}>) -> Self {
-        Box::new(((*value.0.clone()).into()))
+        Box::new((*value.0.clone()).into())
     }
 }
 
@@ -130,5 +130,7 @@ impl FromCompatible<&Vec<horned_owl::model::{{ name }}<ArcStr>>> for VecWrap<{{ 
 }
 
 
-{% from 'extensions.jinja2' import include_extensions %}
+{%- from 'extensions.rs.jinja2' import include_extensions -%}
+{%- if model.type != "enum" -%}
 {{ include_extensions(model.extensions, name) }}
+{%- endif -%}

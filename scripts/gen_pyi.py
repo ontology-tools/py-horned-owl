@@ -1,8 +1,17 @@
 import glob
 import inspect
+import json
 import os
 import re
 import typing
+
+from build_model import as_py_type, as_py_name, build_from_templates
+
+
+REPO_ROOT=os.path.join(os.path.dirname(__file__), "..")
+_CWD = os.getcwd()
+os.chdir(REPO_ROOT)
+
 
 old_files = glob.glob("pyhornedowl/**/__init__.*", recursive=True)
 
@@ -143,50 +152,38 @@ def handle_module(module: str):
         f.write(f"__all__ = {al}")
 
     with open(f"pyhornedowl/{module}/__init__.pyi", "w") as f:
-        f.write("import typing\n")
-        f.write("from typing import *\n")
-        f.write("from typing_extensions import deprecated\n\n")
-
-        for name, entry in getattr(pho, module).__dict__.items():
-            if isinstance(entry, type):
-                if "__pyi__" in entry.__dict__:
-                    pyi: str = entry.__pyi__()
-                    pyi = re.sub(r"    from: .*$|from: .*?[,)]", "", pyi)
-                    f.write(pyi)
-
-                    # Also look for methods
-                    for member_name, member in entry.__dict__.items():
-                        if member_name.startswith("_") and member_name not in implemented_magic:
-                            continue
-
-                        if hasattr(member, "__doc__"):
-                            doc = member.__doc__
-                            if doc is not None:
-                                lines = doc.splitlines()
-                                if len(lines) > 2:
-                                    sign = lines[0]
-
-                                    f.write(f"    def {sign}:\n")
-                                    doc = "\n".join([f"        {l}" for l in lines[2:]])
-                                    f.write(f'        """\n{doc}\n        """\n        ...\n\n')
-                else:
-                    f.write(f"class {name}:\n")
-
-                    for attr_name, attr in entry.__dict__.items():
-                        if attr_name.startswith("_") or attr_name == "from":
-                            continue
-
-                        f.write(f"    {attr_name}: Any\n")
-
-                    f.write("    ...\n")
-            elif type(entry) == typing._UnionGenericAlias:
-                f.write(f"{name} = {str(entry).replace(f'pyhornedowl.{module}.', '')}")
-            else:
-                continue
-
-            f.write("\n")
-
-        f.write("\n")
+        f.write(build_from_templates("pyi"))
+        # f.write("import typing\n")
+        # f.write("from typing import *\n")
+        #
+        #
+        #
+        # for name, entry in getattr(pho, module).__dict__.items():
+        #     if isinstance(entry, type):
+        #         f.write(f"class {name}:\n")
+        #         for attr_name, attr in entry.__dict__.items():
+        #             if attr_name.startswith("_") and attr_name not in implemented_magic:
+        #                 continue
+        #
+        #             doc = attr.__doc__ if hasattr(attr, "__doc__") else ""
+        #             doc = None if doc == "" else doc
+        #             if callable(attr):
+        #                 if attr_name.startswith("__"):
+        #                     f.write(f"    def {attr_name}{str(inspect.signature(attr))}:\n")
+        #             else:
+        #                 f.write(f"    {doc if doc else f"{attr_name}: Any"}\n")
+        #
+        #         f.write("    ...\n")
+        #     elif type(entry) == typing._UnionGenericAlias:
+        #         f.write(f"{name} = {str(entry).replace(f'pyhornedowl.{module}.', '')}")
+        #     else:
+        #         continue
+        #
+        #     f.write("\n")
+        #
+        # f.write("\n")
 
 
 handle_module("model")
+
+os.chdir(_CWD)

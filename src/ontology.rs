@@ -18,15 +18,16 @@ use horned_owl::ontology::indexed::OntologyIndex;
 use horned_owl::ontology::iri_mapped::IRIMappedIndex;
 use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
+use pyo3::{Bound, Py};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::{
     pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyObject, PyResult, Python, ToPyObject,
 };
 
-use crate::model::BTreeSetWrap;
+use crate::wrappers::BTreeSetWrap;
+use crate::{guess_serialization, model, parse_serialization, to_py_err, wrappers};
 use crate::prefix_mapping::PrefixMapping;
-use crate::{guess_serialization, model, parse_serialization, to_py_err};
 
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
