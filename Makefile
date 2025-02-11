@@ -10,6 +10,7 @@ pyi: venv
 
 docs: venv
 	[ -f ../horned-owl ] || git clone https://github.com/phillord/horned-owl.git ../horned-owl
+	rustup install nightly
 	venv/bin/python3 scripts/build_doc.py
 
 model: venv
