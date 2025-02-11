@@ -3,10 +3,11 @@
 import json
 import os
 import subprocess
+from os import environ
 
 REPO_ROOT=os.path.join(os.path.dirname(__file__), "..")
 # path to local horned owl copy
-HORNED_OWL_PATH = os.path.join(REPO_ROOT, "..", "horned-owl")
+HORNED_OWL_PATH = environ.get("HORNED_OWL_REPO_PATH", os.path.join(REPO_ROOT, "..", "horned-owl"))
 
 subprocess.call("cargo +nightly rustdoc -Z unstable-options --output-format json".split(" "), cwd=HORNED_OWL_PATH)
 

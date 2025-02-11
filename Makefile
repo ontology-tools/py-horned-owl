@@ -9,6 +9,7 @@ pyi: venv
 	venv/bin/python3 scripts/gen_pyi.py
 
 docs: venv
+	[ -f ../horned-owl ] || git clone https://github.com/phillord/horned-owl.git ../horned-owl
 	venv/bin/python3 scripts/build_doc.py
 
 model: venv
