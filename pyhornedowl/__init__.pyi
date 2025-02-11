@@ -138,13 +138,13 @@ class PyIndexedOntology:
         """
         ...
 
-    def add_component(self, component: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None:
+    def add_component(self, component: model.Component, annotations: Optional[Union[List[model.Annotation]|Set[model.Annotation]]]=None) -> None:
         """
         Adds an axiom to the ontology with optional annotations.
         """
         ...
 
-    def add_axiom(self, ax: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None:
+    def add_axiom(self, ax: model.Component, annotations: Optional[Union[List[model.Annotation]|Set[model.Annotation]]]=None) -> None:
         """
         Synonym for `add_component`
         """

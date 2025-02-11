@@ -66,6 +66,56 @@ class ModifyTestCase(unittest.TestCase):
         actual = set(o.get_components_for_iri(":A"))
         self.assertSetEqual(expected, actual, "Axiom not removed from IRI index")
 
+    def test_add_component_with_set_annos(self):
+        o = simple_ontology()
+
+        axiom = SubClassOf(o.clazz(":B"), o.clazz(":A"))
+
+        annos0 = {Annotation(o.annotation_property(":a"), SimpleLiteral("Test"))}
+        ann_axiom0 = AnnotatedComponent(axiom, annos0)
+        o.add_axiom(axiom, annos0)
+        assert(ann_axiom0 in o.get_axioms())
+
+        annos1 = {Annotation(o.annotation_property(":a"), SimpleLiteral("Test"))}
+        ann_axiom1 = AnnotatedComponent(axiom, annos1)
+        o.add_axiom(axiom, annos1)
+        assert(ann_axiom1 in o.get_axioms())
+
+        annos2 = {
+            Annotation(o.annotation_property(":a"), SimpleLiteral("Test1")),
+            Annotation(o.annotation_property(":b"), SimpleLiteral("Test2")),
+        }
+        ann_axiom2 = AnnotatedComponent(axiom, annos2)
+        o.add_axiom(axiom, annos2)
+        assert(ann_axiom2 in o.get_axioms())
+
+    def test_add_component_with_list_annos(self):
+        o = simple_ontology()
+
+        axiom = SubClassOf(o.clazz(":B"), o.clazz(":A"))
+
+        annos0 = [Annotation(o.annotation_property(":a"), SimpleLiteral("Test"))]
+        ann_axiom0 = AnnotatedComponent(axiom, set(annos0))
+        o.add_axiom(axiom, annos0)
+        assert(ann_axiom0 in o.get_axioms())
+
+        annos1 = [Annotation(o.annotation_property(":a"), SimpleLiteral("Test"))]
+        ann_axiom1 = AnnotatedComponent(axiom, set(annos1))
+        o.add_axiom(axiom, annos1)
+        assert(ann_axiom1 in o.get_axioms())
+
+        annos2 = [
+            Annotation(o.annotation_property(":a"), SimpleLiteral("Test1")),
+            Annotation(o.annotation_property(":b"), SimpleLiteral("Test2")),
+        ]
+        ann_axiom2 = AnnotatedComponent(axiom, set(annos2))
+        o.add_axiom(axiom, annos2)
+        assert(ann_axiom2 in o.get_axioms())
+
+
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

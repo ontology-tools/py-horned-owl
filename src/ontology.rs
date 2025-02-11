@@ -7,7 +7,9 @@ use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
 use horned_owl::model::{
-    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue, ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI
+    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
+    ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind,
+    HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI,
 };
 use horned_owl::ontology::component_mapped::{
     ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
@@ -16,11 +18,15 @@ use horned_owl::ontology::indexed::OntologyIndex;
 use horned_owl::ontology::iri_mapped::IRIMappedIndex;
 use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
-use pyo3::{Bound, Py, pyclass, pyfunction, pymethods, PyObject, PyResult, Python, ToPyObject};
 use pyo3::exceptions::PyValueError;
+use pyo3::prelude::*;
+use pyo3::{
+    pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyObject, PyResult, Python, ToPyObject,
+};
 
-use crate::{guess_serialization, model, parse_serialization, to_py_err};
+use crate::model::BTreeSetWrap;
 use crate::prefix_mapping::PrefixMapping;
+use crate::{guess_serialization, model, parse_serialization, to_py_err};
 
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -121,7 +127,6 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
     }
 }
 
-
 #[pymethods]
 impl PyIndexedOntology {
     #[new]
@@ -198,11 +203,16 @@ impl PyIndexedOntology {
         let mapping = self.mapping.bind(py);
         Ok(mapping)
     }
-    
+
     /// add_prefix_mapping(self, iriprefix: str, mappedid: str) -> None
     ///
     /// Adds the prefix `iriprefix`.
-    pub fn add_prefix_mapping<'py>(&mut self, py: Python<'py>, iriprefix: String, mappedid: String) -> PyResult<()> {
+    pub fn add_prefix_mapping<'py>(
+        &mut self,
+        py: Python<'py>,
+        iriprefix: String,
+        mappedid: String,
+    ) -> PyResult<()> {
         self.mapping.borrow_mut(py).add_prefix(iriprefix, mappedid)
     }
 
@@ -340,7 +350,11 @@ impl PyIndexedOntology {
     ) -> PyResult<HashSet<String>> {
         let iri: IRI<ArcStr> = self.iri(py, iri, iri_is_absolute)?.into();
 
-        let classes: HashSet<String> = self.get_subclasses(&iri).into_iter().map(|i| i.to_string()).collect();
+        let classes: HashSet<String> = self
+            .get_subclasses(&iri)
+            .into_iter()
+            .map(|i| i.to_string())
+            .collect();
 
         Ok(classes)
     }
@@ -357,7 +371,11 @@ impl PyIndexedOntology {
     ) -> PyResult<HashSet<String>> {
         let iri: IRI<ArcStr> = self.iri(py, iri, iri_is_absolute)?.into();
 
-        let classes: HashSet<String> = self.get_superclasses(&iri).into_iter().map(|i| i.to_string()).collect();
+        let classes: HashSet<String> = self
+            .get_superclasses(&iri)
+            .into_iter()
+            .map(|i| i.to_string())
+            .collect();
 
         Ok(classes)
     }
@@ -485,11 +503,7 @@ impl PyIndexedOntology {
     /// save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx']) -> str
     ///
     /// Saves the ontology to a UTF8 string.
-    pub fn save_to_string(
-        &mut self,
-        py: Python<'_>,
-        serialization: &str,
-    ) -> PyResult<String> {
+    pub fn save_to_string(&mut self, py: Python<'_>, serialization: &str) -> PyResult<String> {
         let serialization = parse_serialization(serialization)?;
 
         let mut writer = Vec::<u8>::new();
@@ -626,17 +640,28 @@ impl PyIndexedOntology {
         Ok(r)
     }
 
-    /// add_component(self, component: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None
+    /// add_component(self, component: model.Component, annotations: Optional[Union[List[model.Annotation]|Set[model.Annotation]]]=None) -> None
     ///
     /// Adds an axiom to the ontology with optional annotations.
     #[pyo3(signature = (component, annotations = None))]
     pub fn add_component(
         &mut self,
         component: model::Component,
-        annotations: Option<BTreeSet<model::Annotation>>,
+        annotations: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<()> {
-        let ann: model::BTreeSetWrap<model::Annotation> =
-            annotations.unwrap_or(BTreeSet::new()).into();
+        let ann: BTreeSetWrap<model::Annotation> = match annotations {
+            Some(a) => a
+                .extract::<BTreeSet<model::Annotation>>()
+                .or_else(|_| {
+                    Ok::<BTreeSet<model::Annotation>, PyErr>(
+                        a.extract::<Vec<model::Annotation>>()?.into_iter().collect(),
+                    )
+                })?
+                .into(),
+            None => BTreeSet::new(),
+        }
+        .into();
+
         let annotated_component: AnnotatedComponent<ArcStr> =
             model::AnnotatedComponent { component, ann }.into();
         self.insert(annotated_component);
@@ -644,14 +669,14 @@ impl PyIndexedOntology {
         Ok(())
     }
 
-    /// add_axiom(self, ax: model.Component, annotations: Optional[List[model.Annotation]]=None) -> None
+    /// add_axiom(self, ax: model.Component, annotations: Optional[Union[List[model.Annotation]|Set[model.Annotation]]]=None) -> None
     ///
     /// Synonym for `add_component`
     #[pyo3(signature = (ax, annotations = None))]
     pub fn add_axiom(
         &mut self,
         ax: model::Component,
-        annotations: Option<BTreeSet<model::Annotation>>,
+        annotations: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<()> {
         self.add_component(ax, annotations)
     }
@@ -971,9 +996,10 @@ impl PyIndexedOntology {
 
         subclass_axioms
             .filter_map(|aax| match &aax.component {
-                Component::SubClassOf(SubClassOf{
+                Component::SubClassOf(SubClassOf {
                     sub: ClassExpression::Class(Class(sub)),
-                    sup: ClassExpression::Class(Class(sup))}) if sup == iri => Some(sub.clone()),
+                    sup: ClassExpression::Class(Class(sup)),
+                }) if sup == iri => Some(sub.clone()),
                 _ => None,
             })
             .collect()
@@ -989,15 +1015,20 @@ impl PyIndexedOntology {
 
         subclass_axioms
             .filter_map(|aax| match &aax.component {
-                Component::SubClassOf(SubClassOf{
+                Component::SubClassOf(SubClassOf {
                     sub: ClassExpression::Class(Class(sub)),
-                    sup: ClassExpression::Class(Class(sup))}) if sub == iri => Some(sup.clone()),
+                    sup: ClassExpression::Class(Class(sup)),
+                }) if sub == iri => Some(sup.clone()),
                 _ => None,
             })
             .collect()
-    } 
+    }
 
-    fn recurse_descendants(&self, superclass: &IRI<ArcStr>, descendants: &mut HashSet<IRI<ArcStr>>) {
+    fn recurse_descendants(
+        &self,
+        superclass: &IRI<ArcStr>,
+        descendants: &mut HashSet<IRI<ArcStr>>,
+    ) {
         let subclasses = self.get_subclasses(superclass);
 
         for cls in subclasses.into_iter() {
