@@ -10,8 +10,8 @@ pyi: venv
 
 docs: src/doc.rs
 
-src/doc.rs: venv
-	venv/bin/python3 scripts/build_doc.py
+#src/doc.rs: venv
+#	venv/bin/python3 scripts/build_doc.py
 
 model: venv
 	venv/bin/python3 scripts/build_model.py
