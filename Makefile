@@ -16,7 +16,7 @@ docs: src/doc.rs
 model: venv
 	venv/bin/python3 scripts/build_model.py
 
-lib: docs
+lib: venv docs
 	venv/bin/maturin build --release
 
 venv:
