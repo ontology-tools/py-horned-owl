@@ -11,6 +11,4 @@ Cargo.lock
 docs/source/generated
 docs/build
 
-src/model_generated.rs
-
 venv
