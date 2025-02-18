@@ -1,2 +1,2 @@
-maturin
+maturin[patchelf]
 Jinja2
