@@ -1,0 +1,5 @@
+{{ model.name }} = typing.Union[
+        {%- for type in model.variants.values() -%}
+            {{ type | as_py_type() }},
+        {%- endfor -%}]
+

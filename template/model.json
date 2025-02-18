@@ -1,0 +1,980 @@
+[
+  {
+    "type": "tuple-struct",
+    "name": "Class",
+    "fields": [
+      "IRI"
+    ],
+    "extensions": [
+      "named",
+      "class-expression"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "AnonymousIndividual",
+    "fields": [
+      "StringWrapper"
+    ],
+    "extensions": [
+      "named"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "NamedIndividual",
+    "fields": [
+      "IRI"
+    ],
+    "extensions": [
+      "named"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "ObjectProperty",
+    "fields": [
+      "IRI"
+    ],
+    "extensions": [
+      "named",
+      "object-property-expression"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "Datatype",
+    "fields": [
+      "IRI"
+    ],
+    "extensions": [
+      "named"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DataProperty",
+    "fields": [
+      "IRI"
+    ],
+    "extensions": [
+      "named"
+    ]
+  },
+  {
+    "type": "named-struct",
+    "name": "FacetRestriction",
+    "fields": {
+      "f": "Facet",
+      "l": "Literal"
+    },
+    "extensions": []
+  },
+  {
+    "type": "transparent-enum",
+    "name": "Individual",
+    "variants": {
+      "Anonymous": "AnonymousIndividual",
+      "Named": "NamedIndividual"
+    },
+    "extensions": []
+  },
+  {
+    "type": "enum",
+    "name": "ObjectPropertyExpression",
+    "variants": {
+      "ObjectProperty": {
+        "type": "tuple-struct",
+        "fields": [
+          "ObjectProperty"
+        ],
+        "transparent": true
+      },
+      "InverseObjectProperty": {
+        "type": "tuple-struct",
+        "fields": [
+          "ObjectProperty"
+        ]
+      }
+    },
+    "extensions": [
+      "object-property-expression"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "Literal",
+    "variants": {
+      "Simple": {
+        "type": "named-struct",
+        "py_name": "SimpleLiteral",
+        "fields": {
+          "literal": "String"
+        }
+      },
+      "Language": {
+        "type": "named-struct",
+        "py_name": "LanguageLiteral",
+        "fields": {
+          "literal": "String",
+          "lang": "String"
+        }
+      },
+      "Datatype": {
+        "type": "named-struct",
+        "py_name": "DatatypeLiteral",
+        "fields": {
+          "literal": "String",
+          "datatype_iri": "IRI"
+        }
+      }
+    },
+    "extensions": []
+  },
+  {
+    "type": "enum",
+    "name": "DataRange",
+    "variants": {
+      "Datatype": {
+        "type": "tuple-struct",
+        "fields": [
+          "Datatype"
+        ],
+        "transparent": true
+      },
+      "DataIntersectionOf": {
+        "type": "tuple-struct",
+        "fields": [
+          {
+            "type": "Vec",
+            "inner": "DataRange"
+          }
+        ]
+      },
+      "DataUnionOf": {
+        "type": "tuple-struct",
+        "fields": [
+          {
+            "type": "Vec",
+            "inner": "DataRange"
+          }
+        ]
+      },
+      "DataComplementOf": {
+        "type": "tuple-struct",
+        "fields": [
+          {
+            "type": "Box",
+            "inner": "DataRange"
+          }
+        ]
+      },
+      "DataOneOf": {
+        "type": "tuple-struct",
+        "fields": [
+          {
+            "type": "Vec",
+            "inner": "Literal"
+          }
+        ]
+      },
+      "DatatypeRestriction": {
+        "type": "tuple-struct",
+        "fields": [
+          "Datatype",
+          {
+            "type": "Vec",
+            "inner": "FacetRestriction"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "enum",
+    "name": "ClassExpression",
+    "extensions": [
+      "class-expression"
+    ],
+    "variants": {
+      "Class": {
+        "transparent": true,
+        "type": "tuple-struct",
+        "fields": [
+          "Class"
+        ]
+      },
+      "ObjectIntersectionOf": {
+        "type": "tuple-struct",
+        "fields": [
+          {
+            "type": "Vec",
+            "inner": "ClassExpression"
+          }
+        ]
+      },
+      "ObjectUnionOf": {
+        "type": "tuple-struct",
+        "fields": [
+          {
+            "type": "Vec",
+            "inner": "ClassExpression"
+          }
+        ]
+      },
+      "ObjectComplementOf": {
+        "type": "tuple-struct",
+        "fields": [
+          {
+            "type": "Box",
+            "inner": "ClassExpression"
+          }
+        ]
+      },
+      "ObjectOneOf": {
+        "type": "tuple-struct",
+        "fields": [
+          {
+            "type": "Vec",
+            "inner": "Individual"
+          }
+        ]
+      },
+      "ObjectSomeValuesFrom": {
+        "type": "named-struct",
+        "fields": {
+          "ope": "ObjectPropertyExpression",
+          "bce": {
+            "type": "Box",
+            "inner": "ClassExpression"
+          }
+        }
+      },
+      "ObjectAllValuesFrom": {
+        "type": "named-struct",
+        "fields": {
+          "ope": "ObjectPropertyExpression",
+          "bce": {
+            "type": "Box",
+            "inner": "ClassExpression"
+          }
+        }
+      },
+      "ObjectHasValue": {
+        "type": "named-struct",
+        "fields": {
+          "ope": "ObjectPropertyExpression",
+          "i": "Individual"
+        }
+      },
+      "ObjectHasSelf": {
+        "type": "tuple-struct",
+        "fields": [
+          "ObjectPropertyExpression"
+        ]
+      },
+      "ObjectMinCardinality": {
+        "type": "named-struct",
+        "fields": {
+          "n": "u32",
+          "ope": "ObjectPropertyExpression",
+          "bce": {
+            "type": "Box",
+            "inner": "ClassExpression"
+          }
+        }
+      },
+      "ObjectMaxCardinality": {
+        "type": "named-struct",
+        "fields": {
+          "n": "u32",
+          "ope": "ObjectPropertyExpression",
+          "bce": {
+            "type": "Box",
+            "inner": "ClassExpression"
+          }
+        }
+      },
+      "ObjectExactCardinality": {
+        "type": "named-struct",
+        "fields": {
+          "n": "u32",
+          "ope": "ObjectPropertyExpression",
+          "bce": {
+            "type": "Box",
+            "inner": "ClassExpression"
+          }
+        }
+      },
+      "DataSomeValuesFrom": {
+        "type": "named-struct",
+        "fields": {
+          "dp": "DataProperty",
+          "dr": "DataRange"
+        }
+      },
+      "DataAllValuesFrom": {
+        "type": "named-struct",
+        "fields": {
+          "dp": "DataProperty",
+          "dr": "DataRange"
+        }
+      },
+      "DataHasValue": {
+        "type": "named-struct",
+        "fields": {
+          "dp": "DataProperty",
+          "l": "Literal"
+        }
+      },
+      "DataMinCardinality": {
+        "type": "named-struct",
+        "fields": {
+          "n": "u32",
+          "dp": "DataProperty",
+          "dr": "DataRange"
+        }
+      },
+      "DataMaxCardinality": {
+        "type": "named-struct",
+        "fields": {
+          "n": "u32",
+          "dp": "DataProperty",
+          "dr": "DataRange"
+        }
+      },
+      "DataExactCardinality": {
+        "type": "named-struct",
+        "fields": {
+          "n": "u32",
+          "dp": "DataProperty",
+          "dr": "DataRange"
+        }
+      }
+    }
+  },
+  {
+    "type": "transparent-enum",
+    "name": "PropertyExpression",
+    "variants": {
+      "ObjectPropertyExpression": "ObjectPropertyExpression",
+      "DataProperty": "DataProperty",
+      "AnnotationProperty": "AnnotationProperty"
+    }
+  },
+  {
+    "type": "transparent-enum",
+    "name": "AnnotationSubject",
+    "variants": {
+      "IRI": "IRI",
+      "AnonymousIndividual": "AnonymousIndividual"
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "AnnotationProperty",
+    "fields": [
+      "IRI"
+    ]
+  },
+  {
+    "type": "transparent-enum",
+    "name": "AnnotationValue",
+    "variants": {
+      "Literal": "Literal",
+      "IRI": "IRI",
+      "AnonymousIndividual": "AnonymousIndividual"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "Annotation",
+    "fields": {
+      "ap": "AnnotationProperty",
+      "av": "AnnotationValue"
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "OntologyAnnotation",
+    "fields": [
+      "Annotation"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "Import",
+    "fields": [
+      "IRI"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DeclareClass",
+    "fields": [
+      "Class"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DeclareObjectProperty",
+    "fields": [
+      "ObjectProperty"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DeclareAnnotationProperty",
+    "fields": [
+      "AnnotationProperty"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DeclareDataProperty",
+    "fields": [
+      "DataProperty"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DeclareNamedIndividual",
+    "fields": [
+      "NamedIndividual"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DeclareDatatype",
+    "fields": [
+      "Datatype"
+    ]
+  },
+  {
+    "type": "named-struct",
+    "name": "SubClassOf",
+    "fields": {
+      "sub": "ClassExpression",
+      "sup": "ClassExpression"
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "EquivalentClasses",
+    "fields": [
+      {
+        "type": "Vec",
+        "inner": "ClassExpression"
+      }
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DisjointClasses",
+    "fields": [
+      {
+        "type": "Vec",
+        "inner": "ClassExpression"
+      }
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DisjointUnion",
+    "fields": [
+      "Class",
+      {
+        "type": "Vec",
+        "inner": "ClassExpression"
+      }
+    ]
+  },
+  {
+    "type": "transparent-enum",
+    "name": "SubObjectPropertyExpression",
+    "variants": {
+      "ObjectPropertyChain": {
+        "type": "Vec",
+        "inner": "ObjectPropertyExpression"
+      },
+      "ObjectPropertyExpression": "ObjectPropertyExpression"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "SubObjectPropertyOf",
+    "fields": {
+      "sub": "SubObjectPropertyExpression",
+      "sup": "ObjectPropertyExpression"
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "EquivalentObjectProperties",
+    "fields": [
+      {
+        "type": "Vec",
+        "inner": "ObjectPropertyExpression"
+      }
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DisjointObjectProperties",
+    "fields": [
+      {
+        "type": "Vec",
+        "inner": "ObjectPropertyExpression"
+      }
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "InverseObjectProperties",
+    "fields": [
+      "ObjectProperty",
+      "ObjectProperty"
+    ]
+  },
+  {
+    "type": "named-struct",
+    "name": "ObjectPropertyDomain",
+    "fields": {
+      "ope": "ObjectPropertyExpression",
+      "ce": "ClassExpression"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "ObjectPropertyRange",
+    "fields": {
+      "ope": "ObjectPropertyExpression",
+      "ce": "ClassExpression"
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "FunctionalObjectProperty",
+    "fields": [
+      "ObjectPropertyExpression"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "InverseFunctionalObjectProperty",
+    "fields": [
+      "ObjectPropertyExpression"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "ReflexiveObjectProperty",
+    "fields": [
+      "ObjectPropertyExpression"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "IrreflexiveObjectProperty",
+    "fields": [
+      "ObjectPropertyExpression"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "SymmetricObjectProperty",
+    "fields": [
+      "ObjectPropertyExpression"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "AsymmetricObjectProperty",
+    "fields": [
+      "ObjectPropertyExpression"
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "TransitiveObjectProperty",
+    "fields": [
+      "ObjectPropertyExpression"
+    ]
+  },
+  {
+    "type": "named-struct",
+    "name": "SubDataPropertyOf",
+    "fields": {
+      "sub": "DataProperty",
+      "sup": "DataProperty"
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "EquivalentDataProperties",
+    "fields": [
+      {
+        "type": "Vec",
+        "inner": "DataProperty"
+      }
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DisjointDataProperties",
+    "fields": [
+      {
+        "type": "Vec",
+        "inner": "DataProperty"
+      }
+    ]
+  },
+  {
+    "type": "named-struct",
+    "name": "DataPropertyDomain",
+    "fields": {
+      "dp": "DataProperty",
+      "ce": "ClassExpression"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "DataPropertyRange",
+    "fields": {
+      "dp": "DataProperty",
+      "dr": "DataRange"
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "FunctionalDataProperty",
+    "fields": [
+      "DataProperty"
+    ]
+  },
+  {
+    "type": "named-struct",
+    "name": "DatatypeDefinition",
+    "fields": {
+      "kind": "Datatype",
+      "range": "DataRange"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "HasKey",
+    "fields": {
+      "ce": "ClassExpression",
+      "vpe": {
+        "type": "Vec",
+        "inner": "PropertyExpression"
+      }
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "SameIndividual",
+    "fields": [
+      {
+        "type": "Vec",
+        "inner": "Individual"
+      }
+    ]
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DifferentIndividuals",
+    "fields": [
+      {
+        "type": "Vec",
+        "inner": "Individual"
+      }
+    ]
+  },
+  {
+    "type": "named-struct",
+    "name": "ClassAssertion",
+    "fields": {
+      "ce": "ClassExpression",
+      "i": "Individual"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "ObjectPropertyAssertion",
+    "fields": {
+      "ope": "ObjectPropertyExpression",
+      "from": {
+        "type": "Individual",
+        "py_name": "source"
+      },
+      "to": {
+        "type": "Individual",
+        "py_name": "target"
+      }
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "NegativeObjectPropertyAssertion",
+    "fields": {
+      "ope": "ObjectPropertyExpression",
+      "from": {
+        "type": "Individual",
+        "py_name": "source"
+      },
+      "to": {
+        "type": "Individual",
+        "py_name": "target"
+      }
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "DataPropertyAssertion",
+    "fields": {
+      "dp": "DataProperty",
+      "from": {
+        "type": "Individual",
+        "py_name": "source"
+      },
+      "to": {
+        "type": "Literal",
+        "py_name": "target"
+      }
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "NegativeDataPropertyAssertion",
+    "fields": {
+      "dp": "DataProperty",
+      "from": {
+        "type": "Individual",
+        "py_name": "source"
+      },
+      "to": {
+        "type": "Literal",
+        "py_name": "target"
+      }
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "AnnotationAssertion",
+    "fields": {
+      "subject": "AnnotationSubject",
+      "ann": "Annotation"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "SubAnnotationPropertyOf",
+    "fields": {
+      "sub": "AnnotationProperty",
+      "sup": "AnnotationProperty"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "AnnotationPropertyDomain",
+    "fields": {
+      "ap": "AnnotationProperty",
+      "iri": "IRI"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "AnnotationPropertyRange",
+    "fields": {
+      "ap": "AnnotationProperty",
+      "iri": "IRI"
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "DocIRI",
+    "fields": [
+      "IRI"
+    ]
+  },
+  {
+    "type": "named-struct",
+    "name": "OntologyID",
+    "fields": {
+      "iri": {
+        "type": "Option",
+        "inner": "IRI"
+      },
+      "viri": {
+        "type": "Option",
+        "inner": "IRI"
+      }
+    }
+  },
+  {
+    "type": "tuple-struct",
+    "name": "Variable",
+    "fields": [
+      "IRI"
+    ]
+  },
+  {
+    "type": "transparent-enum",
+    "name": "DArgument",
+    "variants": {
+      "Literal": "Literal",
+      "Variable": "Variable"
+    }
+  },
+  {
+    "type": "transparent-enum",
+    "name": "IArgument",
+    "variants": {
+      "Individual": "Individual",
+      "Variable": "Variable"
+    }
+  },
+  {
+    "type": "enum",
+    "name": "Atom",
+    "variants": {
+      "BuiltInAtom": {
+        "type": "named-struct",
+        "fields": {
+          "pred": "IRI",
+          "args": {
+            "type": "Vec",
+            "inner": "DArgument"
+          }
+        }
+      },
+      "ClassAtom": {
+        "type": "named-struct",
+        "fields": {
+          "pred": "ClassExpression",
+          "arg": "IArgument"
+        }
+      },
+      "DataPropertyAtom": {
+        "type": "named-struct",
+        "fields": {
+          "pred": "DataProperty",
+          "args": [
+            "DArgument",
+            "DArgument"
+          ]
+        }
+      },
+      "DataRangeAtom": {
+        "type": "named-struct",
+        "fields": {
+          "pred": "DataRange",
+          "arg": "DArgument"
+        }
+      },
+      "DifferentIndividualsAtom": {
+        "type": "tuple-struct",
+        "fields": [
+          "IArgument",
+          "IArgument"
+        ]
+      },
+      "ObjectPropertyAtom": {
+        "type": "named-struct",
+        "fields": {
+          "pred": "ObjectPropertyExpression",
+          "args": [
+            "IArgument",
+            "IArgument"
+          ]
+        }
+      },
+      "SameIndividualAtom": {
+        "type": "tuple-struct",
+        "fields": [
+          "IArgument",
+          "IArgument"
+        ]
+      }
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "Rule",
+    "fields": {
+      "head": {
+        "type": "Vec",
+        "inner": "Atom"
+      },
+      "body": {
+        "type": "Vec",
+        "inner": "Atom"
+      }
+    }
+  },
+  {
+    "type": "transparent-enum",
+    "name": "Component",
+    "variants": {
+      "OntologyID": "OntologyID",
+      "DocIRI": "DocIRI",
+      "OntologyAnnotation": "OntologyAnnotation",
+      "Import": "Import",
+      "DeclareClass": "DeclareClass",
+      "DeclareObjectProperty": "DeclareObjectProperty",
+      "DeclareAnnotationProperty": "DeclareAnnotationProperty",
+      "DeclareDataProperty": "DeclareDataProperty",
+      "DeclareNamedIndividual": "DeclareNamedIndividual",
+      "DeclareDatatype": "DeclareDatatype",
+      "SubClassOf": "SubClassOf",
+      "EquivalentClasses": "EquivalentClasses",
+      "DisjointClasses": "DisjointClasses",
+      "DisjointUnion": "DisjointUnion",
+      "SubObjectPropertyOf": "SubObjectPropertyOf",
+      "EquivalentObjectProperties": "EquivalentObjectProperties",
+      "DisjointObjectProperties": "DisjointObjectProperties",
+      "InverseObjectProperties": "InverseObjectProperties",
+      "ObjectPropertyDomain": "ObjectPropertyDomain",
+      "ObjectPropertyRange": "ObjectPropertyRange",
+      "FunctionalObjectProperty": "FunctionalObjectProperty",
+      "InverseFunctionalObjectProperty": "InverseFunctionalObjectProperty",
+      "ReflexiveObjectProperty": "ReflexiveObjectProperty",
+      "IrreflexiveObjectProperty": "IrreflexiveObjectProperty",
+      "SymmetricObjectProperty": "SymmetricObjectProperty",
+      "AsymmetricObjectProperty": "AsymmetricObjectProperty",
+      "TransitiveObjectProperty": "TransitiveObjectProperty",
+      "SubDataPropertyOf": "SubDataPropertyOf",
+      "EquivalentDataProperties": "EquivalentDataProperties",
+      "DisjointDataProperties": "DisjointDataProperties",
+      "DataPropertyDomain": "DataPropertyDomain",
+      "DataPropertyRange": "DataPropertyRange",
+      "FunctionalDataProperty": "FunctionalDataProperty",
+      "DatatypeDefinition": "DatatypeDefinition",
+      "HasKey": "HasKey",
+      "SameIndividual": "SameIndividual",
+      "DifferentIndividuals": "DifferentIndividuals",
+      "ClassAssertion": "ClassAssertion",
+      "ObjectPropertyAssertion": "ObjectPropertyAssertion",
+      "NegativeObjectPropertyAssertion": "NegativeObjectPropertyAssertion",
+      "DataPropertyAssertion": "DataPropertyAssertion",
+      "NegativeDataPropertyAssertion": "NegativeDataPropertyAssertion",
+      "AnnotationAssertion": "AnnotationAssertion",
+      "SubAnnotationPropertyOf": "SubAnnotationPropertyOf",
+      "AnnotationPropertyDomain": "AnnotationPropertyDomain",
+      "AnnotationPropertyRange": "AnnotationPropertyRange",
+      "Rule": "Rule"
+    }
+  },
+  {
+    "type": "named-struct",
+    "name": "AnnotatedComponent",
+    "fields": {
+      "component": "Component",
+      "ann": {
+        "type": "BTreeSet",
+        "inner": "Annotation"
+      }
+    }
+  }
+]

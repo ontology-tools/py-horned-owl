@@ -1,0 +1,112 @@
+{%- macro include_extensions(extensions, name) %}
+{%- if "named" in extensions %}
+    /******** EXTENSION "named" for {{ name }} ********/
+    impl Display for {{ name }} {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{}", self.0.0.to_string())
+        }
+    }
+
+    #[pymethods]
+    impl {{ name }} {
+        fn __str__(&self) -> String {
+            self.to_string()
+        }
+    }
+{%- endif %}
+{%- if "class-expression" in extensions %}
+    /******** EXTENSION "class-expression" for {{ name }} ********/
+    #[pymethods]
+    impl {{ name }} {
+        fn __and__(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectIntersectionOf> {
+            let ce: ClassExpression = obj.extract()?;
+            Ok(ObjectIntersectionOf(vec![self.clone().into(), ce].into()))
+        }
+
+        fn __or__(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectUnionOf> {
+            let ce: ClassExpression = obj.extract()?;
+            Ok(ObjectUnionOf(vec![self.clone().into(), ce].into()))
+        }
+
+        fn __invert__(&self) -> ObjectComplementOf {
+            ObjectComplementOf(Box::<ClassExpression>::new(self.clone().into()).into())
+        }
+    }
+{%- endif %}
+{%- if "object-property-expression" in extensions %}
+    /******** EXTENSION "object-property-expression" for {{ name }} ********/
+       #[pymethods]
+        impl {{ name }} {
+            fn some(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectSomeValuesFrom> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectSomeValuesFrom {
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn only(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectAllValuesFrom> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectAllValuesFrom {
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn has_value(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectHasValue> {
+                let i: Individual = obj.extract()?;
+                Ok(ObjectHasValue{
+                    ope: self.clone().into(),
+                    i
+                })
+            }
+
+            fn has_self(&self) -> PyResult<ObjectHasSelf> {
+                Ok(ObjectHasSelf(self.clone().into()))
+            }
+
+            fn min(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectMinCardinality> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectMinCardinality {
+                    n,
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn max(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectMaxCardinality> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectMaxCardinality {
+                    n,
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn exact(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectExactCardinality> {
+                let ce: ClassExpression = obj.extract()?;
+                Ok(ObjectExactCardinality {
+                    n,
+                    ope: self.clone().into(),
+                    bce: Box::new(ce).into(),
+                })
+            }
+
+            fn __invert__(&self) -> ObjectPropertyExpression {
+                let ope: ObjectPropertyExpression = self.clone().into();
+                let inner: ObjectPropertyExpression_Inner = match ope.0 {
+                    ObjectPropertyExpression_Inner::InverseObjectProperty(
+                        InverseObjectProperty(i),
+                    ) => ObjectPropertyExpression_Inner::ObjectProperty(i),
+                    ObjectPropertyExpression_Inner::ObjectProperty(i) => {
+                        ObjectPropertyExpression_Inner::InverseObjectProperty(
+                            InverseObjectProperty(i),
+                        )
+                }
+                };
+
+                ObjectPropertyExpression(inner)
+            }
+        }
+{%- endif %}
+{%- endmacro %}

@@ -1,0 +1,294 @@
+{%- from 'extensions.rs.jinja2' import include_extensions -%}
+/**************** ENUM implementation for {{ model.name }} ****************/
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+enum {{ model.name }}_Inner {
+{%- for v_name, variant in model.variants.items() %}{% set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)%}
+    {%- if variant.transparent %}
+    {{ v_name }}({{ v_name }}),
+    {%- else %}
+	{{ v_name }}({{ v_name_full }}),
+    {%- endif %}
+{%- endfor %}
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct {{ model.name }}({{ model.name }}_Inner);
+
+{#impl ToPyi for {{ model.name }} {#}
+{#    #[allow(unused_assignments)]#}
+{#    fn pyi(module: Option<String>) -> String {#}
+{#        let mut res = String::new();#}
+{#        let mut first = true;#}
+{##}
+{#        let m = module.map(|c| format!("{}.", c)).unwrap_or_default();#}
+{##}
+{#        write!(&mut res, "typing.Union[").unwrap();#}
+{#        $($(#}
+{##}
+{#            if (first) {#}
+{#                first = false;#}
+{#                write!(&mut res, "{}{}", m, stringify!({{ v_name_full }})).unwrap();#}
+{#            } else {#}
+{#                write!(&mut res, ", {}{}", m, stringify!({{ v_name_full }})).unwrap();#}
+{#            }#}
+{#        )*)?#}
+{##}
+{#        $($(#}
+{#            if (first) {#}
+{#                first = false;#}
+{#                write!(&mut res, "{}{}", m, stringify!({{ v_name }}_transparent)).unwrap();#}
+{#            } else {#}
+{#                write!(&mut res, ", {}{}", m, stringify!({{ v_name }}_transparent)).unwrap();#}
+{#            }#}
+{#        )*)?#}
+{#        write!(&mut res, "]\n").unwrap();#}
+{##}
+{#        res#}
+{#    }#}
+{#}#}
+
+/**************** ENUM VARIANTS for {{ model.name }} ****************/
+{%- for v_name, variant in model.variants.items() if not variant.transparent %}
+    {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name) %}
+
+    /**************** ENUM VARIANT {{ v_name_full }} for {{ model.name }} ****************/
+    #[doc = concat!("{{ v_name_full }}(
+    {%- for field, type in variant.fields | fields -%}
+        {{ field | as_py_name }}: {{ type | as_py_type}}
+    {%- endfor -%}",
+        "\n\n",doc!({{ v_name_full }}))]
+    #[allow(non_camel_case_types)]
+    #[pyclass(module="pyhornedowl.model")]
+    #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct {{ v_name_full }}
+    {%- if variant.fields is list %}(
+        {%- for type in variant.fields %}
+        #[pyo3(get,set,name="{{ loop.index0 | as_py_name }}")]
+        pub {{ type | as_rust_type }},
+        {%- endfor %}
+    );
+    {%- else -%}
+        { {%- for field, type in variant.fields.items() %}
+        #[doc="{{ field }}: {{ type | as_py_type }}"]
+        #[pyo3(get,set)]
+        pub {{ field }}: {{ type | as_rust_type }},
+        {%- endfor -%}
+    }
+    {%- endif %}
+
+    impl From<{{ v_name_full }}> for {{ model.name }} {
+        fn from(value: {{ v_name_full }}) -> Self {
+            {{ model.name }}({{ model.name }}_Inner::{{ v_name }}(value))
+        }
+    }
+
+    #[pymethods]
+    impl {{ v_name_full }} {
+        #[new]
+        fn new(
+    {%- for field, type in variant.fields | fields -%}
+    	{{ field | as_py_name }}: {{ type | as_rust_type }},
+    {%- endfor -%}
+        ) -> Self {
+            {{ v_name_full }}
+            {%- if variant.fields is list %}(
+                {%- for type in variant.fields %}
+                {{ loop.index0 | as_py_name }}.into(),
+                {%- endfor %}
+            )
+            {%- else -%}{
+                {%- for field in variant.fields %}
+                {{ field }}: {{ field | as_rust_type }}.into(),
+                {%- endfor -%}
+            }
+            {%- endif %}
+        }
+
+
+        fn __getitem__(&self, py: Python<'_>, name: &str) -> PyResult<PyObject> {
+            match name {
+            {%- for field, type in variant.fields | fields %}
+            	"{{ field | as_py_name }}" => Ok(self.{{ field }}.clone().into_py(py)),
+            {%- endfor %}
+                &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
+            }
+        }
+
+        fn __setitem__(&mut self, name: &str, value: &Bound<'_, PyAny>) -> PyResult<()> {
+            match name {
+            {%- for field, type in variant.fields | fields %}
+            	"{{ field | as_py_name }}" => {
+                    self.{{ field }} = value.extract()?;
+                Ok(())
+                },
+            {%- endfor %}
+                &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
+            }
+        }
+
+{#        #[cfg(pyi)]#}
+{#        #[classmethod]#}
+{#        fn __pyi__(_: &Bound<'_, PyType>) -> String {#}
+{#            let mut res = String::new();#}
+{##}
+{#            write!(&mut res, "class {}:\n", stringify!({{ v_name_full }})).unwrap();#}
+{#            $($(#}
+{#                write!(&mut res, "    {}: {}\n", stringify!($field_s), to_py_type::<$type_s>(String::new())).unwrap();#}
+{#            )*)?#}
+{#            $(#}
+{#                write!(&mut res, "    first: {}\n", to_py_type::<$field_t0>(String::new())).unwrap();#}
+{#            )?#}
+{#            $($(#}
+{#                write!(&mut res, "    second: {}\n", to_py_type::<$field_t1>(String::new())).unwrap();#}
+{#            )?)?#}
+{##}
+{#            write!(&mut res, "    def __init__(self").unwrap();#}
+{#            $($(#}
+{#                write!(&mut res, ", {}: {}", stringify!($field_s), to_py_type::<$type_s>(String::new())).unwrap();#}
+{#            )*)?#}
+{#            $(write!(&mut res, ", first: {}", to_py_type::<$field_t0>(String::new())).unwrap();)?#}
+{#            $($(#}
+{#                write!(&mut res, ", second: {}", to_py_type::<$field_t1>(String::new())).unwrap();#}
+{#            )?)?#}
+{#            write!(&mut res, "):\n        ...\n").unwrap();#}
+{#            write!(&mut res, extensions_pyi!({{ model.name }}, {{ v_name_full }})).unwrap();#}
+{#            write!(&mut res, "    ...\n").unwrap();#}
+{##}
+{#            res#}
+{#        }#}
+
+        fn __hash__(&self) -> u64 {
+            let mut s = DefaultHasher::new();
+            Hash::hash(&self, &mut s);
+            s.finish()
+        }
+
+        fn __eq__(&self, other: &Self) -> bool {
+            self == other
+        }
+    }
+
+    {{ include_extensions(model.extensions, v_name_full)}}
+{% endfor %}
+
+
+{%- for v_name, variant in model.variants.items() if variant.transparent %}
+    // Transparent variant implementation
+    impl From<{{ v_name }}> for {{ model.name }} {
+        fn from(value: {{ v_name }}) -> Self {
+            {{ model.name }}({{ model.name }}_Inner::{{ v_name }}(value))
+        }
+    }
+{% endfor %}
+
+
+impl From<&horned_owl::model::{{ model.name }}<ArcStr>> for {{ model.name }} {
+    fn from(value: &horned_owl::model::{{ model.name }}<ArcStr>) -> Self {
+        match value {
+        {%- for v_name, variant in model.variants.items() %}
+            {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)%}
+        	{%- if variant.transparent %}
+        		horned_owl::model::{{ model.name }}::{{ v_name }}::<ArcStr>(f0) =>
+                    {{ model.name }}({{ model.name }}_Inner::{{ v_name }}(f0.into())),
+            {%- elif variant.fields is list %}
+                horned_owl::model::{{ model.name }}::{{ v_name }}::<ArcStr>({{ range(variant.fields | length) | map("as_py_name") | join(", ") }}) =>
+                    {{ model.name }}({{ model.name }}_Inner::{{ v_name }}({{ v_name_full }}(
+                    {%- for field, type in variant.fields | fields -%}
+                    	({{ field | as_py_name }}).into(),
+                    {%- endfor -%}
+                    ))),
+            {%- else -%}
+                horned_owl::model::{{ model.name }}::{{ v_name }}::<ArcStr>{
+                    {{ variant.fields.keys() | join(",\n") }}
+                } => {{ model.name }}({{ model.name }}_Inner::{{ v_name }}({{ v_name_full }}{
+                    {%- for field, type in variant.fields | fields -%}
+                        {{ field }}: IntoCompatible::<{{ type | as_rust_type }}>::into_c({{ field }}),
+                    {%- endfor -%}
+                })),
+        	{%- endif %}
+        {%- endfor %}
+        }
+    }
+}
+impl IntoPy<pyo3::PyObject> for {{ model.name }} {
+    fn into_py(self, py: pyo3::Python) -> pyo3::PyObject {
+        match self.0 {
+            {% for v_name, variant in model.variants.items() %}
+                {{ model.name }}_Inner::{{ v_name }}(val) => {
+                    val.into_py(py)
+                },
+            {% endfor %}
+        }
+    }
+}
+
+impl From<&{{ model.name }}> for horned_owl::model::{{ model.name }}<ArcStr> {
+    fn from(value: &{{ model.name }}) -> Self {
+        match value.0.borrow() {
+        {%- for v_name, variant in model.variants.items() %}
+            {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)%}
+            {%- if variant.transparent %}
+                {{ model.name }}_Inner::{{ v_name }}(f0) => horned_owl::model::{{ model.name }}::<ArcStr>::{{ v_name }}(f0.into()),
+            {%- elif variant.fields is list %}
+                {{ model.name }}_Inner::{{ v_name }}({{ v_name_full }}({{ range(variant.fields | length) | map("as_py_name") | join(", ") }})) =>
+                horned_owl::model::{{ model.name }}::<ArcStr>::{{ v_name }}(
+                {%- for field, type in variant.fields | fields %}
+                    {{ field | as_py_name }}.into_c(),
+                {%- endfor %}
+                ),
+            {%- else %}
+                {{ model.name }}_Inner::{{ v_name }}({{ v_name_full }}{
+                    {{ variant.fields.keys() | join(", ") }}
+                }) => horned_owl::model::{{ model.name }}::<ArcStr>::{{ v_name }}{
+                {%- for field in variant.fields %}
+                	{{ field }}: {{ field }}.into_c(),
+                {%- endfor %}
+                },
+            {%- endif %}
+            {%- endfor %}
+        }
+    }
+}
+
+impl <'source> FromPyObject<'source> for {{ model.name }} {
+    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
+        {%- for v_name, variant in model.variants.items() %}
+            {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)%}
+            {%- if variant.transparent %}
+            {
+            	let r = {{ v_name_full }}::extract(ob);
+                if r.is_ok() {
+                    let local = r.unwrap();
+                    let inner = {{ model.name }}_Inner::{{ v_name }}(local);
+                    return Ok({{ model.name }}(inner));
+                }
+            }
+            {%- else %}
+            {
+                let r = {{ v_name_full }}::extract(ob);
+                if r.is_ok() {
+                    let local = r.unwrap();
+                    let inner = {{ model.name }}_Inner::{{ v_name }}(local);
+                    return Ok({{ model.name }}(inner));
+                }
+            }
+            {%- endif %}
+        {%- endfor %}
+
+        Err(pyo3::PyErr::new::<pyo3::exceptions::PyTypeError, _>("Object cannot be converted to {{ model.name }}"))
+    }
+}
+
+impl {{ model.name }} {
+    pub fn py_def() -> String {
+        "typing.Union[
+        {%- for v_name, variant in model.variants.items() -%}
+        {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)-%}
+            m.{{ v_name_full }},
+        {%- endfor -%}
+        ]".into()
+    }
+}
+
+{% include 'base.rs.jinja2' %}

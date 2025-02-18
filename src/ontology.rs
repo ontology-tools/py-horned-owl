@@ -24,8 +24,8 @@ use pyo3::{
     pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyObject, PyResult, Python, ToPyObject,
 };
 
-use crate::model::BTreeSetWrap;
 use crate::prefix_mapping::PrefixMapping;
+use crate::wrappers::BTreeSetWrap;
 use crate::{guess_serialization, model, parse_serialization, to_py_err};
 
 #[pyclass]

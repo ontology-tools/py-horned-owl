@@ -1,0 +1,75 @@
+#[derive(Debug, FromPyObject, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum {{ model.name }} {
+    {% for v_name, type in model.variants.items() %}
+        #[pyo3(transparent)]
+        {{ v_name }} ({{ type | as_rust_type }}),
+    {% endfor %}
+}
+
+{#impl ToPyi for {{ model.name }} {#}
+{#    #[allow(unused_assignments)]#}
+{#    fn pyi(module: Option<String>) -> String {#}
+{#        let mut res = String::new();#}
+{#        let mut first = true;#}
+{##}
+{#        let m = module.map(|c| format!("{}.", c)).unwrap_or_default();#}
+{##}
+{#        write!(&mut res, "typing.Union[").unwrap();#}
+{#        $(#}
+{##}
+{#            if (first) {#}
+{#                first = false;#}
+{#                write!(&mut res, "{}", to_py_type::<$field>(m.clone())).unwrap();#}
+{#            } else {#}
+{#                write!(&mut res, ", {}", to_py_type::<$field>(m.clone())).unwrap();#}
+{#            }#}
+{#        )*#}
+{##}
+{#        write!(&mut res, "]\n").unwrap();#}
+{##}
+{#        res#}
+{#    }#}
+{#}#}
+
+impl IntoPy<PyObject> for {{ model.name }} {
+    fn into_py(self, py: Python<'_>) -> PyObject {
+        match self {
+        {% for v_name in model.variants %}
+            {{ model.name }}::{{ v_name }}(inner) => inner.into_py(py),
+        {% endfor %}
+        }
+    }
+}
+
+impl From<&{{ model.name }}> for horned_owl::model::{{ model.name }}<ArcStr> {
+    fn from(value: &{{ model.name }}) -> Self {
+        match value {
+        {% for v_name in model.variants %}
+            {{ model.name }}::{{ v_name }}(inner) => horned_owl::model::{{ model.name }}::{{ v_name }}(inner.into()),
+        {% endfor %}
+        }
+    }
+}
+
+impl From<&horned_owl::model::{{ model.name }}<ArcStr>> for {{ model.name }} {
+
+    fn from(value: &horned_owl::model::{{ model.name }}<ArcStr>) -> Self {
+        match value {
+        {% for v_name in model.variants %}
+            horned_owl::model::{{ model.name }}::{{ v_name }}(inner) => {{ model.name }}::{{ v_name }}(inner.into()),
+        {% endfor %}
+        }
+    }
+}
+
+
+impl {{ model.name }} {
+    pub fn py_def() -> String {
+        "typing.Union[
+        {%- for type in model.variants.values() -%}
+            {{ type | as_py_type("m") }},
+        {%- endfor -%}]".into()
+    }
+}
+
+{% include "base.rs.jinja2" %}

@@ -1,0 +1,52 @@
+{%- macro include_extensions(extensions, name) %}
+{%- if "named" in extensions %}
+    def __str__(self) -> str:
+        ...
+{%- endif %}
+{%- if "class-expression" in extensions %}
+    def __and__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Intersection of two class expressions"""
+        ...
+
+    def __or__(self, ce: ClassExpression) -> ObjectIntersectionOf:
+        """Union of two class expressions"""
+        ...
+
+    def __invert__(self) -> ObjectIntersectionOf:
+        """Complement of a class expression"""
+        ...
+{%- elif "object-property-expression" in extensions %}
+    def some(self, ce: ClassExpression) -> ObjectSomeValuesFrom:
+        """Existentional relationship"""
+        ...
+
+    def only(self, ce: ClassExpression) -> ObjectAllValuesFrom:
+        """Universal relationship"""
+        ...
+
+    def has_value(self, individual: Individual) -> ObjectHasValue:
+        """Existential relationship to an individual"""
+        ...
+
+    def has_self(self) -> ObjectHasSelf:
+        """Individuals with relation to themselves"""
+        ...
+
+    def min(self, n: int, ce: ClassExpression) -> ObjectMinCardinality:
+        """Minimum cardinality relationship"""
+        ...
+
+    def max(self, n: int, ce: ClassExpression) -> ObjectMaxCardinality:
+        """Maximum cardinality relationship"""
+        ...
+
+    def exact(self, n: int, ce: ClassExpression) -> ObjectExactCardinality:
+        """Exact cardinality relationship"""
+        ...
+
+    def __invert__(self) -> ObjectPropertyExpression:
+        """Inverse of object property expression"""
+        ...
+
+{%- endif %}
+{%- endmacro %}

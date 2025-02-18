@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "$defs": {
+    "type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "inner": {
+              "$ref": "#/$defs/type"
+            }
+          }
+        }
+      ]
+    },
+    "field": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/type"
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/type/anyOf/1"
+            },
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "py_name": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "items": {
+    "allOf": [
+      {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "extensions": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "named",
+                "class-expression",
+                "object-property-expression"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "properties": {
+              "type": {
+                "enum": [
+                  "tuple-struct"
+                ]
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/type"
+                }
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "fields"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "named-struct"
+                ]
+              },
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/$defs/field"
+                }
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "variants"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "transparent-enum"
+                ]
+              },
+              "variants": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/$defs/type"
+                }
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "variants"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "enum"
+                ]
+              },
+              "variants": {
+                "type": "object",
+                "additionalProperties": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "transparent": {
+                          "type": "boolean"
+                        },
+                        "py_name": {
+                          "type": "string"
+                        }
+                      },
+                      "anyOf": [
+                        {
+                          "$ref": "#/items/allOf/1/anyOf/0"
+                        },
+                        {
+                          "$ref": "#/items/allOf/1/anyOf/1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

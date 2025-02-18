@@ -1,0 +1,136 @@
+{% set name = variant.name if variant is defined else model.name %}
+
+/**************** Base implementations for {{ name }} ****************/
+impl FromCompatible<horned_owl::model::{{ name }}<ArcStr>> for {{ name }} {
+    fn from_c(value: horned_owl::model::{{ name }}<ArcStr>) -> Self {
+        {{ name }}::from(value)
+    }
+}
+
+impl FromCompatible<&horned_owl::model::{{ name }}<ArcStr>> for {{ name }} {
+    fn from_c(value: &horned_owl::model::{{ name }}<ArcStr>) -> Self {
+        {{ name }}::from(value)
+    }
+}
+
+impl FromCompatible<{{ name }}> for horned_owl::model::{{ name }}<ArcStr> {
+    fn from_c(value: {{ name }}) -> Self {
+        horned_owl::model::{{ name }}::<ArcStr>::from(value)
+    }
+}
+
+impl FromCompatible<&{{ name }}> for horned_owl::model::{{ name }}<ArcStr> {
+    fn from_c(value: &{{ name }}) -> Self {
+        horned_owl::model::{{ name }}::<ArcStr>::from(value)
+    }
+}
+
+impl From<horned_owl::model::{{ name }}<ArcStr>> for {{ name }} {
+    fn from(value: horned_owl::model::{{ name }}<ArcStr>) -> Self {
+        {{ name }}::from(value.borrow())
+    }
+}
+
+impl From<{{ name }}> for horned_owl::model::{{ name }}<ArcStr> {
+    fn from(value: {{ name }}) -> Self {
+        horned_owl::model::{{ name }}::<ArcStr>::from(value.borrow())
+    }
+}
+
+impl From<&BoxWrap<{{ name }}>> for Box<horned_owl::model::{{ name }}<ArcStr>> {
+    fn from(value: &BoxWrap<{{ name }}>) -> Self {
+        Box::new((*value.0.clone()).into())
+    }
+}
+
+impl From<&Box<horned_owl::model::{{ name }}<ArcStr>>> for BoxWrap<{{ name }}> {
+    fn from(value: &Box<horned_owl::model::{{ name }}<ArcStr>>) -> Self {
+        BoxWrap(Box::new(Into::<{{ name }}>::into(*value.clone())))
+    }
+}
+
+impl From<BoxWrap<{{ name }}>> for Box<horned_owl::model::{{ name }}<ArcStr>> {
+    fn from(value: BoxWrap<{{ name }}>) -> Self {
+        Into::<Box<horned_owl::model::{{ name }}<ArcStr>>>::into(value.borrow())
+    }
+}
+
+impl From<Box<horned_owl::model::{{ name }}<ArcStr>>> for BoxWrap<{{ name }}> {
+    fn from(value: Box<horned_owl::model::{{ name }}<ArcStr>>) -> Self {
+        Into::<BoxWrap<{{ name }}>>::into(value.borrow())
+    }
+}
+
+impl From<VecWrap<{{ name }}>> for Vec<horned_owl::model::{{ name }}<ArcStr>> {
+    fn from(value: VecWrap<{{ name }}>) -> Self {
+        Into::<Vec<horned_owl::model::{{ name }}<ArcStr>>>::into(value.borrow())
+    }
+}
+
+impl From<Vec<horned_owl::model::{{ name }}<ArcStr>>> for VecWrap<{{ name }}> {
+    fn from(value: Vec<horned_owl::model::{{ name }}<ArcStr>>) -> Self {
+        Into::<VecWrap<{{ name }}>>::into(value.borrow())
+    }
+}
+
+impl From<&VecWrap<{{ name }}>> for Vec<horned_owl::model::{{ name }}<ArcStr>> {
+    fn from(value: &VecWrap<{{ name }}>) -> Self {
+        value
+            .0
+            .iter()
+            .map(horned_owl::model::{{ name }}::<ArcStr>::from)
+            .collect()
+    }
+}
+impl From<&Vec<horned_owl::model::{{ name }}<ArcStr>>> for VecWrap<{{ name }}> {
+    fn from(value: &Vec<horned_owl::model::{{ name }}<ArcStr>>) -> Self {
+        VecWrap(value.into_iter().map({{ name }}::from).collect())
+    }
+}
+
+impl FromCompatible<&BoxWrap<{{ name }}>> for Box<horned_owl::model::{{ name }}<ArcStr>> {
+    fn from_c(value: &BoxWrap<{{ name }}>) -> Self {
+        Box::<horned_owl::model::{{ name }}<ArcStr>>::from(value)
+    }
+}
+impl FromCompatible<&Box<horned_owl::model::{{ name }}<ArcStr>>> for BoxWrap<{{ name }}> {
+    fn from_c(value: &Box<horned_owl::model::{{ name }}<ArcStr>>) -> Self {
+        BoxWrap::<{{ name }}>::from(value)
+    }
+}
+impl FromCompatible<BoxWrap<{{ name }}>> for Box<horned_owl::model::{{ name }}<ArcStr>> {
+    fn from_c(value: BoxWrap<{{ name }}>) -> Self {
+        Box::<horned_owl::model::{{ name }}<ArcStr>>::from(value)
+    }
+}
+impl FromCompatible<Box<horned_owl::model::{{ name }}<ArcStr>>> for BoxWrap<{{ name }}> {
+    fn from_c(value: Box<horned_owl::model::{{ name }}<ArcStr>>) -> Self {
+        BoxWrap::<{{ name }}>::from(value)
+    }
+}
+impl FromCompatible<VecWrap<{{ name }}>> for Vec<horned_owl::model::{{ name }}<ArcStr>> {
+    fn from_c(value: VecWrap<{{ name }}>) -> Self {
+        Vec::<horned_owl::model::{{ name }}<ArcStr>>::from(value)
+    }
+}
+impl FromCompatible<Vec<horned_owl::model::{{ name }}<ArcStr>>> for VecWrap<{{ name }}> {
+    fn from_c(value: Vec<horned_owl::model::{{ name }}<ArcStr>>) -> Self {
+        VecWrap::<{{ name }}>::from(value)
+    }
+}
+impl FromCompatible<&VecWrap<{{ name }}>> for Vec<horned_owl::model::{{ name }}<ArcStr>> {
+    fn from_c(value: &VecWrap<{{ name }}>) -> Self {
+        Vec::<horned_owl::model::{{ name }}<ArcStr>>::from(value)
+    }
+}
+impl FromCompatible<&Vec<horned_owl::model::{{ name }}<ArcStr>>> for VecWrap<{{ name }}> {
+    fn from_c(value: &Vec<horned_owl::model::{{ name }}<ArcStr>>) -> Self {
+        VecWrap::<{{ name }}>::from(value)
+    }
+}
+
+
+{%- from 'extensions.rs.jinja2' import include_extensions -%}
+{%- if model.type != "enum" -%}
+{{ include_extensions(model.extensions, name) }}
+{%- endif -%}

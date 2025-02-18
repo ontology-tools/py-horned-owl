@@ -19,6 +19,8 @@ mod doc;
 mod model;
 mod ontology;
 mod prefix_mapping;
+mod model_generated;
+mod wrappers;
 
 #[macro_export]
 macro_rules! to_py_err {
@@ -197,6 +199,8 @@ fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     let model_sub_module = model::py_module(py)?;
     m.add_submodule(&model_sub_module)?;
+
+    m.add("__version__", env!("CARGO_PKG_VERSION"))?;
 
     Ok(())
 }

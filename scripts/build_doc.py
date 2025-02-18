@@ -3,11 +3,13 @@
 import json
 import os
 import subprocess
+from os import environ
 
+REPO_ROOT=os.path.join(os.path.dirname(__file__), "..")
 # path to local horned owl copy
-HORNED_OWL_PATH = "../horned-owl"
+HORNED_OWL_PATH = environ.get("HORNED_OWL_REPO_PATH", os.path.join(REPO_ROOT, "..", "horned-owl"))
 
-subprocess.call("cargo rustdoc -Z unstable-options --output-format json".split(" "), cwd=HORNED_OWL_PATH)
+subprocess.call("cargo +nightly rustdoc -Z unstable-options --output-format json".split(" "), cwd=HORNED_OWL_PATH)
 
 with open(os.path.join(HORNED_OWL_PATH, "target", "doc", "horned_owl.json")) as f:
     data = json.load(f)
@@ -22,5 +24,6 @@ lines = [f'    ({n}) => {{ {json.dumps(d)} }};' for n, d in docs.items()]
 lines.sort()
 lines.append("    ($t:ident) => {\"\"}")
 
-with open("src/doc.rs", "w") as f:
+out_path = os.path.join(REPO_ROOT, "src", "doc.rs")
+with open(out_path, "w") as f:
     f.write('macro_rules! doc (\n' + "\n".join(lines) + '\n);\n')

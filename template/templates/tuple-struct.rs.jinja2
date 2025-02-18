@@ -1,0 +1,83 @@
+#[doc = concat!(
+    "{{ model.name }}(
+{%- for typ in model.fields -%}
+{{ loop.index0 | as_py_name }}: {{ typ | as_py_type }},
+{%- endfor -%})",
+    "\n\n",
+    doc!({{ model.name }})
+)]
+#[pyclass(module="pyhornedowl.model")]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct {{ model.name }} (
+{%- for typ in model.fields %}
+    #[doc="{{ loop.index0 | as_py_name }}: {{ type | as_py_type }}"]
+    #[pyo3(get,set,name="{{ loop.index0 | as_py_name }}")]
+    pub {{ typ | as_rust_type }},
+{%- endfor %}
+);
+
+#[pymethods]
+impl {{ model.name }} {
+    #[new]
+    fn new({%- for typ in model.fields -%}{{ loop.index0 | as_py_name }}: {{ typ | as_rust_type }},{%- endfor -%}) -> Self {
+        {{ model.name }} (
+        {%- for typ in model.fields -%}{{ loop.index0 | as_py_name }}, {%- endfor -%}
+        )
+    }
+
+{#            #[cfg(pyi)]#}
+{#            #[classmethod]#}
+{#            fn __pyi__(_: &Bound<'_, PyType>) -> String {#}
+{#                let mut res = String::new();#}
+{##}
+{#                write!(&mut res, "class {}:\n", stringify!({{ model.name }})).unwrap();#}
+{#                write!(&mut res, "    first: {}\n", to_py_type::<$type0>(String::new())).unwrap();#}
+{#                $(#}
+{#                    write!(&mut res, "    second: {}\n", to_py_type::<$type1>(String::new())).unwrap();#}
+{#                )?#}
+{##}
+{#                write!(&mut res, "    def __init__(self").unwrap();#}
+{#                write!(&mut res, ", first: {}", to_py_type::<$type0>(String::new())).unwrap();#}
+{#                $(#}
+{#                    write!(&mut res, ", second: {}", to_py_type::<$type1>(String::new())).unwrap();#}
+{#                )?#}
+{#                write!(&mut res, "):\n        ...\n").unwrap();#}
+{#                $(write!(&mut res, extensions_pyi!($sup, {{ model.name }})).unwrap();)?#}
+{#                write!(&mut res, "    ...\n").unwrap();#}
+{##}
+{#                res#}
+{#            }#}
+
+    fn __hash__(&self) -> u64 {
+        let mut s = DefaultHasher::new();
+        Hash::hash(&self, &mut s);
+        s.finish()
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
+impl From<&horned_owl::model::{{ model.name }}<ArcStr>> for {{ model.name }} {
+    fn from(value: &horned_owl::model::{{ model.name }}<ArcStr>) -> Self {
+
+        {{ model.name }} (
+{%- for type in model.fields %}
+    IntoCompatible::<{{ type | as_rust_type }}>::into_c(&value.{{ loop.index0 }}),
+{%- endfor %}
+        )
+    }
+}
+
+impl From<&{{ model.name }}> for horned_owl::model::{{ model.name }}<ArcStr> {
+    fn from(value: &{{ model.name }}) -> Self {
+        horned_owl::model::{{ model.name }}::<ArcStr> (
+{%- for type in model.fields %}
+    IntoCompatible::into_c(&value.{{ loop.index0 }}),
+{%- endfor %}
+        )
+    }
+}
+
+{% include 'base.rs.jinja2' %}

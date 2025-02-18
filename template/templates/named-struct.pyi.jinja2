@@ -1,0 +1,16 @@
+class {{ model.name }}:
+{%- for k, v in model.fields.items() %}
+    {{ k | py_field(v) }}: {{ v | as_py_type }}
+{%- endfor %}
+
+    def __init__(self,
+{%- for k, v in model.fields.items() -%}
+        {{ k | py_field(v) }}: {{ v | as_py_type }},
+{%- endfor -%} /):
+        ...
+
+{%- from 'extensions.pyi.jinja2' import include_extensions -%}
+{{ include_extensions(model.extensions, v_name_full) }}
+
+    ...
+

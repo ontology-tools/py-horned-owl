@@ -1,0 +1,107 @@
+#[doc = concat!("{{ model.name }}(
+{%- for k, v in model.fields.items() -%}
+        {{ k | py_field(v) }}: {{ v | as_py_type }},
+{%- endfor -%})",
+    "\n\n",
+    doc!({{ model.name }})
+)]
+#[pyclass(module="pyhornedowl.model",mapping)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct {{ model.name }} {
+    {%- for field, type in model.fields.items() %}
+        #[doc="{{ field | py_field(type) }}: {{ type | as_py_type }}"]
+        #[pyo3(get,set)]
+        pub {{ field | py_field(type) }}: {{ type | as_rust_type }},
+    {% endfor -%}
+}
+
+#[pymethods]
+impl {{ model.name }} {
+    #[new]
+    fn new(
+{%- for k, v in model.fields.items() -%}
+        {{ k | py_field(v) }}: {{ v | as_rust_type }},
+{%- endfor -%}
+) -> Self {
+        {{ model.name }} {
+            {%- for k, v in model.fields.items() %}
+                {{ k | py_field(v) }},
+            {%- endfor %}
+        }
+    }
+
+    fn __getitem__(&self, py: Python<'_>, name: &str) -> PyResult<PyObject> {
+        match name {
+        {%- for field,type in model.fields.items() %}
+            "{{ field | py_field(type) }}" => Ok(self.{{ field | py_field(type) }}.clone().into_py(py)),
+        {%- endfor %}
+            &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
+        }
+    }
+
+    fn __setitem__(&mut self, name: &str, value: &Bound<'_, PyAny>) -> PyResult<()> {
+        match name {
+        {%- for field,type in model.fields.items() %}
+            "{{ field | py_field(type) }}" => {
+                self.{{ field | py_field(type) }} = value.extract()?;
+                Ok(())
+            },
+        {%- endfor %}
+            &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
+        }
+    }
+
+{#    #[cfg(pyi)]#}
+{#    #[classmethod]#}
+{#    fn __pyi__(_: &Bound<'_, PyType>) -> String {#}
+{#        let mut res = String::new();#}
+{##}
+{#        write!(&mut res, "class {}:\n", stringify!({{ model.name }})).unwrap();#}
+{#        $(#}
+{#            write!(&mut res, "    {}: {}\n", stringify!($field), to_py_type::<$type>(String::new())).unwrap();#}
+{#        )*#}
+{##}
+{##}
+{#        write!(&mut res, "    def __init__(self").unwrap();#}
+{#        $(#}
+{#            write!(&mut res, ", {}: {}", stringify!($field), to_py_type::<$type>(String::new())).unwrap();#}
+{#        )*#}
+{#        write!(&mut res, "):\n        ...\n").unwrap();#}
+{#        write!(&mut res, "    ...\n").unwrap();#}
+{##}
+{#        res#}
+{#    }#}
+
+    fn __hash__(&self) -> u64 {
+        let mut s = DefaultHasher::new();
+        Hash::hash(&self, &mut s);
+        s.finish()
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
+impl From<&horned_owl::model::{{ model.name }}<ArcStr>> for {{ model.name }} {
+    fn from(value: &horned_owl::model::{{ model.name }}<ArcStr>) -> Self {
+        {{ model.name }} {
+        {%- for field, type in model.fields.items() %}
+            {{ field | py_field(type) }}: IntoCompatible::<{{ type | as_rust_type }}>::into_c(value.{{ field }}.borrow()),
+        {%- endfor %}
+        }
+    }
+}
+
+
+impl From<&{{ model.name }}> for horned_owl::model::{{ model.name }}<ArcStr> {
+    fn from(value: &{{ model.name }}) -> Self {
+        horned_owl::model::{{ model.name }}::<ArcStr> {
+        {%- for field, type in model.fields.items() %}
+            {{ field }}: value.{{ field  | py_field(type) }}.borrow().into_c(),
+        {%- endfor %}
+        }
+    }
+}
+
+{% include 'base.rs.jinja2' %}
