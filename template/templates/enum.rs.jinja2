@@ -15,38 +15,6 @@ enum {{ model.name }}_Inner {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct {{ model.name }}({{ model.name }}_Inner);
 
-{#impl ToPyi for {{ model.name }} {#}
-{#    #[allow(unused_assignments)]#}
-{#    fn pyi(module: Option<String>) -> String {#}
-{#        let mut res = String::new();#}
-{#        let mut first = true;#}
-{##}
-{#        let m = module.map(|c| format!("{}.", c)).unwrap_or_default();#}
-{##}
-{#        write!(&mut res, "typing.Union[").unwrap();#}
-{#        $($(#}
-{##}
-{#            if (first) {#}
-{#                first = false;#}
-{#                write!(&mut res, "{}{}", m, stringify!({{ v_name_full }})).unwrap();#}
-{#            } else {#}
-{#                write!(&mut res, ", {}{}", m, stringify!({{ v_name_full }})).unwrap();#}
-{#            }#}
-{#        )*)?#}
-{##}
-{#        $($(#}
-{#            if (first) {#}
-{#                first = false;#}
-{#                write!(&mut res, "{}{}", m, stringify!({{ v_name }}_transparent)).unwrap();#}
-{#            } else {#}
-{#                write!(&mut res, ", {}{}", m, stringify!({{ v_name }}_transparent)).unwrap();#}
-{#            }#}
-{#        )*)?#}
-{#        write!(&mut res, "]\n").unwrap();#}
-{##}
-{#        res#}
-{#    }#}
-{#}#}
 
 /**************** ENUM VARIANTS for {{ model.name }} ****************/
 {%- for v_name, variant in model.variants.items() if not variant.transparent %}
@@ -127,37 +95,6 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
             }
         }
 
-{#        #[cfg(pyi)]#}
-{#        #[classmethod]#}
-{#        fn __pyi__(_: &Bound<'_, PyType>) -> String {#}
-{#            let mut res = String::new();#}
-{##}
-{#            write!(&mut res, "class {}:\n", stringify!({{ v_name_full }})).unwrap();#}
-{#            $($(#}
-{#                write!(&mut res, "    {}: {}\n", stringify!($field_s), to_py_type::<$type_s>(String::new())).unwrap();#}
-{#            )*)?#}
-{#            $(#}
-{#                write!(&mut res, "    first: {}\n", to_py_type::<$field_t0>(String::new())).unwrap();#}
-{#            )?#}
-{#            $($(#}
-{#                write!(&mut res, "    second: {}\n", to_py_type::<$field_t1>(String::new())).unwrap();#}
-{#            )?)?#}
-{##}
-{#            write!(&mut res, "    def __init__(self").unwrap();#}
-{#            $($(#}
-{#                write!(&mut res, ", {}: {}", stringify!($field_s), to_py_type::<$type_s>(String::new())).unwrap();#}
-{#            )*)?#}
-{#            $(write!(&mut res, ", first: {}", to_py_type::<$field_t0>(String::new())).unwrap();)?#}
-{#            $($(#}
-{#                write!(&mut res, ", second: {}", to_py_type::<$field_t1>(String::new())).unwrap();#}
-{#            )?)?#}
-{#            write!(&mut res, "):\n        ...\n").unwrap();#}
-{#            write!(&mut res, extensions_pyi!({{ model.name }}, {{ v_name_full }})).unwrap();#}
-{#            write!(&mut res, "    ...\n").unwrap();#}
-{##}
-{#            res#}
-{#        }#}
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -166,6 +103,10 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::{{ model.name }}<ArcStr>>::into(Into::<{{ model.name }}>::into(self.clone())).as_functional().to_string()
         }
     }
 

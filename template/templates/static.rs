@@ -2,6 +2,8 @@ use std::{borrow::Borrow, collections::{BTreeSet,hash_map::DefaultHasher}, sync:
 use std::fmt::Display;
 use std::hash::{Hash, Hasher};
 
+use horned_owl::io::ofn::writer::AsFunctional;
+
 use horned_owl::model::ArcStr;
 use pyo3::{exceptions::PyKeyError, prelude::*, PyObject, types::PyType};
 

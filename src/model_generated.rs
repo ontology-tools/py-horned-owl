@@ -2,6 +2,8 @@ use std::{borrow::Borrow, collections::{BTreeSet,hash_map::DefaultHasher}, sync:
 use std::fmt::Display;
 use std::hash::{Hash, Hasher};
 
+use horned_owl::io::ofn::writer::AsFunctional;
+
 use horned_owl::model::ArcStr;
 use pyo3::{exceptions::PyKeyError, prelude::*, PyObject, types::PyType};
 
@@ -269,29 +271,6 @@ impl Class {
         Class (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -500,29 +479,6 @@ impl AnonymousIndividual {
         AnonymousIndividual (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -714,29 +670,6 @@ impl NamedIndividual {
         NamedIndividual (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -927,29 +860,6 @@ impl ObjectProperty {
     fn new(first: IRI,) -> Self {
         ObjectProperty (first,)
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
@@ -1216,29 +1126,6 @@ impl Datatype {
         Datatype (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -1429,29 +1316,6 @@ impl DataProperty {
     fn new(first: IRI,) -> Self {
         DataProperty (first,)
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
@@ -1672,27 +1536,6 @@ impl FacetRestriction {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -1701,6 +1544,9 @@ impl FacetRestriction {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::FacetRestriction<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -1863,31 +1709,6 @@ pub enum Individual {
         Named (NamedIndividual),
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 impl IntoPy<PyObject> for Individual {
     fn into_py(self, py: Python<'_>) -> PyObject {
@@ -2075,38 +1896,6 @@ enum ObjectPropertyExpression_Inner {
 pub struct ObjectPropertyExpression(ObjectPropertyExpression_Inner);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**************** ENUM VARIANTS for ObjectPropertyExpression ****************/
 
     /**************** ENUM VARIANT InverseObjectProperty for ObjectPropertyExpression ****************/
@@ -2153,37 +1942,6 @@ pub struct ObjectPropertyExpression(ObjectPropertyExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -2192,6 +1950,10 @@ pub struct ObjectPropertyExpression(ObjectPropertyExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ObjectPropertyExpression<ArcStr>>::into(Into::<ObjectPropertyExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -2490,38 +2252,6 @@ enum Literal_Inner {
 pub struct Literal(Literal_Inner);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**************** ENUM VARIANTS for Literal ****************/
 
     /**************** ENUM VARIANT SimpleLiteral for Literal ****************/
@@ -2567,37 +2297,6 @@ pub struct Literal(Literal_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -2606,6 +2305,10 @@ pub struct Literal(Literal_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Literal<ArcStr>>::into(Into::<Literal>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -2664,37 +2367,6 @@ pub struct Literal(Literal_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -2703,6 +2375,10 @@ pub struct Literal(Literal_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Literal<ArcStr>>::into(Into::<Literal>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -2761,37 +2437,6 @@ pub struct Literal(Literal_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -2800,6 +2445,10 @@ pub struct Literal(Literal_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Literal<ArcStr>>::into(Into::<Literal>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -3048,38 +2697,6 @@ enum DataRange_Inner {
 pub struct DataRange(DataRange_Inner);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**************** ENUM VARIANTS for DataRange ****************/
 
     /**************** ENUM VARIANT DataIntersectionOf for DataRange ****************/
@@ -3126,37 +2743,6 @@ pub struct DataRange(DataRange_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -3165,6 +2751,10 @@ pub struct DataRange(DataRange_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -3215,37 +2805,6 @@ pub struct DataRange(DataRange_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -3254,6 +2813,10 @@ pub struct DataRange(DataRange_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -3304,37 +2867,6 @@ pub struct DataRange(DataRange_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -3343,6 +2875,10 @@ pub struct DataRange(DataRange_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -3393,37 +2929,6 @@ pub struct DataRange(DataRange_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -3432,6 +2937,10 @@ pub struct DataRange(DataRange_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -3490,37 +2999,6 @@ pub struct DataRange(DataRange_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -3529,6 +3007,10 @@ pub struct DataRange(DataRange_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -3841,38 +3323,6 @@ enum ClassExpression_Inner {
 pub struct ClassExpression(ClassExpression_Inner);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**************** ENUM VARIANTS for ClassExpression ****************/
 
     /**************** ENUM VARIANT ObjectIntersectionOf for ClassExpression ****************/
@@ -3919,37 +3369,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -3958,6 +3377,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -4025,37 +3448,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -4064,6 +3456,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -4131,37 +3527,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -4170,6 +3535,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -4237,37 +3606,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -4276,6 +3614,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -4351,37 +3693,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -4390,6 +3701,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -4465,37 +3780,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -4504,6 +3788,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -4579,37 +3867,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -4618,6 +3875,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -4685,37 +3946,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -4724,6 +3954,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -4808,37 +4042,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -4847,6 +4050,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -4931,37 +4138,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -4970,6 +4146,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -5054,37 +4234,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -5093,6 +4242,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -5168,37 +4321,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -5207,6 +4329,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -5282,37 +4408,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -5321,6 +4416,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -5396,37 +4495,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -5435,6 +4503,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -5519,37 +4591,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -5558,6 +4599,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -5642,37 +4687,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -5681,6 +4695,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -5765,37 +4783,6 @@ pub struct ClassExpression(ClassExpression_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -5804,6 +4791,10 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -6382,31 +5373,6 @@ pub enum PropertyExpression {
     
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 impl IntoPy<PyObject> for PropertyExpression {
     fn into_py(self, py: Python<'_>) -> PyObject {
         match self {
@@ -6597,31 +5563,6 @@ pub enum AnnotationSubject {
         AnonymousIndividual (AnonymousIndividual),
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 impl IntoPy<PyObject> for AnnotationSubject {
     fn into_py(self, py: Python<'_>) -> PyObject {
@@ -6817,29 +5758,6 @@ impl AnnotationProperty {
         AnnotationProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -6848,6 +5766,9 @@ impl AnnotationProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::AnnotationProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -7011,31 +5932,6 @@ pub enum AnnotationValue {
         AnonymousIndividual (AnonymousIndividual),
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 impl IntoPy<PyObject> for AnnotationValue {
     fn into_py(self, py: Python<'_>) -> PyObject {
@@ -7265,27 +6161,6 @@ impl Annotation {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -7294,6 +6169,9 @@ impl Annotation {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::Annotation<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -7466,29 +6344,6 @@ impl OntologyAnnotation {
         OntologyAnnotation (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -7497,6 +6352,9 @@ impl OntologyAnnotation {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::OntologyAnnotation<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -7667,29 +6525,6 @@ impl Import {
         Import (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -7698,6 +6533,9 @@ impl Import {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::Import<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -7868,29 +6706,6 @@ impl DeclareClass {
         DeclareClass (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -7899,6 +6714,9 @@ impl DeclareClass {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DeclareClass<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -8069,29 +6887,6 @@ impl DeclareObjectProperty {
         DeclareObjectProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -8100,6 +6895,9 @@ impl DeclareObjectProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DeclareObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -8270,29 +7068,6 @@ impl DeclareAnnotationProperty {
         DeclareAnnotationProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -8301,6 +7076,9 @@ impl DeclareAnnotationProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DeclareAnnotationProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -8471,29 +7249,6 @@ impl DeclareDataProperty {
         DeclareDataProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -8502,6 +7257,9 @@ impl DeclareDataProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DeclareDataProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -8672,29 +7430,6 @@ impl DeclareNamedIndividual {
         DeclareNamedIndividual (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -8703,6 +7438,9 @@ impl DeclareNamedIndividual {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DeclareNamedIndividual<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -8873,29 +7611,6 @@ impl DeclareDatatype {
         DeclareDatatype (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -8904,6 +7619,9 @@ impl DeclareDatatype {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DeclareDatatype<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -9102,27 +7820,6 @@ impl SubClassOf {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -9131,6 +7828,9 @@ impl SubClassOf {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::SubClassOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -9303,29 +8003,6 @@ impl EquivalentClasses {
         EquivalentClasses (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -9334,6 +8011,9 @@ impl EquivalentClasses {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::EquivalentClasses<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -9504,29 +8184,6 @@ impl DisjointClasses {
         DisjointClasses (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -9535,6 +8192,9 @@ impl DisjointClasses {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DisjointClasses<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -9708,29 +8368,6 @@ impl DisjointUnion {
         DisjointUnion (first,second,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -9739,6 +8376,9 @@ impl DisjointUnion {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DisjointUnion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -9901,31 +8541,6 @@ pub enum SubObjectPropertyExpression {
         ObjectPropertyExpression (ObjectPropertyExpression),
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 impl IntoPy<PyObject> for SubObjectPropertyExpression {
     fn into_py(self, py: Python<'_>) -> PyObject {
@@ -10149,27 +8764,6 @@ impl SubObjectPropertyOf {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -10178,6 +8772,9 @@ impl SubObjectPropertyOf {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::SubObjectPropertyOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -10350,29 +8947,6 @@ impl EquivalentObjectProperties {
         EquivalentObjectProperties (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -10381,6 +8955,9 @@ impl EquivalentObjectProperties {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::EquivalentObjectProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -10551,29 +9128,6 @@ impl DisjointObjectProperties {
         DisjointObjectProperties (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -10582,6 +9136,9 @@ impl DisjointObjectProperties {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DisjointObjectProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -10755,29 +9312,6 @@ impl InverseObjectProperties {
         InverseObjectProperties (first,second,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -10786,6 +9320,9 @@ impl InverseObjectProperties {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::InverseObjectProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -10986,27 +9523,6 @@ impl ObjectPropertyDomain {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -11015,6 +9531,9 @@ impl ObjectPropertyDomain {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::ObjectPropertyDomain<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -11215,27 +9734,6 @@ impl ObjectPropertyRange {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -11244,6 +9742,9 @@ impl ObjectPropertyRange {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::ObjectPropertyRange<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -11416,29 +9917,6 @@ impl FunctionalObjectProperty {
         FunctionalObjectProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -11447,6 +9925,9 @@ impl FunctionalObjectProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::FunctionalObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -11617,29 +10098,6 @@ impl InverseFunctionalObjectProperty {
         InverseFunctionalObjectProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -11648,6 +10106,9 @@ impl InverseFunctionalObjectProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::InverseFunctionalObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -11818,29 +10279,6 @@ impl ReflexiveObjectProperty {
         ReflexiveObjectProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -11849,6 +10287,9 @@ impl ReflexiveObjectProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::ReflexiveObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -12019,29 +10460,6 @@ impl IrreflexiveObjectProperty {
         IrreflexiveObjectProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -12050,6 +10468,9 @@ impl IrreflexiveObjectProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::IrreflexiveObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -12220,29 +10641,6 @@ impl SymmetricObjectProperty {
         SymmetricObjectProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -12251,6 +10649,9 @@ impl SymmetricObjectProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::SymmetricObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -12421,29 +10822,6 @@ impl AsymmetricObjectProperty {
         AsymmetricObjectProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -12452,6 +10830,9 @@ impl AsymmetricObjectProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::AsymmetricObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -12622,29 +11003,6 @@ impl TransitiveObjectProperty {
         TransitiveObjectProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -12653,6 +11011,9 @@ impl TransitiveObjectProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::TransitiveObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -12851,27 +11212,6 @@ impl SubDataPropertyOf {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -12880,6 +11220,9 @@ impl SubDataPropertyOf {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::SubDataPropertyOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -13052,29 +11395,6 @@ impl EquivalentDataProperties {
         EquivalentDataProperties (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -13083,6 +11403,9 @@ impl EquivalentDataProperties {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::EquivalentDataProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -13253,29 +11576,6 @@ impl DisjointDataProperties {
         DisjointDataProperties (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -13284,6 +11584,9 @@ impl DisjointDataProperties {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DisjointDataProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -13482,27 +11785,6 @@ impl DataPropertyDomain {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -13511,6 +11793,9 @@ impl DataPropertyDomain {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DataPropertyDomain<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -13711,27 +11996,6 @@ impl DataPropertyRange {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -13740,6 +12004,9 @@ impl DataPropertyRange {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DataPropertyRange<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -13912,29 +12179,6 @@ impl FunctionalDataProperty {
         FunctionalDataProperty (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -13943,6 +12187,9 @@ impl FunctionalDataProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::FunctionalDataProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -14141,27 +12388,6 @@ impl DatatypeDefinition {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -14170,6 +12396,9 @@ impl DatatypeDefinition {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DatatypeDefinition<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -14370,27 +12599,6 @@ impl HasKey {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -14399,6 +12607,9 @@ impl HasKey {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::HasKey<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -14571,29 +12782,6 @@ impl SameIndividual {
         SameIndividual (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -14602,6 +12790,9 @@ impl SameIndividual {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::SameIndividual<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -14772,29 +12963,6 @@ impl DifferentIndividuals {
         DifferentIndividuals (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -14803,6 +12971,9 @@ impl DifferentIndividuals {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DifferentIndividuals<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -15001,27 +13172,6 @@ impl ClassAssertion {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -15030,6 +13180,9 @@ impl ClassAssertion {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::ClassAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -15240,27 +13393,6 @@ impl ObjectPropertyAssertion {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -15269,6 +13401,9 @@ impl ObjectPropertyAssertion {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::ObjectPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -15481,27 +13616,6 @@ impl NegativeObjectPropertyAssertion {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -15510,6 +13624,9 @@ impl NegativeObjectPropertyAssertion {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::NegativeObjectPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -15722,27 +13839,6 @@ impl DataPropertyAssertion {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -15751,6 +13847,9 @@ impl DataPropertyAssertion {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DataPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -15963,27 +14062,6 @@ impl NegativeDataPropertyAssertion {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -15992,6 +14070,9 @@ impl NegativeDataPropertyAssertion {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::NegativeDataPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -16194,27 +14275,6 @@ impl AnnotationAssertion {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -16223,6 +14283,9 @@ impl AnnotationAssertion {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::AnnotationAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -16423,27 +14486,6 @@ impl SubAnnotationPropertyOf {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -16452,6 +14494,9 @@ impl SubAnnotationPropertyOf {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::SubAnnotationPropertyOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -16652,27 +14697,6 @@ impl AnnotationPropertyDomain {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -16681,6 +14705,9 @@ impl AnnotationPropertyDomain {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::AnnotationPropertyDomain<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -16881,27 +14908,6 @@ impl AnnotationPropertyRange {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -16910,6 +14916,9 @@ impl AnnotationPropertyRange {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::AnnotationPropertyRange<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -17082,29 +15091,6 @@ impl DocIRI {
         DocIRI (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -17113,6 +15099,9 @@ impl DocIRI {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::DocIRI<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -17311,27 +15300,6 @@ impl OntologyID {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -17340,6 +15308,9 @@ impl OntologyID {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::OntologyID<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -17512,29 +15483,6 @@ impl Variable {
         Variable (first,)
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -17543,6 +15491,9 @@ impl Variable {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::Variable<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -17703,31 +15654,6 @@ pub enum DArgument {
         Variable (Variable),
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 impl IntoPy<PyObject> for DArgument {
     fn into_py(self, py: Python<'_>) -> PyObject {
@@ -17913,31 +15839,6 @@ pub enum IArgument {
         Variable (Variable),
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 impl IntoPy<PyObject> for IArgument {
     fn into_py(self, py: Python<'_>) -> PyObject {
@@ -18130,38 +16031,6 @@ enum Atom_Inner {
 pub struct Atom(Atom_Inner);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**************** ENUM VARIANTS for Atom ****************/
 
     /**************** ENUM VARIANT BuiltInAtom for Atom ****************/
@@ -18216,37 +16085,6 @@ pub struct Atom(Atom_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -18255,6 +16093,10 @@ pub struct Atom(Atom_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -18313,37 +16155,6 @@ pub struct Atom(Atom_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -18352,6 +16163,10 @@ pub struct Atom(Atom_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -18410,37 +16225,6 @@ pub struct Atom(Atom_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -18449,6 +16233,10 @@ pub struct Atom(Atom_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -18507,37 +16295,6 @@ pub struct Atom(Atom_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -18546,6 +16303,10 @@ pub struct Atom(Atom_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -18604,37 +16365,6 @@ pub struct Atom(Atom_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -18643,6 +16373,10 @@ pub struct Atom(Atom_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -18701,37 +16435,6 @@ pub struct Atom(Atom_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -18740,6 +16443,10 @@ pub struct Atom(Atom_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -18798,37 +16505,6 @@ pub struct Atom(Atom_Inner);
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fn __hash__(&self) -> u64 {
             let mut s = DefaultHasher::new();
             Hash::hash(&self, &mut s);
@@ -18837,6 +16513,10 @@ pub struct Atom(Atom_Inner);
 
         fn __eq__(&self, other: &Self) -> bool {
             self == other
+        }
+
+        fn __str__(&self) -> String {
+            Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
     }
 
@@ -19199,27 +16879,6 @@ impl Rule {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -19228,6 +16887,9 @@ impl Rule {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::Rule<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
@@ -19525,31 +17187,6 @@ pub enum Component {
         Rule (Rule),
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 impl IntoPy<PyObject> for Component {
     fn into_py(self, py: Python<'_>) -> PyObject {
@@ -20043,27 +17680,6 @@ impl AnnotatedComponent {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -20072,6 +17688,9 @@ impl AnnotatedComponent {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::AnnotatedComponent<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 }
 
