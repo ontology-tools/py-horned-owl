@@ -51,27 +51,6 @@ impl {{ model.name }} {
         }
     }
 
-{#    #[cfg(pyi)]#}
-{#    #[classmethod]#}
-{#    fn __pyi__(_: &Bound<'_, PyType>) -> String {#}
-{#        let mut res = String::new();#}
-{##}
-{#        write!(&mut res, "class {}:\n", stringify!({{ model.name }})).unwrap();#}
-{#        $(#}
-{#            write!(&mut res, "    {}: {}\n", stringify!($field), to_py_type::<$type>(String::new())).unwrap();#}
-{#        )*#}
-{##}
-{##}
-{#        write!(&mut res, "    def __init__(self").unwrap();#}
-{#        $(#}
-{#            write!(&mut res, ", {}: {}", stringify!($field), to_py_type::<$type>(String::new())).unwrap();#}
-{#        )*#}
-{#        write!(&mut res, "):\n        ...\n").unwrap();#}
-{#        write!(&mut res, "    ...\n").unwrap();#}
-{##}
-{#        res#}
-{#    }#}
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -81,6 +60,12 @@ impl {{ model.name }} {
     fn __eq__(&self, other: &Self) -> bool {
         self == other
     }
+
+{%- if "named" not in model.extensions %}
+    fn __str__(&self) -> String {
+        Into::<horned_owl::model::{{ model.name }}<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+{%- endif %}
 }
 
 impl From<&horned_owl::model::{{ model.name }}<ArcStr>> for {{ model.name }} {
