@@ -1,0 +1,52 @@
+cff-version: 1.2.0
+message: If you use this software, please cite both the article from preferred-citation and the software itself.
+authors:
+  - family-names: Lord
+    given-names: Phillip
+  - family-names: Gehrke
+    given-names: Björn
+  - family-names: Larralde
+    given-names: Martin
+  - family-names: Hastings
+    given-names: Janna
+  - family-names: De Bortoli
+    given-names: Filippo
+  - family-names: Overton
+    given-names: James A.
+  - family-names: Balhoff
+    given-names: James P.
+  - family-names: Warrender
+    given-names: Jennifer
+title: 'Horned-OWL: Flying Further and Faster with Ontologies'
+version: 1.0.0
+url: https://drops.dagstuhl.de/entities/document/10.4230/TGDK.2.2.9
+doi: 10.4230/TGDK.2.2.9
+date-released: '2024-03-27'
+preferred-citation:
+  authors:
+    - family-names: Lord
+      given-names: Phillip
+    - family-names: Gehrke
+      given-names: Björn
+    - family-names: Larralde
+      given-names: Martin
+    - family-names: Hastings
+      given-names: Janna
+    - family-names: De Bortoli
+      given-names: Filippo
+    - family-names: Overton
+      given-names: James A.
+    - family-names: Balhoff
+      given-names: James P.
+    - family-names: Warrender
+      given-names: Jennifer
+  title: 'Horned-OWL: Flying Further and Faster with Ontologies'
+  doi: 10.4230/TGDK.2.2.9
+  url: https://drops.dagstuhl.de/entities/document/10.4230/TGDK.2.2.9
+  type: article-journal
+  pages: 9:1--9:14
+  year: '2024'
+  conference: {}
+  publisher:
+    name: Schloss Dagstuhl -- Leibniz-Zentrum für Informatik
+    address: Dagstuhl, Germany

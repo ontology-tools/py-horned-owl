@@ -51,7 +51,7 @@ for c in onto.get_classes():
 For more information please visit the [documentation](https://ontology-tools.github.io/py-horned-owl/). 
 
 
-
-
+## Citing 
+Phillip Lord, Björn Gehrke, Martin Larralde, Janna Hastings, Filippo De Bortoli, James A. Overton, James P. Balhoff, and Jennifer Warrender. Horned-OWL: Flying Further and Faster with Ontologies. In Special Issue on Resources for Graph Data and Knowledge. Transactions on Graph Data and Knowledge (TGDK), Volume 2, Issue 2, pp. 9:1-9:14, Schloss Dagstuhl – Leibniz-Zentrum für Informatik (2024) https://doi.org/10.4230/TGDK.2.2.9
 
 
