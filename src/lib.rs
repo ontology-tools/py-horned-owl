@@ -12,15 +12,19 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
-use crate::ontology::{get_ancestors, get_descendants, IndexCreationStrategy, PyIndexedOntology};
-
 #[macro_use]
 mod doc;
-mod model;
-mod ontology;
-mod prefix_mapping;
-mod model_generated;
+pub mod model;
+pub mod ontology;
+pub mod prefix_mapping;
+pub mod model_generated;
 mod wrappers;
+pub mod reasoner;
+
+pub use reasoner::{load_reasoner, PyReasoner};
+
+// pub use ontology;
+pub use ontology::{get_ancestors, get_descendants, IndexCreationStrategy, PyIndexedOntology};
 
 #[macro_export]
 macro_rules! to_py_err {
@@ -185,6 +189,7 @@ fn open_ontology(
     }
 }
 
+
 #[pymodule]
 fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyIndexedOntology>()?;
@@ -196,6 +201,9 @@ fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(open_ontology_from_string, m)?)?;
     m.add_function(wrap_pyfunction!(get_descendants, m)?)?;
     m.add_function(wrap_pyfunction!(get_ancestors, m)?)?;
+
+    m.add_function(wrap_pyfunction!(load_reasoner, m)?)?;
+    m.add_class::<PyReasoner>()?;
 
     let model_sub_module = model::py_module(py)?;
     m.add_submodule(&model_sub_module)?;

@@ -406,3 +406,35 @@ def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
     ...
 
 
+def load_reasoner(name: str) -> PyReasoner:
+    """
+    Loads a reasoner from a shared library.
+    
+    :param str name: name of the reasoner to load or path to the shared library to load
+    """
+    ...
+
+
+class PyReasoner:
+    """
+    A pyo3 compatible wrapper for all reasoner implementations
+    """
+    def classify(self, o: PyIndexedOntology) -> PyIndexedOntology:
+        """
+        Classifies the given ontology using the reasoner.
+        """
+        ...
+
+    def infer(self, o: PyIndexedOntology) -> set[Component]:
+        """
+        Infers axioms from the given ontology using the reasoner.
+        """
+        ...
+
+    def consistency(self, o: PyIndexedOntology) -> bool:
+        """
+        Checks if the given ontology is consistent using the reasoner.
+        """
+        ...
+
+
