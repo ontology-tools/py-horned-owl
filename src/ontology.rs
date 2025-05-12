@@ -6,11 +6,7 @@ use std::sync::Arc;
 use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
-use horned_owl::model::{
-    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
-    ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind,
-    HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI,
-};
+use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue, ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, ForIRI, HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI};
 use horned_owl::ontology::component_mapped::{
     ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
 };
@@ -90,6 +86,24 @@ impl Default for PyIndexedOntology {
     }
 }
 
+
+impl <A: ForIRI> From<&PyIndexedOntology> for SetOntology<A> where AnnotatedComponent<A>: From<AnnotatedComponent<ArcStr>> {
+    fn from(ont: &PyIndexedOntology) -> Self {
+        let mut o = SetOntology::<A>::new();
+        for comp in &ont.set_index {
+            o.insert::<AnnotatedComponent<A>>(comp.clone().into());
+        }
+        o
+    }
+}
+
+impl Clone for PyIndexedOntology {
+    fn clone(&self) -> Self {
+        let set = SetOntology::from(self);
+        Self::from_set_ontology(set, self.index_strategy)
+    }
+}
+
 impl Ontology<ArcStr> for PyIndexedOntology {}
 impl MutableOntology<ArcStr> for PyIndexedOntology {
     fn insert<AA>(&mut self, ax: AA) -> bool
@@ -126,6 +140,7 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
         self.set_index.index_remove(ax)
     }
 }
+
 
 #[pymethods]
 impl PyIndexedOntology {
