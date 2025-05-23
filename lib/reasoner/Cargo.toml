@@ -7,4 +7,5 @@ edition = "2018"
 name = "pyhornedowlreasoner"
 
 [dependencies]
-horned-owl = "^1.0"
+#horned-owl = "^1.0"
+horned-owl = { git = "https://github.com/phillord/horned-owl", branch = "devel" }

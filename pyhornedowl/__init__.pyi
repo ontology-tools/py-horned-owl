@@ -406,7 +406,7 @@ def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
     ...
 
 
-def load_reasoner(name: str) -> PyReasoner:
+def create_reasoner(name: str, ontology: PyIndexedOntology) -> PyReasoner:
     """
     Loads a reasoner from a shared library.
     
@@ -419,21 +419,48 @@ class PyReasoner:
     """
     A pyo3 compatible wrapper for all reasoner implementations
     """
-    def classify(self, o: PyIndexedOntology) -> PyIndexedOntology:
+    def get_name(self, /):
+        ...
+
+    def get_version(self, /):
+        ...
+
+    def is_consistent(self, /):
+        ...
+
+    def is_entailed(self, /, cmp):
+        ...
+
+    def is_satifisable(self, /, cmp):
+        ...
+
+    def get_unsatisfiable_classes(self, /):
+        ...
+
+    def get_subclasses(self, /, cmp):
+        ...
+
+    def get_superclasses(self, /, cmp):
+        ...
+
+    def get_equivalent_classes(self, /, cmp):
+        ...
+
+    def get_disjoint_classes(self, /, cmp):
+        ...
+
+    def get_current_ontology(self, /):
+        ...
+
+    def add_component(self, component: model.Component, annotations: Optional[Union[List[model.Annotation]|Set[model.Annotation]]]=None) -> None:
         """
-        Classifies the given ontology using the reasoner.
+        Adds an axiom to the ontology with optional annotations.
         """
         ...
 
-    def infer(self, o: PyIndexedOntology) -> set[Component]:
+    def remove_component(self, component: model.Component) -> bool:
         """
-        Infers axioms from the given ontology using the reasoner.
-        """
-        ...
-
-    def consistency(self, o: PyIndexedOntology) -> bool:
-        """
-        Checks if the given ontology is consistent using the reasoner.
+        Removes a component from the ontology.
         """
         ...
 
