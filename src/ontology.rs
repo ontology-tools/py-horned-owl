@@ -6,7 +6,11 @@ use std::sync::Arc;
 use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
-use horned_owl::model::{AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue, ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, ForIRI, HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI};
+use horned_owl::model::{
+    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
+    ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, ForIRI,
+    HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI,
+};
 use horned_owl::ontology::component_mapped::{
     ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
 };
@@ -86,8 +90,10 @@ impl Default for PyIndexedOntology {
     }
 }
 
-
-impl <A: ForIRI> From<&PyIndexedOntology> for SetOntology<A> where AnnotatedComponent<A>: From<AnnotatedComponent<ArcStr>> {
+impl<A: ForIRI> From<&PyIndexedOntology> for SetOntology<A>
+where
+    AnnotatedComponent<A>: From<AnnotatedComponent<ArcStr>>,
+{
     fn from(ont: &PyIndexedOntology) -> Self {
         let mut o = SetOntology::<A>::new();
         for comp in &ont.set_index {
@@ -140,7 +146,6 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
         self.set_index.index_remove(ax)
     }
 }
-
 
 #[pymethods]
 impl PyIndexedOntology {
@@ -1132,6 +1137,16 @@ impl PyIndexedOntology {
         };
 
         result.map_err(to_py_err!("Problem saving the ontology to a file"))
+    }
+}
+
+impl From<PyIndexedOntology> for SetOntology<ArcStr> {
+    fn from(value: PyIndexedOntology) -> Self {
+        let mut o = SetOntology::<ArcStr>::new();
+        for cmp in value.set_index.into_iter() {
+            o.insert(cmp);
+        }
+        o
     }
 }
 
