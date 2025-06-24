@@ -1,6 +1,6 @@
 [package]
 name = "py-horned-owl"
-version = "1.2.0"
+version = "1.2.1"
 authors = ["Janna Hastings <j.hastings@ucl.ac.uk>"]
 edition = "2018"
 
@@ -15,8 +15,8 @@ version = "0.21"
 features = ["abi3-py37", "extension-module", "experimental-inspect", "multiple-pymethods"]
 
 [dependencies]
-horned-owl = { git = "https://github.com/phillord/horned-owl", branch = "devel" }
-horned-bin = { git = "https://github.com/phillord/horned-owl", branch = "devel" }
+horned-owl = "1.1.0"
+horned-bin = "1.1.0"
 curie = "0.1.2"
 failure = "0.1.8"
 quote = "1.0"
