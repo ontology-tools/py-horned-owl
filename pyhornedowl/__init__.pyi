@@ -416,13 +416,16 @@ def create_reasoner(name: str, ontology: PyIndexedOntology) -> PyReasoner:
 
 
 class PyReasoner:
-    """
-    A pyo3 compatible wrapper for all reasoner implementations
-    """
     def get_name(self, /):
         ...
 
     def get_version(self, /):
+        ...
+
+    def flush(self, /):
+        ...
+
+    def inferred_axioms(self, /):
         ...
 
     def is_consistent(self, /):
@@ -447,21 +450,6 @@ class PyReasoner:
         ...
 
     def get_disjoint_classes(self, /, cmp):
-        ...
-
-    def get_current_ontology(self, /):
-        ...
-
-    def add_component(self, component: model.Component, annotations: Optional[Union[List[model.Annotation]|Set[model.Annotation]]]=None) -> None:
-        """
-        Adds an axiom to the ontology with optional annotations.
-        """
-        ...
-
-    def remove_component(self, component: model.Component) -> bool:
-        """
-        Removes a component from the ontology.
-        """
         ...
 
 
