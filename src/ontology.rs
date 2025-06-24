@@ -1,7 +1,7 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
 use std::io::Write;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
@@ -23,10 +23,10 @@ use pyo3::prelude::*;
 use pyo3::{
     pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyObject, PyResult, Python, ToPyObject,
 };
-
 use crate::prefix_mapping::PrefixMapping;
 use crate::wrappers::BTreeSetWrap;
-use crate::{guess_serialization, model, parse_serialization, to_py_err};
+use crate::{guess_serialization, model, parse_serialization, to_py_err, PyReasoner};
+use crate::reasoner::DynamicLoadedReasoner;
 
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -71,6 +71,8 @@ pub struct PyIndexedOntology {
     pub build: Build<ArcStr>,
 
     pub index_strategy: IndexCreationStrategy,
+
+    pub reasoners: Vec<PyReasoner>,
 }
 
 impl Default for PyIndexedOntology {
@@ -86,6 +88,7 @@ impl Default for PyIndexedOntology {
                 .expect("Unable to create default prefix mapping"),
             build: Build::new_arc(),
             index_strategy: IndexCreationStrategy::OnQuery,
+            reasoners: vec![]
         })
     }
 }
@@ -123,6 +126,10 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
         if let Some(ref mut component_index) = &mut self.component_index {
             component_index.index_insert(ax.clone());
         }
+        for reasoner in &mut self.reasoners {
+            reasoner.0.lock().unwrap().0.index_insert(ax.clone());
+        }
+
         self.set_index.index_insert(ax)
     }
 
@@ -133,6 +140,10 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
         if let Some(ref mut component_index) = &mut self.component_index {
             component_index.index_take(ax);
         }
+        for reasoner in &self.reasoners {
+            reasoner.0.lock().unwrap().0.index_take(ax);
+        }
+
         self.set_index.index_take(ax)
     }
 
@@ -143,6 +154,10 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
         if let Some(ref mut component_index) = &mut self.component_index {
             component_index.index_remove(ax);
         }
+        for reasoner in &mut self.reasoners {
+            reasoner.0.lock().unwrap().0.index_remove(ax);
+        }
+
         self.set_index.index_remove(ax)
     }
 }
@@ -1006,6 +1021,7 @@ impl PyIndexedOntology {
 }
 
 impl PyIndexedOntology {
+
     pub fn get_subclasses(&self, iri: &IRI<ArcStr>) -> HashSet<IRI<ArcStr>> {
         let subclass_axioms = if let Some(ref component_index) = &self.component_index {
             Box::new(component_index.component_for_kind(ComponentKind::SubClassOf))
@@ -1137,6 +1153,12 @@ impl PyIndexedOntology {
         };
 
         result.map_err(to_py_err!("Problem saving the ontology to a file"))
+    }
+
+    pub fn add_reasoner(&mut self, reasoner: DynamicLoadedReasoner) -> PyReasoner {
+        let r = PyReasoner(Arc::new(Mutex::new(reasoner)));
+        self.reasoners.push(r.clone());
+        r
     }
 }
 
