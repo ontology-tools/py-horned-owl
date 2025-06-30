@@ -15,8 +15,8 @@ version = "0.21"
 features = ["abi3-py37", "extension-module", "experimental-inspect", "multiple-pymethods"]
 
 [dependencies]
-horned-owl = "^1.0"
-horned-bin = "^1.0"
+horned-owl = "^1.1"
+horned-bin = "^1.1"
 py-horned-owl-reasoner = { path = "lib/reasoner" }
 curie = "0.1.2"
 libloading = "0.8"
