@@ -2,6 +2,7 @@
 name = "py-horned-owl-reasoner"
 version = "0.1.0"
 edition = "2018"
+license = "LGPL-3.0-or-later"
 
 [lib]
 name = "pyhornedowlreasoner"
