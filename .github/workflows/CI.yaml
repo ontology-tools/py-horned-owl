@@ -194,7 +194,7 @@ jobs:
       # Used to generate artifact attestation
       attestations: write
     runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.do_release)  }}
     needs: [linux, musllinux, windows, macos, sdist]
     steps:
       - uses: actions/download-artifact@v4
@@ -203,7 +203,6 @@ jobs:
         with:
           subject-path: 'wheels-*/*'
       - name: Publish to PyPI
-        if: ${{ startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.do_release )}}
         uses: PyO3/maturin-action@v1
         with:
           command: upload
@@ -212,7 +211,7 @@ jobs:
   build-docs:
     needs: linux
     runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/') || (github.ref == 'main' && github.event_name == 'workflow_dispatch')"
+    if: ${{ github.event_name == 'release' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
