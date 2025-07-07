@@ -1,14 +1,18 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
 use std::io::Write;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
+use crate::prefix_mapping::PrefixMapping;
+use crate::reasoner::DynamicLoadedReasoner;
+use crate::wrappers::BTreeSetWrap;
+use crate::{guess_serialization, model, parse_serialization, to_py_err, PyReasoner};
 use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
 use horned_owl::model::{
     AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
-    ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind,
+    ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, ForIRI,
     HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI,
 };
 use horned_owl::ontology::component_mapped::{
@@ -23,10 +27,6 @@ use pyo3::prelude::*;
 use pyo3::{
     pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyObject, PyResult, Python, ToPyObject,
 };
-
-use crate::prefix_mapping::PrefixMapping;
-use crate::wrappers::BTreeSetWrap;
-use crate::{guess_serialization, model, parse_serialization, to_py_err};
 
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -71,6 +71,8 @@ pub struct PyIndexedOntology {
     pub build: Build<ArcStr>,
 
     pub index_strategy: IndexCreationStrategy,
+
+    pub reasoners: Vec<PyReasoner>,
 }
 
 impl Default for PyIndexedOntology {
@@ -86,7 +88,28 @@ impl Default for PyIndexedOntology {
                 .expect("Unable to create default prefix mapping"),
             build: Build::new_arc(),
             index_strategy: IndexCreationStrategy::OnQuery,
+            reasoners: vec![],
         })
+    }
+}
+
+impl<A: ForIRI> From<&PyIndexedOntology> for SetOntology<A>
+where
+    AnnotatedComponent<A>: From<AnnotatedComponent<ArcStr>>,
+{
+    fn from(ont: &PyIndexedOntology) -> Self {
+        let mut o = SetOntology::<A>::new();
+        for comp in &ont.set_index {
+            o.insert::<AnnotatedComponent<A>>(comp.clone().into());
+        }
+        o
+    }
+}
+
+impl Clone for PyIndexedOntology {
+    fn clone(&self) -> Self {
+        let set = SetOntology::from(self);
+        Self::from_set_ontology(set, self.index_strategy)
     }
 }
 
@@ -103,6 +126,10 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
         if let Some(ref mut component_index) = &mut self.component_index {
             component_index.index_insert(ax.clone());
         }
+        for reasoner in &mut self.reasoners {
+            reasoner.0.lock().unwrap().0.index_insert(ax.clone());
+        }
+
         self.set_index.index_insert(ax)
     }
 
@@ -113,6 +140,10 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
         if let Some(ref mut component_index) = &mut self.component_index {
             component_index.index_take(ax);
         }
+        for reasoner in &self.reasoners {
+            reasoner.0.lock().unwrap().0.index_take(ax);
+        }
+
         self.set_index.index_take(ax)
     }
 
@@ -123,6 +154,10 @@ impl MutableOntology<ArcStr> for PyIndexedOntology {
         if let Some(ref mut component_index) = &mut self.component_index {
             component_index.index_remove(ax);
         }
+        for reasoner in &mut self.reasoners {
+            reasoner.0.lock().unwrap().0.index_remove(ax);
+        }
+
         self.set_index.index_remove(ax)
     }
 }
@@ -1117,6 +1152,22 @@ impl PyIndexedOntology {
         };
 
         result.map_err(to_py_err!("Problem saving the ontology to a file"))
+    }
+
+    pub fn add_reasoner(&mut self, reasoner: DynamicLoadedReasoner) -> PyReasoner {
+        let r = PyReasoner(Arc::new(Mutex::new(reasoner)));
+        self.reasoners.push(r.clone());
+        r
+    }
+}
+
+impl From<PyIndexedOntology> for SetOntology<ArcStr> {
+    fn from(value: PyIndexedOntology) -> Self {
+        let mut o = SetOntology::<ArcStr>::new();
+        for cmp in value.set_index.into_iter() {
+            o.insert(cmp);
+        }
+        o
     }
 }
 

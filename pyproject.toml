@@ -12,7 +12,18 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
+dependencies = [
+    "jinja2>=3.1.6",
+]
 
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+
+[dependency-groups]
+dev = [
+    "py-horned-owl",
+    "sphinx>=5.3.0",
+    "sphinx-autobuild>=2021.3.14",
+    "sphinx-rtd-theme>=2.0.0",
+]

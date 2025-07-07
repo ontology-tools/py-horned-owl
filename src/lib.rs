@@ -12,15 +12,18 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
-use crate::ontology::{get_ancestors, get_descendants, IndexCreationStrategy, PyIndexedOntology};
-
 #[macro_use]
 mod doc;
-mod model;
-mod ontology;
-mod prefix_mapping;
-mod model_generated;
+pub mod model;
+pub mod model_generated;
+pub mod ontology;
+pub mod prefix_mapping;
+pub mod reasoner;
 mod wrappers;
+
+pub use reasoner::{create_reasoner, PyReasoner};
+
+pub use ontology::{get_ancestors, get_descendants, IndexCreationStrategy, PyIndexedOntology};
 
 #[macro_export]
 macro_rules! to_py_err {
@@ -148,10 +151,11 @@ fn open_ontology_from_string(
         Some(ResourceType::RDF) => open_ontology_rdf(&mut f, &b, index_strategy),
         None => open_ontology_owx(&mut BufReader::new(ontology.as_bytes()), &b)
             .or_else(|_| open_ontology_ofn(&mut BufReader::new(ontology.as_bytes()), &b))
-            .or_else(|_| open_ontology_rdf(&mut BufReader::new(ontology.as_bytes()), &b, index_strategy)),
+            .or_else(|_| {
+                open_ontology_rdf(&mut BufReader::new(ontology.as_bytes()), &b, index_strategy)
+            }),
     }
     .map_err(to_py_err!("Failed to open ontology"))?;
-
 
     if let IndexCreationStrategy::OnLoad = index_strategy {
         pio.build_indexes()
@@ -196,6 +200,9 @@ fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(open_ontology_from_string, m)?)?;
     m.add_function(wrap_pyfunction!(get_descendants, m)?)?;
     m.add_function(wrap_pyfunction!(get_ancestors, m)?)?;
+
+    m.add_function(wrap_pyfunction!(create_reasoner, m)?)?;
+    m.add_class::<PyReasoner>()?;
 
     let model_sub_module = model::py_module(py)?;
     m.add_submodule(&model_sub_module)?;

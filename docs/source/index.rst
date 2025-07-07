@@ -19,5 +19,6 @@ Contents
    usage
    performance
    details
+   reasoner
    api
 
