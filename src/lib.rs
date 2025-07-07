@@ -23,7 +23,6 @@ mod wrappers;
 
 pub use reasoner::{create_reasoner, PyReasoner};
 
-// pub use ontology;
 pub use ontology::{get_ancestors, get_descendants, IndexCreationStrategy, PyIndexedOntology};
 
 #[macro_export]

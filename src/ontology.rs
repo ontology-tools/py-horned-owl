@@ -3,6 +3,10 @@ use std::fs::File;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
 
+use crate::prefix_mapping::PrefixMapping;
+use crate::reasoner::DynamicLoadedReasoner;
+use crate::wrappers::BTreeSetWrap;
+use crate::{guess_serialization, model, parse_serialization, to_py_err, PyReasoner};
 use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
@@ -23,10 +27,6 @@ use pyo3::prelude::*;
 use pyo3::{
     pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyObject, PyResult, Python, ToPyObject,
 };
-use crate::prefix_mapping::PrefixMapping;
-use crate::wrappers::BTreeSetWrap;
-use crate::{guess_serialization, model, parse_serialization, to_py_err, PyReasoner};
-use crate::reasoner::DynamicLoadedReasoner;
 
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -88,7 +88,7 @@ impl Default for PyIndexedOntology {
                 .expect("Unable to create default prefix mapping"),
             build: Build::new_arc(),
             index_strategy: IndexCreationStrategy::OnQuery,
-            reasoners: vec![]
+            reasoners: vec![],
         })
     }
 }
@@ -1021,7 +1021,6 @@ impl PyIndexedOntology {
 }
 
 impl PyIndexedOntology {
-
     pub fn get_subclasses(&self, iri: &IRI<ArcStr>) -> HashSet<IRI<ArcStr>> {
         let subclass_axioms = if let Some(ref component_index) = &self.component_index {
             Box::new(component_index.component_for_kind(ComponentKind::SubClassOf))
