@@ -96,7 +96,7 @@ The library must be compiled as a shared C library (crate type "cdylib"). The re
             todo!()
         }
 
-        // implement any other methods from the `Reasoner` trait supported by your reasoner. By default, the methods that are implemented to return `Err(ReasonerError::NotImplemented)`.
+        // implement any other methods from the `Reasoner` trait supported by your reasoner. By default, all methods are implemented to return `Err(ReasonerError::NotImplemented)`.
     }
 
 
