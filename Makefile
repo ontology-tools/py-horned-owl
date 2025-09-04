@@ -1,3 +1,5 @@
+.PHONY: all dev mdev model docs tests
+
 all: lib pyi
 
 dev: mdev pyi
@@ -22,3 +24,7 @@ lib: model docs
 venv:
 	python3 -m venv .venv
 	.venv/bin/pip3 install -r requirements.txt
+
+tests: dev
+	.venv/bin/pip3 install pytest
+	pytest --doctest-modules test/
