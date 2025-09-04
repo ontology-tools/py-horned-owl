@@ -1,11 +1,12 @@
 [package]
 name = "py-horned-owl-reasoner"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 license = "LGPL-3.0-or-later"
 
 [lib]
 name = "pyhornedowlreasoner"
 
 [dependencies]
-horned-owl = "^1.1"
+# horned-owl = "^1.1"
+horned-owl = { git = "https://github.com/phillord/horned-owl" }

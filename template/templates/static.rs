@@ -5,7 +5,7 @@ use std::hash::{Hash, Hasher};
 use horned_owl::io::ofn::writer::AsFunctional;
 
 use horned_owl::model::ArcStr;
-use pyo3::{exceptions::PyKeyError, prelude::*, PyObject, types::PyType};
+use pyo3::{exceptions::PyKeyError, prelude::*, PyAny, types::PyType};
 
 use crate::wrappers::*;
 

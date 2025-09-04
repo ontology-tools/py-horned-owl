@@ -1,6 +1,7 @@
 {%- from 'extensions.rs.jinja2' import include_extensions -%}
 /**************** ENUM implementation for {{ model.name }} ****************/
 #[allow(non_camel_case_types)]
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum {{ model.name }}_Inner {
 {%- for v_name, variant in model.variants.items() %}{% set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)%}
@@ -74,10 +75,10 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
         }
 
 
-        fn __getitem__(&self, py: Python<'_>, name: &str) -> PyResult<PyObject> {
+        fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
             {%- for field, type in variant.fields | fields %}
-            	"{{ field | as_py_name }}" => Ok(self.{{ field }}.clone().into_py(py)),
+            	"{{ field | as_py_name }}" => self.{{ field }}.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
             {%- endfor %}
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
@@ -152,17 +153,6 @@ impl From<&horned_owl::model::{{ model.name }}<ArcStr>> for {{ model.name }} {
         }
     }
 }
-impl IntoPy<pyo3::PyObject> for {{ model.name }} {
-    fn into_py(self, py: pyo3::Python) -> pyo3::PyObject {
-        match self.0 {
-            {% for v_name, variant in model.variants.items() %}
-                {{ model.name }}_Inner::{{ v_name }}(val) => {
-                    val.into_py(py)
-                },
-            {% endfor %}
-        }
-    }
-}
 
 impl From<&{{ model.name }}> for horned_owl::model::{{ model.name }}<ArcStr> {
     fn from(value: &{{ model.name }}) -> Self {
@@ -192,24 +182,39 @@ impl From<&{{ model.name }}> for horned_owl::model::{{ model.name }}<ArcStr> {
     }
 }
 
-impl <'source> FromPyObject<'source> for {{ model.name }} {
-    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
+impl<'py> IntoPyObject<'py> for {{ model.name }} {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: pyo3::Python<'py>) -> Result<Self::Output, Self::Error> {
+        match self.0 {
+            {% for v_name, variant in model.variants.items() %}
+                {{ model.name }}_Inner::{{ v_name }}(val) => {
+                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
+                },
+            {% endfor %}
+        }
+    }
+
+}
+
+impl <'py> FromPyObject<'py> for {{ model.name }} {
+    fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         {%- for v_name, variant in model.variants.items() %}
             {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)%}
             {%- if variant.transparent %}
             {
-            	let r = {{ v_name_full }}::extract(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+            	let r = {{ v_name_full }}::extract_bound(ob);
+                if let Ok(local) = r {
                     let inner = {{ model.name }}_Inner::{{ v_name }}(local);
                     return Ok({{ model.name }}(inner));
                 }
             }
             {%- else %}
             {
-                let r = {{ v_name_full }}::extract(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                let r = {{ v_name_full }}::extract_bound(ob);
+                if let Ok(local) = r {
                     let inner = {{ model.name }}_Inner::{{ v_name }}(local);
                     return Ok({{ model.name }}(inner));
                 }

@@ -56,14 +56,14 @@ fn open_ontology_owx<R: BufRead>(
     content: &mut R,
     b: &Build<Arc<str>>,
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
-    horned_owl::io::owx::reader::read_with_build(content, &b)
+    horned_owl::io::owx::reader::read_with_build(content, b)
 }
 
 fn open_ontology_ofn<R: BufRead>(
     content: &mut R,
     b: &Build<Arc<str>>,
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
-    horned_owl::io::ofn::reader::read_with_build(content, &b)
+    horned_owl::io::ofn::reader::read_with_build(content, b)
 }
 
 fn open_ontology_rdf<R: BufRead>(
@@ -73,7 +73,7 @@ fn open_ontology_rdf<R: BufRead>(
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
     horned_owl::io::rdf::reader::read_with_build::<ArcStr, ArcAnnotatedComponent, R>(
         content,
-        &b,
+        b,
         ParserConfiguration {
             rdf: RDFParserConfiguration { lax: true },
             ..Default::default()

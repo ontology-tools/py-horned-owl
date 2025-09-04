@@ -6,13 +6,9 @@ use pyo3::{
 use crate::to_py_err;
 
 #[pyclass(mapping)]
+#[derive(Default)]
 pub struct PrefixMapping(pub(crate) curie::PrefixMapping);
 
-impl Default for PrefixMapping {
-    fn default() -> Self {
-        Self(Default::default())
-    }
-}
 
 impl From<curie::PrefixMapping> for PrefixMapping {
     fn from(value: curie::PrefixMapping) -> Self {
@@ -27,12 +23,12 @@ impl From<PrefixMapping> for curie::PrefixMapping {
 }
 
 #[pyclass]
-struct Iter {
+struct PyIter {
     inner: std::vec::IntoIter<(String, String)>
 }
 
 #[pymethods]
-impl Iter {
+impl PyIter {
     fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
         slf
     }
@@ -48,9 +44,9 @@ impl PrefixMapping {
     /// __iter__(self) -> typing.Iterable[typing.Tuple[str, str]]
     ///
     /// Get an iterator over all prefixes
-    fn __iter__(slf: PyRef<'_, Self>) -> PyResult<Py<Iter>> {
-        let iter = Iter {
-            inner: slf.0.mappings().map(|(x,y)| ((x.clone(), y.clone()))).collect::<Vec<(String, String)>>().into_iter(),
+    fn __iter__(slf: PyRef<'_, Self>) -> PyResult<Py<PyIter>> {
+        let iter = PyIter {
+            inner: slf.0.mappings().map(|(x,y)| (x.clone(), y.clone())).collect::<Vec<(String, String)>>().into_iter(),
         };
         Py::new(slf.py(), iter)
     }
@@ -72,7 +68,8 @@ impl PrefixMapping {
     }
 
     pub fn __delitem__(&mut self, key: &str) -> PyResult<()> {
-        Ok(self.0.remove_prefix(key))
+        self.0.remove_prefix(key);
+        Ok(())
     }
 
     pub fn __len__(&self) -> usize {
@@ -119,7 +116,7 @@ impl PrefixMapping {
     pub fn remove_prefix(&mut self, prefix: &str) {
         self.0.remove_prefix(prefix);
 
-        if prefix == "" {
+        if prefix.is_empty() {
             let mut new_mapping = curie::PrefixMapping::default();
             for (p, v) in self.0.mappings() {
                 new_mapping.add_prefix(p, v).expect("Cannot happen since self.0 contains only valid prefix mappings");
@@ -145,6 +142,6 @@ impl PrefixMapping {
         self.0
             .shrink_iri(iri)
             .map(|c| c.to_string())
-            .map_err(|e| PyValueError::new_err(e))
+            .map_err(PyValueError::new_err)
     }
 }
