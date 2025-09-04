@@ -42,7 +42,7 @@ impl FromCompatible<&String> for String {
 
 impl FromCompatible<&u32> for u32 {
     fn from_c(value: &u32) -> Self {
-        value.clone()
+        *value
     }
 }
 
@@ -64,9 +64,8 @@ impl<U, V, S, T> FromCompatible<(S, T)> for (U, V)
     V: FromCompatible<T>,
 {
     fn from_c(value: (S, T)) -> Self {
-        match value {
-            (s, t) => (U::from_c(s), V::from_c(t)),
-        }
+        let (s, t) = value;
+        (U::from_c(s), V::from_c(t))
     }
 }
 
@@ -76,9 +75,8 @@ impl<'a, U, V, S, T> FromCompatible<&'a (S, T)> for (U, V)
     V: FromCompatible<&'a T>,
 {
     fn from_c(value: &'a (S, T)) -> Self {
-        match value {
-            (s, t) => (U::from_c(s), V::from_c(t)),
-        }
+        let (s, t) = value;
+        (U::from_c(s), V::from_c(t))
     }
 }
 

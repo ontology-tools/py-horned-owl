@@ -36,22 +36,19 @@ use pyo3::{
 /// OnLoad: Create the additional indexes when the ontology is loaded
 /// OnQuery: Create the additional indexes only when they are needed
 /// Explicit: Only create the additional indexes when explicity requested
+#[derive(Default)]
 pub enum IndexCreationStrategy {
     /// Create the additional indexes when the ontology is loaded
     OnLoad,
 
     /// Create the additional indexes only when they are needed
+    #[default]
     OnQuery,
 
     /// Only create the additional indexes when explicity requested
     Explicit,
 }
 
-impl Default for IndexCreationStrategy {
-    fn default() -> Self {
-        IndexCreationStrategy::OnQuery
-    }
-}
 
 /// Represents a loaded ontology.
 #[pyclass]
@@ -272,7 +269,7 @@ impl PyIndexedOntology {
 
         let ax1: AnnotatedComponent<ArcStr>;
         {
-            let build = self.build.write().unwrap();
+            let build = self.build.read().unwrap();
 
             ax1 = Component::AnnotationAssertion(AnnotationAssertion {
                 subject: iri.clone().into(),
@@ -298,19 +295,16 @@ impl PyIndexedOntology {
             .filter_map(|aax: &AnnotatedComponent<ArcStr>| match &aax.component {
                 Component::AnnotationAssertion(AnnotationAssertion {
                     subject: AnnotationSubject::IRI(subj),
-                    ann,
-                }) if subj == &iri => match ann {
-                    Annotation {
+                    ann: Annotation {
                         ap,
                         av: AnnotationValue::Literal(Literal::Simple { literal: _old }),
-                    } => {
-                        if AnnotationBuiltIn::Label.to_string().eq(&ap.0.to_string()) {
-                            Some(aax.clone())
-                        } else {
-                            None
-                        }
+                    },
+                }) if subj == &iri => {
+                    if AnnotationBuiltIn::Label.to_string().eq(&ap.0.to_string()) {
+                        Some(aax.clone())
+                    } else {
+                        None
                     }
-                    _ => None,
                 },
                 _ => None,
             })
@@ -613,7 +607,7 @@ impl PyIndexedOntology {
 
             Ok(axioms)
         } else {
-            return Err(PyValueError::new_err("IRI index not yet build!"));
+            Err(PyValueError::new_err("IRI index not yet build!"))
         }
     }
 
@@ -700,8 +694,7 @@ impl PyIndexedOntology {
                     Ok::<BTreeSet<model::Annotation>, PyErr>(
                         a.extract::<Vec<model::Annotation>>()?.into_iter().collect(),
                     )
-                })?
-                .into(),
+                })?,
             None => BTreeSet::new(),
         }
         .into();
@@ -756,7 +749,7 @@ impl PyIndexedOntology {
     pub fn iri(&self, py: Python<'_>, iri: String, absolute: Option<bool>) -> PyResult<model::IRI> {
         let absolute = absolute.unwrap_or_else(|| iri.contains("://"));
         let r = if absolute {    
-            let build = self.build.write().unwrap();
+            let build = self.build.read().unwrap();
             model::IRI::new(iri, &build)
         } else {
             self.curie(py, iri)?
@@ -771,7 +764,7 @@ impl PyIndexedOntology {
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
     pub fn curie(&self, py: Python<'_>, curie: String) -> PyResult<model::IRI> {
         let mapping = self.mapping.borrow_mut(py);
-        let build = self.build.write().unwrap();
+        let build = self.build.read().unwrap();
         let iri = mapping
             .0
             .expand_curie_string(&curie)
@@ -976,7 +969,7 @@ impl PyIndexedOntology {
     /// build_iri_index(self) -> None
     ///
     /// Builds an index by iri (IRIMappedIndex).
-    pub fn build_iri_index(&mut self) -> () {
+    pub fn build_iri_index(&mut self) {
         if self.iri_index.is_some() {
             return;
         }

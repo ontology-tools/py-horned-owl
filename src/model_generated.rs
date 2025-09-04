@@ -385,7 +385,7 @@ impl From<&VecWrap<Class>> for Vec<horned_owl::model::Class<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Class<ArcStr>>> for VecWrap<Class> {
     fn from(value: &Vec<horned_owl::model::Class<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Class::from).collect())
+        VecWrap(value.iter().map(Class::from).collect())
     }
 }
 
@@ -432,7 +432,7 @@ impl FromCompatible<&Vec<horned_owl::model::Class<ArcStr>>> for VecWrap<Class> {
     /******** EXTENSION "named" for Class ********/
     impl Display for Class {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0.0.to_string())
+            write!(f, "{}", self.0.0)
         }
     }
 
@@ -593,7 +593,7 @@ impl From<&VecWrap<AnonymousIndividual>> for Vec<horned_owl::model::AnonymousInd
 }
 impl From<&Vec<horned_owl::model::AnonymousIndividual<ArcStr>>> for VecWrap<AnonymousIndividual> {
     fn from(value: &Vec<horned_owl::model::AnonymousIndividual<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(AnonymousIndividual::from).collect())
+        VecWrap(value.iter().map(AnonymousIndividual::from).collect())
     }
 }
 
@@ -640,7 +640,7 @@ impl FromCompatible<&Vec<horned_owl::model::AnonymousIndividual<ArcStr>>> for Ve
     /******** EXTENSION "named" for AnonymousIndividual ********/
     impl Display for AnonymousIndividual {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0.0.to_string())
+            write!(f, "{}", self.0.0)
         }
     }
 
@@ -784,7 +784,7 @@ impl From<&VecWrap<NamedIndividual>> for Vec<horned_owl::model::NamedIndividual<
 }
 impl From<&Vec<horned_owl::model::NamedIndividual<ArcStr>>> for VecWrap<NamedIndividual> {
     fn from(value: &Vec<horned_owl::model::NamedIndividual<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(NamedIndividual::from).collect())
+        VecWrap(value.iter().map(NamedIndividual::from).collect())
     }
 }
 
@@ -831,7 +831,7 @@ impl FromCompatible<&Vec<horned_owl::model::NamedIndividual<ArcStr>>> for VecWra
     /******** EXTENSION "named" for NamedIndividual ********/
     impl Display for NamedIndividual {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0.0.to_string())
+            write!(f, "{}", self.0.0)
         }
     }
 
@@ -975,7 +975,7 @@ impl From<&VecWrap<ObjectProperty>> for Vec<horned_owl::model::ObjectProperty<Ar
 }
 impl From<&Vec<horned_owl::model::ObjectProperty<ArcStr>>> for VecWrap<ObjectProperty> {
     fn from(value: &Vec<horned_owl::model::ObjectProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(ObjectProperty::from).collect())
+        VecWrap(value.iter().map(ObjectProperty::from).collect())
     }
 }
 
@@ -1022,7 +1022,7 @@ impl FromCompatible<&Vec<horned_owl::model::ObjectProperty<ArcStr>>> for VecWrap
     /******** EXTENSION "named" for ObjectProperty ********/
     impl Display for ObjectProperty {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0.0.to_string())
+            write!(f, "{}", self.0.0)
         }
     }
 
@@ -1240,7 +1240,7 @@ impl From<&VecWrap<Datatype>> for Vec<horned_owl::model::Datatype<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Datatype<ArcStr>>> for VecWrap<Datatype> {
     fn from(value: &Vec<horned_owl::model::Datatype<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Datatype::from).collect())
+        VecWrap(value.iter().map(Datatype::from).collect())
     }
 }
 
@@ -1287,7 +1287,7 @@ impl FromCompatible<&Vec<horned_owl::model::Datatype<ArcStr>>> for VecWrap<Datat
     /******** EXTENSION "named" for Datatype ********/
     impl Display for Datatype {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0.0.to_string())
+            write!(f, "{}", self.0.0)
         }
     }
 
@@ -1431,7 +1431,7 @@ impl From<&VecWrap<DataProperty>> for Vec<horned_owl::model::DataProperty<ArcStr
 }
 impl From<&Vec<horned_owl::model::DataProperty<ArcStr>>> for VecWrap<DataProperty> {
     fn from(value: &Vec<horned_owl::model::DataProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DataProperty::from).collect())
+        VecWrap(value.iter().map(DataProperty::from).collect())
     }
 }
 
@@ -1478,7 +1478,7 @@ impl FromCompatible<&Vec<horned_owl::model::DataProperty<ArcStr>>> for VecWrap<D
     /******** EXTENSION "named" for DataProperty ********/
     impl Display for DataProperty {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0.0.to_string())
+            write!(f, "{}", self.0.0)
         }
     }
 
@@ -1516,8 +1516,8 @@ impl FacetRestriction {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "f" => self.f.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "l" => self.l.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "f" => self.f.clone().into_pyobject(py).map(Bound::into_any),
+            "l" => self.l.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -1655,7 +1655,7 @@ impl From<&VecWrap<FacetRestriction>> for Vec<horned_owl::model::FacetRestrictio
 }
 impl From<&Vec<horned_owl::model::FacetRestriction<ArcStr>>> for VecWrap<FacetRestriction> {
     fn from(value: &Vec<horned_owl::model::FacetRestriction<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(FacetRestriction::from).collect())
+        VecWrap(value.iter().map(FacetRestriction::from).collect())
     }
 }
 
@@ -1718,9 +1718,9 @@ impl<'py> IntoPyObject<'py> for Individual {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         
-            Individual::Anonymous(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Individual::Anonymous(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Individual::Named(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Individual::Named(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
         }
     }
@@ -1844,7 +1844,7 @@ impl From<&VecWrap<Individual>> for Vec<horned_owl::model::Individual<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Individual<ArcStr>>> for VecWrap<Individual> {
     fn from(value: &Vec<horned_owl::model::Individual<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Individual::from).collect())
+        VecWrap(value.iter().map(Individual::from).collect())
     }
 }
 
@@ -1890,6 +1890,7 @@ impl FromCompatible<&Vec<horned_owl::model::Individual<ArcStr>>> for VecWrap<Ind
 }
 /**************** ENUM implementation for ObjectPropertyExpression ****************/
 #[allow(non_camel_case_types)]
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum ObjectPropertyExpression_Inner {
     ObjectProperty(ObjectProperty),
@@ -1924,14 +1925,14 @@ pub struct ObjectPropertyExpression(ObjectPropertyExpression_Inner);
         #[new]
         fn new(first: ObjectProperty,) -> Self {
             InverseObjectProperty(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2078,12 +2079,10 @@ impl<'py> IntoPyObject<'py> for ObjectPropertyExpression {
         match self.0 {
             
                 ObjectPropertyExpression_Inner::ObjectProperty(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ObjectPropertyExpression_Inner::InverseObjectProperty(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
         }
     }
@@ -2094,16 +2093,14 @@ impl <'py> FromPyObject<'py> for ObjectPropertyExpression {
     fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
             {
             	let r = ObjectProperty::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ObjectPropertyExpression_Inner::ObjectProperty(local);
                     return Ok(ObjectPropertyExpression(inner));
                 }
             }
             {
                 let r = InverseObjectProperty::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ObjectPropertyExpression_Inner::InverseObjectProperty(local);
                     return Ok(ObjectPropertyExpression(inner));
                 }
@@ -2205,7 +2202,7 @@ impl From<&VecWrap<ObjectPropertyExpression>> for Vec<horned_owl::model::ObjectP
 }
 impl From<&Vec<horned_owl::model::ObjectPropertyExpression<ArcStr>>> for VecWrap<ObjectPropertyExpression> {
     fn from(value: &Vec<horned_owl::model::ObjectPropertyExpression<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(ObjectPropertyExpression::from).collect())
+        VecWrap(value.iter().map(ObjectPropertyExpression::from).collect())
     }
 }
 
@@ -2251,6 +2248,7 @@ impl FromCompatible<&Vec<horned_owl::model::ObjectPropertyExpression<ArcStr>>> f
 }
 /**************** ENUM implementation for Literal ****************/
 #[allow(non_camel_case_types)]
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum Literal_Inner {
 	Simple(SimpleLiteral),
@@ -2286,7 +2284,7 @@ pub struct Literal(Literal_Inner);
         #[new]
         fn new(literal: String,) -> Self {
             SimpleLiteral{
-                literal: literal.into(),}
+                literal,}
         }
 
 
@@ -2350,8 +2348,8 @@ pub struct Literal(Literal_Inner);
         #[new]
         fn new(literal: String,lang: String,) -> Self {
             LanguageLiteral{
-                literal: literal.into(),
-                lang: lang.into(),}
+                literal,
+                lang,}
         }
 
 
@@ -2420,15 +2418,15 @@ pub struct Literal(Literal_Inner);
         #[new]
         fn new(literal: String,datatype_iri: IRI,) -> Self {
             DatatypeLiteral{
-                literal: literal.into(),
-                datatype_iri: datatype_iri.into(),}
+                literal,
+                datatype_iri,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
             	"literal" => self.literal.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"datatype_iri" => self.datatype_iri.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"datatype_iri" => self.datatype_iri.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2514,16 +2512,13 @@ impl<'py> IntoPyObject<'py> for Literal {
         match self.0 {
             
                 Literal_Inner::Simple(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 Literal_Inner::Language(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 Literal_Inner::Datatype(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
         }
     }
@@ -2534,24 +2529,21 @@ impl <'py> FromPyObject<'py> for Literal {
     fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
             {
                 let r = SimpleLiteral::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Literal_Inner::Simple(local);
                     return Ok(Literal(inner));
                 }
             }
             {
                 let r = LanguageLiteral::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Literal_Inner::Language(local);
                     return Ok(Literal(inner));
                 }
             }
             {
                 let r = DatatypeLiteral::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Literal_Inner::Datatype(local);
                     return Ok(Literal(inner));
                 }
@@ -2653,7 +2645,7 @@ impl From<&VecWrap<Literal>> for Vec<horned_owl::model::Literal<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Literal<ArcStr>>> for VecWrap<Literal> {
     fn from(value: &Vec<horned_owl::model::Literal<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Literal::from).collect())
+        VecWrap(value.iter().map(Literal::from).collect())
     }
 }
 
@@ -2699,6 +2691,7 @@ impl FromCompatible<&Vec<horned_owl::model::Literal<ArcStr>>> for VecWrap<Litera
 }
 /**************** ENUM implementation for DataRange ****************/
 #[allow(non_camel_case_types)]
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum DataRange_Inner {
     Datatype(Datatype),
@@ -2737,14 +2730,14 @@ pub struct DataRange(DataRange_Inner);
         #[new]
         fn new(first: VecWrap<DataRange>,) -> Self {
             DataIntersectionOf(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2799,14 +2792,14 @@ pub struct DataRange(DataRange_Inner);
         #[new]
         fn new(first: VecWrap<DataRange>,) -> Self {
             DataUnionOf(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2861,14 +2854,14 @@ pub struct DataRange(DataRange_Inner);
         #[new]
         fn new(first: BoxWrap<DataRange>,) -> Self {
             DataComplementOf(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2923,14 +2916,14 @@ pub struct DataRange(DataRange_Inner);
         #[new]
         fn new(first: VecWrap<Literal>,) -> Self {
             DataOneOf(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2987,16 +2980,16 @@ pub struct DataRange(DataRange_Inner);
         #[new]
         fn new(first: Datatype,second: VecWrap<FacetRestriction>,) -> Self {
             DatatypeRestriction(
-                first.into(),
-                second.into(),
+                first,
+                second,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3098,28 +3091,22 @@ impl<'py> IntoPyObject<'py> for DataRange {
         match self.0 {
             
                 DataRange_Inner::Datatype(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 DataRange_Inner::DataIntersectionOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 DataRange_Inner::DataUnionOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 DataRange_Inner::DataComplementOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 DataRange_Inner::DataOneOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 DataRange_Inner::DatatypeRestriction(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
         }
     }
@@ -3130,48 +3117,42 @@ impl <'py> FromPyObject<'py> for DataRange {
     fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
             {
             	let r = Datatype::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = DataRange_Inner::Datatype(local);
                     return Ok(DataRange(inner));
                 }
             }
             {
                 let r = DataIntersectionOf::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = DataRange_Inner::DataIntersectionOf(local);
                     return Ok(DataRange(inner));
                 }
             }
             {
                 let r = DataUnionOf::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = DataRange_Inner::DataUnionOf(local);
                     return Ok(DataRange(inner));
                 }
             }
             {
                 let r = DataComplementOf::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = DataRange_Inner::DataComplementOf(local);
                     return Ok(DataRange(inner));
                 }
             }
             {
                 let r = DataOneOf::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = DataRange_Inner::DataOneOf(local);
                     return Ok(DataRange(inner));
                 }
             }
             {
                 let r = DatatypeRestriction::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = DataRange_Inner::DatatypeRestriction(local);
                     return Ok(DataRange(inner));
                 }
@@ -3273,7 +3254,7 @@ impl From<&VecWrap<DataRange>> for Vec<horned_owl::model::DataRange<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::DataRange<ArcStr>>> for VecWrap<DataRange> {
     fn from(value: &Vec<horned_owl::model::DataRange<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DataRange::from).collect())
+        VecWrap(value.iter().map(DataRange::from).collect())
     }
 }
 
@@ -3319,6 +3300,7 @@ impl FromCompatible<&Vec<horned_owl::model::DataRange<ArcStr>>> for VecWrap<Data
 }
 /**************** ENUM implementation for ClassExpression ****************/
 #[allow(non_camel_case_types)]
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum ClassExpression_Inner {
     Class(Class),
@@ -3369,14 +3351,14 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(first: VecWrap<ClassExpression>,) -> Self {
             ObjectIntersectionOf(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3448,14 +3430,14 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(first: VecWrap<ClassExpression>,) -> Self {
             ObjectUnionOf(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3527,14 +3509,14 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(first: BoxWrap<ClassExpression>,) -> Self {
             ObjectComplementOf(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3606,14 +3588,14 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(first: VecWrap<Individual>,) -> Self {
             ObjectOneOf(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3688,15 +3670,15 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(ope: ObjectPropertyExpression,bce: BoxWrap<ClassExpression>,) -> Self {
             ObjectSomeValuesFrom{
-                ope: ope.into(),
-                bce: bce.into(),}
+                ope,
+                bce,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3775,15 +3757,15 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(ope: ObjectPropertyExpression,bce: BoxWrap<ClassExpression>,) -> Self {
             ObjectAllValuesFrom{
-                ope: ope.into(),
-                bce: bce.into(),}
+                ope,
+                bce,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3862,15 +3844,15 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(ope: ObjectPropertyExpression,i: Individual,) -> Self {
             ObjectHasValue{
-                ope: ope.into(),
-                i: i.into(),}
+                ope,
+                i,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"i" => self.i.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            	"i" => self.i.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3946,14 +3928,14 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(first: ObjectPropertyExpression,) -> Self {
             ObjectHasSelf(
-                first.into(),
+                first,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4031,17 +4013,17 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(n: u32,ope: ObjectPropertyExpression,bce: BoxWrap<ClassExpression>,) -> Self {
             ObjectMinCardinality{
-                n: n.into(),
-                ope: ope.into(),
-                bce: bce.into(),}
+                n,
+                ope,
+                bce,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4127,17 +4109,17 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(n: u32,ope: ObjectPropertyExpression,bce: BoxWrap<ClassExpression>,) -> Self {
             ObjectMaxCardinality{
-                n: n.into(),
-                ope: ope.into(),
-                bce: bce.into(),}
+                n,
+                ope,
+                bce,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4223,17 +4205,17 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(n: u32,ope: ObjectPropertyExpression,bce: BoxWrap<ClassExpression>,) -> Self {
             ObjectExactCardinality{
-                n: n.into(),
-                ope: ope.into(),
-                bce: bce.into(),}
+                n,
+                ope,
+                bce,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4316,15 +4298,15 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(dp: DataProperty,dr: DataRange,) -> Self {
             DataSomeValuesFrom{
-                dp: dp.into(),
-                dr: dr.into(),}
+                dp,
+                dr,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4403,15 +4385,15 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(dp: DataProperty,dr: DataRange,) -> Self {
             DataAllValuesFrom{
-                dp: dp.into(),
-                dr: dr.into(),}
+                dp,
+                dr,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4490,15 +4472,15 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(dp: DataProperty,l: Literal,) -> Self {
             DataHasValue{
-                dp: dp.into(),
-                l: l.into(),}
+                dp,
+                l,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"l" => self.l.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            	"l" => self.l.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4580,17 +4562,17 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(n: u32,dp: DataProperty,dr: DataRange,) -> Self {
             DataMinCardinality{
-                n: n.into(),
-                dp: dp.into(),
-                dr: dr.into(),}
+                n,
+                dp,
+                dr,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4676,17 +4658,17 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(n: u32,dp: DataProperty,dr: DataRange,) -> Self {
             DataMaxCardinality{
-                n: n.into(),
-                dp: dp.into(),
-                dr: dr.into(),}
+                n,
+                dp,
+                dr,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4772,17 +4754,17 @@ pub struct ClassExpression(ClassExpression_Inner);
         #[new]
         fn new(n: u32,dp: DataProperty,dr: DataRange,) -> Self {
             DataExactCardinality{
-                n: n.into(),
-                dp: dp.into(),
-                dr: dr.into(),}
+                n,
+                dp,
+                dr,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -5024,76 +5006,58 @@ impl<'py> IntoPyObject<'py> for ClassExpression {
         match self.0 {
             
                 ClassExpression_Inner::Class(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectIntersectionOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectUnionOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectComplementOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectOneOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectSomeValuesFrom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectAllValuesFrom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectHasValue(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectHasSelf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectMinCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectMaxCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::ObjectExactCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::DataSomeValuesFrom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::DataAllValuesFrom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::DataHasValue(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::DataMinCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::DataMaxCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 ClassExpression_Inner::DataExactCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
         }
     }
@@ -5104,144 +5068,126 @@ impl <'py> FromPyObject<'py> for ClassExpression {
     fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
             {
             	let r = Class::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::Class(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectIntersectionOf::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectIntersectionOf(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectUnionOf::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectUnionOf(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectComplementOf::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectComplementOf(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectOneOf::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectOneOf(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectSomeValuesFrom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectSomeValuesFrom(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectAllValuesFrom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectAllValuesFrom(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectHasValue::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectHasValue(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectHasSelf::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectHasSelf(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectMinCardinality::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectMinCardinality(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectMaxCardinality::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectMaxCardinality(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = ObjectExactCardinality::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::ObjectExactCardinality(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = DataSomeValuesFrom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::DataSomeValuesFrom(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = DataAllValuesFrom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::DataAllValuesFrom(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = DataHasValue::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::DataHasValue(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = DataMinCardinality::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::DataMinCardinality(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = DataMaxCardinality::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::DataMaxCardinality(local);
                     return Ok(ClassExpression(inner));
                 }
             }
             {
                 let r = DataExactCardinality::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = ClassExpression_Inner::DataExactCardinality(local);
                     return Ok(ClassExpression(inner));
                 }
@@ -5343,7 +5289,7 @@ impl From<&VecWrap<ClassExpression>> for Vec<horned_owl::model::ClassExpression<
 }
 impl From<&Vec<horned_owl::model::ClassExpression<ArcStr>>> for VecWrap<ClassExpression> {
     fn from(value: &Vec<horned_owl::model::ClassExpression<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(ClassExpression::from).collect())
+        VecWrap(value.iter().map(ClassExpression::from).collect())
     }
 }
 
@@ -5409,11 +5355,11 @@ impl<'py> IntoPyObject<'py> for PropertyExpression {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         
-            PropertyExpression::ObjectPropertyExpression(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            PropertyExpression::ObjectPropertyExpression(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            PropertyExpression::DataProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            PropertyExpression::DataProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            PropertyExpression::AnnotationProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            PropertyExpression::AnnotationProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
         }
     }
@@ -5541,7 +5487,7 @@ impl From<&VecWrap<PropertyExpression>> for Vec<horned_owl::model::PropertyExpre
 }
 impl From<&Vec<horned_owl::model::PropertyExpression<ArcStr>>> for VecWrap<PropertyExpression> {
     fn from(value: &Vec<horned_owl::model::PropertyExpression<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(PropertyExpression::from).collect())
+        VecWrap(value.iter().map(PropertyExpression::from).collect())
     }
 }
 
@@ -5604,9 +5550,9 @@ impl<'py> IntoPyObject<'py> for AnnotationSubject {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         
-            AnnotationSubject::IRI(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            AnnotationSubject::IRI(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            AnnotationSubject::AnonymousIndividual(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            AnnotationSubject::AnonymousIndividual(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
         }
     }
@@ -5730,7 +5676,7 @@ impl From<&VecWrap<AnnotationSubject>> for Vec<horned_owl::model::AnnotationSubj
 }
 impl From<&Vec<horned_owl::model::AnnotationSubject<ArcStr>>> for VecWrap<AnnotationSubject> {
     fn from(value: &Vec<horned_owl::model::AnnotationSubject<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(AnnotationSubject::from).collect())
+        VecWrap(value.iter().map(AnnotationSubject::from).collect())
     }
 }
 
@@ -5911,7 +5857,7 @@ impl From<&VecWrap<AnnotationProperty>> for Vec<horned_owl::model::AnnotationPro
 }
 impl From<&Vec<horned_owl::model::AnnotationProperty<ArcStr>>> for VecWrap<AnnotationProperty> {
     fn from(value: &Vec<horned_owl::model::AnnotationProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(AnnotationProperty::from).collect())
+        VecWrap(value.iter().map(AnnotationProperty::from).collect())
     }
 }
 
@@ -5977,11 +5923,11 @@ impl<'py> IntoPyObject<'py> for AnnotationValue {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         
-            AnnotationValue::Literal(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            AnnotationValue::Literal(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            AnnotationValue::IRI(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            AnnotationValue::IRI(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            AnnotationValue::AnonymousIndividual(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            AnnotationValue::AnonymousIndividual(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
         }
     }
@@ -6109,7 +6055,7 @@ impl From<&VecWrap<AnnotationValue>> for Vec<horned_owl::model::AnnotationValue<
 }
 impl From<&Vec<horned_owl::model::AnnotationValue<ArcStr>>> for VecWrap<AnnotationValue> {
     fn from(value: &Vec<horned_owl::model::AnnotationValue<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(AnnotationValue::from).collect())
+        VecWrap(value.iter().map(AnnotationValue::from).collect())
     }
 }
 
@@ -6181,8 +6127,8 @@ impl Annotation {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "ap" => self.ap.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "av" => self.av.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "ap" => self.ap.clone().into_pyobject(py).map(Bound::into_any),
+            "av" => self.av.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -6320,7 +6266,7 @@ impl From<&VecWrap<Annotation>> for Vec<horned_owl::model::Annotation<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Annotation<ArcStr>>> for VecWrap<Annotation> {
     fn from(value: &Vec<horned_owl::model::Annotation<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Annotation::from).collect())
+        VecWrap(value.iter().map(Annotation::from).collect())
     }
 }
 
@@ -6501,7 +6447,7 @@ impl From<&VecWrap<OntologyAnnotation>> for Vec<horned_owl::model::OntologyAnnot
 }
 impl From<&Vec<horned_owl::model::OntologyAnnotation<ArcStr>>> for VecWrap<OntologyAnnotation> {
     fn from(value: &Vec<horned_owl::model::OntologyAnnotation<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(OntologyAnnotation::from).collect())
+        VecWrap(value.iter().map(OntologyAnnotation::from).collect())
     }
 }
 
@@ -6682,7 +6628,7 @@ impl From<&VecWrap<Import>> for Vec<horned_owl::model::Import<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Import<ArcStr>>> for VecWrap<Import> {
     fn from(value: &Vec<horned_owl::model::Import<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Import::from).collect())
+        VecWrap(value.iter().map(Import::from).collect())
     }
 }
 
@@ -6863,7 +6809,7 @@ impl From<&VecWrap<DeclareClass>> for Vec<horned_owl::model::DeclareClass<ArcStr
 }
 impl From<&Vec<horned_owl::model::DeclareClass<ArcStr>>> for VecWrap<DeclareClass> {
     fn from(value: &Vec<horned_owl::model::DeclareClass<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DeclareClass::from).collect())
+        VecWrap(value.iter().map(DeclareClass::from).collect())
     }
 }
 
@@ -7044,7 +6990,7 @@ impl From<&VecWrap<DeclareObjectProperty>> for Vec<horned_owl::model::DeclareObj
 }
 impl From<&Vec<horned_owl::model::DeclareObjectProperty<ArcStr>>> for VecWrap<DeclareObjectProperty> {
     fn from(value: &Vec<horned_owl::model::DeclareObjectProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DeclareObjectProperty::from).collect())
+        VecWrap(value.iter().map(DeclareObjectProperty::from).collect())
     }
 }
 
@@ -7225,7 +7171,7 @@ impl From<&VecWrap<DeclareAnnotationProperty>> for Vec<horned_owl::model::Declar
 }
 impl From<&Vec<horned_owl::model::DeclareAnnotationProperty<ArcStr>>> for VecWrap<DeclareAnnotationProperty> {
     fn from(value: &Vec<horned_owl::model::DeclareAnnotationProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DeclareAnnotationProperty::from).collect())
+        VecWrap(value.iter().map(DeclareAnnotationProperty::from).collect())
     }
 }
 
@@ -7406,7 +7352,7 @@ impl From<&VecWrap<DeclareDataProperty>> for Vec<horned_owl::model::DeclareDataP
 }
 impl From<&Vec<horned_owl::model::DeclareDataProperty<ArcStr>>> for VecWrap<DeclareDataProperty> {
     fn from(value: &Vec<horned_owl::model::DeclareDataProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DeclareDataProperty::from).collect())
+        VecWrap(value.iter().map(DeclareDataProperty::from).collect())
     }
 }
 
@@ -7587,7 +7533,7 @@ impl From<&VecWrap<DeclareNamedIndividual>> for Vec<horned_owl::model::DeclareNa
 }
 impl From<&Vec<horned_owl::model::DeclareNamedIndividual<ArcStr>>> for VecWrap<DeclareNamedIndividual> {
     fn from(value: &Vec<horned_owl::model::DeclareNamedIndividual<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DeclareNamedIndividual::from).collect())
+        VecWrap(value.iter().map(DeclareNamedIndividual::from).collect())
     }
 }
 
@@ -7768,7 +7714,7 @@ impl From<&VecWrap<DeclareDatatype>> for Vec<horned_owl::model::DeclareDatatype<
 }
 impl From<&Vec<horned_owl::model::DeclareDatatype<ArcStr>>> for VecWrap<DeclareDatatype> {
     fn from(value: &Vec<horned_owl::model::DeclareDatatype<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DeclareDatatype::from).collect())
+        VecWrap(value.iter().map(DeclareDatatype::from).collect())
     }
 }
 
@@ -7840,8 +7786,8 @@ impl SubClassOf {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "sub" => self.sub.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "sup" => self.sup.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "sub" => self.sub.clone().into_pyobject(py).map(Bound::into_any),
+            "sup" => self.sup.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -7979,7 +7925,7 @@ impl From<&VecWrap<SubClassOf>> for Vec<horned_owl::model::SubClassOf<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::SubClassOf<ArcStr>>> for VecWrap<SubClassOf> {
     fn from(value: &Vec<horned_owl::model::SubClassOf<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(SubClassOf::from).collect())
+        VecWrap(value.iter().map(SubClassOf::from).collect())
     }
 }
 
@@ -8160,7 +8106,7 @@ impl From<&VecWrap<EquivalentClasses>> for Vec<horned_owl::model::EquivalentClas
 }
 impl From<&Vec<horned_owl::model::EquivalentClasses<ArcStr>>> for VecWrap<EquivalentClasses> {
     fn from(value: &Vec<horned_owl::model::EquivalentClasses<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(EquivalentClasses::from).collect())
+        VecWrap(value.iter().map(EquivalentClasses::from).collect())
     }
 }
 
@@ -8341,7 +8287,7 @@ impl From<&VecWrap<DisjointClasses>> for Vec<horned_owl::model::DisjointClasses<
 }
 impl From<&Vec<horned_owl::model::DisjointClasses<ArcStr>>> for VecWrap<DisjointClasses> {
     fn from(value: &Vec<horned_owl::model::DisjointClasses<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DisjointClasses::from).collect())
+        VecWrap(value.iter().map(DisjointClasses::from).collect())
     }
 }
 
@@ -8527,7 +8473,7 @@ impl From<&VecWrap<DisjointUnion>> for Vec<horned_owl::model::DisjointUnion<ArcS
 }
 impl From<&Vec<horned_owl::model::DisjointUnion<ArcStr>>> for VecWrap<DisjointUnion> {
     fn from(value: &Vec<horned_owl::model::DisjointUnion<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DisjointUnion::from).collect())
+        VecWrap(value.iter().map(DisjointUnion::from).collect())
     }
 }
 
@@ -8590,9 +8536,9 @@ impl<'py> IntoPyObject<'py> for SubObjectPropertyExpression {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         
-            SubObjectPropertyExpression::ObjectPropertyChain(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            SubObjectPropertyExpression::ObjectPropertyChain(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            SubObjectPropertyExpression::ObjectPropertyExpression(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            SubObjectPropertyExpression::ObjectPropertyExpression(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
         }
     }
@@ -8716,7 +8662,7 @@ impl From<&VecWrap<SubObjectPropertyExpression>> for Vec<horned_owl::model::SubO
 }
 impl From<&Vec<horned_owl::model::SubObjectPropertyExpression<ArcStr>>> for VecWrap<SubObjectPropertyExpression> {
     fn from(value: &Vec<horned_owl::model::SubObjectPropertyExpression<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(SubObjectPropertyExpression::from).collect())
+        VecWrap(value.iter().map(SubObjectPropertyExpression::from).collect())
     }
 }
 
@@ -8788,8 +8734,8 @@ impl SubObjectPropertyOf {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "sub" => self.sub.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "sup" => self.sup.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "sub" => self.sub.clone().into_pyobject(py).map(Bound::into_any),
+            "sup" => self.sup.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -8927,7 +8873,7 @@ impl From<&VecWrap<SubObjectPropertyOf>> for Vec<horned_owl::model::SubObjectPro
 }
 impl From<&Vec<horned_owl::model::SubObjectPropertyOf<ArcStr>>> for VecWrap<SubObjectPropertyOf> {
     fn from(value: &Vec<horned_owl::model::SubObjectPropertyOf<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(SubObjectPropertyOf::from).collect())
+        VecWrap(value.iter().map(SubObjectPropertyOf::from).collect())
     }
 }
 
@@ -9108,7 +9054,7 @@ impl From<&VecWrap<EquivalentObjectProperties>> for Vec<horned_owl::model::Equiv
 }
 impl From<&Vec<horned_owl::model::EquivalentObjectProperties<ArcStr>>> for VecWrap<EquivalentObjectProperties> {
     fn from(value: &Vec<horned_owl::model::EquivalentObjectProperties<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(EquivalentObjectProperties::from).collect())
+        VecWrap(value.iter().map(EquivalentObjectProperties::from).collect())
     }
 }
 
@@ -9289,7 +9235,7 @@ impl From<&VecWrap<DisjointObjectProperties>> for Vec<horned_owl::model::Disjoin
 }
 impl From<&Vec<horned_owl::model::DisjointObjectProperties<ArcStr>>> for VecWrap<DisjointObjectProperties> {
     fn from(value: &Vec<horned_owl::model::DisjointObjectProperties<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DisjointObjectProperties::from).collect())
+        VecWrap(value.iter().map(DisjointObjectProperties::from).collect())
     }
 }
 
@@ -9475,7 +9421,7 @@ impl From<&VecWrap<InverseObjectProperties>> for Vec<horned_owl::model::InverseO
 }
 impl From<&Vec<horned_owl::model::InverseObjectProperties<ArcStr>>> for VecWrap<InverseObjectProperties> {
     fn from(value: &Vec<horned_owl::model::InverseObjectProperties<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(InverseObjectProperties::from).collect())
+        VecWrap(value.iter().map(InverseObjectProperties::from).collect())
     }
 }
 
@@ -9547,8 +9493,8 @@ impl ObjectPropertyDomain {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -9686,7 +9632,7 @@ impl From<&VecWrap<ObjectPropertyDomain>> for Vec<horned_owl::model::ObjectPrope
 }
 impl From<&Vec<horned_owl::model::ObjectPropertyDomain<ArcStr>>> for VecWrap<ObjectPropertyDomain> {
     fn from(value: &Vec<horned_owl::model::ObjectPropertyDomain<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(ObjectPropertyDomain::from).collect())
+        VecWrap(value.iter().map(ObjectPropertyDomain::from).collect())
     }
 }
 
@@ -9758,8 +9704,8 @@ impl ObjectPropertyRange {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -9897,7 +9843,7 @@ impl From<&VecWrap<ObjectPropertyRange>> for Vec<horned_owl::model::ObjectProper
 }
 impl From<&Vec<horned_owl::model::ObjectPropertyRange<ArcStr>>> for VecWrap<ObjectPropertyRange> {
     fn from(value: &Vec<horned_owl::model::ObjectPropertyRange<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(ObjectPropertyRange::from).collect())
+        VecWrap(value.iter().map(ObjectPropertyRange::from).collect())
     }
 }
 
@@ -10078,7 +10024,7 @@ impl From<&VecWrap<FunctionalObjectProperty>> for Vec<horned_owl::model::Functio
 }
 impl From<&Vec<horned_owl::model::FunctionalObjectProperty<ArcStr>>> for VecWrap<FunctionalObjectProperty> {
     fn from(value: &Vec<horned_owl::model::FunctionalObjectProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(FunctionalObjectProperty::from).collect())
+        VecWrap(value.iter().map(FunctionalObjectProperty::from).collect())
     }
 }
 
@@ -10259,7 +10205,7 @@ impl From<&VecWrap<InverseFunctionalObjectProperty>> for Vec<horned_owl::model::
 }
 impl From<&Vec<horned_owl::model::InverseFunctionalObjectProperty<ArcStr>>> for VecWrap<InverseFunctionalObjectProperty> {
     fn from(value: &Vec<horned_owl::model::InverseFunctionalObjectProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(InverseFunctionalObjectProperty::from).collect())
+        VecWrap(value.iter().map(InverseFunctionalObjectProperty::from).collect())
     }
 }
 
@@ -10440,7 +10386,7 @@ impl From<&VecWrap<ReflexiveObjectProperty>> for Vec<horned_owl::model::Reflexiv
 }
 impl From<&Vec<horned_owl::model::ReflexiveObjectProperty<ArcStr>>> for VecWrap<ReflexiveObjectProperty> {
     fn from(value: &Vec<horned_owl::model::ReflexiveObjectProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(ReflexiveObjectProperty::from).collect())
+        VecWrap(value.iter().map(ReflexiveObjectProperty::from).collect())
     }
 }
 
@@ -10621,7 +10567,7 @@ impl From<&VecWrap<IrreflexiveObjectProperty>> for Vec<horned_owl::model::Irrefl
 }
 impl From<&Vec<horned_owl::model::IrreflexiveObjectProperty<ArcStr>>> for VecWrap<IrreflexiveObjectProperty> {
     fn from(value: &Vec<horned_owl::model::IrreflexiveObjectProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(IrreflexiveObjectProperty::from).collect())
+        VecWrap(value.iter().map(IrreflexiveObjectProperty::from).collect())
     }
 }
 
@@ -10802,7 +10748,7 @@ impl From<&VecWrap<SymmetricObjectProperty>> for Vec<horned_owl::model::Symmetri
 }
 impl From<&Vec<horned_owl::model::SymmetricObjectProperty<ArcStr>>> for VecWrap<SymmetricObjectProperty> {
     fn from(value: &Vec<horned_owl::model::SymmetricObjectProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(SymmetricObjectProperty::from).collect())
+        VecWrap(value.iter().map(SymmetricObjectProperty::from).collect())
     }
 }
 
@@ -10983,7 +10929,7 @@ impl From<&VecWrap<AsymmetricObjectProperty>> for Vec<horned_owl::model::Asymmet
 }
 impl From<&Vec<horned_owl::model::AsymmetricObjectProperty<ArcStr>>> for VecWrap<AsymmetricObjectProperty> {
     fn from(value: &Vec<horned_owl::model::AsymmetricObjectProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(AsymmetricObjectProperty::from).collect())
+        VecWrap(value.iter().map(AsymmetricObjectProperty::from).collect())
     }
 }
 
@@ -11164,7 +11110,7 @@ impl From<&VecWrap<TransitiveObjectProperty>> for Vec<horned_owl::model::Transit
 }
 impl From<&Vec<horned_owl::model::TransitiveObjectProperty<ArcStr>>> for VecWrap<TransitiveObjectProperty> {
     fn from(value: &Vec<horned_owl::model::TransitiveObjectProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(TransitiveObjectProperty::from).collect())
+        VecWrap(value.iter().map(TransitiveObjectProperty::from).collect())
     }
 }
 
@@ -11236,8 +11182,8 @@ impl SubDataPropertyOf {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "sub" => self.sub.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "sup" => self.sup.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "sub" => self.sub.clone().into_pyobject(py).map(Bound::into_any),
+            "sup" => self.sup.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -11375,7 +11321,7 @@ impl From<&VecWrap<SubDataPropertyOf>> for Vec<horned_owl::model::SubDataPropert
 }
 impl From<&Vec<horned_owl::model::SubDataPropertyOf<ArcStr>>> for VecWrap<SubDataPropertyOf> {
     fn from(value: &Vec<horned_owl::model::SubDataPropertyOf<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(SubDataPropertyOf::from).collect())
+        VecWrap(value.iter().map(SubDataPropertyOf::from).collect())
     }
 }
 
@@ -11556,7 +11502,7 @@ impl From<&VecWrap<EquivalentDataProperties>> for Vec<horned_owl::model::Equival
 }
 impl From<&Vec<horned_owl::model::EquivalentDataProperties<ArcStr>>> for VecWrap<EquivalentDataProperties> {
     fn from(value: &Vec<horned_owl::model::EquivalentDataProperties<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(EquivalentDataProperties::from).collect())
+        VecWrap(value.iter().map(EquivalentDataProperties::from).collect())
     }
 }
 
@@ -11737,7 +11683,7 @@ impl From<&VecWrap<DisjointDataProperties>> for Vec<horned_owl::model::DisjointD
 }
 impl From<&Vec<horned_owl::model::DisjointDataProperties<ArcStr>>> for VecWrap<DisjointDataProperties> {
     fn from(value: &Vec<horned_owl::model::DisjointDataProperties<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DisjointDataProperties::from).collect())
+        VecWrap(value.iter().map(DisjointDataProperties::from).collect())
     }
 }
 
@@ -11809,8 +11755,8 @@ impl DataPropertyDomain {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -11948,7 +11894,7 @@ impl From<&VecWrap<DataPropertyDomain>> for Vec<horned_owl::model::DataPropertyD
 }
 impl From<&Vec<horned_owl::model::DataPropertyDomain<ArcStr>>> for VecWrap<DataPropertyDomain> {
     fn from(value: &Vec<horned_owl::model::DataPropertyDomain<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DataPropertyDomain::from).collect())
+        VecWrap(value.iter().map(DataPropertyDomain::from).collect())
     }
 }
 
@@ -12020,8 +11966,8 @@ impl DataPropertyRange {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            "dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -12159,7 +12105,7 @@ impl From<&VecWrap<DataPropertyRange>> for Vec<horned_owl::model::DataPropertyRa
 }
 impl From<&Vec<horned_owl::model::DataPropertyRange<ArcStr>>> for VecWrap<DataPropertyRange> {
     fn from(value: &Vec<horned_owl::model::DataPropertyRange<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DataPropertyRange::from).collect())
+        VecWrap(value.iter().map(DataPropertyRange::from).collect())
     }
 }
 
@@ -12340,7 +12286,7 @@ impl From<&VecWrap<FunctionalDataProperty>> for Vec<horned_owl::model::Functiona
 }
 impl From<&Vec<horned_owl::model::FunctionalDataProperty<ArcStr>>> for VecWrap<FunctionalDataProperty> {
     fn from(value: &Vec<horned_owl::model::FunctionalDataProperty<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(FunctionalDataProperty::from).collect())
+        VecWrap(value.iter().map(FunctionalDataProperty::from).collect())
     }
 }
 
@@ -12412,8 +12358,8 @@ impl DatatypeDefinition {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "kind" => self.kind.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "range" => self.range.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "kind" => self.kind.clone().into_pyobject(py).map(Bound::into_any),
+            "range" => self.range.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -12551,7 +12497,7 @@ impl From<&VecWrap<DatatypeDefinition>> for Vec<horned_owl::model::DatatypeDefin
 }
 impl From<&Vec<horned_owl::model::DatatypeDefinition<ArcStr>>> for VecWrap<DatatypeDefinition> {
     fn from(value: &Vec<horned_owl::model::DatatypeDefinition<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DatatypeDefinition::from).collect())
+        VecWrap(value.iter().map(DatatypeDefinition::from).collect())
     }
 }
 
@@ -12623,8 +12569,8 @@ impl HasKey {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "vpe" => self.vpe.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any),
+            "vpe" => self.vpe.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -12762,7 +12708,7 @@ impl From<&VecWrap<HasKey>> for Vec<horned_owl::model::HasKey<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::HasKey<ArcStr>>> for VecWrap<HasKey> {
     fn from(value: &Vec<horned_owl::model::HasKey<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(HasKey::from).collect())
+        VecWrap(value.iter().map(HasKey::from).collect())
     }
 }
 
@@ -12943,7 +12889,7 @@ impl From<&VecWrap<SameIndividual>> for Vec<horned_owl::model::SameIndividual<Ar
 }
 impl From<&Vec<horned_owl::model::SameIndividual<ArcStr>>> for VecWrap<SameIndividual> {
     fn from(value: &Vec<horned_owl::model::SameIndividual<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(SameIndividual::from).collect())
+        VecWrap(value.iter().map(SameIndividual::from).collect())
     }
 }
 
@@ -13124,7 +13070,7 @@ impl From<&VecWrap<DifferentIndividuals>> for Vec<horned_owl::model::DifferentIn
 }
 impl From<&Vec<horned_owl::model::DifferentIndividuals<ArcStr>>> for VecWrap<DifferentIndividuals> {
     fn from(value: &Vec<horned_owl::model::DifferentIndividuals<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DifferentIndividuals::from).collect())
+        VecWrap(value.iter().map(DifferentIndividuals::from).collect())
     }
 }
 
@@ -13196,8 +13142,8 @@ impl ClassAssertion {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "i" => self.i.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any),
+            "i" => self.i.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -13335,7 +13281,7 @@ impl From<&VecWrap<ClassAssertion>> for Vec<horned_owl::model::ClassAssertion<Ar
 }
 impl From<&Vec<horned_owl::model::ClassAssertion<ArcStr>>> for VecWrap<ClassAssertion> {
     fn from(value: &Vec<horned_owl::model::ClassAssertion<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(ClassAssertion::from).collect())
+        VecWrap(value.iter().map(ClassAssertion::from).collect())
     }
 }
 
@@ -13412,9 +13358,9 @@ impl ObjectPropertyAssertion {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "source" => self.source.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "target" => self.target.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            "source" => self.source.clone().into_pyobject(py).map(Bound::into_any),
+            "target" => self.target.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -13558,7 +13504,7 @@ impl From<&VecWrap<ObjectPropertyAssertion>> for Vec<horned_owl::model::ObjectPr
 }
 impl From<&Vec<horned_owl::model::ObjectPropertyAssertion<ArcStr>>> for VecWrap<ObjectPropertyAssertion> {
     fn from(value: &Vec<horned_owl::model::ObjectPropertyAssertion<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(ObjectPropertyAssertion::from).collect())
+        VecWrap(value.iter().map(ObjectPropertyAssertion::from).collect())
     }
 }
 
@@ -13635,9 +13581,9 @@ impl NegativeObjectPropertyAssertion {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "source" => self.source.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "target" => self.target.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
+            "source" => self.source.clone().into_pyobject(py).map(Bound::into_any),
+            "target" => self.target.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -13781,7 +13727,7 @@ impl From<&VecWrap<NegativeObjectPropertyAssertion>> for Vec<horned_owl::model::
 }
 impl From<&Vec<horned_owl::model::NegativeObjectPropertyAssertion<ArcStr>>> for VecWrap<NegativeObjectPropertyAssertion> {
     fn from(value: &Vec<horned_owl::model::NegativeObjectPropertyAssertion<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(NegativeObjectPropertyAssertion::from).collect())
+        VecWrap(value.iter().map(NegativeObjectPropertyAssertion::from).collect())
     }
 }
 
@@ -13858,9 +13804,9 @@ impl DataPropertyAssertion {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "source" => self.source.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "target" => self.target.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            "source" => self.source.clone().into_pyobject(py).map(Bound::into_any),
+            "target" => self.target.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -14004,7 +13950,7 @@ impl From<&VecWrap<DataPropertyAssertion>> for Vec<horned_owl::model::DataProper
 }
 impl From<&Vec<horned_owl::model::DataPropertyAssertion<ArcStr>>> for VecWrap<DataPropertyAssertion> {
     fn from(value: &Vec<horned_owl::model::DataPropertyAssertion<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DataPropertyAssertion::from).collect())
+        VecWrap(value.iter().map(DataPropertyAssertion::from).collect())
     }
 }
 
@@ -14081,9 +14027,9 @@ impl NegativeDataPropertyAssertion {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "source" => self.source.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "target" => self.target.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
+            "source" => self.source.clone().into_pyobject(py).map(Bound::into_any),
+            "target" => self.target.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -14227,7 +14173,7 @@ impl From<&VecWrap<NegativeDataPropertyAssertion>> for Vec<horned_owl::model::Ne
 }
 impl From<&Vec<horned_owl::model::NegativeDataPropertyAssertion<ArcStr>>> for VecWrap<NegativeDataPropertyAssertion> {
     fn from(value: &Vec<horned_owl::model::NegativeDataPropertyAssertion<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(NegativeDataPropertyAssertion::from).collect())
+        VecWrap(value.iter().map(NegativeDataPropertyAssertion::from).collect())
     }
 }
 
@@ -14299,8 +14245,8 @@ impl AnnotationAssertion {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "subject" => self.subject.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "ann" => self.ann.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "subject" => self.subject.clone().into_pyobject(py).map(Bound::into_any),
+            "ann" => self.ann.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -14438,7 +14384,7 @@ impl From<&VecWrap<AnnotationAssertion>> for Vec<horned_owl::model::AnnotationAs
 }
 impl From<&Vec<horned_owl::model::AnnotationAssertion<ArcStr>>> for VecWrap<AnnotationAssertion> {
     fn from(value: &Vec<horned_owl::model::AnnotationAssertion<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(AnnotationAssertion::from).collect())
+        VecWrap(value.iter().map(AnnotationAssertion::from).collect())
     }
 }
 
@@ -14510,8 +14456,8 @@ impl SubAnnotationPropertyOf {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "sub" => self.sub.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "sup" => self.sup.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "sub" => self.sub.clone().into_pyobject(py).map(Bound::into_any),
+            "sup" => self.sup.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -14649,7 +14595,7 @@ impl From<&VecWrap<SubAnnotationPropertyOf>> for Vec<horned_owl::model::SubAnnot
 }
 impl From<&Vec<horned_owl::model::SubAnnotationPropertyOf<ArcStr>>> for VecWrap<SubAnnotationPropertyOf> {
     fn from(value: &Vec<horned_owl::model::SubAnnotationPropertyOf<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(SubAnnotationPropertyOf::from).collect())
+        VecWrap(value.iter().map(SubAnnotationPropertyOf::from).collect())
     }
 }
 
@@ -14721,8 +14667,8 @@ impl AnnotationPropertyDomain {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "ap" => self.ap.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "iri" => self.iri.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "ap" => self.ap.clone().into_pyobject(py).map(Bound::into_any),
+            "iri" => self.iri.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -14860,7 +14806,7 @@ impl From<&VecWrap<AnnotationPropertyDomain>> for Vec<horned_owl::model::Annotat
 }
 impl From<&Vec<horned_owl::model::AnnotationPropertyDomain<ArcStr>>> for VecWrap<AnnotationPropertyDomain> {
     fn from(value: &Vec<horned_owl::model::AnnotationPropertyDomain<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(AnnotationPropertyDomain::from).collect())
+        VecWrap(value.iter().map(AnnotationPropertyDomain::from).collect())
     }
 }
 
@@ -14932,8 +14878,8 @@ impl AnnotationPropertyRange {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "ap" => self.ap.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "iri" => self.iri.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "ap" => self.ap.clone().into_pyobject(py).map(Bound::into_any),
+            "iri" => self.iri.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -15071,7 +15017,7 @@ impl From<&VecWrap<AnnotationPropertyRange>> for Vec<horned_owl::model::Annotati
 }
 impl From<&Vec<horned_owl::model::AnnotationPropertyRange<ArcStr>>> for VecWrap<AnnotationPropertyRange> {
     fn from(value: &Vec<horned_owl::model::AnnotationPropertyRange<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(AnnotationPropertyRange::from).collect())
+        VecWrap(value.iter().map(AnnotationPropertyRange::from).collect())
     }
 }
 
@@ -15252,7 +15198,7 @@ impl From<&VecWrap<DocIRI>> for Vec<horned_owl::model::DocIRI<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::DocIRI<ArcStr>>> for VecWrap<DocIRI> {
     fn from(value: &Vec<horned_owl::model::DocIRI<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DocIRI::from).collect())
+        VecWrap(value.iter().map(DocIRI::from).collect())
     }
 }
 
@@ -15324,8 +15270,8 @@ impl OntologyID {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "iri" => self.iri.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "viri" => self.viri.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "iri" => self.iri.clone().into_pyobject(py).map(Bound::into_any),
+            "viri" => self.viri.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -15463,7 +15409,7 @@ impl From<&VecWrap<OntologyID>> for Vec<horned_owl::model::OntologyID<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::OntologyID<ArcStr>>> for VecWrap<OntologyID> {
     fn from(value: &Vec<horned_owl::model::OntologyID<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(OntologyID::from).collect())
+        VecWrap(value.iter().map(OntologyID::from).collect())
     }
 }
 
@@ -15644,7 +15590,7 @@ impl From<&VecWrap<Variable>> for Vec<horned_owl::model::Variable<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Variable<ArcStr>>> for VecWrap<Variable> {
     fn from(value: &Vec<horned_owl::model::Variable<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Variable::from).collect())
+        VecWrap(value.iter().map(Variable::from).collect())
     }
 }
 
@@ -15707,9 +15653,9 @@ impl<'py> IntoPyObject<'py> for DArgument {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         
-            DArgument::Literal(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            DArgument::Literal(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            DArgument::Variable(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            DArgument::Variable(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
         }
     }
@@ -15833,7 +15779,7 @@ impl From<&VecWrap<DArgument>> for Vec<horned_owl::model::DArgument<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::DArgument<ArcStr>>> for VecWrap<DArgument> {
     fn from(value: &Vec<horned_owl::model::DArgument<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(DArgument::from).collect())
+        VecWrap(value.iter().map(DArgument::from).collect())
     }
 }
 
@@ -15896,9 +15842,9 @@ impl<'py> IntoPyObject<'py> for IArgument {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         
-            IArgument::Individual(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            IArgument::Individual(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            IArgument::Variable(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            IArgument::Variable(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
         }
     }
@@ -16022,7 +15968,7 @@ impl From<&VecWrap<IArgument>> for Vec<horned_owl::model::IArgument<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::IArgument<ArcStr>>> for VecWrap<IArgument> {
     fn from(value: &Vec<horned_owl::model::IArgument<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(IArgument::from).collect())
+        VecWrap(value.iter().map(IArgument::from).collect())
     }
 }
 
@@ -16068,6 +16014,7 @@ impl FromCompatible<&Vec<horned_owl::model::IArgument<ArcStr>>> for VecWrap<IArg
 }
 /**************** ENUM implementation for Atom ****************/
 #[allow(non_camel_case_types)]
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum Atom_Inner {
 	BuiltInAtom(BuiltInAtom),
@@ -16110,15 +16057,15 @@ pub struct Atom(Atom_Inner);
         #[new]
         fn new(pred: IRI,args: VecWrap<DArgument>,) -> Self {
             BuiltInAtom{
-                pred: pred.into(),
-                args: args.into(),}
+                pred,
+                args,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
+            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16180,15 +16127,15 @@ pub struct Atom(Atom_Inner);
         #[new]
         fn new(pred: ClassExpression,arg: IArgument,) -> Self {
             ClassAtom{
-                pred: pred.into(),
-                arg: arg.into(),}
+                pred,
+                arg,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"arg" => self.arg.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
+            	"arg" => self.arg.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16250,15 +16197,15 @@ pub struct Atom(Atom_Inner);
         #[new]
         fn new(pred: DataProperty,args: (DArgument,DArgument),) -> Self {
             DataPropertyAtom{
-                pred: pred.into(),
-                args: args.into(),}
+                pred,
+                args,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
+            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16320,15 +16267,15 @@ pub struct Atom(Atom_Inner);
         #[new]
         fn new(pred: DataRange,arg: DArgument,) -> Self {
             DataRangeAtom{
-                pred: pred.into(),
-                arg: arg.into(),}
+                pred,
+                arg,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"arg" => self.arg.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
+            	"arg" => self.arg.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16389,16 +16336,16 @@ pub struct Atom(Atom_Inner);
         #[new]
         fn new(first: IArgument,second: IArgument,) -> Self {
             DifferentIndividualsAtom(
-                first.into(),
-                second.into(),
+                first,
+                second,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16460,15 +16407,15 @@ pub struct Atom(Atom_Inner);
         #[new]
         fn new(pred: ObjectPropertyExpression,args: (IArgument,IArgument),) -> Self {
             ObjectPropertyAtom{
-                pred: pred.into(),
-                args: args.into(),}
+                pred,
+                args,}
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
+            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16529,16 +16476,16 @@ pub struct Atom(Atom_Inner);
         #[new]
         fn new(first: IArgument,second: IArgument,) -> Self {
             SameIndividualAtom(
-                first.into(),
-                second.into(),
+                first,
+                second,
             )
         }
 
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16658,32 +16605,25 @@ impl<'py> IntoPyObject<'py> for Atom {
         match self.0 {
             
                 Atom_Inner::BuiltInAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 Atom_Inner::ClassAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 Atom_Inner::DataPropertyAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 Atom_Inner::DataRangeAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 Atom_Inner::DifferentIndividualsAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 Atom_Inner::ObjectPropertyAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
                 Atom_Inner::SameIndividualAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
-                },
+                    val.into_pyobject(py).map(Bound::into_any)},
             
         }
     }
@@ -16694,56 +16634,49 @@ impl <'py> FromPyObject<'py> for Atom {
     fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
             {
                 let r = BuiltInAtom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Atom_Inner::BuiltInAtom(local);
                     return Ok(Atom(inner));
                 }
             }
             {
                 let r = ClassAtom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Atom_Inner::ClassAtom(local);
                     return Ok(Atom(inner));
                 }
             }
             {
                 let r = DataPropertyAtom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Atom_Inner::DataPropertyAtom(local);
                     return Ok(Atom(inner));
                 }
             }
             {
                 let r = DataRangeAtom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Atom_Inner::DataRangeAtom(local);
                     return Ok(Atom(inner));
                 }
             }
             {
                 let r = DifferentIndividualsAtom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Atom_Inner::DifferentIndividualsAtom(local);
                     return Ok(Atom(inner));
                 }
             }
             {
                 let r = ObjectPropertyAtom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Atom_Inner::ObjectPropertyAtom(local);
                     return Ok(Atom(inner));
                 }
             }
             {
                 let r = SameIndividualAtom::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = Atom_Inner::SameIndividualAtom(local);
                     return Ok(Atom(inner));
                 }
@@ -16845,7 +16778,7 @@ impl From<&VecWrap<Atom>> for Vec<horned_owl::model::Atom<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Atom<ArcStr>>> for VecWrap<Atom> {
     fn from(value: &Vec<horned_owl::model::Atom<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Atom::from).collect())
+        VecWrap(value.iter().map(Atom::from).collect())
     }
 }
 
@@ -16917,8 +16850,8 @@ impl Rule {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "head" => self.head.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "body" => self.body.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "head" => self.head.clone().into_pyobject(py).map(Bound::into_any),
+            "body" => self.body.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -17056,7 +16989,7 @@ impl From<&VecWrap<Rule>> for Vec<horned_owl::model::Rule<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Rule<ArcStr>>> for VecWrap<Rule> {
     fn from(value: &Vec<horned_owl::model::Rule<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Rule::from).collect())
+        VecWrap(value.iter().map(Rule::from).collect())
     }
 }
 
@@ -17254,99 +17187,99 @@ impl<'py> IntoPyObject<'py> for Component {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         
-            Component::OntologyID(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::OntologyID(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DocIRI(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DocIRI(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::OntologyAnnotation(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::OntologyAnnotation(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::Import(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::Import(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DeclareClass(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DeclareClass(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DeclareObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DeclareObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DeclareAnnotationProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DeclareAnnotationProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DeclareDataProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DeclareDataProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DeclareNamedIndividual(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DeclareNamedIndividual(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DeclareDatatype(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DeclareDatatype(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::SubClassOf(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::SubClassOf(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::EquivalentClasses(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::EquivalentClasses(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DisjointClasses(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DisjointClasses(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DisjointUnion(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DisjointUnion(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::SubObjectPropertyOf(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::SubObjectPropertyOf(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::EquivalentObjectProperties(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::EquivalentObjectProperties(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DisjointObjectProperties(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DisjointObjectProperties(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::InverseObjectProperties(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::InverseObjectProperties(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::ObjectPropertyDomain(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::ObjectPropertyDomain(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::ObjectPropertyRange(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::ObjectPropertyRange(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::FunctionalObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::FunctionalObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::InverseFunctionalObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::InverseFunctionalObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::ReflexiveObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::ReflexiveObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::IrreflexiveObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::IrreflexiveObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::SymmetricObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::SymmetricObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::AsymmetricObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::AsymmetricObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::TransitiveObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::TransitiveObjectProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::SubDataPropertyOf(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::SubDataPropertyOf(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::EquivalentDataProperties(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::EquivalentDataProperties(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DisjointDataProperties(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DisjointDataProperties(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DataPropertyDomain(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DataPropertyDomain(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DataPropertyRange(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DataPropertyRange(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::FunctionalDataProperty(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::FunctionalDataProperty(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DatatypeDefinition(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DatatypeDefinition(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::HasKey(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::HasKey(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::SameIndividual(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::SameIndividual(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DifferentIndividuals(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DifferentIndividuals(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::ClassAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::ClassAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::ObjectPropertyAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::ObjectPropertyAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::NegativeObjectPropertyAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::NegativeObjectPropertyAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::DataPropertyAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::DataPropertyAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::NegativeDataPropertyAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::NegativeDataPropertyAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::AnnotationAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::AnnotationAssertion(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::SubAnnotationPropertyOf(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::SubAnnotationPropertyOf(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::AnnotationPropertyDomain(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::AnnotationPropertyDomain(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::AnnotationPropertyRange(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::AnnotationPropertyRange(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
-            Component::Rule(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            Component::Rule(inner) => inner.into_pyobject(py).map(Bound::into_any),
         
         }
     }
@@ -17650,7 +17583,7 @@ impl From<&VecWrap<Component>> for Vec<horned_owl::model::Component<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::Component<ArcStr>>> for VecWrap<Component> {
     fn from(value: &Vec<horned_owl::model::Component<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(Component::from).collect())
+        VecWrap(value.iter().map(Component::from).collect())
     }
 }
 
@@ -17722,8 +17655,8 @@ impl AnnotatedComponent {
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
-            "component" => self.component.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            "ann" => self.ann.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            "component" => self.component.clone().into_pyobject(py).map(Bound::into_any),
+            "ann" => self.ann.clone().into_pyobject(py).map(Bound::into_any),
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }
     }
@@ -17861,7 +17794,7 @@ impl From<&VecWrap<AnnotatedComponent>> for Vec<horned_owl::model::AnnotatedComp
 }
 impl From<&Vec<horned_owl::model::AnnotatedComponent<ArcStr>>> for VecWrap<AnnotatedComponent> {
     fn from(value: &Vec<horned_owl::model::AnnotatedComponent<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map(AnnotatedComponent::from).collect())
+        VecWrap(value.iter().map(AnnotatedComponent::from).collect())
     }
 }
 

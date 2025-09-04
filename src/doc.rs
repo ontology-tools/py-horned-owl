@@ -98,5 +98,5 @@ macro_rules! doc (
     (SymmetricObjectProperty) => { "The symmetric characteristic\n\nIf an individual `i` is connected to `j` by this\nObjectPropertyExpression, then `j` is also connected by `i`\nSee also: [Symmetric](https://www.w3.org/TR/owl2-syntax/#Symmetric_Object_Properties)" };
     (TransitiveObjectProperty) => { "A transitive relationship between two object properties.\n\nWhen `r` is transitive, then `a r b`, and `b r c` implies `a r\nc` also.\n\nSee also: [TransitiveObjectProperty](https://www.w3.org/TR/owl2-syntax/#Transitive_Object_Properties)" };
     (Variable) => { "A SWRL Variable" };
-    ($t:ident) => {""}
+    ($t:ident) => { "Documentation not available." };
 );

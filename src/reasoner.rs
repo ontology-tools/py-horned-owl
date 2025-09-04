@@ -64,7 +64,6 @@ impl PyReasoner {
             .unwrap()
             .0
             .inferred_axioms()
-            .into_iter()
             .map(|c| c.into())
             .collect()
     }
@@ -217,9 +216,8 @@ pub fn create_reasoner(name: String, ontology: &mut PyIndexedOntology) -> PyResu
     let lib = unsafe { Library::new(std::path::absolute(&path)?).map_err(to_py_err)? };
 
     let reasoner: Box<dyn Reasoner<ArcStr, ArcAnnotatedComponent>> = unsafe {
-        let func: libloading::Symbol<
-            fn(ontology: SetOntology<ArcStr>) -> Box<dyn Reasoner<ArcStr, ArcAnnotatedComponent>>,
-        > = lib.get(b"create_reasoner").map_err(to_py_err)?;
+        type ReasonerCreator = fn(ontology: SetOntology<ArcStr>) -> Box<dyn Reasoner<ArcStr, ArcAnnotatedComponent>>;
+        let func: libloading::Symbol<ReasonerCreator> = lib.get(b"create_reasoner").map_err(to_py_err)?;
         func(ontology.clone().into())
     };
 

@@ -1,6 +1,7 @@
 {%- from 'extensions.rs.jinja2' import include_extensions -%}
 /**************** ENUM implementation for {{ model.name }} ****************/
 #[allow(non_camel_case_types)]
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum {{ model.name }}_Inner {
 {%- for v_name, variant in model.variants.items() %}{% set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)%}
@@ -205,8 +206,7 @@ impl <'py> FromPyObject<'py> for {{ model.name }} {
             {%- if variant.transparent %}
             {
             	let r = {{ v_name_full }}::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = {{ model.name }}_Inner::{{ v_name }}(local);
                     return Ok({{ model.name }}(inner));
                 }
@@ -214,8 +214,7 @@ impl <'py> FromPyObject<'py> for {{ model.name }} {
             {%- else %}
             {
                 let r = {{ v_name_full }}::extract_bound(ob);
-                if r.is_ok() {
-                    let local = r.unwrap();
+                if let Ok(local) = r {
                     let inner = {{ model.name }}_Inner::{{ v_name }}(local);
                     return Ok({{ model.name }}(inner));
                 }
