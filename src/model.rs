@@ -9,14 +9,16 @@ use crate::wrappers::BTreeSetWrap;
 macro_rules! add_type_alias {
     ($py:ident, $module:ident, $($name:ident),*) => {
         {
-            let locals = [("typing", &$py.import_bound("typing")?), ("m", &$module)].into_py_dict_bound($py);
+            let locals = [("typing", &$py.import("typing")?), ("m", &$module)].into_py_dict($py)?;
 
             let mut code: String;
             let mut ta: Bound<'_, PyAny>;
+            let mut code_cstr: std::ffi::CString;
 
             $(
                 code = $name::py_def();
-                ta = $py.eval_bound(&code, None, Some(&locals))?;
+                code_cstr = std::ffi::CString::new(code.as_str()).unwrap();
+                ta = $py.eval(code_cstr.as_c_str(), None, Some(&locals))?;
                 locals.set_item(stringify!($name), &ta)?;
                 ta.setattr("__doc__",  doc!($name))?;
                 $module.add(stringify!($name), &ta)?;
@@ -38,21 +40,8 @@ impl From<&BTreeSetWrap<Annotation>> for BTreeSet<horned_owl::model::Annotation<
     }
 }
 
-impl<'source> FromPyObject<'source> for BTreeSetWrap<Annotation> {
-    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
-        ob.extract::<BTreeSet<Annotation>>()
-            .map(BTreeSetWrap::<Annotation>)
-    }
-}
-
-impl IntoPy<pyo3::PyObject> for BTreeSetWrap<Annotation> {
-    fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
-        self.0.into_py(py)
-    }
-}
-
-pub fn py_module(py: Python<'_>) -> PyResult<Bound<PyModule>> {
-    let module = PyModule::new_bound(py, "model")?;
+pub fn py_module<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyModule>> {
+    let module = PyModule::new(py, "model")?;
 
     // To get all members to export on the documentation website for horned_ows::model execute the following javascript command
     // console.log([...(await Promise.all(Array.from(document.querySelectorAll("a.enum")).filter(x => ["ClassExpression", "ObjectPropertyExpression", "Literal", "DataRange", ""].indexOf(x.innerText) >= 0).map(async a => { html = await(await fetch(a.href)).text(); doc = document.createElement("html"); doc.innerHTML=html; return Array.from(doc.querySelectorAll(".variant")).map(x => x.id.replace("variant.", "")); }))).flatMap(arr => arr.map(x => `module.add_class::<${ x }>()?;`)), ...Array.from(document.querySelectorAll("a.struct")).map(x=>x.innerText).filter(x => ["Build", "OntologyID"].indexOf(x) < 0).map(x => `module.add_class::<${ x }>()?;`)].join("\n"))

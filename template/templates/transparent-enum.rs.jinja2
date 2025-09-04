@@ -6,11 +6,15 @@ pub enum {{ model.name }} {
     {% endfor %}
 }
 
-impl IntoPy<PyObject> for {{ model.name }} {
-    fn into_py(self, py: Python<'_>) -> PyObject {
+impl<'py> IntoPyObject<'py> for {{ model.name }} {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         {% for v_name in model.variants %}
-            {{ model.name }}::{{ v_name }}(inner) => inner.into_py(py),
+            {{ model.name }}::{{ v_name }}(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
         {% endfor %}
         }
     }

@@ -30,10 +30,10 @@ impl {{ model.name }} {
         }
     }
 
-    fn __getitem__(&self, py: Python<'_>, name: &str) -> PyResult<PyObject> {
+    fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
         {%- for field,type in model.fields.items() %}
-            "{{ field | py_field(type) }}" => Ok(self.{{ field | py_field(type) }}.clone().into_py(py)),
+            "{{ field | py_field(type) }}" => self.{{ field | py_field(type) }}.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
         {%- endfor %}
             &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
         }

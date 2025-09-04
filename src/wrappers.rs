@@ -1,5 +1,7 @@
-use pyo3::{FromPyObject, IntoPy};
+use pyo3::types::PyAnyMethods;
+use pyo3::{Bound, FromPyObject, IntoPyObject};
 use std::collections::BTreeSet;
+use std::convert::Infallible;
 use std::sync::Arc;
 use std::hash::Hash;
 
@@ -96,15 +98,19 @@ impl<T> From<VecWrap<T>> for Vec<T> {
     }
 }
 
-impl<'source, T: FromPyObject<'source>> FromPyObject<'source> for VecWrap<T> {
-    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
+impl<'py, T: FromPyObject<'py>> FromPyObject<'py> for VecWrap<T> {
+    fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         ob.extract().map(VecWrap)
     }
 }
 
-impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for VecWrap<T> {
-    fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
-        self.0.into_py(py)
+impl<'py, T: IntoPyObject<'py>> IntoPyObject<'py> for VecWrap<T> {
+    type Target = pyo3::PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: pyo3::Python<'py>) -> Result<Self::Output, Self::Error> {
+        self.0.into_pyobject(py)
     }
 }
 
@@ -117,15 +123,19 @@ impl<T> From<Box<T>> for BoxWrap<T> {
     }
 }
 
-impl<'source, T: FromPyObject<'source>> FromPyObject<'source> for BoxWrap<T> {
-    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
+impl<'py, T: FromPyObject<'py>> FromPyObject<'py> for BoxWrap<T> {
+    fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         ob.extract::<T>().map(Box::new).map(BoxWrap)
     }
 }
 
-impl<T: IntoPy<pyo3::PyObject>> IntoPy<pyo3::PyObject> for BoxWrap<T> {
-    fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
-        (*self.0).into_py(py)
+impl<'py, T: IntoPyObject<'py>> IntoPyObject<'py> for BoxWrap<T> {
+    type Target = T::Target;
+    type Output = T::Output;
+    type Error = T::Error;
+
+    fn into_pyobject(self, py: pyo3::Python<'py>) -> Result<Self::Output, Self::Error> {
+        (*self.0).into_pyobject(py)
     }
 }
 
@@ -156,14 +166,18 @@ impl From<&StringWrapper> for Arc<str> {
     }
 }
 
-impl IntoPy<pyo3::PyObject> for StringWrapper {
-    fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
-        self.0.into_py(py)
+impl<'py> IntoPyObject<'py> for StringWrapper {
+    type Target = pyo3::types::PyString;
+    type Output = Bound<'py, Self::Target>;
+    type Error = Infallible;
+
+    fn into_pyobject(self, py: pyo3::Python<'py>) -> Result<Self::Output, Self::Error> {
+        self.0.into_pyobject(py)
     }
 }
 
-impl<'source> FromPyObject<'source> for StringWrapper {
-    fn extract(ob: &'source pyo3::PyAny) -> pyo3::PyResult<Self> {
+impl<'py> FromPyObject<'py> for StringWrapper {
+    fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         ob.extract().map(StringWrapper)
     }
 }
@@ -180,5 +194,22 @@ impl<T> From<BTreeSet<T>> for BTreeSetWrap<T> {
 impl<T> From<BTreeSetWrap<T>> for BTreeSet<T> {
     fn from(value: BTreeSetWrap<T>) -> Self {
         value.0
+    }
+}
+
+
+impl<'py, T: IntoPyObject<'py> + Ord> IntoPyObject<'py> for BTreeSetWrap<T> {
+    type Target = pyo3::types::PySet;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: pyo3::Python<'py>) -> Result<Self::Output, Self::Error> {
+        self.0.into_pyobject(py)
+    }
+}
+
+impl<'py, T: FromPyObject<'py> + Ord> FromPyObject<'py> for BTreeSetWrap<T> {
+    fn extract_bound(ob: &Bound<'py, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        ob.extract().map(BTreeSetWrap)
     }
 }

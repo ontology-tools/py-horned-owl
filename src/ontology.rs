@@ -1,7 +1,7 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
 use std::io::Write;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 
 use crate::prefix_mapping::PrefixMapping;
 use crate::reasoner::DynamicLoadedReasoner;
@@ -24,8 +24,9 @@ use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use pyo3::types::PyNone;
 use pyo3::{
-    pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyObject, PyResult, Python, ToPyObject,
+    pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyResult, Python,
 };
 
 #[pyclass]
@@ -68,16 +69,19 @@ pub struct PyIndexedOntology {
     pub set_index: SetIndex<ArcStr, ArcAnnotatedComponent>,
     //Need this for converting IRIs to IDs and for saving again afterwards
     pub mapping: Py<PrefixMapping>,
-    pub build: Build<ArcStr>,
+    pub build: RwLock<Build<ArcStr>>,
 
     pub index_strategy: IndexCreationStrategy,
 
     pub reasoners: Vec<PyReasoner>,
 }
 
+unsafe impl Sync for PyIndexedOntology {}
+unsafe impl Send for PyIndexedOntology {}
+
 impl Default for PyIndexedOntology {
     fn default() -> Self {
-        Python::with_gil(|py| PyIndexedOntology {
+        Python::attach(|py| PyIndexedOntology {
             labels_to_iris: Default::default(),
             classes_to_subclasses: Default::default(),
             classes_to_superclasses: Default::default(),
@@ -86,7 +90,7 @@ impl Default for PyIndexedOntology {
             set_index: Default::default(),
             mapping: Py::new(py, PrefixMapping::default())
                 .expect("Unable to create default prefix mapping"),
-            build: Build::new_arc(),
+            build: RwLock::new(Build::new_arc()),
             index_strategy: IndexCreationStrategy::OnQuery,
             reasoners: vec![],
         })
@@ -209,7 +213,7 @@ impl PyIndexedOntology {
     /// Gets the IRI of a term by its ID.
     ///
     /// If the term does not have an IRI, `None` is returned.
-    pub fn get_iri_for_id(&mut self, py: Python<'_>, id: String) -> PyResult<PyObject> {
+    pub fn get_iri_for_id<'py>(&mut self, py: Python<'py>, id: String) -> PyResult<Bound<'py, PyAny>> {
         let idparts: Vec<&str> = id.split(":").collect();
 
         if idparts.len() == 2 {
@@ -219,14 +223,14 @@ impl PyIndexedOntology {
             let res = mapping.0.expand_curie(&curie);
 
             if let Ok(iri) = res {
-                Ok(iri.to_string().to_object(py))
+                iri.to_string().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
             } else {
                 //Return null
-                Ok(().to_object(py))
+                Ok(PyNone::get(py).to_owned().into_any())
             }
         } else {
             //Not a CURIE, at least not of the form PREFIX:NUMBER
-            Ok(().to_object(py))
+            Ok(PyNone::get(py).to_owned().into_any())
         }
     }
 
@@ -266,16 +270,21 @@ impl PyIndexedOntology {
     ) -> PyResult<()> {
         let iri: IRI<ArcStr> = self.iri(py, iri, absolute)?.into();
 
-        let ax1: AnnotatedComponent<ArcStr> = Component::AnnotationAssertion(AnnotationAssertion {
-            subject: iri.clone().into(),
-            ann: Annotation {
-                ap: self.build.annotation_property(AnnotationBuiltIn::Label),
-                av: AnnotationValue::Literal(Literal::Simple {
-                    literal: label.clone(),
-                }),
-            },
-        })
-        .into();
+        let ax1: AnnotatedComponent<ArcStr>;
+        {
+            let build = self.build.write().unwrap();
+
+            ax1 = Component::AnnotationAssertion(AnnotationAssertion {
+                subject: iri.clone().into(),
+                ann: Annotation {
+                    ap: build.annotation_property(AnnotationBuiltIn::Label),
+                    av: AnnotationValue::Literal(Literal::Simple {
+                        literal: label.clone(),
+                    }),
+                },
+            })
+            .into();
+        }
 
         let components = if let Some(ref mut iri_index) = &mut self.iri_index {
             Box::new(iri_index.component_for_iri(&iri))
@@ -746,8 +755,9 @@ impl PyIndexedOntology {
     #[pyo3[signature = (iri, *, absolute = true)]]
     pub fn iri(&self, py: Python<'_>, iri: String, absolute: Option<bool>) -> PyResult<model::IRI> {
         let absolute = absolute.unwrap_or_else(|| iri.contains("://"));
-        let r = if absolute {
-            model::IRI::new(iri, &self.build)
+        let r = if absolute {    
+            let build = self.build.write().unwrap();
+            model::IRI::new(iri, &build)
         } else {
             self.curie(py, iri)?
         };
@@ -761,11 +771,12 @@ impl PyIndexedOntology {
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
     pub fn curie(&self, py: Python<'_>, curie: String) -> PyResult<model::IRI> {
         let mapping = self.mapping.borrow_mut(py);
+        let build = self.build.write().unwrap();
         let iri = mapping
             .0
             .expand_curie_string(&curie)
             .map_err(to_py_err!("Invalid curie"))?;
-        Ok(model::IRI::new(iri, &self.build))
+        Ok(model::IRI::new(iri, &build))
     }
 
     /// clazz(self, iri: str, *, absolute: Optional[bool]=None) -> model.Class
