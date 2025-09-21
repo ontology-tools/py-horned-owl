@@ -461,6 +461,48 @@ impl PyIndexedOntology {
         Ok(object_properties)
     }
 
+    /// get_annotation_properties(self) -> Set[str]
+    ///
+    /// Returns the IRIs of all declared object properties in the ontology.
+    pub fn get_annotation_properties(&mut self) -> PyResult<HashSet<String>> {
+        //Get the DeclareAnnotationProperty axioms
+        let annotation_properties = if let Some(ref mut component_index) = &mut self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::DeclareAnnotationProperty))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
+
+        let annotation_properties: HashSet<String> = annotation_properties
+            .filter_map(|aax| match aax.clone().component {
+                Component::DeclareAnnotationProperty(dop) => Some(dop.0 .0.to_string()),
+                _ => None,
+            })
+            .collect();
+        Ok(annotation_properties)
+    }
+
+    /// get_data_properties(self) -> Set[str]
+    ///
+    /// Returns the IRIs of all declared data properties in the ontology.
+    pub fn get_data_properties(&mut self) -> PyResult<HashSet<String>> {
+        //Get the DeclareDataProperty axioms
+        let data_properties = if let Some(ref mut component_index) = &mut self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::DeclareDataProperty))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
+
+        let data_properties: HashSet<String> = data_properties
+            .filter_map(|aax| match aax.clone().component {
+                Component::DeclareDataProperty(dop) => Some(dop.0 .0.to_string()),
+                _ => None,
+            })
+            .collect();
+        Ok(data_properties)
+    }
+
     /// get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> Optional[str]
     ///
     /// Gets the first annotated value for an entity and annotation property.
