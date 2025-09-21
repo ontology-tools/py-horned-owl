@@ -465,7 +465,7 @@ impl PyIndexedOntology {
     ///
     /// Returns the IRIs of all declared annotation properties in the ontology.
     pub fn get_annotation_properties(&mut self) -> PyResult<HashSet<String>> {
-        //Get the DeclareAnnotationProperty axioms
+        // Get the DeclareAnnotationProperty axioms
         let annotation_properties = if let Some(ref mut component_index) = &mut self.component_index {
             Box::new(component_index.component_for_kind(ComponentKind::DeclareAnnotationProperty))
                 as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
@@ -486,7 +486,7 @@ impl PyIndexedOntology {
     ///
     /// Returns the IRIs of all declared data properties in the ontology.
     pub fn get_data_properties(&mut self) -> PyResult<HashSet<String>> {
-        //Get the DeclareDataProperty axioms
+        // Get the DeclareDataProperty axioms
         let data_properties = if let Some(ref mut component_index) = &mut self.component_index {
             Box::new(component_index.component_for_kind(ComponentKind::DeclareDataProperty))
                 as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
@@ -501,6 +501,27 @@ impl PyIndexedOntology {
             })
             .collect();
         Ok(data_properties)
+    }
+
+    /// get_named_individuals(self) -> Set[str]
+    ///
+    /// Returns the IRIs of all declared named individuals in the ontology.
+    pub fn get_named_individuals(&mut self) -> PyResult<HashSet<String>> {
+        // Get the DeclareNamedIndividual axioms
+        let named_individuals = if let Some(ref mut component_index) = &mut self.component_index {
+            Box::new(component_index.component_for_kind(ComponentKind::DeclareNamedIndividual))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&self.set_index).into_iter())
+        };
+
+        let named_individuals: HashSet<String> = named_individuals
+            .filter_map(|aax| match aax.clone().component {
+                Component::DeclareNamedIndividual(dop) => Some(dop.0 .0.to_string()),
+                _ => None,
+            })
+            .collect();
+        Ok(named_individuals)
     }
 
     /// get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> Optional[str]

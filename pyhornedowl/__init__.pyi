@@ -94,6 +94,12 @@ class PyIndexedOntology:
         """
         ...
 
+    def get_named_individuals(self) -> Set[str]:
+        """
+        Returns the IRIs of all declared named individuals in the ontology.
+        """
+        ...
+
     def get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> Optional[str]:
         """
         Gets the first annotated value for an entity and annotation property.

@@ -21,6 +21,7 @@ class OntologyTestCase(unittest.TestCase):
             DeclareAnnotationProperty(AnnotationProperty(IRI.parse(RDFS_LABEL))),
             DeclareObjectProperty(ObjectProperty(IRI.parse("https://example.com/E"))),
             DeclareDataProperty(DataProperty(IRI.parse("https://example.com/F"))),
+            DeclareNamedIndividual(NamedIndividual(IRI.parse("https://example.com/G"))),
         ]
 
         onto = pyhornedowl.PyIndexedOntology()
@@ -58,6 +59,13 @@ class OntologyTestCase(unittest.TestCase):
         self.assertEqual(
             {f"https://example.com/{x}" for x in "ABCD"},
             self.o.get_classes(),
+        )
+
+    def test_named_individuals(self) -> None:
+        """Test getting named individuals."""
+        self.assertEqual(
+            {"https://example.com/G"},
+            self.o.get_named_individuals(),
         )
 
 
