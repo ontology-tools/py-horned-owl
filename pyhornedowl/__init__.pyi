@@ -90,7 +90,7 @@ class PyIndexedOntology:
 
     def get_data_properties(self) -> Set[str]:
         """
-        Returns the IRIs of all declared annotation properties in the ontology.
+        Returns the IRIs of all declared data properties in the ontology.
         """
         ...
 

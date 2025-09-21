@@ -463,7 +463,7 @@ impl PyIndexedOntology {
 
     /// get_annotation_properties(self) -> Set[str]
     ///
-    /// Returns the IRIs of all declared object properties in the ontology.
+    /// Returns the IRIs of all declared annotation properties in the ontology.
     pub fn get_annotation_properties(&mut self) -> PyResult<HashSet<String>> {
         //Get the DeclareAnnotationProperty axioms
         let annotation_properties = if let Some(ref mut component_index) = &mut self.component_index {
