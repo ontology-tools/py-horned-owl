@@ -76,6 +76,12 @@ class PyIndexedOntology:
         """
         ...
 
+    def get_datatypes(self) -> Set[str]:
+        """
+        Returns the IRIs of all declared datatypes in the ontology.
+        """
+        ...
+
     def get_object_properties(self) -> Set[str]:
         """
         Returns the IRIs of all declared object properties in the ontology.

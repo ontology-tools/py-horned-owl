@@ -25,9 +25,28 @@ use horned_owl::vocab::AnnotationBuiltIn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyNone;
-use pyo3::{
-    pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyResult, Python,
-};
+use pyo3::{pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyResult, Python};
+
+macro_rules! entity_query {
+    ($s:ident, $kind:expr, $comp:pat => $comp_var:expr) => {{
+        //Get the declaration axioms
+        let entities = if let Some(ref mut component_index) = &mut $s.component_index {
+            Box::new(component_index.component_for_kind($kind))
+                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
+        } else {
+            Box::new((&$s.set_index).into_iter())
+        };
+
+        let entities = entities
+            .filter_map(|aax| match &aax.component {
+                $comp => Some($comp_var.0 .0.to_string()),
+                _ => None,
+            })
+            .collect();
+
+        Ok(entities)
+    }};
+}
 
 #[pyclass]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -48,7 +67,6 @@ pub enum IndexCreationStrategy {
     /// Only create the additional indexes when explicity requested
     Explicit,
 }
-
 
 /// Represents a loaded ontology.
 #[pyclass]
@@ -210,7 +228,11 @@ impl PyIndexedOntology {
     /// Gets the IRI of a term by its ID.
     ///
     /// If the term does not have an IRI, `None` is returned.
-    pub fn get_iri_for_id<'py>(&mut self, py: Python<'py>, id: String) -> PyResult<Bound<'py, PyAny>> {
+    pub fn get_iri_for_id<'py>(
+        &mut self,
+        py: Python<'py>,
+        id: String,
+    ) -> PyResult<Bound<'py, PyAny>> {
         let idparts: Vec<&str> = id.split(":").collect();
 
         if idparts.len() == 2 {
@@ -220,7 +242,10 @@ impl PyIndexedOntology {
             let res = mapping.0.expand_curie(&curie);
 
             if let Ok(iri) = res {
-                iri.to_string().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
+                iri.to_string()
+                    .into_pyobject(py)
+                    .map(Bound::into_any)
+                    .map_err(PyErr::from)
             } else {
                 //Return null
                 Ok(PyNone::get(py).to_owned().into_any())
@@ -295,17 +320,18 @@ impl PyIndexedOntology {
             .filter_map(|aax: &AnnotatedComponent<ArcStr>| match &aax.component {
                 Component::AnnotationAssertion(AnnotationAssertion {
                     subject: AnnotationSubject::IRI(subj),
-                    ann: Annotation {
-                        ap,
-                        av: AnnotationValue::Literal(Literal::Simple { literal: _old }),
-                    },
+                    ann:
+                        Annotation {
+                            ap,
+                            av: AnnotationValue::Literal(Literal::Simple { literal: _old }),
+                        },
                 }) if subj == &iri => {
                     if AnnotationBuiltIn::Label.to_string().eq(&ap.0.to_string()) {
                         Some(aax.clone())
                     } else {
                         None
                     }
-                },
+                }
                 _ => None,
             })
             .next();
@@ -422,106 +448,42 @@ impl PyIndexedOntology {
     ///
     /// Returns the IRIs of all declared classes in the ontology.
     pub fn get_classes(&mut self) -> PyResult<HashSet<String>> {
-        //Get the DeclareClass axioms
-        let classes = if let Some(ref mut component_index) = &mut self.component_index {
-            Box::new(component_index.component_for_kind(ComponentKind::DeclareClass))
-                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
-        } else {
-            Box::new((&self.set_index).into_iter())
-        };
+        entity_query!(self, ComponentKind::DeclareClass, Component::DeclareClass(x) => x)
+    }
 
-        let classes = classes
-            .filter_map(|aax| match &aax.component {
-                Component::DeclareClass(dc) => Some(dc.0 .0.to_string()),
-                _ => None,
-            })
-            .collect();
-
-        Ok(classes)
+    /// get_datatypes(self) -> Set[str]
+    ///
+    /// Returns the IRIs of all declared datatypes in the ontology.
+    pub fn get_datatypes(&mut self) -> PyResult<HashSet<String>> {
+        entity_query!(self, ComponentKind::DeclareDatatype, Component::DeclareDatatype(x) => x)
     }
 
     /// get_object_properties(self) -> Set[str]
     ///
     /// Returns the IRIs of all declared object properties in the ontology.
     pub fn get_object_properties(&mut self) -> PyResult<HashSet<String>> {
-        //Get the DeclareObjectProperty axioms
-        let object_properties = if let Some(ref mut component_index) = &mut self.component_index {
-            Box::new(component_index.component_for_kind(ComponentKind::DeclareObjectProperty))
-                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
-        } else {
-            Box::new((&self.set_index).into_iter())
-        };
-
-        let object_properties: HashSet<String> = object_properties
-            .filter_map(|aax| match aax.clone().component {
-                Component::DeclareObjectProperty(dop) => Some(dop.0 .0.to_string()),
-                _ => None,
-            })
-            .collect();
-        Ok(object_properties)
+        entity_query!(self, ComponentKind::DeclareObjectProperty, Component::DeclareObjectProperty(x) => x)
     }
 
     /// get_annotation_properties(self) -> Set[str]
     ///
     /// Returns the IRIs of all declared annotation properties in the ontology.
     pub fn get_annotation_properties(&mut self) -> PyResult<HashSet<String>> {
-        // Get the DeclareAnnotationProperty axioms
-        let annotation_properties = if let Some(ref mut component_index) = &mut self.component_index {
-            Box::new(component_index.component_for_kind(ComponentKind::DeclareAnnotationProperty))
-                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
-        } else {
-            Box::new((&self.set_index).into_iter())
-        };
-
-        let annotation_properties: HashSet<String> = annotation_properties
-            .filter_map(|aax| match aax.clone().component {
-                Component::DeclareAnnotationProperty(dop) => Some(dop.0 .0.to_string()),
-                _ => None,
-            })
-            .collect();
-        Ok(annotation_properties)
+        entity_query!(self, ComponentKind::DeclareAnnotationProperty, Component::DeclareAnnotationProperty(x) => x)
     }
 
     /// get_data_properties(self) -> Set[str]
     ///
     /// Returns the IRIs of all declared data properties in the ontology.
     pub fn get_data_properties(&mut self) -> PyResult<HashSet<String>> {
-        // Get the DeclareDataProperty axioms
-        let data_properties = if let Some(ref mut component_index) = &mut self.component_index {
-            Box::new(component_index.component_for_kind(ComponentKind::DeclareDataProperty))
-                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
-        } else {
-            Box::new((&self.set_index).into_iter())
-        };
-
-        let data_properties: HashSet<String> = data_properties
-            .filter_map(|aax| match aax.clone().component {
-                Component::DeclareDataProperty(dop) => Some(dop.0 .0.to_string()),
-                _ => None,
-            })
-            .collect();
-        Ok(data_properties)
+        entity_query!(self, ComponentKind::DeclareDataProperty, Component::DeclareDataProperty(x) => x)
     }
 
     /// get_named_individuals(self) -> Set[str]
     ///
     /// Returns the IRIs of all declared named individuals in the ontology.
     pub fn get_named_individuals(&mut self) -> PyResult<HashSet<String>> {
-        // Get the DeclareNamedIndividual axioms
-        let named_individuals = if let Some(ref mut component_index) = &mut self.component_index {
-            Box::new(component_index.component_for_kind(ComponentKind::DeclareNamedIndividual))
-                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
-        } else {
-            Box::new((&self.set_index).into_iter())
-        };
-
-        let named_individuals: HashSet<String> = named_individuals
-            .filter_map(|aax| match aax.clone().component {
-                Component::DeclareNamedIndividual(dop) => Some(dop.0 .0.to_string()),
-                _ => None,
-            })
-            .collect();
-        Ok(named_individuals)
+        entity_query!(self, ComponentKind::DeclareNamedIndividual, Component::DeclareNamedIndividual(x) => x)
     }
 
     /// get_annotation(self, class_iri: str, ann_iri: str, *, class_iri_is_absolute: Optional[bool] = None, ann_iri_is_absolute: Optional[bool]=None) -> Optional[str]
@@ -751,13 +713,11 @@ impl PyIndexedOntology {
         annotations: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<()> {
         let ann: BTreeSetWrap<model::Annotation> = match annotations {
-            Some(a) => a
-                .extract::<BTreeSet<model::Annotation>>()
-                .or_else(|_| {
-                    Ok::<BTreeSet<model::Annotation>, PyErr>(
-                        a.extract::<Vec<model::Annotation>>()?.into_iter().collect(),
-                    )
-                })?,
+            Some(a) => a.extract::<BTreeSet<model::Annotation>>().or_else(|_| {
+                Ok::<BTreeSet<model::Annotation>, PyErr>(
+                    a.extract::<Vec<model::Annotation>>()?.into_iter().collect(),
+                )
+            })?,
             None => BTreeSet::new(),
         }
         .into();
@@ -811,7 +771,7 @@ impl PyIndexedOntology {
     #[pyo3[signature = (iri, *, absolute = true)]]
     pub fn iri(&self, py: Python<'_>, iri: String, absolute: Option<bool>) -> PyResult<model::IRI> {
         let absolute = absolute.unwrap_or_else(|| iri.contains("://"));
-        let r = if absolute {    
+        let r = if absolute {
             let build = self.build.read().unwrap();
             model::IRI::new(iri, &build)
         } else {
