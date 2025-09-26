@@ -14,7 +14,7 @@ impl<'py> IntoPyObject<'py> for {{ model.name }} {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
         {% for v_name in model.variants %}
-            {{ model.name }}::{{ v_name }}(inner) => inner.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            {{ model.name }}::{{ v_name }}(inner) => inner.into_pyobject(py).map(Bound::into_any),
         {% endfor %}
         }
     }

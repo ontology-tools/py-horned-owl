@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+
 use std::{borrow::Borrow, collections::{BTreeSet,hash_map::DefaultHasher}, sync::Arc};
 use std::fmt::Display;
 use std::hash::{Hash, Hasher};
@@ -1932,7 +1934,7 @@ pub struct ObjectPropertyExpression(ObjectPropertyExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2079,10 +2081,12 @@ impl<'py> IntoPyObject<'py> for ObjectPropertyExpression {
         match self.0 {
             
                 ObjectPropertyExpression_Inner::ObjectProperty(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ObjectPropertyExpression_Inner::InverseObjectProperty(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
         }
     }
@@ -2426,7 +2430,7 @@ pub struct Literal(Literal_Inner);
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
             	"literal" => self.literal.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"datatype_iri" => self.datatype_iri.clone().into_pyobject(py).map(Bound::into_any),
+            	"datatype_iri" => self.datatype_iri.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2512,13 +2516,16 @@ impl<'py> IntoPyObject<'py> for Literal {
         match self.0 {
             
                 Literal_Inner::Simple(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 Literal_Inner::Language(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 Literal_Inner::Datatype(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
         }
     }
@@ -2737,7 +2744,7 @@ pub struct DataRange(DataRange_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2799,7 +2806,7 @@ pub struct DataRange(DataRange_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2861,7 +2868,7 @@ pub struct DataRange(DataRange_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2923,7 +2930,7 @@ pub struct DataRange(DataRange_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -2988,8 +2995,8 @@ pub struct DataRange(DataRange_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
-            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3091,22 +3098,28 @@ impl<'py> IntoPyObject<'py> for DataRange {
         match self.0 {
             
                 DataRange_Inner::Datatype(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 DataRange_Inner::DataIntersectionOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 DataRange_Inner::DataUnionOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 DataRange_Inner::DataComplementOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 DataRange_Inner::DataOneOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 DataRange_Inner::DatatypeRestriction(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
         }
     }
@@ -3358,7 +3371,7 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3437,7 +3450,7 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3516,7 +3529,7 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3595,7 +3608,7 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3677,8 +3690,8 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3764,8 +3777,8 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3851,8 +3864,8 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
-            	"i" => self.i.clone().into_pyobject(py).map(Bound::into_any),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"i" => self.i.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -3935,7 +3948,7 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4021,9 +4034,9 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
+            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4117,9 +4130,9 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
+            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4213,9 +4226,9 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
-            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any),
+            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"bce" => self.bce.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4305,8 +4318,8 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4392,8 +4405,8 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4479,8 +4492,8 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
-            	"l" => self.l.clone().into_pyobject(py).map(Bound::into_any),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"l" => self.l.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4570,9 +4583,9 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
+            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4666,9 +4679,9 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
+            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -4762,9 +4775,9 @@ pub struct ClassExpression(ClassExpression_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"n" => self.n.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
-            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
-            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any),
+            	"n" => self.n.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"dr" => self.dr.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -5006,58 +5019,76 @@ impl<'py> IntoPyObject<'py> for ClassExpression {
         match self.0 {
             
                 ClassExpression_Inner::Class(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectIntersectionOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectUnionOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectComplementOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectOneOf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectSomeValuesFrom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectAllValuesFrom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectHasValue(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectHasSelf(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectMinCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectMaxCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::ObjectExactCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::DataSomeValuesFrom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::DataAllValuesFrom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::DataHasValue(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::DataMinCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::DataMaxCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 ClassExpression_Inner::DataExactCardinality(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
         }
     }
@@ -16064,8 +16095,8 @@ pub struct Atom(Atom_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
-            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16134,8 +16165,8 @@ pub struct Atom(Atom_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
-            	"arg" => self.arg.clone().into_pyobject(py).map(Bound::into_any),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"arg" => self.arg.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16204,8 +16235,8 @@ pub struct Atom(Atom_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
-            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16274,8 +16305,8 @@ pub struct Atom(Atom_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
-            	"arg" => self.arg.clone().into_pyobject(py).map(Bound::into_any),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"arg" => self.arg.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16344,8 +16375,8 @@ pub struct Atom(Atom_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
-            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16414,8 +16445,8 @@ pub struct Atom(Atom_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any),
-            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any),
+            	"pred" => self.pred.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"args" => self.args.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16484,8 +16515,8 @@ pub struct Atom(Atom_Inner);
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
-            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any),
-            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any),
+            	"first" => self.0.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
+            	"second" => self.1.clone().into_pyobject(py).map(Bound::into_any).map_err(PyErr::from),
                 &_ => Err(PyKeyError::new_err(format!("The field '{}' does not exist.", name)))
             }
         }
@@ -16605,25 +16636,32 @@ impl<'py> IntoPyObject<'py> for Atom {
         match self.0 {
             
                 Atom_Inner::BuiltInAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 Atom_Inner::ClassAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 Atom_Inner::DataPropertyAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 Atom_Inner::DataRangeAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 Atom_Inner::DifferentIndividualsAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 Atom_Inner::ObjectPropertyAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
                 Atom_Inner::SameIndividualAtom(val) => {
-                    val.into_pyobject(py).map(Bound::into_any)},
+                    val.into_pyobject(py).map(Bound::into_any)
+                },
             
         }
     }

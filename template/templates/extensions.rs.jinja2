@@ -3,7 +3,7 @@
     /******** EXTENSION "named" for {{ name }} ********/
     impl Display for {{ name }} {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0.0.to_string())
+            write!(f, "{}", self.0.0)
         }
     }
 

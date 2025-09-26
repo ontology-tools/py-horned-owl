@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+
 use std::{borrow::Borrow, collections::{BTreeSet,hash_map::DefaultHasher}, sync::Arc};
 use std::fmt::Display;
 use std::hash::{Hash, Hasher};

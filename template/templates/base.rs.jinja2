@@ -84,7 +84,7 @@ impl From<&VecWrap<{{ name }}>> for Vec<horned_owl::model::{{ name }}<ArcStr>> {
 }
 impl From<&Vec<horned_owl::model::{{ name }}<ArcStr>>> for VecWrap<{{ name }}> {
     fn from(value: &Vec<horned_owl::model::{{ name }}<ArcStr>>) -> Self {
-        VecWrap(value.into_iter().map({{ name }}::from).collect())
+        VecWrap(value.iter().map({{ name }}::from).collect())
     }
 }
 

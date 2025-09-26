@@ -63,12 +63,12 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
             {{ v_name_full }}
             {%- if variant.fields is list %}(
                 {%- for type in variant.fields %}
-                {{ loop.index0 | as_py_name }}.into(),
+                {{ loop.index0 | as_py_name }},
                 {%- endfor %}
             )
             {%- else -%}{
                 {%- for field in variant.fields %}
-                {{ field }}: {{ field | as_rust_type }}.into(),
+                {{ field }},
                 {%- endfor -%}
             }
             {%- endif %}
@@ -191,7 +191,7 @@ impl<'py> IntoPyObject<'py> for {{ model.name }} {
         match self.0 {
             {% for v_name, variant in model.variants.items() %}
                 {{ model.name }}_Inner::{{ v_name }}(val) => {
-                    val.into_pyobject(py).map(Bound::into_any).map_err(PyErr::from)
+                    val.into_pyobject(py).map(Bound::into_any)
                 },
             {% endfor %}
         }
