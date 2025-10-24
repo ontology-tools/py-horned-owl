@@ -30,6 +30,15 @@ impl {{ model.name }} {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<({{ " ".join(["String,"] * model.fields.keys() | length) }})> {
+        Ok((
+        {%- for field in model.fields.keys() %}
+            "{{ field | as_py_name }}".to_string(),
+        {%- endfor %}
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
         {%- for field,type in model.fields.items() %}

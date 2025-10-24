@@ -2,6 +2,9 @@ class {{ model.name }}:
 {%- for k, v in model.fields.items() %}
     {{ k | py_field(v) }}: {{ v | as_py_type }}
 {%- endfor %}
+    __match_args__ = ({%- for field, _ in model.fields | fields -%}
+        "{{ field | as_py_name }}",
+    {%- endfor -%})
 
     def __init__(self,
 {%- for k, v in model.fields.items() -%}
