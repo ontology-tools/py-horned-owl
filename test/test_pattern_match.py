@@ -19,8 +19,8 @@ class PatternMatchTestCase(unittest.TestCase):
         
         components: list[Component] = [
             OntologyID(None, None),
-            DocIRI(IRI.parse(iri)),
-            OntologyAnnotation(Annotation(iri, SimpleLiteral("Example"))),
+            DocIRI(iri),
+            OntologyAnnotation(Annotation(AnnotationProperty(iri), SimpleLiteral("Example"))),
             Import(iri),
             DeclareClass(Class(iri)),
             SubClassOf(Class(iri), Class(iri)),

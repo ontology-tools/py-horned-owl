@@ -21,7 +21,7 @@ class Facet:
 class Class:
     first: IRI
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: IRI,/):
         ...
@@ -45,7 +45,7 @@ class Class:
 class AnonymousIndividual:
     first: str
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: str,/):
         ...
@@ -58,7 +58,7 @@ class AnonymousIndividual:
 class NamedIndividual:
     first: IRI
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: IRI,/):
         ...
@@ -71,7 +71,7 @@ class NamedIndividual:
 class ObjectProperty:
     first: IRI
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: IRI,/):
         ...
@@ -115,7 +115,7 @@ class ObjectProperty:
 class Datatype:
     first: IRI
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: IRI,/):
         ...
@@ -128,7 +128,7 @@ class Datatype:
 class DataProperty:
     first: IRI
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: IRI,/):
         ...
@@ -141,7 +141,7 @@ class DataProperty:
 class FacetRestriction:
     f: Facet
     l: Literal
-    __match_args__ = ("f","l",)
+    __match_args__ = ("f", "l", )
 
     def __init__(self,f: Facet,l: Literal,/):
         ...
@@ -154,7 +154,7 @@ Individual = typing.Union[AnonymousIndividual,NamedIndividual,]
 class InverseObjectProperty:
     first: ObjectProperty
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: ObjectProperty,):
@@ -200,7 +200,7 @@ ObjectPropertyExpression = typing.Union[ObjectProperty,InverseObjectProperty,]
 class SimpleLiteral:
     literal: str
 
-    __match_args__ = ("literal",)
+    __match_args__ = ("literal", )
 
 
     def __init__(self,literal: str,):
@@ -212,7 +212,7 @@ class LanguageLiteral:
     literal: str
     lang: str
 
-    __match_args__ = ("literal","lang",)
+    __match_args__ = ("literal", "lang", )
 
 
     def __init__(self,literal: str,lang: str,):
@@ -224,7 +224,7 @@ class DatatypeLiteral:
     literal: str
     datatype_iri: IRI
 
-    __match_args__ = ("literal","datatype_iri",)
+    __match_args__ = ("literal", "datatype_iri", )
 
 
     def __init__(self,literal: str,datatype_iri: IRI,):
@@ -239,7 +239,7 @@ Literal = typing.Union[SimpleLiteral,LanguageLiteral,DatatypeLiteral,]
 class DataIntersectionOf:
     first: typing.List[DataRange]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: typing.List[DataRange],):
@@ -250,7 +250,7 @@ class DataIntersectionOf:
 class DataUnionOf:
     first: typing.List[DataRange]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: typing.List[DataRange],):
@@ -261,7 +261,7 @@ class DataUnionOf:
 class DataComplementOf:
     first: DataRange
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: DataRange,):
@@ -272,7 +272,7 @@ class DataComplementOf:
 class DataOneOf:
     first: typing.List[Literal]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: typing.List[Literal],):
@@ -284,7 +284,7 @@ class DatatypeRestriction:
     first: Datatype
     second: typing.List[FacetRestriction]
 
-    __match_args__ = ("first","second",)
+    __match_args__ = ("first", "second", )
 
 
     def __init__(self,first: Datatype,second: typing.List[FacetRestriction],):
@@ -299,7 +299,7 @@ DataRange = typing.Union[Datatype,DataIntersectionOf,DataUnionOf,DataComplementO
 class ObjectIntersectionOf:
     first: typing.List[ClassExpression]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: typing.List[ClassExpression],):
@@ -321,7 +321,7 @@ class ObjectIntersectionOf:
 class ObjectUnionOf:
     first: typing.List[ClassExpression]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: typing.List[ClassExpression],):
@@ -343,7 +343,7 @@ class ObjectUnionOf:
 class ObjectComplementOf:
     first: ClassExpression
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: ClassExpression,):
@@ -365,7 +365,7 @@ class ObjectComplementOf:
 class ObjectOneOf:
     first: typing.List[Individual]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: typing.List[Individual],):
@@ -388,7 +388,7 @@ class ObjectSomeValuesFrom:
     ope: ObjectPropertyExpression
     bce: ClassExpression
 
-    __match_args__ = ("ope","bce",)
+    __match_args__ = ("ope", "bce", )
 
 
     def __init__(self,ope: ObjectPropertyExpression,bce: ClassExpression,):
@@ -411,7 +411,7 @@ class ObjectAllValuesFrom:
     ope: ObjectPropertyExpression
     bce: ClassExpression
 
-    __match_args__ = ("ope","bce",)
+    __match_args__ = ("ope", "bce", )
 
 
     def __init__(self,ope: ObjectPropertyExpression,bce: ClassExpression,):
@@ -434,7 +434,7 @@ class ObjectHasValue:
     ope: ObjectPropertyExpression
     i: Individual
 
-    __match_args__ = ("ope","i",)
+    __match_args__ = ("ope", "i", )
 
 
     def __init__(self,ope: ObjectPropertyExpression,i: Individual,):
@@ -456,7 +456,7 @@ class ObjectHasValue:
 class ObjectHasSelf:
     first: ObjectPropertyExpression
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
 
     def __init__(self,first: ObjectPropertyExpression,):
@@ -480,7 +480,7 @@ class ObjectMinCardinality:
     ope: ObjectPropertyExpression
     bce: ClassExpression
 
-    __match_args__ = ("n","ope","bce",)
+    __match_args__ = ("n", "ope", "bce", )
 
 
     def __init__(self,n: int,ope: ObjectPropertyExpression,bce: ClassExpression,):
@@ -504,7 +504,7 @@ class ObjectMaxCardinality:
     ope: ObjectPropertyExpression
     bce: ClassExpression
 
-    __match_args__ = ("n","ope","bce",)
+    __match_args__ = ("n", "ope", "bce", )
 
 
     def __init__(self,n: int,ope: ObjectPropertyExpression,bce: ClassExpression,):
@@ -528,7 +528,7 @@ class ObjectExactCardinality:
     ope: ObjectPropertyExpression
     bce: ClassExpression
 
-    __match_args__ = ("n","ope","bce",)
+    __match_args__ = ("n", "ope", "bce", )
 
 
     def __init__(self,n: int,ope: ObjectPropertyExpression,bce: ClassExpression,):
@@ -551,7 +551,7 @@ class DataSomeValuesFrom:
     dp: DataProperty
     dr: DataRange
 
-    __match_args__ = ("dp","dr",)
+    __match_args__ = ("dp", "dr", )
 
 
     def __init__(self,dp: DataProperty,dr: DataRange,):
@@ -574,7 +574,7 @@ class DataAllValuesFrom:
     dp: DataProperty
     dr: DataRange
 
-    __match_args__ = ("dp","dr",)
+    __match_args__ = ("dp", "dr", )
 
 
     def __init__(self,dp: DataProperty,dr: DataRange,):
@@ -597,7 +597,7 @@ class DataHasValue:
     dp: DataProperty
     l: Literal
 
-    __match_args__ = ("dp","l",)
+    __match_args__ = ("dp", "l", )
 
 
     def __init__(self,dp: DataProperty,l: Literal,):
@@ -621,7 +621,7 @@ class DataMinCardinality:
     dp: DataProperty
     dr: DataRange
 
-    __match_args__ = ("n","dp","dr",)
+    __match_args__ = ("n", "dp", "dr", )
 
 
     def __init__(self,n: int,dp: DataProperty,dr: DataRange,):
@@ -645,7 +645,7 @@ class DataMaxCardinality:
     dp: DataProperty
     dr: DataRange
 
-    __match_args__ = ("n","dp","dr",)
+    __match_args__ = ("n", "dp", "dr", )
 
 
     def __init__(self,n: int,dp: DataProperty,dr: DataRange,):
@@ -669,7 +669,7 @@ class DataExactCardinality:
     dp: DataProperty
     dr: DataRange
 
-    __match_args__ = ("n","dp","dr",)
+    __match_args__ = ("n", "dp", "dr", )
 
 
     def __init__(self,n: int,dp: DataProperty,dr: DataRange,):
@@ -698,7 +698,7 @@ AnnotationSubject = typing.Union[IRI,AnonymousIndividual,]
 class AnnotationProperty:
     first: IRI
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: IRI,/):
         ...
@@ -711,7 +711,7 @@ AnnotationValue = typing.Union[Literal,IRI,AnonymousIndividual,]
 class Annotation:
     ap: AnnotationProperty
     av: AnnotationValue
-    __match_args__ = ("ap","av",)
+    __match_args__ = ("ap", "av", )
 
     def __init__(self,ap: AnnotationProperty,av: AnnotationValue,/):
         ...
@@ -721,7 +721,7 @@ class Annotation:
 class OntologyAnnotation:
     first: Annotation
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: Annotation,/):
         ...
@@ -732,7 +732,7 @@ class OntologyAnnotation:
 class Import:
     first: IRI
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: IRI,/):
         ...
@@ -743,7 +743,7 @@ class Import:
 class DeclareClass:
     first: Class
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: Class,/):
         ...
@@ -754,7 +754,7 @@ class DeclareClass:
 class DeclareObjectProperty:
     first: ObjectProperty
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: ObjectProperty,/):
         ...
@@ -765,7 +765,7 @@ class DeclareObjectProperty:
 class DeclareAnnotationProperty:
     first: AnnotationProperty
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: AnnotationProperty,/):
         ...
@@ -776,7 +776,7 @@ class DeclareAnnotationProperty:
 class DeclareDataProperty:
     first: DataProperty
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: DataProperty,/):
         ...
@@ -787,7 +787,7 @@ class DeclareDataProperty:
 class DeclareNamedIndividual:
     first: NamedIndividual
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: NamedIndividual,/):
         ...
@@ -798,7 +798,7 @@ class DeclareNamedIndividual:
 class DeclareDatatype:
     first: Datatype
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: Datatype,/):
         ...
@@ -809,7 +809,7 @@ class DeclareDatatype:
 class SubClassOf:
     sub: ClassExpression
     sup: ClassExpression
-    __match_args__ = ("sub","sup",)
+    __match_args__ = ("sub", "sup", )
 
     def __init__(self,sub: ClassExpression,sup: ClassExpression,/):
         ...
@@ -819,7 +819,7 @@ class SubClassOf:
 class EquivalentClasses:
     first: typing.List[ClassExpression]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: typing.List[ClassExpression],/):
         ...
@@ -830,7 +830,7 @@ class EquivalentClasses:
 class DisjointClasses:
     first: typing.List[ClassExpression]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: typing.List[ClassExpression],/):
         ...
@@ -842,7 +842,7 @@ class DisjointUnion:
     first: Class
     second: typing.List[ClassExpression]
 
-    __match_args__ = ("first","second",)
+    __match_args__ = ("first", "second", )
 
     def __init__(self,first: Class,second: typing.List[ClassExpression],/):
         ...
@@ -855,7 +855,7 @@ SubObjectPropertyExpression = typing.Union[typing.List[ObjectPropertyExpression]
 class SubObjectPropertyOf:
     sub: SubObjectPropertyExpression
     sup: ObjectPropertyExpression
-    __match_args__ = ("sub","sup",)
+    __match_args__ = ("sub", "sup", )
 
     def __init__(self,sub: SubObjectPropertyExpression,sup: ObjectPropertyExpression,/):
         ...
@@ -865,7 +865,7 @@ class SubObjectPropertyOf:
 class EquivalentObjectProperties:
     first: typing.List[ObjectPropertyExpression]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: typing.List[ObjectPropertyExpression],/):
         ...
@@ -876,7 +876,7 @@ class EquivalentObjectProperties:
 class DisjointObjectProperties:
     first: typing.List[ObjectPropertyExpression]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: typing.List[ObjectPropertyExpression],/):
         ...
@@ -888,7 +888,7 @@ class InverseObjectProperties:
     first: ObjectProperty
     second: ObjectProperty
 
-    __match_args__ = ("first","second",)
+    __match_args__ = ("first", "second", )
 
     def __init__(self,first: ObjectProperty,second: ObjectProperty,/):
         ...
@@ -899,7 +899,7 @@ class InverseObjectProperties:
 class ObjectPropertyDomain:
     ope: ObjectPropertyExpression
     ce: ClassExpression
-    __match_args__ = ("ope","ce",)
+    __match_args__ = ("ope", "ce", )
 
     def __init__(self,ope: ObjectPropertyExpression,ce: ClassExpression,/):
         ...
@@ -909,7 +909,7 @@ class ObjectPropertyDomain:
 class ObjectPropertyRange:
     ope: ObjectPropertyExpression
     ce: ClassExpression
-    __match_args__ = ("ope","ce",)
+    __match_args__ = ("ope", "ce", )
 
     def __init__(self,ope: ObjectPropertyExpression,ce: ClassExpression,/):
         ...
@@ -919,7 +919,7 @@ class ObjectPropertyRange:
 class FunctionalObjectProperty:
     first: ObjectPropertyExpression
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: ObjectPropertyExpression,/):
         ...
@@ -930,7 +930,7 @@ class FunctionalObjectProperty:
 class InverseFunctionalObjectProperty:
     first: ObjectPropertyExpression
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: ObjectPropertyExpression,/):
         ...
@@ -941,7 +941,7 @@ class InverseFunctionalObjectProperty:
 class ReflexiveObjectProperty:
     first: ObjectPropertyExpression
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: ObjectPropertyExpression,/):
         ...
@@ -952,7 +952,7 @@ class ReflexiveObjectProperty:
 class IrreflexiveObjectProperty:
     first: ObjectPropertyExpression
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: ObjectPropertyExpression,/):
         ...
@@ -963,7 +963,7 @@ class IrreflexiveObjectProperty:
 class SymmetricObjectProperty:
     first: ObjectPropertyExpression
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: ObjectPropertyExpression,/):
         ...
@@ -974,7 +974,7 @@ class SymmetricObjectProperty:
 class AsymmetricObjectProperty:
     first: ObjectPropertyExpression
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: ObjectPropertyExpression,/):
         ...
@@ -985,7 +985,7 @@ class AsymmetricObjectProperty:
 class TransitiveObjectProperty:
     first: ObjectPropertyExpression
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: ObjectPropertyExpression,/):
         ...
@@ -996,7 +996,7 @@ class TransitiveObjectProperty:
 class SubDataPropertyOf:
     sub: DataProperty
     sup: DataProperty
-    __match_args__ = ("sub","sup",)
+    __match_args__ = ("sub", "sup", )
 
     def __init__(self,sub: DataProperty,sup: DataProperty,/):
         ...
@@ -1006,7 +1006,7 @@ class SubDataPropertyOf:
 class EquivalentDataProperties:
     first: typing.List[DataProperty]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: typing.List[DataProperty],/):
         ...
@@ -1017,7 +1017,7 @@ class EquivalentDataProperties:
 class DisjointDataProperties:
     first: typing.List[DataProperty]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: typing.List[DataProperty],/):
         ...
@@ -1028,7 +1028,7 @@ class DisjointDataProperties:
 class DataPropertyDomain:
     dp: DataProperty
     ce: ClassExpression
-    __match_args__ = ("dp","ce",)
+    __match_args__ = ("dp", "ce", )
 
     def __init__(self,dp: DataProperty,ce: ClassExpression,/):
         ...
@@ -1038,7 +1038,7 @@ class DataPropertyDomain:
 class DataPropertyRange:
     dp: DataProperty
     dr: DataRange
-    __match_args__ = ("dp","dr",)
+    __match_args__ = ("dp", "dr", )
 
     def __init__(self,dp: DataProperty,dr: DataRange,/):
         ...
@@ -1048,7 +1048,7 @@ class DataPropertyRange:
 class FunctionalDataProperty:
     first: DataProperty
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: DataProperty,/):
         ...
@@ -1059,7 +1059,7 @@ class FunctionalDataProperty:
 class DatatypeDefinition:
     kind: Datatype
     range: DataRange
-    __match_args__ = ("kind","range",)
+    __match_args__ = ("kind", "range", )
 
     def __init__(self,kind: Datatype,range: DataRange,/):
         ...
@@ -1069,7 +1069,7 @@ class DatatypeDefinition:
 class HasKey:
     ce: ClassExpression
     vpe: typing.List[PropertyExpression]
-    __match_args__ = ("ce","vpe",)
+    __match_args__ = ("ce", "vpe", )
 
     def __init__(self,ce: ClassExpression,vpe: typing.List[PropertyExpression],/):
         ...
@@ -1079,7 +1079,7 @@ class HasKey:
 class SameIndividual:
     first: typing.List[Individual]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: typing.List[Individual],/):
         ...
@@ -1090,7 +1090,7 @@ class SameIndividual:
 class DifferentIndividuals:
     first: typing.List[Individual]
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: typing.List[Individual],/):
         ...
@@ -1101,7 +1101,7 @@ class DifferentIndividuals:
 class ClassAssertion:
     ce: ClassExpression
     i: Individual
-    __match_args__ = ("ce","i",)
+    __match_args__ = ("ce", "i", )
 
     def __init__(self,ce: ClassExpression,i: Individual,/):
         ...
@@ -1112,7 +1112,7 @@ class ObjectPropertyAssertion:
     ope: ObjectPropertyExpression
     source: Individual
     target: Individual
-    __match_args__ = ("ope","from","to",)
+    __match_args__ = ("ope", "from", "to", )
 
     def __init__(self,ope: ObjectPropertyExpression,source: Individual,target: Individual,/):
         ...
@@ -1123,7 +1123,7 @@ class NegativeObjectPropertyAssertion:
     ope: ObjectPropertyExpression
     source: Individual
     target: Individual
-    __match_args__ = ("ope","from","to",)
+    __match_args__ = ("ope", "from", "to", )
 
     def __init__(self,ope: ObjectPropertyExpression,source: Individual,target: Individual,/):
         ...
@@ -1134,7 +1134,7 @@ class DataPropertyAssertion:
     dp: DataProperty
     source: Individual
     target: Literal
-    __match_args__ = ("dp","from","to",)
+    __match_args__ = ("dp", "from", "to", )
 
     def __init__(self,dp: DataProperty,source: Individual,target: Literal,/):
         ...
@@ -1145,7 +1145,7 @@ class NegativeDataPropertyAssertion:
     dp: DataProperty
     source: Individual
     target: Literal
-    __match_args__ = ("dp","from","to",)
+    __match_args__ = ("dp", "from", "to", )
 
     def __init__(self,dp: DataProperty,source: Individual,target: Literal,/):
         ...
@@ -1155,7 +1155,7 @@ class NegativeDataPropertyAssertion:
 class AnnotationAssertion:
     subject: AnnotationSubject
     ann: Annotation
-    __match_args__ = ("subject","ann",)
+    __match_args__ = ("subject", "ann", )
 
     def __init__(self,subject: AnnotationSubject,ann: Annotation,/):
         ...
@@ -1165,7 +1165,7 @@ class AnnotationAssertion:
 class SubAnnotationPropertyOf:
     sub: AnnotationProperty
     sup: AnnotationProperty
-    __match_args__ = ("sub","sup",)
+    __match_args__ = ("sub", "sup", )
 
     def __init__(self,sub: AnnotationProperty,sup: AnnotationProperty,/):
         ...
@@ -1175,7 +1175,7 @@ class SubAnnotationPropertyOf:
 class AnnotationPropertyDomain:
     ap: AnnotationProperty
     iri: IRI
-    __match_args__ = ("ap","iri",)
+    __match_args__ = ("ap", "iri", )
 
     def __init__(self,ap: AnnotationProperty,iri: IRI,/):
         ...
@@ -1185,7 +1185,7 @@ class AnnotationPropertyDomain:
 class AnnotationPropertyRange:
     ap: AnnotationProperty
     iri: IRI
-    __match_args__ = ("ap","iri",)
+    __match_args__ = ("ap", "iri", )
 
     def __init__(self,ap: AnnotationProperty,iri: IRI,/):
         ...
@@ -1195,7 +1195,7 @@ class AnnotationPropertyRange:
 class DocIRI:
     first: IRI
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: IRI,/):
         ...
@@ -1206,7 +1206,7 @@ class DocIRI:
 class OntologyID:
     iri: typing.Optional[IRI]
     viri: typing.Optional[IRI]
-    __match_args__ = ("iri","viri",)
+    __match_args__ = ("iri", "viri", )
 
     def __init__(self,iri: typing.Optional[IRI],viri: typing.Optional[IRI],/):
         ...
@@ -1216,7 +1216,7 @@ class OntologyID:
 class Variable:
     first: IRI
 
-    __match_args__ = ("first",)
+    __match_args__ = ("first", )
 
     def __init__(self,first: IRI,/):
         ...
@@ -1233,7 +1233,7 @@ class BuiltInAtom:
     pred: IRI
     args: typing.List[DArgument]
 
-    __match_args__ = ("pred","args",)
+    __match_args__ = ("pred", "args", )
 
 
     def __init__(self,pred: IRI,args: typing.List[DArgument],):
@@ -1245,7 +1245,7 @@ class ClassAtom:
     pred: ClassExpression
     arg: IArgument
 
-    __match_args__ = ("pred","arg",)
+    __match_args__ = ("pred", "arg", )
 
 
     def __init__(self,pred: ClassExpression,arg: IArgument,):
@@ -1257,7 +1257,7 @@ class DataPropertyAtom:
     pred: DataProperty
     args: typing.Tuple[DArgument,DArgument]
 
-    __match_args__ = ("pred","args",)
+    __match_args__ = ("pred", "args", )
 
 
     def __init__(self,pred: DataProperty,args: typing.Tuple[DArgument,DArgument],):
@@ -1269,7 +1269,7 @@ class DataRangeAtom:
     pred: DataRange
     arg: DArgument
 
-    __match_args__ = ("pred","arg",)
+    __match_args__ = ("pred", "arg", )
 
 
     def __init__(self,pred: DataRange,arg: DArgument,):
@@ -1281,7 +1281,7 @@ class DifferentIndividualsAtom:
     first: IArgument
     second: IArgument
 
-    __match_args__ = ("first","second",)
+    __match_args__ = ("first", "second", )
 
 
     def __init__(self,first: IArgument,second: IArgument,):
@@ -1293,7 +1293,7 @@ class ObjectPropertyAtom:
     pred: ObjectPropertyExpression
     args: typing.Tuple[IArgument,IArgument]
 
-    __match_args__ = ("pred","args",)
+    __match_args__ = ("pred", "args", )
 
 
     def __init__(self,pred: ObjectPropertyExpression,args: typing.Tuple[IArgument,IArgument],):
@@ -1305,7 +1305,7 @@ class SameIndividualAtom:
     first: IArgument
     second: IArgument
 
-    __match_args__ = ("first","second",)
+    __match_args__ = ("first", "second", )
 
 
     def __init__(self,first: IArgument,second: IArgument,):
@@ -1319,7 +1319,7 @@ Atom = typing.Union[BuiltInAtom,ClassAtom,DataPropertyAtom,DataRangeAtom,Differe
 class Rule:
     head: typing.List[Atom]
     body: typing.List[Atom]
-    __match_args__ = ("head","body",)
+    __match_args__ = ("head", "body", )
 
     def __init__(self,head: typing.List[Atom],body: typing.List[Atom],/):
         ...
@@ -1331,7 +1331,7 @@ Component = typing.Union[OntologyID,DocIRI,OntologyAnnotation,Import,DeclareClas
 class AnnotatedComponent:
     component: Component
     ann: typing.Set[Annotation]
-    __match_args__ = ("component","ann",)
+    __match_args__ = ("component", "ann", )
 
     def __init__(self,component: Component,ann: typing.Set[Annotation],/):
         ...
