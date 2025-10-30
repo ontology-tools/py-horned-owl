@@ -74,6 +74,15 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
             {%- endif %}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<({{ " ".join(["String,"] * variant.fields | fields | length) }})> {
+            Ok((
+            {%- for field, type in variant.fields | fields %}
+            	"{{ field | as_py_name }}".to_string(),
+            {%- endfor %}
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {

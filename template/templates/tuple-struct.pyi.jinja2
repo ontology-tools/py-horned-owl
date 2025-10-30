@@ -3,6 +3,8 @@ class {{ model.name }}:
     {{ loop.index0 | as_py_name }}: {{ typ | as_py_type }}
     {%- endfor %}
 
+    __match_args__ = ({% for field, _ in model.fields | fields %}"{{ field | as_py_name }}", {% endfor %})
+
     def __init__(self,
     {%- for typ in model.fields -%}
     {{ loop.index0 | as_py_name }}: {{ typ | as_py_type }},
