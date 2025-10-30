@@ -1,42 +1,38 @@
-import unittest
-
+import pytest
 import pyhornedowl
 
 
-class PrefixTestCase(unittest.TestCase):
+def test_missing_prefix():
+    o = pyhornedowl.PyIndexedOntology()
 
-    def test_missing_prefix(self):
-        o = pyhornedowl.PyIndexedOntology()
-
-        with self.assertRaises(ValueError) as context:
-            c = o.clazz("ex:A")
-
-        self.assertEqual(context.exception.args[0], "Invalid curie: Invalid")
-
-    def test_prefix(self):
-        o = pyhornedowl.PyIndexedOntology()
-        o.prefix_mapping.add_prefix("ex", "https://example.com/")
-
+    with pytest.raises(ValueError) as context:
         c = o.clazz("ex:A")
 
-        self.assertEqual(str(c), "https://example.com/A")
+    assert context.value.args[0] == "Invalid curie: Invalid"
 
-    def test_default_prefix_fail(self):
-        o = pyhornedowl.PyIndexedOntology()
 
-        with self.assertRaises(ValueError) as context:
-            c = o.clazz("A")
+def test_prefix():
+    o = pyhornedowl.PyIndexedOntology()
+    o.prefix_mapping.add_prefix("ex", "https://example.com/")
 
-        self.assertEqual(context.exception.args[0], "Invalid curie: MissingDefault")
+    c = o.clazz("ex:A")
 
-    def test_default_prefix(self):
-        o = pyhornedowl.PyIndexedOntology()
-        o.prefix_mapping.add_prefix("", "https://example.com/")
+    assert str(c) == "https://example.com/A"
 
+
+def test_default_prefix_fail():
+    o = pyhornedowl.PyIndexedOntology()
+
+    with pytest.raises(ValueError) as context:
         c = o.clazz("A")
 
-        self.assertEqual(str(c), "https://example.com/A")
+    assert context.value.args[0] == "Invalid curie: MissingDefault"
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_default_prefix():
+    o = pyhornedowl.PyIndexedOntology()
+    o.prefix_mapping.add_prefix("", "https://example.com/")
+
+    c = o.clazz("A")
+
+    assert str(c) == "https://example.com/A"
