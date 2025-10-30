@@ -141,7 +141,10 @@ def test_write_simple_to_string(s):
 def test_prefix(s):
     if s == 'owl':
         pytest.skip('RDF/XML parser does not return prefixes')
-
+    
+    if s == 'owx':
+        pytest.skip('Horned OWL/XML parser does currently not include the empty prefix.')
+        
     o = pyhornedowl.open_ontology(r(f'prefix.{s}'), s)
 
     actual = set(iter(o.prefix_mapping))
