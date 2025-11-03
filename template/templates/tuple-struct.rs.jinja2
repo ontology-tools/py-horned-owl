@@ -25,6 +25,15 @@ impl {{ model.name }} {
         )
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<({{ " ".join(["String,"] * model.fields | length) }})> {
+        Ok((
+        {%- for typ in model.fields %}
+            "{{ loop.index0 | as_py_name }}".to_string(),
+        {%- endfor %}
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);

@@ -90,6 +90,29 @@ Classes, Individuals, Data- and Objectproperties can be created using convenienc
     n = o.anonymous_individual(":n")
 
 
+Pattern match
+---------------
+All (``pyhornedowl.model``) classes can be pattern matched using the ``match`` statement.
+
+.. code-block:: python
+
+    import pyhornedowl
+    from pyhornedowl.model import *
+
+    o = pyhornedowl.open_ontology("path/to/ontology.owl")
+
+    for component in o.get_components():
+        match component:
+            case AnnotatedComponent(OntologyID(id, version), _):
+                print(f"Ontology ID: {id}, Version: {version}")
+            case AnnotatedComponent(SubClassOf(Class(iri1),Class(iri2)), _):
+                print(f"{iri1} is a subclass of {iri2}")
+            case AnnotatedComponent(SubClassOf(Class(iri1), ObjectUnionOf([Class(iri2), Class(iri3)])), _):
+                print(f"{iri1} is a subclass of {iri2} or {iri3}")
+            case _:
+                pass
+
+
 Write class expressions
 -----------------------
 

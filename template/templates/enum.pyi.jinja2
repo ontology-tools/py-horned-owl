@@ -7,6 +7,9 @@ class {{ v_name_full }}:
     {{ field | as_py_name }}: {{ type | as_py_type}}
     {%- endfor %}
 
+    __match_args__ = ({% for field, _ in variant.fields | fields %}"{{ field | as_py_name }}", {% endfor %})
+
+
     def __init__(self,
     {%- for field, type in variant.fields | fields -%}
         {{ field | as_py_name }}: {{ type | as_py_type}},

@@ -273,6 +273,13 @@ impl Class {
         Class (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -481,6 +488,13 @@ impl AnonymousIndividual {
         AnonymousIndividual (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -672,6 +686,13 @@ impl NamedIndividual {
         NamedIndividual (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -861,6 +882,13 @@ impl ObjectProperty {
     #[new]
     fn new(first: IRI,) -> Self {
         ObjectProperty (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -1128,6 +1156,13 @@ impl Datatype {
         Datatype (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -1317,6 +1352,13 @@ impl DataProperty {
     #[new]
     fn new(first: IRI,) -> Self {
         DataProperty (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -1514,6 +1556,14 @@ impl FacetRestriction {
                 f,
                 l,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "f".to_string(),
+            "l".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -1931,6 +1981,13 @@ pub struct ObjectPropertyExpression(ObjectPropertyExpression_Inner);
             )
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -2291,6 +2348,13 @@ pub struct Literal(Literal_Inner);
                 literal,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"literal".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -2354,6 +2418,14 @@ pub struct Literal(Literal_Inner);
             LanguageLiteral{
                 literal,
                 lang,}
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"literal".to_string(),
+            	"lang".to_string(),
+            ))
         }
 
 
@@ -2424,6 +2496,14 @@ pub struct Literal(Literal_Inner);
             DatatypeLiteral{
                 literal,
                 datatype_iri,}
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"literal".to_string(),
+            	"datatype_iri".to_string(),
+            ))
         }
 
 
@@ -2741,6 +2821,13 @@ pub struct DataRange(DataRange_Inner);
             )
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -2801,6 +2888,13 @@ pub struct DataRange(DataRange_Inner);
             DataUnionOf(
                 first,
             )
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
         }
 
 
@@ -2865,6 +2959,13 @@ pub struct DataRange(DataRange_Inner);
             )
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -2925,6 +3026,13 @@ pub struct DataRange(DataRange_Inner);
             DataOneOf(
                 first,
             )
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
         }
 
 
@@ -2990,6 +3098,14 @@ pub struct DataRange(DataRange_Inner);
                 first,
                 second,
             )
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"first".to_string(),
+            	"second".to_string(),
+            ))
         }
 
 
@@ -3368,6 +3484,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             )
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -3445,6 +3568,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             ObjectUnionOf(
                 first,
             )
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
         }
 
 
@@ -3526,6 +3656,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             )
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -3603,6 +3740,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             ObjectOneOf(
                 first,
             )
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
         }
 
 
@@ -3685,6 +3829,14 @@ pub struct ClassExpression(ClassExpression_Inner);
             ObjectSomeValuesFrom{
                 ope,
                 bce,}
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"ope".to_string(),
+            	"bce".to_string(),
+            ))
         }
 
 
@@ -3774,6 +3926,14 @@ pub struct ClassExpression(ClassExpression_Inner);
                 bce,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"ope".to_string(),
+            	"bce".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -3861,6 +4021,14 @@ pub struct ClassExpression(ClassExpression_Inner);
                 i,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"ope".to_string(),
+            	"i".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -3943,6 +4111,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             ObjectHasSelf(
                 first,
             )
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String,)> {
+            Ok((
+            	"first".to_string(),
+            ))
         }
 
 
@@ -4029,6 +4204,15 @@ pub struct ClassExpression(ClassExpression_Inner);
                 n,
                 ope,
                 bce,}
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String, String,)> {
+            Ok((
+            	"n".to_string(),
+            	"ope".to_string(),
+            	"bce".to_string(),
+            ))
         }
 
 
@@ -4127,6 +4311,15 @@ pub struct ClassExpression(ClassExpression_Inner);
                 bce,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String, String,)> {
+            Ok((
+            	"n".to_string(),
+            	"ope".to_string(),
+            	"bce".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -4223,6 +4416,15 @@ pub struct ClassExpression(ClassExpression_Inner);
                 bce,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String, String,)> {
+            Ok((
+            	"n".to_string(),
+            	"ope".to_string(),
+            	"bce".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -4315,6 +4517,14 @@ pub struct ClassExpression(ClassExpression_Inner);
                 dr,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"dp".to_string(),
+            	"dr".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -4402,6 +4612,14 @@ pub struct ClassExpression(ClassExpression_Inner);
                 dr,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"dp".to_string(),
+            	"dr".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -4487,6 +4705,14 @@ pub struct ClassExpression(ClassExpression_Inner);
             DataHasValue{
                 dp,
                 l,}
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"dp".to_string(),
+            	"l".to_string(),
+            ))
         }
 
 
@@ -4578,6 +4804,15 @@ pub struct ClassExpression(ClassExpression_Inner);
                 n,
                 dp,
                 dr,}
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String, String,)> {
+            Ok((
+            	"n".to_string(),
+            	"dp".to_string(),
+            	"dr".to_string(),
+            ))
         }
 
 
@@ -4676,6 +4911,15 @@ pub struct ClassExpression(ClassExpression_Inner);
                 dr,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String, String,)> {
+            Ok((
+            	"n".to_string(),
+            	"dp".to_string(),
+            	"dr".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -4770,6 +5014,15 @@ pub struct ClassExpression(ClassExpression_Inner);
                 n,
                 dp,
                 dr,}
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String, String,)> {
+            Ok((
+            	"n".to_string(),
+            	"dp".to_string(),
+            	"dr".to_string(),
+            ))
         }
 
 
@@ -5771,6 +6024,13 @@ impl AnnotationProperty {
         AnnotationProperty (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -6156,6 +6416,14 @@ impl Annotation {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "ap".to_string(),
+            "av".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "ap" => self.ap.clone().into_pyobject(py).map(Bound::into_any),
@@ -6361,6 +6629,13 @@ impl OntologyAnnotation {
         OntologyAnnotation (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -6540,6 +6815,13 @@ impl Import {
     #[new]
     fn new(first: IRI,) -> Self {
         Import (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -6723,6 +7005,13 @@ impl DeclareClass {
         DeclareClass (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -6902,6 +7191,13 @@ impl DeclareObjectProperty {
     #[new]
     fn new(first: ObjectProperty,) -> Self {
         DeclareObjectProperty (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -7085,6 +7381,13 @@ impl DeclareAnnotationProperty {
         DeclareAnnotationProperty (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -7264,6 +7567,13 @@ impl DeclareDataProperty {
     #[new]
     fn new(first: DataProperty,) -> Self {
         DeclareDataProperty (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -7447,6 +7757,13 @@ impl DeclareNamedIndividual {
         DeclareNamedIndividual (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -7626,6 +7943,13 @@ impl DeclareDatatype {
     #[new]
     fn new(first: Datatype,) -> Self {
         DeclareDatatype (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -7813,6 +8137,14 @@ impl SubClassOf {
                 sub,
                 sup,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "sub".to_string(),
+            "sup".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -8020,6 +8352,13 @@ impl EquivalentClasses {
         EquivalentClasses (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -8199,6 +8538,13 @@ impl DisjointClasses {
     #[new]
     fn new(first: VecWrap<ClassExpression>,) -> Self {
         DisjointClasses (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -8383,6 +8729,14 @@ impl DisjointUnion {
     #[new]
     fn new(first: Class,second: VecWrap<ClassExpression>,) -> Self {
         DisjointUnion (first,second,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "first".to_string(),
+            "second".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -8763,6 +9117,14 @@ impl SubObjectPropertyOf {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "sub".to_string(),
+            "sup".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "sub" => self.sub.clone().into_pyobject(py).map(Bound::into_any),
@@ -8968,6 +9330,13 @@ impl EquivalentObjectProperties {
         EquivalentObjectProperties (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -9147,6 +9516,13 @@ impl DisjointObjectProperties {
     #[new]
     fn new(first: VecWrap<ObjectPropertyExpression>,) -> Self {
         DisjointObjectProperties (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -9331,6 +9707,14 @@ impl InverseObjectProperties {
     #[new]
     fn new(first: ObjectProperty,second: ObjectProperty,) -> Self {
         InverseObjectProperties (first,second,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "first".to_string(),
+            "second".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -9520,6 +9904,14 @@ impl ObjectPropertyDomain {
                 ope,
                 ce,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "ope".to_string(),
+            "ce".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -9733,6 +10125,14 @@ impl ObjectPropertyRange {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "ope".to_string(),
+            "ce".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
@@ -9938,6 +10338,13 @@ impl FunctionalObjectProperty {
         FunctionalObjectProperty (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -10117,6 +10524,13 @@ impl InverseFunctionalObjectProperty {
     #[new]
     fn new(first: ObjectPropertyExpression,) -> Self {
         InverseFunctionalObjectProperty (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -10300,6 +10714,13 @@ impl ReflexiveObjectProperty {
         ReflexiveObjectProperty (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -10479,6 +10900,13 @@ impl IrreflexiveObjectProperty {
     #[new]
     fn new(first: ObjectPropertyExpression,) -> Self {
         IrreflexiveObjectProperty (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -10662,6 +11090,13 @@ impl SymmetricObjectProperty {
         SymmetricObjectProperty (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -10843,6 +11278,13 @@ impl AsymmetricObjectProperty {
         AsymmetricObjectProperty (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -11022,6 +11464,13 @@ impl TransitiveObjectProperty {
     #[new]
     fn new(first: ObjectPropertyExpression,) -> Self {
         TransitiveObjectProperty (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -11209,6 +11658,14 @@ impl SubDataPropertyOf {
                 sub,
                 sup,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "sub".to_string(),
+            "sup".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -11416,6 +11873,13 @@ impl EquivalentDataProperties {
         EquivalentDataProperties (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -11595,6 +12059,13 @@ impl DisjointDataProperties {
     #[new]
     fn new(first: VecWrap<DataProperty>,) -> Self {
         DisjointDataProperties (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -11782,6 +12253,14 @@ impl DataPropertyDomain {
                 dp,
                 ce,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "dp".to_string(),
+            "ce".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -11995,6 +12474,14 @@ impl DataPropertyRange {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "dp".to_string(),
+            "dr".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
@@ -12200,6 +12687,13 @@ impl FunctionalDataProperty {
         FunctionalDataProperty (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -12385,6 +12879,14 @@ impl DatatypeDefinition {
                 kind,
                 range,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "kind".to_string(),
+            "range".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -12598,6 +13100,14 @@ impl HasKey {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "ce".to_string(),
+            "vpe".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "ce" => self.ce.clone().into_pyobject(py).map(Bound::into_any),
@@ -12803,6 +13313,13 @@ impl SameIndividual {
         SameIndividual (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -12982,6 +13499,13 @@ impl DifferentIndividuals {
     #[new]
     fn new(first: VecWrap<Individual>,) -> Self {
         DifferentIndividuals (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -13169,6 +13693,14 @@ impl ClassAssertion {
                 ce,
                 i,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "ce".to_string(),
+            "i".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -13385,6 +13917,15 @@ impl ObjectPropertyAssertion {
                 source,
                 target,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String, String,)> {
+        Ok((
+            "ope".to_string(),
+            "from".to_string(),
+            "to".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -13610,6 +14151,15 @@ impl NegativeObjectPropertyAssertion {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String, String,)> {
+        Ok((
+            "ope".to_string(),
+            "from".to_string(),
+            "to".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "ope" => self.ope.clone().into_pyobject(py).map(Bound::into_any),
@@ -13831,6 +14381,15 @@ impl DataPropertyAssertion {
                 source,
                 target,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String, String,)> {
+        Ok((
+            "dp".to_string(),
+            "from".to_string(),
+            "to".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -14056,6 +14615,15 @@ impl NegativeDataPropertyAssertion {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String, String,)> {
+        Ok((
+            "dp".to_string(),
+            "from".to_string(),
+            "to".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "dp" => self.dp.clone().into_pyobject(py).map(Bound::into_any),
@@ -14274,6 +14842,14 @@ impl AnnotationAssertion {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "subject".to_string(),
+            "ann".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "subject" => self.subject.clone().into_pyobject(py).map(Bound::into_any),
@@ -14483,6 +15059,14 @@ impl SubAnnotationPropertyOf {
                 sub,
                 sup,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "sub".to_string(),
+            "sup".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -14696,6 +15280,14 @@ impl AnnotationPropertyDomain {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "ap".to_string(),
+            "iri".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "ap" => self.ap.clone().into_pyobject(py).map(Bound::into_any),
@@ -14907,6 +15499,14 @@ impl AnnotationPropertyRange {
         }
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "ap".to_string(),
+            "iri".to_string(),
+        ))
+    }
+
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
         match name {
             "ap" => self.ap.clone().into_pyobject(py).map(Bound::into_any),
@@ -15112,6 +15712,13 @@ impl DocIRI {
         DocIRI (first,)
     }
 
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
+    }
+
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -15297,6 +15904,14 @@ impl OntologyID {
                 iri,
                 viri,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "iri".to_string(),
+            "viri".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -15502,6 +16117,13 @@ impl Variable {
     #[new]
     fn new(first: IRI,) -> Self {
         Variable (first,)
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String,)> {
+        Ok((
+            "first".to_string(),
+        ))
     }
 
     fn __hash__(&self) -> u64 {
@@ -16092,6 +16714,14 @@ pub struct Atom(Atom_Inner);
                 args,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"pred".to_string(),
+            	"args".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -16160,6 +16790,14 @@ pub struct Atom(Atom_Inner);
             ClassAtom{
                 pred,
                 arg,}
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"pred".to_string(),
+            	"arg".to_string(),
+            ))
         }
 
 
@@ -16232,6 +16870,14 @@ pub struct Atom(Atom_Inner);
                 args,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"pred".to_string(),
+            	"args".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -16300,6 +16946,14 @@ pub struct Atom(Atom_Inner);
             DataRangeAtom{
                 pred,
                 arg,}
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"pred".to_string(),
+            	"arg".to_string(),
+            ))
         }
 
 
@@ -16372,6 +17026,14 @@ pub struct Atom(Atom_Inner);
             )
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"first".to_string(),
+            	"second".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -16442,6 +17104,14 @@ pub struct Atom(Atom_Inner);
                 args,}
         }
 
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"pred".to_string(),
+            	"args".to_string(),
+            ))
+        }
+
 
         fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
             match name {
@@ -16510,6 +17180,14 @@ pub struct Atom(Atom_Inner);
                 first,
                 second,
             )
+        }
+
+        #[classattr]
+        fn __match_args__() -> PyResult<(String, String,)> {
+            Ok((
+            	"first".to_string(),
+            	"second".to_string(),
+            ))
         }
 
 
@@ -16884,6 +17562,14 @@ impl Rule {
                 head,
                 body,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "head".to_string(),
+            "body".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -17689,6 +18375,14 @@ impl AnnotatedComponent {
                 component,
                 ann,
         }
+    }
+
+    #[classattr]
+    fn __match_args__() -> PyResult<(String, String,)> {
+        Ok((
+            "component".to_string(),
+            "ann".to_string(),
+        ))
     }
 
     fn __getitem__<'py>(&self, py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
