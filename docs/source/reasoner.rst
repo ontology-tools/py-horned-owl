@@ -1,11 +1,56 @@
 Reasoner
 ==========
 
-Py-Horned-OWL provides an interface for reasoners that are compatible with the Horned OWL library.
+Py-Horned-OWL provides an interface for reasoners that are compatible with the Horned OWL library. This includes a built-in structural reasoner and support for external reasoners.
 
-Using a reasoner
-----------------
-A compatible reasoner should provide a python package that exports a `create_reasoner` function. This functions takes an ontology as an argument and returns a :class:`~pyhornedowl.PyReasoner` instance which can be used to perform reasoning tasks. The ontology instance is linked to the reasoner, which means that any changes to the ontology will be reflected in the reasoner. But, a manual call to :func:`PyReasoner.flush <pyhornedowl.PyReasoner.flush>` is required to update the reasoner with any changes made to the ontology. Here is an example with the EL Reasoner `whelk-rs <https://github.com/INCATools/whelk-rs>`__ via `PyWhelk <https://github.com/ontology-tools/py-whelk/>`__.
+Built-in Structural Reasoner
+----------------------------
+
+Py-Horned-OWL includes a lightweight structural reasoner that traverses the asserted subclass and sub-property hierarchies. This reasoner does not perform any logical inference — it only computes transitive closures over explicit ``SubClassOf`` and ``SubObjectPropertyOf`` axioms.
+
+.. code-block:: python
+
+    import pyhornedowl
+    from pyhornedowl.model import Class, IRI
+    from pyhornedowl.reasoning import create_structural_reasoner
+
+    # Open an ontology
+    o = pyhornedowl.open_ontology("<path/to/ontology>")
+
+    # Create the structural reasoner
+    reasoner = create_structural_reasoner(o)
+
+    # Query subclasses (returns transitive closure)
+    my_class = Class(IRI.parse("http://example.org/MyClass"))
+    subclasses = reasoner.get_subclasses(my_class)
+    print(f"Subclasses: {[str(c.first) for c in subclasses]}")
+
+    # Query superclasses (returns transitive closure)
+    superclasses = reasoner.get_superclasses(my_class)
+    print(f"Superclasses: {[str(c.first) for c in superclasses]}")
+
+**Supported operations:**
+
+- :func:`~pyhornedowl.PyReasoner.get_subclasses` — returns all subclasses (transitive)
+- :func:`~pyhornedowl.PyReasoner.get_superclasses` — returns all superclasses (transitive)
+- :func:`~pyhornedowl.PyReasoner.flush` — updates the reasoner after ontology changes
+
+**Not supported** (raises ``ValueError``):
+
+- ``is_consistent()`` — no logical inference
+- ``is_entailed()`` — no logical inference
+- ``is_satisfiable()`` — no logical inference
+- ``get_equivalent_classes()`` — no logical inference
+- ``get_disjoint_classes()`` — no logical inference
+- ``get_unsatisfiable_classes()`` — no logical inference
+- ``inferred_axioms()`` — always returns an empty set
+
+The structural reasoner is useful for quick hierarchy traversals without the overhead of a full reasoner.
+
+Using External Reasoners
+------------------------
+
+For full reasoning capabilities (consistency checking, satisfiability, entailment, etc.), you can use an external reasoner. A compatible reasoner should provide a Python package that exports a ``create_reasoner`` function. This function takes an ontology as an argument and returns a :class:`~pyhornedowl.PyReasoner` instance which can be used to perform reasoning tasks. The ontology instance is linked to the reasoner, which means that any changes to the ontology will be reflected in the reasoner. But, a manual call to :func:`PyReasoner.flush <pyhornedowl.PyReasoner.flush>` is required to update the reasoner with any changes made to the ontology. Here is an example with the EL Reasoner `whelk-rs <https://github.com/INCATools/whelk-rs>`__ via `PyWhelk <https://github.com/ontology-tools/py-whelk/>`__.
 
 .. code-block:: console
 

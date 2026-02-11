@@ -3,6 +3,7 @@ from typing import *
 from typing_extensions import deprecated
 
 import model
+import reasoning
 
 class PyIndexedOntology:
     """
@@ -207,6 +208,17 @@ class PyIndexedOntology:
         Convenience method to create a Class from an IRI.
         
         Uses the `iri` method to cache native IRI instances.
+        
+        .. deprecated::
+            Use `PyIndexedOntology.class_` instead
+        """
+        ...
+
+    def class_(self, iri: model.IRIParam) -> model.Class:
+        """
+        Convenience method to create a Class from an IRI.
+        
+        Uses the `iri` method to cache native IRI instances.
         """
         ...
 
@@ -278,15 +290,21 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_descendants(self, parent: str, iri_is_absolute: Optional[bool] = None) -> Set[str]:
+    def get_descendants(self, parent: str) -> Set[str]:
         """
         Gets all direct and indirect subclasses of a class.
+        
+        .. deprecated::
+            Use a reasoner instead. See :doc:`reasoner` for details.
         """
         ...
 
-    def get_ancestors(self, child: str, iri_is_absolute: Optional[bool] = None) -> Set[str]:
+    def get_ancestors(self, child: str) -> Set[str]:
         """
         Gets all direct and indirect super classes of a class.
+        
+        .. deprecated::
+            Use a reasoner instead. See :doc:`reasoner` for details.
         """
         ...
 
@@ -412,100 +430,3 @@ def open_ontology_from_string(ontology: str, serialization: Optional[typing.Lite
     ...
 
 
-@deprecated("please use `PyIndexedOntology.get_descendants` instead")
-def get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]:
-    """
-    Gets all direct and indirect subclasses of a class.
-    """
-    ...
-
-
-@deprecated("please use `PyIndexedOntology.get_ancestors` instead")
-def get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]:
-    """
-    Gets all direct and indirect super classes of a class.
-    """
-    ...
-
-
-def create_reasoner(name: str, ontology: PyIndexedOntology) -> PyReasoner:
-    """
-    Loads a reasoner from a shared library.
-    
-    :param str name: name of the reasoner to load or path to the shared library to load
-    """
-    ...
-
-
-class PyReasoner:
-    def get_name(self) -> str:
-        """
-        Returns the name of the reasoner.
-        """
-        ...
-
-    def get_version(self) -> str:
-        """
-        Returns the version of the reasoner.
-        """
-        ...
-
-    def flush(self) -> None:
-        """
-        Flushes pending changes to the reasoner. This invalidates any cached results and updates the reasoner with the current state of the ontology.
-        """
-        ...
-
-    def inferred_axioms(self) -> Set[Component]:
-        """
-        Returns a set of inferred axioms from the reasoner.
-        """
-        ...
-
-    def is_consistent(self) -> bool:
-        """
-        Checks if the ontology is consistent.
-        """
-        ...
-
-    def is_entailed(self, cmp: Component) -> bool:
-        """
-        Checks if the ontology entails the given component.
-        """
-        ...
-
-    def is_satifisable(self, cmp: ClassExpression) -> bool:
-        """
-        Checks if the given class expression is satisfiable.
-        """
-        ...
-
-    def get_unsatisfiable_classes(self) -> Set[ClassExpression]:
-        """
-        Returns the set of unsatisfiable classes.
-        """
-        ...
-
-    def get_subclasses(self, cmp: ClassExpression) -> Set[ClassExpression]:
-        """
-        Returns the set of asserted and inferred subclasses for the given class expression.
-        """
-        ...
-
-    def get_superclasses(self, cmp: ClassExpression) -> Set[ClassExpression]:
-        """
-        Returns the set of asserted and inferred superclasses for the given class expression.
-        """
-        ...
-
-    def get_equivalent_classes(self, cmp: ClassExpression) -> Set[ClassExpression]:
-        """
-        Returns the set of classes asserted or inferred to be equivalent to given the class expression.
-        """
-        ...
-
-    def get_disjoint_classes(self, cmp: ClassExpression) -> Set[ClassExpression]:
-        """
-        Returns the set of classes asserted or inferred to be disjoint with the given class expression.
-        """
-        ...

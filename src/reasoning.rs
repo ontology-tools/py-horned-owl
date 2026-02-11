@@ -1,4 +1,4 @@
-use crate::model::{ClassExpression, Component};
+use crate::model::{Class, ClassExpression, Component};
 use crate::PyIndexedOntology;
 use horned_owl::model::{ArcAnnotatedComponent, ArcStr};
 use horned_owl::ontology::set::SetOntology;
@@ -17,7 +17,7 @@ pub struct DynamicLoadedReasoner(
     pub(crate) Box<dyn Reasoner<ArcStr, ArcAnnotatedComponent>>,
     /// The loaded library of the reasoner. Must be only be dropped when the reasoner is dropped as the library is unloaded when dropped.
     #[allow(dead_code)]
-    Box<Library>,
+    pub(crate) Box<Option<Library>>,
 );
 
 #[derive(Clone)]
@@ -106,10 +106,10 @@ impl PyReasoner {
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
-    /// get_unsatisfiable_classes(self) -> Set[ClassExpression]
+    /// get_unsatisfiable_classes(self) -> Set[Class]
     ///
     /// Returns the set of unsatisfiable classes.
-    fn get_unsatisfiable_classes(&self) -> PyResult<HashSet<ClassExpression>> {
+    fn get_unsatisfiable_classes(&self) -> PyResult<HashSet<Class>> {
         self.0
             .lock()
             .unwrap()
@@ -119,10 +119,10 @@ impl PyReasoner {
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
-    /// get_subclasses(self, cmp: ClassExpression) -> Set[ClassExpression]
+    /// get_subclasses(self, cmp: ClassExpression) -> Set[Class]
     ///
     /// Returns the set of asserted and inferred subclasses for the given class expression.
-    fn get_subclasses(&self, cmp: ClassExpression) -> PyResult<HashSet<ClassExpression>> {
+    fn get_subclasses(&self, cmp: ClassExpression) -> PyResult<HashSet<Class>> {
         self.0
             .lock()
             .unwrap()
@@ -134,10 +134,10 @@ impl PyReasoner {
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
-    /// get_superclasses(self, cmp: ClassExpression) -> Set[ClassExpression]
+    /// get_superclasses(self, cmp: ClassExpression) -> Set[Class]
     ///
     /// Returns the set of asserted and inferred superclasses for the given class expression.
-    fn get_superclasses(&self, cmp: ClassExpression) -> PyResult<HashSet<ClassExpression>> {
+    fn get_superclasses(&self, cmp: ClassExpression) -> PyResult<HashSet<Class>> {
         self.0
             .lock()
             .unwrap()
@@ -149,10 +149,10 @@ impl PyReasoner {
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
-    /// get_equivalent_classes(self, cmp: ClassExpression) -> Set[ClassExpression]
+    /// get_equivalent_classes(self, cmp: ClassExpression) -> Set[Class]
     ///
     /// Returns the set of classes asserted or inferred to be equivalent to given the class expression.
-    fn get_equivalent_classes(&self, cmp: ClassExpression) -> PyResult<HashSet<ClassExpression>> {
+    fn get_equivalent_classes(&self, cmp: ClassExpression) -> PyResult<HashSet<Class>> {
         self.0
             .lock()
             .unwrap()
@@ -164,10 +164,10 @@ impl PyReasoner {
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
-    /// get_disjoint_classes(self, cmp: ClassExpression) -> Set[ClassExpression]
+    /// get_disjoint_classes(self, cmp: ClassExpression) -> Set[Class]
     ///
     /// Returns the set of classes asserted or inferred to be disjoint with the given class expression.
-    fn get_disjoint_classes(&self, cmp: ClassExpression) -> PyResult<HashSet<ClassExpression>> {
+    fn get_disjoint_classes(&self, cmp: ClassExpression) -> PyResult<HashSet<Class>> {
         self.0
             .lock()
             .unwrap()
@@ -221,6 +221,6 @@ pub fn create_reasoner(name: String, ontology: &mut PyIndexedOntology) -> PyResu
         func(ontology.clone().into())
     };
 
-    let py_reasoner = DynamicLoadedReasoner(reasoner, Box::new(lib));
+    let py_reasoner = DynamicLoadedReasoner(reasoner, Box::new(Some(lib)));
     Ok(ontology.add_reasoner(py_reasoner))
 }

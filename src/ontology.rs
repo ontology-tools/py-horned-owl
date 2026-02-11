@@ -2,18 +2,18 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
 use std::io::Write;
 use std::sync::{Arc, Mutex, RwLock};
-
 use crate::prefix_mapping::PrefixMapping;
-use crate::reasoner::DynamicLoadedReasoner;
+use crate::reasoning::{DynamicLoadedReasoner};
+use crate::structural_reasoner::StructuralReasoner;
 use crate::wrappers::BTreeSetWrap;
-use crate::{guess_serialization, model, parse_serialization, to_py_err, PyReasoner};
+use crate::{guess_serialization, model, parse_serialization, to_py_err};
 use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
 use horned_owl::model::{
     AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
     ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, ForIRI,
-    HigherKinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI,
+    HigherKinded, Literal, MutableOntology, Ontology, OntologyID, IRI,
 };
 use horned_owl::ontology::component_mapped::{
     ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
@@ -22,10 +22,17 @@ use horned_owl::ontology::indexed::OntologyIndex;
 use horned_owl::ontology::iri_mapped::IRIMappedIndex;
 use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::AnnotationBuiltIn;
+use pyhornedowlreasoner::{PyReasoner, Reasoner};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyNone;
-use pyo3::{pyclass, pyfunction, pymethods, Bound, Py, PyAny, PyResult, Python};
+use pyo3::{pyclass, pymethods, Bound, Py, PyAny, PyResult, Python};
+
+macro_rules! into_iri {
+    ($s:ident, $py:ident, $iri:ident) => {
+        $iri.into_iri(&$s.mapping.borrow($py).0, &$s.build.read().unwrap())?
+    };
+}
 
 macro_rules! entity_query {
     ($s:ident, $kind:expr, $comp:pat => $comp_var:expr) => {{
@@ -88,7 +95,7 @@ pub struct PyIndexedOntology {
 
     pub index_strategy: IndexCreationStrategy,
 
-    pub reasoners: Vec<PyReasoner>,
+    pub reasoners: Vec<crate::reasoning::PyReasoner>,
 }
 
 unsafe impl Sync for PyIndexedOntology {}
@@ -780,8 +787,32 @@ impl PyIndexedOntology {
     /// Convenience method to create a Class from an IRI.
     ///
     /// Uses the `iri` method to cache native IRI instances.
-    #[pyo3[signature = (iri, *, absolute = None)]]
+    /// 
+    /// .. deprecated::
+    ///     Use `PyIndexedOntology.class_` instead
+    #[pyo3(signature = (iri))]
     pub fn clazz(
+        &self,
+        py: Python<'_>,
+        iri: model::IRIParam
+    ) -> PyResult<model::Class> {
+
+        PyErr::warn(
+            py,
+            &py.get_type::<pyo3::exceptions::PyDeprecationWarning>(),
+            c"`clazz` is deprecated, use a `class_` instead.",
+            1,
+        )?;
+        self.class_(py, iri)
+    }
+
+    /// class_(self, iri: model.IRIParam) -> model.Class
+    /// 
+    /// Convenience method to create a Class from an IRI.
+    /// 
+    /// Uses the `iri` method to cache native IRI instances.
+    #[pyo3(signature = (iri))]
+    pub fn class_(
         &self,
         py: Python<'_>,
         iri: model::IRIParam
@@ -925,18 +956,29 @@ impl PyIndexedOntology {
     /// get_descendants(self, parent: str) -> Set[str]
     ///
     /// Gets all direct and indirect subclasses of a class.
+    ///
+    /// .. deprecated::
+    ///     Use a reasoner instead. See :doc:`reasoner` for details.
     #[pyo3(signature = (parent_iri))]
     pub fn get_descendants(
         &self,
         py: Python<'_>,
         parent_iri: model::IRIParam,
     ) -> PyResult<HashSet<String>> {
+        PyErr::warn(
+            py,
+            &py.get_type::<pyo3::exceptions::PyDeprecationWarning>(),
+            c"get_descendants is deprecated, use a reasoner instead. See the 'reasoner' documentation.",
+            1,
+        )?;
         let parent_class: Class<ArcStr> = self.class_(py, parent_iri)?.into();
         let parent_class: ClassExpression<ArcStr> = parent_class.into();
-        let mut descendants = HashSet::new();
-        let parent_iri: IRI<ArcStr> = self.iri(py, parent_iri, iri_is_absolute)?.into();
-
-        self.recurse_descendants(&parent_iri, &mut descendants);
+        
+        // Use structural reasoner for hierarchy traversal
+        let reasoner = self.create_structural_reasoner();
+        let descendants = reasoner
+            .get_subclasses(&parent_class)
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
 
         Ok(descendants.into_iter().map(|c| c.to_string()).collect())
     }
@@ -944,20 +986,29 @@ impl PyIndexedOntology {
     /// get_ancestors(self, child: str) -> Set[str]
     ///
     /// Gets all direct and indirect super classes of a class.
+    ///
+    /// .. deprecated::
+    ///     Use a reasoner instead. See :doc:`reasoner` for details.
     #[pyo3(signature = (child_iri))]
     pub fn get_ancestors(
         &self,
         py: Python<'_>,
         child_iri: model::IRIParam,
     ) -> PyResult<HashSet<String>> {
-        let mut ancestors = HashSet::new();
-
-
+        PyErr::warn(
+            py,
+            &py.get_type::<pyo3::exceptions::PyDeprecationWarning>(),
+            c"get_ancestors is deprecated, use a reasoner instead. See the 'reasoner' documentation.",
+            1,
+        )?;
         let child: Class<ArcStr> = self.class_(py, child_iri)?.into();
         let child: ClassExpression<ArcStr> = child.into();
 
-        self.recurse_ancestors(&child, &mut ancestors);
-
+        // Use structural reasoner for hierarchy traversal
+        let reasoner = self.create_structural_reasoner();
+        let ancestors = reasoner
+            .get_superclasses(&child)
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
 
         Ok(ancestors.into_iter().map(|c| c.to_string()).collect())
     }
@@ -1021,66 +1072,27 @@ impl PyIndexedOntology {
 }
 
 impl PyIndexedOntology {
-    pub fn get_subclasses(&self, cls: &Class<ArcStr>) -> HashSet<IRI<ArcStr>> {
-        let subclass_axioms = if let Some(ref component_index) = &self.component_index {
-            Box::new(component_index.component_for_kind(ComponentKind::SubClassOf))
-                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
-        } else {
-            Box::new((&self.set_index).into_iter())
-        };
-
-        subclass_axioms
-            .filter_map(|aax| match &aax.component {
-                Component::SubClassOf(SubClassOf {
-                    sub: ClassExpression::Class(Class(sub)),
-                    sup: ClassExpression::Class(sup),
-                }) if sup == cls => Some(sub.clone()),
-                _ => None,
-            })
-            .collect()
+    fn create_structural_reasoner(&self) -> StructuralReasoner {
+        StructuralReasoner::create_reasoner(self.into())
     }
-    
-    pub fn get_superclasses(&self, cls: &Class<ArcStr>) -> HashSet<IRI<ArcStr>> {
-        let subclass_axioms = if let Some(ref component_index) = &self.component_index {
-            Box::new(component_index.component_for_kind(ComponentKind::SubClassOf))
-                as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
-        } else {
-            Box::new((&self.set_index).into_iter())
-        };
 
-        subclass_axioms
-            .filter_map(|aax| match &aax.component {
-                Component::SubClassOf(SubClassOf {
-                    sub: ClassExpression::Class(sub),
-                    sup: ClassExpression::Class(Class(sup)),
-                }) if sub == cls => Some(sup.clone()),
-                _ => None,
-            })
+    pub fn get_subclasses(&self, iri: &IRI<ArcStr>) -> HashSet<IRI<ArcStr>> {
+        let reasoner = self.create_structural_reasoner();
+        let class = Class(iri.clone());
+        reasoner
+            .get_direct_subclasses_of_iri(&class)
+            .map(|c| c.0)
             .collect()
     }
 
-    fn recurse_descendants(
-        &self,
-        superclass: &IRI<ArcStr>,
-        descendants: &mut HashSet<IRI<ArcStr>>,
-    ) {
-        let subclasses = self.get_subclasses(superclass);
-
-        for cls in subclasses.into_iter() {
-            self.recurse_descendants(&cls, descendants);
-            descendants.insert(cls);
-        }
+    pub fn get_superclasses(&self, iri: &IRI<ArcStr>) -> HashSet<IRI<ArcStr>> {
+        let reasoner = self.create_structural_reasoner();
+        let class = Class(iri.clone());
+        reasoner
+            .get_direct_superclasses_of_iri(&class)
+            .map(|c| c.0)
+            .collect()
     }
-
-    fn recurse_ancestors(&self, subclass: &IRI<ArcStr>, ancestors: &mut HashSet<IRI<ArcStr>>) {
-        let superclasses = self.get_superclasses(subclass);
-
-        for cls in superclasses.into_iter() {
-            self.recurse_ancestors(&cls, ancestors);
-            ancestors.insert(cls);
-        }
-    }
-
     fn get_id(&mut self) -> Option<&OntologyID<ArcStr>> {
         let components = if let Some(component_index) = &self.component_index {
             Box::new(component_index.component_for_kind(ComponentKind::OntologyID))
@@ -1156,8 +1168,8 @@ impl PyIndexedOntology {
             .map_err(to_py_err!("Problem saving the ontology to a file"))
     }
 
-    pub fn add_reasoner(&mut self, reasoner: DynamicLoadedReasoner) -> PyReasoner {
-        let r = PyReasoner(Arc::new(Mutex::new(reasoner)));
+    pub fn add_reasoner(&mut self, reasoner: DynamicLoadedReasoner) -> crate::reasoning::PyReasoner {
+        let r = crate::reasoning::PyReasoner(Arc::new(Mutex::new(reasoner)));
         self.reasoners.push(r.clone());
         r
     }
@@ -1171,30 +1183,4 @@ impl From<PyIndexedOntology> for SetOntology<ArcStr> {
         }
         o
     }
-}
-
-/// @deprecated("please use `PyIndexedOntology.get_descendants` instead")
-/// get_descendants(onto: PyIndexedOntology, parent: str) -> Set[str]
-///
-/// Gets all direct and indirect subclasses of a class.
-#[pyfunction]
-pub fn get_descendants(
-    py: Python<'_>,
-    onto: &PyIndexedOntology,
-    parent: String,
-) -> PyResult<HashSet<String>> {
-    onto.get_descendants(py, parent, Some(true))
-}
-
-/// @deprecated("please use `PyIndexedOntology.get_ancestors` instead")
-/// get_ancestors(onto: PyIndexedOntology, child: str) -> Set[str]
-///
-/// Gets all direct and indirect super classes of a class.
-#[pyfunction]
-pub fn get_ancestors(
-    py: Python<'_>,
-    onto: &PyIndexedOntology,
-    child: String,
-) -> PyResult<HashSet<String>> {
-    onto.get_ancestors(py, child, Some(true))
 }

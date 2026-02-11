@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use curie::PrefixMapping;
 use horned_bin::path_type;
@@ -12,18 +12,21 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
+use pyhornedowlreasoner::PyReasoner;
+
 #[macro_use]
 mod doc;
 pub mod model;
 pub mod model_generated;
 pub mod ontology;
 pub mod prefix_mapping;
-pub mod reasoner;
+pub mod reasoning;
+pub mod structural_reasoner;
 mod wrappers;
 
-pub use reasoner::{create_reasoner, PyReasoner};
+pub use reasoning::create_reasoner;
 
-pub use ontology::{get_ancestors, get_descendants, IndexCreationStrategy, PyIndexedOntology};
+pub use ontology::{IndexCreationStrategy, PyIndexedOntology};
 
 #[macro_export]
 macro_rules! to_py_err {
@@ -192,6 +195,21 @@ fn open_ontology(
     }
 }
 
+/// create_structural_reasoner(ontology: PyIndexedOntology) -> PyReasoner
+///
+/// Creates a structural reasoner for the given ontology. The structural reasoner only uses the asserted named subclass and sub-property hierarchies to answer queries.
+#[pyfunction]
+fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReasoner {
+    reasoning::PyReasoner(Arc::new(Mutex::new(
+        crate::reasoning::DynamicLoadedReasoner(
+            Box::new(structural_reasoner::StructuralReasoner::create_reasoner(
+                ontology.into(),
+            )),
+            Box::new(None),
+        ),
+    )))
+}
+
 #[pymodule]
 fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyIndexedOntology>()?;
@@ -201,14 +219,16 @@ fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(open_ontology, m)?)?;
     m.add_function(wrap_pyfunction!(open_ontology_from_file, m)?)?;
     m.add_function(wrap_pyfunction!(open_ontology_from_string, m)?)?;
-    m.add_function(wrap_pyfunction!(get_descendants, m)?)?;
-    m.add_function(wrap_pyfunction!(get_ancestors, m)?)?;
-
-    m.add_function(wrap_pyfunction!(create_reasoner, m)?)?;
-    m.add_class::<PyReasoner>()?;
-
+    
     let model_sub_module = model::py_module(py)?;
     m.add_submodule(&model_sub_module)?;
+
+
+    let reasoning_sub_module = PyModule::new(py, "reasoning")?;
+    reasoning_sub_module.add_function(wrap_pyfunction!(create_reasoner, &reasoning_sub_module)?)?;
+    reasoning_sub_module.add_function(wrap_pyfunction!(create_structural_reasoner, &reasoning_sub_module)?)?;
+    reasoning_sub_module.add_class::<reasoning::PyReasoner>()?;
+    m.add_submodule(&reasoning_sub_module)?;
 
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
 

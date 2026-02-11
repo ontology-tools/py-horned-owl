@@ -3,12 +3,12 @@
 /// 2. The crate must expose a function `#[no_mangle] pub fn create_reasoner() -> Box<dyn Reasoner>` which creates an instance of the reasoner.
 /// 3. The reasoner must implement the `Reasoner` trait. All methods are optional so the implementation can be based on the reasoners capabilities.
 use horned_owl::model::{
-    ArcAnnotatedComponent, ArcStr, ClassExpression, Component, ForIRI, ObjectPropertyExpression,
+    ArcAnnotatedComponent, ArcStr, Class, ClassExpression, Component, ForIRI, ObjectProperty, ObjectPropertyExpression
 };
 use horned_owl::ontology::indexed::{ForIndex, OntologyIndex};
 use horned_owl::ontology::set::SetOntology;
 use std::collections::HashSet;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 #[macro_export]
 macro_rules! export_py_reasoner {
@@ -28,6 +28,16 @@ pub enum ReasonerError {
     NotImplemented,
     Horned(horned_owl::error::HornedError),
     Other(String),
+}
+
+impl Display for ReasonerError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ReasonerError::NotImplemented => write!(f, "This method is not implemented for this reasoner"),
+            ReasonerError::Horned(e) => write!(f, "Reasoner error: {}", e),
+            ReasonerError::Other(s) => write!(f, "Reasoner error: {}", s),
+        }
+    }
 }
 
 impl From<horned_owl::error::HornedError> for ReasonerError {
@@ -64,70 +74,70 @@ pub trait Reasoner<A: ForIRI, AA: ForIndex<A>>: OntologyIndex<A, AA> {
         Err(ReasonerError::NotImplemented)
     }
 
-    fn get_unsatisfiable_classes(&self) -> Result<HashSet<ClassExpression<A>>, ReasonerError> {
+    fn get_unsatisfiable_classes(&self) -> Result<HashSet<Class<A>>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 
     fn get_subclasses<'a>(
         &'a self,
         _cmp: &'a ClassExpression<A>,
-    ) -> Result<Box<dyn Iterator<Item = ClassExpression<ArcStr>> + 'a>, ReasonerError> {
+    ) -> Result<Box<dyn Iterator<Item = Class<A>> + 'a>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 
-    fn get_superclasses(
-        &self,
-        _cmp: &ClassExpression<A>,
-    ) -> Result<HashSet<ClassExpression<A>>, ReasonerError> {
+    fn get_superclasses<'a>(
+        &'a self,
+        _cmp: &'a ClassExpression<A>,
+    ) -> Result<Box<dyn Iterator<Item = Class<A>> + 'a>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 
-    fn get_equivalent_classes(
-        &self,
-        _cmp: &ClassExpression<A>,
-    ) -> Result<HashSet<ClassExpression<A>>, ReasonerError> {
+    fn get_equivalent_classes<'a>(
+        &'a self,
+        _cmp: &'a ClassExpression<A>,
+    ) -> Result<Box<dyn Iterator<Item = Class<A>> + 'a>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 
-    fn get_disjoint_classes(
-        &self,
-        _cmp: &ClassExpression<A>,
-    ) -> Result<HashSet<ClassExpression<A>>, ReasonerError> {
+    fn get_disjoint_classes<'a>(
+        &'a self,
+        _cmp: &'a ClassExpression<A>,
+    ) -> Result<Box<dyn Iterator<Item = Class<A>> + 'a>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 
-    fn get_subobjectproperties(
-        &self,
-        _cmp: &ObjectPropertyExpression<ArcStr>,
-    ) -> Result<HashSet<ClassExpression<ArcStr>>, ReasonerError> {
+    fn get_subobjectproperties<'a>(
+        &'a self,
+        _cmp: &'a ObjectPropertyExpression<A>,
+    ) -> Result<Box<dyn Iterator<Item = ObjectProperty<A>> + 'a>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 
-    fn get_superobjectproperties(
-        &self,
-        _cmp: &ObjectPropertyExpression<ArcStr>,
-    ) -> Result<HashSet<ClassExpression<ArcStr>>, ReasonerError> {
+    fn get_superobjectproperties<'a>(
+        &'a self,
+        _cmp: &'a ObjectPropertyExpression<A>,
+    ) -> Result<Box<dyn Iterator<Item = ObjectProperty<A>> + 'a>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 
-    fn get_equivalent_objectproperties(
-        &self,
-        _cmp: &ObjectPropertyExpression<ArcStr>,
-    ) -> Result<HashSet<ClassExpression<ArcStr>>, ReasonerError> {
+    fn get_equivalent_objectproperties<'a>(
+        &'a self,
+        _cmp: &'a ObjectPropertyExpression<A>,
+    ) -> Result<Box<dyn Iterator<Item = ObjectProperty<A>> + 'a>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 
-    fn get_disjoint_objectproperties(
-        &self,
-        _cmp: &ObjectPropertyExpression<ArcStr>,
-    ) -> Result<HashSet<ClassExpression<ArcStr>>, ReasonerError> {
+    fn get_disjoint_objectproperties<'a>(
+        &'a self,
+        _cmp: &'a ObjectPropertyExpression<A>,
+    ) -> Result<Box<dyn Iterator<Item = ObjectProperty<A>> + 'a>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 
-    fn get_inverse_objectproperties(
-        &self,
-        _cmp: &ObjectPropertyExpression<ArcStr>,
-    ) -> Result<HashSet<ClassExpression<ArcStr>>, ReasonerError> {
+    fn get_inverse_objectproperties<'a>(
+        &'a self,
+        _cmp: &'a ObjectPropertyExpression<A>,
+    ) -> Result<Box<dyn Iterator<Item = ObjectProperty<A>> + 'a>, ReasonerError> {
         Err(ReasonerError::NotImplemented)
     }
 }
