@@ -75,7 +75,10 @@ fn open_ontology_rdf<R: BufRead>(
         content,
         b,
         ParserConfiguration {
-            rdf: RDFParserConfiguration { lax: true },
+            rdf: RDFParserConfiguration {
+                lax: true,
+                ..Default::default()
+            },
             ..Default::default()
         },
     )

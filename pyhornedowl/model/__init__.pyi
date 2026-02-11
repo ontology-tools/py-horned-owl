@@ -17,6 +17,16 @@ class Facet:
     TotalDigits: Facet
     FractionDigits: Facet
     LangRange: Facet
+    
+
+IRIParam = Union[str, IRI, Tuple[str, bool]]
+"""
+One of the following:
+- A string representing an IRI, e.g. "https://example.com/A"
+- A string representing a CURIE, e.g. "ex:A", which will be expanded using the prefix mapping
+- An IRI object
+- A tuple of a string and a boolean, where the boolean indicates whether the string is an absolute IRI (True) or a CURIE (False)
+"""
 
 class Class:
     first: IRI

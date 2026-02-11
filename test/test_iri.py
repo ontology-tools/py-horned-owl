@@ -10,7 +10,7 @@ def test_absolute_iri():
 
     expected = "https://example.com/test#A"
     assert expected == str(o.iri(expected))
-    assert expected == str(o.iri(expected, absolute=True))
+    assert expected == str(o.iri((expected, True)))
 
 
 def test_expand_curie():
@@ -18,7 +18,7 @@ def test_expand_curie():
     o.prefix_mapping.add_prefix("example", "https://example.com/test#")
 
     assert "https://example.com/test#A" == str(o.curie("example:A"))
-    assert "https://example.com/test#A" == str(o.iri("example:A", absolute=False))
+    assert "https://example.com/test#A" == str(o.iri(("example:A", False)))
 
 
 def test_expand_curie_empty_prefix():
@@ -41,8 +41,8 @@ def test_iri_guess_curie():
 
     expected = "https://example.com/test#A"
 
-    assert expected == str(o.iri("ex:A", absolute=None))
-    assert expected == str(o.clazz("ex:A", absolute=None))
+    assert expected == str(o.iri("ex:A"))
+    assert expected == str(o.clazz("ex:A"))
 
 
 def test_iri_guess_absolute():
@@ -51,8 +51,8 @@ def test_iri_guess_absolute():
 
     expected = "https://example.com/test#A"
 
-    assert expected == str(o.iri(expected, absolute=None))
-    assert expected == str(o.clazz(expected, absolute=None))
+    assert expected == str(o.iri(expected))
+    assert expected == str(o.clazz(expected))
 
 
 def test_find_by_absolute():
@@ -66,7 +66,7 @@ def test_find_by_absolute():
         AnnotationAssertion(o.iri("https://example.com/A"),
                             Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
     }}
-    actual = o.get_axioms_for_iri("https://example.com/A", iri_is_absolute=True)
+    actual = o.get_axioms_for_iri(("https://example.com/A", True))
 
     assert expected == set(actual)
 
@@ -82,7 +82,7 @@ def test_find_by_curie():
         AnnotationAssertion(o.iri("https://example.com/A"),
                             Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
     }}
-    actual = o.get_axioms_for_iri(":A", iri_is_absolute=False)
+    actual = o.get_axioms_for_iri((":A", False))
 
     assert expected == set(actual)
 

@@ -8,7 +8,7 @@ def test_missing_prefix():
     with pytest.raises(ValueError) as context:
         c = o.clazz("ex:A")
 
-    assert context.value.args[0] == "Invalid curie: Invalid"
+    assert context.value.args[0] == "Cannot expand CURIE ex:A"
 
 
 def test_prefix():
@@ -26,7 +26,7 @@ def test_default_prefix_fail():
     with pytest.raises(ValueError) as context:
         c = o.clazz("A")
 
-    assert context.value.args[0] == "Invalid curie: MissingDefault"
+    assert context.value.args[0] == "Cannot expand CURIE :A"
 
 
 def test_default_prefix():
