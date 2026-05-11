@@ -107,7 +107,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_annotation(self, class_iri: model.IRIParam, ann_iri: model.IRIParam) -> Optional[str]:
+    def get_annotation(self, entity_iri: model.IRIParam, ann_iri: model.IRIParam) -> Optional[str]:
         """
         Gets the first annotated value for an entity and annotation property.
         
@@ -117,7 +117,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_annotations(self, class_iri: model.IRIParam, ann_iri: model.IRIParam) -> List[str]:
+    def get_annotations(self, entity_iri: model.IRIParam, ann_iri: model.IRIParam) -> List[str]:
         """
         Gets all annotated value for an entity and annotation property.
         

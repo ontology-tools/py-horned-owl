@@ -9,11 +9,11 @@ license = "LGPL-3.0-or-later"
 
 [lib]
 name="pyhornedowl"
-crate-type=["cdylib"]
+crate-type=["cdylib", "rlib"]
 
 [dependencies.pyo3]
 version = "0.26"
-features = ["abi3-py37", "extension-module", "experimental-inspect", "multiple-pymethods"]
+features = ["abi3-py37", "experimental-inspect", "multiple-pymethods"]
 
 [dependencies]
 # horned-owl = "^1.1"

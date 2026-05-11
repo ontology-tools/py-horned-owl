@@ -31,34 +31,39 @@ impl StructuralReasoner {
         &'a self,
         cls: &'a Class<ArcStr>,
     ) -> Box<dyn Iterator<Item = Class<ArcStr>> + 'a> {
-        let mut subclass_axioms = self
-            .component_index
-            .component_for_kind(ComponentKind::SubClassOf);
-
-        // Handle owl:Thing - return all root classes (classes without a superclass)
+        // Handle owl:Thing - return root classes (classes with no explicit superclass).
         if cls.is(&vocab::OWL::Thing) {
             let entities = self
                 .component_index
                 .component_for_kind(ComponentKind::DeclareClass);
 
+            let has_superclass: HashSet<Class<ArcStr>> = self
+            .component_index
+            .component_for_kind(ComponentKind::SubClassOf)
+                .filter_map(|aax| match &aax.component {
+                    Component::SubClassOf(SubClassOf {
+                        sub: ClassExpression::Class(sub),
+                        ..
+                    }) => Some(sub.clone()),
+                    _ => None,
+                })
+                .collect();
+
             return Box::new(entities.filter_map(move |aax| match &aax.component {
                 Component::DeclareClass(DeclareClass(decl))
-                    if subclass_axioms.any(|aax| match &aax.component {
-                        Component::SubClassOf(SubClassOf {
-                            sub: ClassExpression::Class(sub),
-                            sup: ClassExpression::Class(_sup),
-                        }) if sub == decl => true,
-                        _ => false,
-                    }) =>
+                    if !has_superclass.contains(decl)
+                        && !decl.is(&vocab::OWL::Thing)
+                        && !decl.is(&vocab::OWL::Nothing) =>
                 {
-                    None
-                } // Skip classes that have a superclass
-                Component::DeclareClass(DeclareClass(decl)) => Some(decl.clone()),
+                    Some(decl.clone())
+                }
                 _ => None,
             }));
         }
 
-        Box::new(subclass_axioms.filter_map(move |aax| match &aax.component {
+        Box::new(self
+            .component_index
+            .component_for_kind(ComponentKind::SubClassOf).filter_map(move |aax| match &aax.component {
             Component::SubClassOf(SubClassOf {
                 sub: ClassExpression::Class(sub),
                 sup: ClassExpression::Class(sup),
@@ -130,7 +135,11 @@ impl StructuralReasoner {
     }
 
     /// Recursively collects all ancestors (superclasses) of a class.
-    pub fn recurse_ancestors(&self, subclass: &Class<ArcStr>, ancestors: &mut HashSet<Class<ArcStr>>) {
+    pub fn recurse_ancestors(
+        &self,
+        subclass: &Class<ArcStr>,
+        ancestors: &mut HashSet<Class<ArcStr>>,
+    ) {
         if subclass.is(&vocab::OWL::Thing) {
             return; // owl:Thing has no superclasses
         }
@@ -395,8 +404,9 @@ mod tests {
         let result = reasoner.get_subclasses(&class_a_expr).unwrap();
         let subclasses: HashSet<_> = result.collect();
 
-        assert_eq!(subclasses.len(), 1);
+        assert_eq!(subclasses.len(), 2);
         assert!(subclasses.contains(&build.class("https://example.com/B")));
+        assert!(subclasses.contains(&build.class("https://example.com/D")));
     }
 
     #[test]
@@ -426,10 +436,12 @@ mod tests {
         let result = reasoner.get_subclasses(&owl_thing_expr).unwrap();
         let root_classes: HashSet<_> = result.collect();
 
-        // A and C are root classes (have no superclass)
-        assert_eq!(root_classes.len(), 2);
+        // All declared classes are subclasses of owl:Thing
+        assert_eq!(root_classes.len(), 4);
         assert!(root_classes.contains(&build.class("https://example.com/A")));
+        assert!(root_classes.contains(&build.class("https://example.com/B")));
         assert!(root_classes.contains(&build.class("https://example.com/C")));
+        assert!(root_classes.contains(&build.class("https://example.com/D")));
     }
 
     #[test]
