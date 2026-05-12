@@ -299,7 +299,10 @@ impl PyIndexedOntology {
 
         let ax1: AnnotatedComponent<ArcStr>;
         {
-            let build = self.build.read().unwrap();
+            let build = self
+                .build
+                .read()
+                .map_err(to_py_err!("Failed get build instance!"))?;
 
             ax1 = Component::AnnotationAssertion(AnnotationAssertion {
                 subject: iri.clone().into(),
@@ -452,6 +455,25 @@ impl PyIndexedOntology {
             .collect();
 
         Ok(classes)
+    }
+
+    /// get_root_classes(self) -> Set[str]
+    /// 
+    /// Gets all root classes, i.e. all classes with no superclasses (except owl:Thing).
+    pub fn get_root_classes(&mut self) -> PyResult<HashSet<String>> {
+        let owl_thing = self
+            .build
+            .get_mut()
+            .map_err(to_py_err!("Cannot get build instance!"))?
+            .class(vocab::OWL::Thing);
+
+        self.get_component_index()
+            .map(|component_index| {
+                StructuralReasoner::get_direct_subclasses_of_iri(component_index, &owl_thing)
+                    .map(|c| c.0.to_string())
+                    .collect()
+            })
+            .ok_or_else(|| PyValueError::new_err("Component index not yet build!"))
     }
 
     /// get_classes(self) -> Set[str]
@@ -772,7 +794,7 @@ impl PyIndexedOntology {
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
     pub fn curie(&self, py: Python<'_>, curie: String) -> PyResult<model::IRI> {
         let mapping = self.mapping.borrow_mut(py);
-        let build = self.build.read().unwrap();
+        let build = self.build.read().map_err(to_py_err!("Failed get build instance!"))?;
         let iri = mapping
             .0
             .expand_curie_string(&curie)
@@ -1057,7 +1079,9 @@ impl PyIndexedOntology {
         StructuralReasoner::create_reasoner(self.into())
     }
 
-    fn get_component_index(&mut self) -> Option<&ComponentMappedIndex<ArcStr, ArcAnnotatedComponent>> {
+    fn get_component_index(
+        &mut self,
+    ) -> Option<&ComponentMappedIndex<ArcStr, ArcAnnotatedComponent>> {
         if self.component_index.is_none() && self.index_strategy == IndexCreationStrategy::OnQuery {
             self.build_component_index();
         }

@@ -181,3 +181,10 @@ def test_descendants_of_nothing():
 
     assert expected == actual
 
+def test_root_classes():
+    o = simple_ontology()
+
+    expected = {"https://example.com/A", "https://example.com/C"}
+    actual = o.get_root_classes()
+
+    assert expected == actual

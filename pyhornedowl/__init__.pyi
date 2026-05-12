@@ -71,6 +71,12 @@ class PyIndexedOntology:
         """
         ...
 
+    def get_root_classes(self) -> Set[str]:
+        """
+        Gets all root classes, i.e. all classes with no superclasses (except owl:Thing).
+        """
+        ...
+
     def get_classes(self) -> Set[str]:
         """
         Returns the IRIs of all declared classes in the ontology.
