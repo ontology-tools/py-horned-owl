@@ -9,3 +9,4 @@ Ontology:
     Class: :C
     Class: :D
         SubClassOf: :B
+        SubClassOf: owl:Thing

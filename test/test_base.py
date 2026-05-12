@@ -3,9 +3,22 @@ import os
 from typing import List
 
 import pyhornedowl
-from pyhornedowl.model import *
+from pyhornedowl.model import (
+    Component,
+    DeclareClass,
+    Class,
+    IRI,
+    SubClassOf,
+    AnnotationAssertion,
+    Annotation,
+    AnnotationProperty,
+    SimpleLiteral,
+    AnnotatedComponent,
+)
 
 RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
+OWL_THING = "http://www.w3.org/2002/07/owl#Thing"
+OWL_NOTHING = "http://www.w3.org/2002/07/owl#Nothing"
 
 
 def r(*args: str) -> str:
@@ -17,7 +30,7 @@ def res(resource: str) -> str:
         return f.read()
 
 
-def simple_ontology_comps() -> List[Component]:
+def simple_ontology_comps() -> list[Component]:
     return [
         DeclareClass(Class(IRI.parse("https://example.com/A"))),
         DeclareClass(Class(IRI.parse("https://example.com/B"))),
@@ -25,18 +38,28 @@ def simple_ontology_comps() -> List[Component]:
         DeclareClass(Class(IRI.parse("https://example.com/D"))),
         SubClassOf(
             sup=Class(IRI.parse("https://example.com/A")),
-            sub=Class(IRI.parse("https://example.com/B"))),
+            sub=Class(IRI.parse("https://example.com/B")),
+        ),
         SubClassOf(
             sup=Class(IRI.parse("https://example.com/B")),
-            sub=Class(IRI.parse("https://example.com/D"))),
+            sub=Class(IRI.parse("https://example.com/D")),
+        ),
+        SubClassOf(
+            sup=Class(IRI.parse(OWL_THING)),
+            sub=Class(IRI.parse("https://example.com/D")),
+        ),
         AnnotationAssertion(
             IRI.parse("https://example.com/A"),
-            Annotation(AnnotationProperty(IRI.parse(RDFS_LABEL)),
-                       SimpleLiteral("ClassA"))),
+            Annotation(
+                AnnotationProperty(IRI.parse(RDFS_LABEL)), SimpleLiteral("ClassA")
+            ),
+        ),
         AnnotationAssertion(
             IRI.parse("https://example.com/B"),
-            Annotation(AnnotationProperty(IRI.parse(RDFS_LABEL)),
-                       SimpleLiteral("ClassB")))
+            Annotation(
+                AnnotationProperty(IRI.parse(RDFS_LABEL)), SimpleLiteral("ClassB")
+            ),
+        ),
     ]
 
 

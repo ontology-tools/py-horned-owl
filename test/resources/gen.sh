@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# This script generates the test files from the .omn source files.
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 FILES=("simple" "prefix")

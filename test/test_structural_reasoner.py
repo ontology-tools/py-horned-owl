@@ -4,7 +4,7 @@ The structural reasoner traverses SubClassOf and SubObjectPropertyOf axiom chain
 without performing any logical inference.
 """
 import pytest
-from test_base import simple_ontology
+from test_base import OWL_THING, simple_ontology
 
 import pyhornedowl
 from pyhornedowl.model import (
@@ -160,8 +160,8 @@ class TestSuperclasses:
         class_d = Class(IRI.parse("https://example.com/D"))
         superclasses = reasoner.get_superclasses(class_d)
         
-        # D has superclass B, which has superclass A (transitive)
-        expected_iris = {"https://example.com/A", "https://example.com/B"}
+        # D has superclass owl:Thing (asserted) and B, which has superclass A (transitive)
+        expected_iris = {"https://example.com/A", "https://example.com/B", OWL_THING}
         actual_iris = {str(c.first) for c in superclasses}
         
         assert actual_iris == expected_iris
@@ -332,7 +332,7 @@ class TestWithSimpleOntology:
         class_d = Class(IRI.parse("https://example.com/D"))
         superclasses = reasoner.get_superclasses(class_d)
         
-        expected_iris = {"https://example.com/A", "https://example.com/B"}
+        expected_iris = {"https://example.com/A", "https://example.com/B", OWL_THING}
         actual_iris = {str(c.first) for c in superclasses}
         
         assert actual_iris == expected_iris

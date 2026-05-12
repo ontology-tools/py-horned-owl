@@ -1,4 +1,6 @@
 Prefix(:=<https://example.com/>)
+Prefix(:=<https://example.com/>)
+Prefix(:=<https://example.com/>)
 Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
 Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
 Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
@@ -28,6 +30,7 @@ SubClassOf(<https://example.com/B> <https://example.com/A>)
 
 # Class: <https://example.com/D> (<https://example.com/D>)
 
+SubClassOf(<https://example.com/D> owl:Thing)
 SubClassOf(<https://example.com/D> <https://example.com/B>)
 
 
