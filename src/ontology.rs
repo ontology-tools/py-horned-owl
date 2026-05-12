@@ -8,8 +8,8 @@ use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::ResourceType;
 use horned_owl::model::{
     AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
-    ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, ForIRI,
-    HigherKinded, Kinded, Literal, MutableOntology, Ontology, OntologyID, SubClassOf, IRI,
+    ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, ForIRI, HigherKinded, Kinded, Literal, MutableOntology, Ontology, OntologyID,
+    SubClassOf, IRI,
 };
 use horned_owl::ontology::component_mapped::{
     ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
@@ -412,7 +412,7 @@ impl PyIndexedOntology {
 
     /// get_subclasses(self, iri: model.IRIParam) -> Set[str]
     ///
-    /// Gets all direct subclasses of an entity.
+    /// Gets all asserted (named) direct subclasses of a class.
     #[pyo3[name="get_subclasses", signature = (iri)]]
     pub fn py_get_subclasses(
         &mut self,
@@ -435,8 +435,7 @@ impl PyIndexedOntology {
 
     /// get_superclasses(self, iri: model.IRIParam) -> Set[str]
     ///
-    /// Gets all direct superclasses of an entity.
-    ///
+    /// Gets all asserted (named) direct superclasses of a class.
     #[pyo3[name="get_superclasses", signature = (iri)]]
     pub fn py_get_superclasses(
         &mut self,
@@ -458,22 +457,30 @@ impl PyIndexedOntology {
     }
 
     /// get_root_classes(self) -> Set[str]
-    /// 
-    /// Gets all root classes, i.e. all classes with no superclasses (except owl:Thing).
+    ///
+    /// Gets all (named) root classes, i.e. all classes with no superclasses (except owl:Thing).
     pub fn get_root_classes(&mut self) -> PyResult<HashSet<String>> {
         let owl_thing = self
             .build
-            .get_mut()
+            .read()
             .map_err(to_py_err!("Cannot get build instance!"))?
             .class(OWL::Thing);
 
-        self.get_component_index()
-            .map(|component_index| {
-                StructuralReasoner::get_direct_subclasses_of_iri(component_index, &owl_thing)
-                    .map(|c| c.0.to_string())
-                    .collect()
-            })
-            .ok_or_else(|| PyValueError::new_err("Component index not yet build!"))
+        let component_index = match self.component_index.as_ref() {
+            Some(c) => c,
+            _ => {
+                self.build_component_index();
+                self.component_index
+                    .as_ref()
+                    .ok_or_else(|| PyValueError::new_err("Component index could not be created!"))?
+            }
+        };
+
+        Ok(
+            StructuralReasoner::get_direct_subclasses_of_iri(component_index, &owl_thing)
+                .map(|c| c.0.to_string())
+                .collect(),
+        )
     }
 
     /// get_classes(self) -> Set[str]
@@ -794,7 +801,10 @@ impl PyIndexedOntology {
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
     pub fn curie(&self, py: Python<'_>, curie: String) -> PyResult<model::IRI> {
         let mapping = self.mapping.borrow_mut(py);
-        let build = self.build.read().map_err(to_py_err!("Failed get build instance!"))?;
+        let build = self
+            .build
+            .read()
+            .map_err(to_py_err!("Failed get build instance!"))?;
         let iri = mapping
             .0
             .expand_curie_string(&curie)

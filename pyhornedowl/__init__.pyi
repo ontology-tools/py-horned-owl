@@ -61,19 +61,19 @@ class PyIndexedOntology:
 
     def get_subclasses(self, iri: model.IRIParam) -> Set[str]:
         """
-        Gets all direct subclasses of an entity.
+        Gets all asserted (named) direct subclasses of a class.
         """
         ...
 
     def get_superclasses(self, iri: model.IRIParam) -> Set[str]:
         """
-        Gets all direct superclasses of an entity.
+        Gets all asserted (named) direct superclasses of a class.
         """
         ...
 
     def get_root_classes(self) -> Set[str]:
         """
-        Gets all root classes, i.e. all classes with no superclasses (except owl:Thing).
+        Gets all (named) root classes, i.e. all classes with no superclasses (except owl:Thing).
         """
         ...
 

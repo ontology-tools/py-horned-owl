@@ -22,7 +22,7 @@ docs = dict([(x['name'], x['docs']) for x in data["index"].values() if
 
 lines = [f'    ({n}) => {{ {json.dumps(d)} }};' for n, d in docs.items()]
 lines.sort()
-lines.append("    ($t:ident) => {\"\"}")
+lines.append("    ($t:ident) => { \"Documentation not available.\" };")
 
 out_path = os.path.join(REPO_ROOT, "src", "doc.rs")
 with open(out_path, "w") as f:

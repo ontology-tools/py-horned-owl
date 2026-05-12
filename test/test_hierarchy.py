@@ -95,7 +95,7 @@ def test_multiple_descendants():
 # owl:Thing tests (top-level class)
 
 def test_subclasses_of_thing():
-    """owl:Thing subclasses should not to inference and only return subclasses explicitly declared as subclasses of owl:Thing"""
+    """owl:Thing subclasses should not do inference and only return subclasses explicitly declared as subclasses of owl:Thing"""
     o = simple_ontology()
 
     # A and C have no superclass but are not an asserted subclass of owl:Thing

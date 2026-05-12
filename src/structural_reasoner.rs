@@ -121,11 +121,11 @@ impl StructuralReasoner {
             return;
         }
 
-        let subclasses = StructuralReasoner::get_direct_subclasses_of_iri( component_index, superclass);
+        let subclasses = StructuralReasoner::get_direct_subclasses_of_iri(component_index, superclass);
 
         for cls in subclasses.into_iter() {
             if descendants.insert(cls.clone()) {
-                StructuralReasoner::recurse_descendants( component_index, &cls, descendants);
+                StructuralReasoner::recurse_descendants(component_index, &cls, descendants);
             }
         }
     }
