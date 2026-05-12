@@ -5,7 +5,7 @@ all: lib pyi
 dev: mdev pyi
 
 mdev: model docs
-	uvx maturin develop
+	uv run --with maturin maturin develop
 
 pyi: .venv
 	.venv/bin/python scripts/gen_pyi.py
@@ -28,4 +28,4 @@ lib: model docs
 tests: dev
 	uv sync
 	PYO3_PYTHON="/usr/bin/python3" cargo test
-	uvx pytest --doctest-modules test/
+	uv run pytest --doctest-modules test/

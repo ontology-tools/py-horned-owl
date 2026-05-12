@@ -98,7 +98,7 @@ def test_subclasses_of_thing():
     """owl:Thing subclasses should not to inference and only return subclasses explicitly declared as subclasses of owl:Thing"""
     o = simple_ontology()
 
-    # A and C have no superclass, so they are direct subclasses of owl:Thing
+    # A and C have no superclass but are not an asserted subclass of owl:Thing
     expected = {"https://example.com/D"}
     actual = o.get_subclasses(OWL_THING)
 
