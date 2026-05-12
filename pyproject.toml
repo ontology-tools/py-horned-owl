@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin>=1.2,<2.0"]
+requires = ["maturin[patchelf]>=1.2,<2.0"]
 build-backend = "maturin"
 
 [project]
@@ -14,7 +14,6 @@ classifiers = [
 ]
 dependencies = [
     "Jinja2>=3.1.6",
-    "maturin[patchelf]>=1.13.0,<2.0",
 ]
 
 
@@ -26,5 +25,5 @@ dev = [
     "pytest>=8.0.0",
     "sphinx>=5.3.0",
     "sphinx-autobuild>=2021.3.14",
-    "sphinx-rtd-theme>=2.0.0",
+    "sphinx-rtd-theme>=2.0.0"
 ]
