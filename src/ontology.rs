@@ -17,7 +17,7 @@ use horned_owl::ontology::component_mapped::{
 use horned_owl::ontology::indexed::OntologyIndex;
 use horned_owl::ontology::iri_mapped::IRIMappedIndex;
 use horned_owl::ontology::set::{SetIndex, SetOntology};
-use horned_owl::vocab::AnnotationBuiltIn;
+use horned_owl::vocab::{AnnotationBuiltIn, OWL};
 use pyhornedowlreasoner::{PyReasoner, Reasoner};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -465,7 +465,7 @@ impl PyIndexedOntology {
             .build
             .get_mut()
             .map_err(to_py_err!("Cannot get build instance!"))?
-            .class(vocab::OWL::Thing);
+            .class(OWL::Thing);
 
         self.get_component_index()
             .map(|component_index| {
