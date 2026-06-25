@@ -24,7 +24,6 @@ macro_rules! add_type_alias {
                 code_cstr = std::ffi::CString::new(code.as_str()).unwrap();
                 ta = $py.eval(code_cstr.as_c_str(), None, Some(&locals))?;
                 locals.set_item(stringify!($name), &ta)?;
-                ta.setattr("__doc__",  doc!($name))?;
                 $module.add(stringify!($name), &ta)?;
             )*
         }
