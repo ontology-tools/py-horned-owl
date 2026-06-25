@@ -28,6 +28,7 @@ SubClassOf(<https://example.com/B> <https://example.com/A>)
 
 # Class: <https://example.com/D> (<https://example.com/D>)
 
+SubClassOf(<https://example.com/D> owl:Thing)
 SubClassOf(<https://example.com/D> <https://example.com/B>)
 
 

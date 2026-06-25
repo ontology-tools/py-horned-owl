@@ -47,6 +47,7 @@
     <!-- https://example.com/D -->
 
     <Class rdf:about="https://example.com/D">
+        <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
         <rdfs:subClassOf rdf:resource="https://example.com/B"/>
     </Class>
 </rdf:RDF>

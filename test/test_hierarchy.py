@@ -1,5 +1,5 @@
 import pytest
-from test_base import simple_ontology
+from test_base import OWL_NOTHING, OWL_THING, simple_ontology
 
 
 def test_no_subclass():
@@ -77,7 +77,7 @@ def test_single_descendants():
 def test_multiple_ancestors():
     o = simple_ontology()
 
-    expected = {"https://example.com/A", "https://example.com/B"}
+    expected = {"https://example.com/A", "https://example.com/B", OWL_THING}
     actual = o.get_ancestors(":D")
 
     assert expected == actual
@@ -95,12 +95,12 @@ def test_multiple_descendants():
 # owl:Thing tests (top-level class)
 
 def test_subclasses_of_thing():
-    """owl:Thing subclasses should return all root classes (classes without superclass)"""
+    """owl:Thing subclasses should not do inference and only return subclasses explicitly declared as subclasses of owl:Thing"""
     o = simple_ontology()
 
-    # A and C have no superclass, so they are direct subclasses of owl:Thing
-    expected = o.get_classes()
-    actual = o.get_subclasses("owl:Thing")
+    # A and C have no superclass but are not an asserted subclass of owl:Thing
+    expected = {"https://example.com/D"}
+    actual = o.get_subclasses(OWL_THING)
 
     assert expected == actual
 
@@ -120,7 +120,7 @@ def test_ancestors_of_thing():
     o = simple_ontology()
 
     expected = set()
-    actual = o.get_ancestors("owl:Thing")
+    actual = o.get_ancestors(OWL_THING)
 
     assert expected == actual
 
@@ -135,7 +135,7 @@ def test_descendants_of_thing():
         "https://example.com/C",
         "https://example.com/D",
     }
-    actual = o.get_descendants("owl:Thing")
+    actual = o.get_descendants(OWL_THING)
 
     assert expected == actual
 
@@ -147,7 +147,7 @@ def test_subclasses_of_nothing():
     o = simple_ontology()
 
     expected = set()
-    actual = o.get_subclasses("owl:Nothing")
+    actual = o.get_subclasses(OWL_NOTHING)
 
     assert expected == actual
 
@@ -157,7 +157,7 @@ def test_superclasses_of_nothing():
     o = simple_ontology()
 
     expected = set()
-    actual = o.get_superclasses("owl:Nothing")
+    actual = o.get_superclasses(OWL_NOTHING)
 
     assert expected == actual
 
@@ -167,7 +167,7 @@ def test_ancestors_of_nothing():
     o = simple_ontology()
 
     expected = o.get_classes()
-    actual = o.get_ancestors("owl:Nothing")
+    actual = o.get_ancestors(OWL_NOTHING)
 
     assert expected == actual
 
@@ -177,7 +177,14 @@ def test_descendants_of_nothing():
     o = simple_ontology()
 
     expected = set()
-    actual = o.get_descendants("owl:Nothing")
+    actual = o.get_descendants(OWL_NOTHING)
 
     assert expected == actual
 
+def test_root_classes():
+    o = simple_ontology()
+
+    expected = {"https://example.com/A", "https://example.com/C"}
+    actual = o.get_root_classes()
+
+    assert expected == actual

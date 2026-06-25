@@ -61,13 +61,19 @@ class PyIndexedOntology:
 
     def get_subclasses(self, iri: model.IRIParam) -> Set[str]:
         """
-        Gets all direct subclasses of an entity.
+        Gets all asserted (named) direct subclasses of a class.
         """
         ...
 
     def get_superclasses(self, iri: model.IRIParam) -> Set[str]:
         """
-        Gets all direct superclasses of an entity.
+        Gets all asserted (named) direct superclasses of a class.
+        """
+        ...
+
+    def get_root_classes(self) -> Set[str]:
+        """
+        Gets all (named) root classes, i.e. all classes with no superclasses (except owl:Thing).
         """
         ...
 
@@ -107,7 +113,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_annotation(self, class_iri: model.IRIParam, ann_iri: model.IRIParam) -> Optional[str]:
+    def get_annotation(self, entity_iri: model.IRIParam, ann_iri: model.IRIParam) -> Optional[str]:
         """
         Gets the first annotated value for an entity and annotation property.
         
@@ -117,7 +123,7 @@ class PyIndexedOntology:
         """
         ...
 
-    def get_annotations(self, class_iri: model.IRIParam, ann_iri: model.IRIParam) -> List[str]:
+    def get_annotations(self, entity_iri: model.IRIParam, ann_iri: model.IRIParam) -> List[str]:
         """
         Gets all annotated value for an entity and annotation property.
         

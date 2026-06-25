@@ -29,6 +29,10 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="https://example.com/D"/>
+        <Class IRI="http://www.w3.org/2002/07/owl#Thing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="https://example.com/D"/>
         <Class IRI="https://example.com/B"/>
     </SubClassOf>
     <AnnotationAssertion>

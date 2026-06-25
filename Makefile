@@ -1,30 +1,31 @@
-.PHONY: all dev mdev model docs tests
+.PHONY: all dev mdev model docs tests .venv
 
 all: lib pyi
 
 dev: mdev pyi
 
 mdev: model docs
-	.venv/bin/maturin develop
+	uv run --with maturin maturin develop
 
-pyi: venv
-	.venv/bin/python3 scripts/gen_pyi.py
+pyi: .venv
+	.venv/bin/python scripts/gen_pyi.py
 
 docs: src/doc.rs
 
-#src/doc.rs: venv
-#	venv/bin/python3 scripts/build_doc.py
+src/doc.rs: .venv
+	.venv/bin/python scripts/build_doc.py
 
 model: .venv
-	.venv/bin/python3 scripts/build_model.py
+	.venv/bin/python scripts/build_model.py
 
 lib: model docs
-	.venv/bin/maturin build --release
+	uvx maturin build --release
 
-venv:
-	python3 -m venv .venv
-	.venv/bin/pip3 install -r requirements.txt
+.venv:
+	uv venv
+	uv sync --all-groups
 
 tests: dev
-	.venv/bin/pip3 install pytest
-	pytest --doctest-modules test/
+	uv sync
+	PYO3_PYTHON="/usr/bin/python3" cargo test
+	uv run pytest --doctest-modules test/
