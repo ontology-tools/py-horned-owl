@@ -377,7 +377,10 @@ impl PyIndexedOntology {
                 ann:
                     Annotation {
                         ap,
-                        av: AnnotationValue::Literal(Literal::Simple { literal }),
+                        av:
+                            AnnotationValue::Literal(
+                                Literal::Simple { literal } | Literal::Language { literal, .. },
+                            ),
                     },
             } if *literal == label
                 && AnnotationBuiltIn::Label.underlying().eq(&ap.0.to_string()) =>
