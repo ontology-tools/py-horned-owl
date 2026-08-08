@@ -28,10 +28,10 @@ jobs:
             target: x86_64
           - runner: ubuntu-22.04
             target: x86
-          # - runner: ubuntu-22.04
-          #   target: aarch64
-          # - runner: ubuntu-22.04
-          #   target: armv7
+          - runner: ubuntu-22.04
+            target: aarch64
+          - runner: ubuntu-22.04
+            target: armv7
           - runner: ubuntu-22.04
             target: s390x
           - runner: ubuntu-22.04
@@ -63,10 +63,10 @@ jobs:
             target: x86_64
           - runner: ubuntu-22.04
             target: x86
-          # - runner: ubuntu-22.04
-          #   target: aarch64
-          # - runner: ubuntu-22.04
-          #   target: armv7
+          - runner: ubuntu-22.04
+            target: aarch64
+          - runner: ubuntu-22.04
+            target: armv7
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -182,89 +182,3 @@ jobs:
       - name: Publish to PyPI
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: uv publish --trusted-publishing always 'wheels-*/*'
-
-  build-docs:
-    needs: linux
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.14'
-      - uses: actions/download-artifact@v6
-        with:
-          name: wheels-linux-x86_64
-          path: wheels/
-      - name: "Install packages"
-        run: |
-          pip install -U sphinx sphinx_rtd_theme
-          pip install --find-links wheels/ py-horned-owl
-      - name: "Build docs"
-        working-directory: docs
-        run: sphinx-build -b html source build
-      - name: Fix permissions
-        run: |
-          chmod -c -R +rX "docs/build/" | while read line; do
-            echo "::warning title=Invalid file permissions automatically fixed::$line"
-          done
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs/build
-
-    # Deploy job
-  deploy-docs:
-    # Add a dependency to the build job
-    needs: build-docs
-
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      contents: read
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
-
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    # Specify runner + deployment step
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
-
-  tests:
-    needs: linux
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-      - uses: actions/download-artifact@v6
-        with:
-          name: wheels-linux-x86_64
-          path: wheels/
-      - name: "Install packages"
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest
-          pip install --find-links wheels/ py-horned-owl
-      - name: Test with pytest
-        run: pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}.xml test/
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: pytest-results-${{ matrix.python-version }}
-          path: junit/test-results-${{ matrix.python-version }}.xml
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
-
