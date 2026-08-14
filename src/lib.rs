@@ -115,6 +115,7 @@ fn open_ontology_rdf<R: BufRead>(
         content,
         b,
         ParserConfiguration {
+            lax: true,
             rdf: RDFParserConfiguration { format },
             ..Default::default()
         },
@@ -153,10 +154,7 @@ fn open_ontology_from_file(
         ResourceType::OFN => open_ontology_ofn(&mut f, &b),
         ResourceType::OWX => open_ontology_owx(&mut f, &b),
         ResourceType::RDF => {
-            let fmt = match extension {
-                Some(s) => oxrdfio::RdfFormat::from_extension(s),
-                None => None,
-            };
+            let fmt = extension.and_then(oxrdfio::RdfFormat::from_extension);
             open_ontology_rdf(&mut f, &b, index_strategy, fmt)
         }
         ResourceType::OMN => open_ontology_omn(&mut f, &b),
