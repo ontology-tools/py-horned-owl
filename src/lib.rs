@@ -60,10 +60,6 @@ pub fn guess_serialization(path: &String, serialization: Option<&str>) -> PyResu
             path.as_ref(),
             &ParserConfiguration {
                 lax: true,
-                rdf: RDFParserConfiguration {
-                    ..Default::default()
-                },
-                input_format: None,
                 ..Default::default()
             },
         )
@@ -80,9 +76,6 @@ fn open_ontology_owx<R: BufRead>(
         b,
         ParserConfiguration {
             lax: true,
-            rdf: RDFParserConfiguration {
-                ..Default::default()
-            },
             owx: OWXParserConfiguration {
                 ..Default::default()
             },
@@ -96,6 +89,20 @@ fn open_ontology_ofn<R: BufRead>(
     b: &Build<Arc<str>>,
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
     horned_owl::io::ofn::reader::read_with_build(content, b)
+}
+
+fn open_ontology_omn<R: BufRead>(
+    content: &mut R,
+    b: &Build<Arc<str>>,
+) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
+    horned_owl::io::omn::reader::read_with_build(content, b)
+}
+
+fn open_ontology_obo<R: BufRead>(
+    content: &mut R,
+    b: &Build<Arc<str>>,
+) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
+    horned_owl::io::obo::reader::read_with_build(content, b)
 }
 
 fn open_ontology_rdf<R: BufRead>(
@@ -152,8 +159,8 @@ fn open_ontology_from_file(
             };
             open_ontology_rdf(&mut f, &b, index_strategy, fmt)
         }
-        ResourceType::OMN => todo!(),
-        ResourceType::OBO => todo!(),
+        ResourceType::OMN => open_ontology_omn(&mut f, &b),
+        ResourceType::OBO => open_ontology_obo(&mut f, &b),
     }
     .map_err(to_py_err!("Failed to open ontology"))?;
 
@@ -191,8 +198,8 @@ fn open_ontology_from_string(
         Some(ResourceType::OFN) => open_ontology_ofn(&mut f, &b),
         Some(ResourceType::OWX) => open_ontology_owx(&mut f, &b),
         Some(ResourceType::RDF) => open_ontology_rdf(&mut f, &b, index_strategy, None),
-        Some(ResourceType::OMN) => todo!(),
-        Some(ResourceType::OBO) => todo!(),
+        Some(ResourceType::OMN) => open_ontology_omn(&mut f, &b),
+        Some(ResourceType::OBO) => open_ontology_obo(&mut f, &b),
         None => open_ontology_owx(&mut BufReader::new(ontology.as_bytes()), &b)
             .or_else(|_| open_ontology_ofn(&mut BufReader::new(ontology.as_bytes()), &b))
             .or_else(|_| {
