@@ -1239,6 +1239,7 @@ impl PyIndexedOntology {
             }
             ResourceType::RDF => horned_owl::io::rdf::writer::write(&mut file, &amo),
             ResourceType::OMN => todo!(),
+            ResourceType::OBO => todo!(),
         };
 
         result

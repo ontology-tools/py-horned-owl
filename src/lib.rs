@@ -153,6 +153,7 @@ fn open_ontology_from_file(
             open_ontology_rdf(&mut f, &b, index_strategy, fmt)
         }
         ResourceType::OMN => todo!(),
+        ResourceType::OBO => todo!(),
     }
     .map_err(to_py_err!("Failed to open ontology"))?;
 
@@ -191,6 +192,7 @@ fn open_ontology_from_string(
         Some(ResourceType::OWX) => open_ontology_owx(&mut f, &b),
         Some(ResourceType::RDF) => open_ontology_rdf(&mut f, &b, index_strategy, None),
         Some(ResourceType::OMN) => todo!(),
+        Some(ResourceType::OBO) => todo!(),
         None => open_ontology_owx(&mut BufReader::new(ontology.as_bytes()), &b)
             .or_else(|_| open_ontology_ofn(&mut BufReader::new(ontology.as_bytes()), &b))
             .or_else(|_| {
