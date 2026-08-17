@@ -2,10 +2,10 @@ use crate::prefix_mapping::PrefixMapping;
 use crate::reasoning::DynamicLoadedReasoner;
 use crate::structural_reasoner::StructuralReasoner;
 use crate::wrappers::BTreeSetWrap;
-use crate::{guess_serialization, model, parse_serialization, to_py_err};
+use crate::{model, parse_serialization, to_py_err};
 use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
-use horned_owl::io::ResourceType;
+use horned_owl::io::InputFormat;
 use horned_owl::model::{
     AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
     ArcAnnotatedComponent, ArcStr, Build, Class, ClassExpression, Component, ComponentKind, ForIRI,
@@ -24,9 +24,11 @@ use pyo3::prelude::*;
 use pyo3::types::PyNone;
 use pyo3::{pyclass, pymethods, Bound, Py, PyAny, PyResult, Python};
 use std::collections::{BTreeSet, HashMap, HashSet};
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Write;
 use std::iter::FusedIterator;
+use std::path::Path;
 use std::sync::{Arc, Mutex, RwLock};
 
 macro_rules! into_iri {
@@ -627,7 +629,17 @@ impl PyIndexedOntology {
         file_name: String,
         serialization: Option<&str>,
     ) -> PyResult<()> {
-        let serialization = guess_serialization(&file_name, serialization)?;
+        let serialization = serialization
+            .map(parse_serialization)
+            .or_else(|| {
+                Path::new(&file_name)
+                    .extension()
+                    .map(OsStr::to_str)
+                    .flatten()
+                    .map(parse_serialization)
+            })
+            .transpose()?
+            .unwrap_or(InputFormat::Rdf(Some(oxrdfio::RdfFormat::RdfXml)));
         let mut file = File::create(file_name)?;
 
         self.save_to_buf(py, &mut file, serialization)
@@ -1218,7 +1230,7 @@ impl PyIndexedOntology {
         &mut self,
         py: Python<'_>,
         w: &mut W,
-        serialization: ResourceType,
+        serialization: InputFormat,
     ) -> PyResult<()> {
         let mut file = w;
         let mut amo: ArcComponentMappedOntology = ComponentMappedOntology::new_arc();
@@ -1231,15 +1243,20 @@ impl PyIndexedOntology {
         let mapping = self.mapping.borrow(py);
 
         let result = match serialization {
-            ResourceType::OFN => {
+            InputFormat::OFN => {
                 horned_owl::io::ofn::writer::write(&mut file, &amo, Some(&mapping.0))
             }
-            ResourceType::OWX => {
+            InputFormat::OWX => {
                 horned_owl::io::owx::writer::write(&mut file, &amo, Some(&mapping.0))
             }
-            ResourceType::RDF => horned_owl::io::rdf::writer::write(&mut file, &amo),
-            ResourceType::OMN => todo!(),
-            ResourceType::OBO => todo!(),
+            InputFormat::Rdf(_) => horned_owl::io::rdf::writer::write(&mut file, &amo),
+            InputFormat::OMN => todo!(),
+            InputFormat::OBO => todo!(),
+            InputFormat::Guess => {
+                return Err(PyValueError::new_err(
+                    "The serialization cannot be guessed when writing",
+                ))
+            }
         };
 
         result

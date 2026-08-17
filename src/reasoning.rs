@@ -216,8 +216,10 @@ pub fn create_reasoner(name: String, ontology: &mut PyIndexedOntology) -> PyResu
     let lib = unsafe { Library::new(std::path::absolute(&path)?).map_err(to_py_err)? };
 
     let reasoner: Box<dyn Reasoner<ArcStr, ArcAnnotatedComponent>> = unsafe {
-        type ReasonerCreator = fn(ontology: SetOntology<ArcStr>) -> Box<dyn Reasoner<ArcStr, ArcAnnotatedComponent>>;
-        let func: libloading::Symbol<ReasonerCreator> = lib.get(b"create_reasoner").map_err(to_py_err)?;
+        type ReasonerCreator =
+            fn(ontology: SetOntology<ArcStr>) -> Box<dyn Reasoner<ArcStr, ArcAnnotatedComponent>>;
+        let func: libloading::Symbol<ReasonerCreator> =
+            lib.get(b"create_reasoner").map_err(to_py_err)?;
         func(ontology.clone().into())
     };
 
