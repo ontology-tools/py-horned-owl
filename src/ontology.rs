@@ -584,15 +584,15 @@ impl PyIndexedOntology {
                 match &aax.component {
                     Component::AnnotationAssertion(AnnotationAssertion { subject: AnnotationSubject::IRI(s), ann }) if &entity_iri == s => {
                         match ann {
-                            Annotation { ap, av: AnnotationValue::Literal(Literal::Simple { literal }), ann } => {
+                            Annotation { ap, av: AnnotationValue::Literal(Literal::Simple { literal }), .. } => {
                                 if ann_iri.eq(&ap.0) { Some(literal.clone()) } else { None }
                             }
                             //Language { literal: String, lang: String },
-                            Annotation { ap, av: AnnotationValue::Literal(Literal::Language { literal, lang: _ }), ann } => {
+                            Annotation { ap, av: AnnotationValue::Literal(Literal::Language { literal, lang: _ }), .. } => {
                                 if ann_iri.eq(&ap.0) { Some(literal.clone()) } else { None }
                             }
                             //Datatype { literal: String, datatype_iri: IRI },
-                            Annotation { ap, av: AnnotationValue::Literal(Literal::Datatype { literal, datatype_iri: _ }), ann } => {
+                            Annotation { ap, av: AnnotationValue::Literal(Literal::Datatype { literal, datatype_iri: _ }), .. } => {
                                 if ann_iri.eq(&ap.0) { Some(literal.clone()) } else { None }
                             }
                             _ => None,
@@ -634,8 +634,7 @@ impl PyIndexedOntology {
             .or_else(|| {
                 Path::new(&file_name)
                     .extension()
-                    .map(OsStr::to_str)
-                    .flatten()
+                    .and_then(OsStr::to_str)
                     .map(parse_serialization)
             })
             .transpose()?
@@ -1250,8 +1249,8 @@ impl PyIndexedOntology {
                 horned_owl::io::owx::writer::write(&mut file, &amo, Some(&mapping.0))
             }
             InputFormat::Rdf(_) => horned_owl::io::rdf::writer::write(&mut file, &amo),
-            InputFormat::OMN => todo!(),
-            InputFormat::OBO => todo!(),
+            InputFormat::OMN => horned_owl::io::omn::writer::write(&mut file, &amo, Some(&mapping.0)),
+            InputFormat::OBO => horned_owl::io::obo::writer::write(&mut file, &amo, Some(&mapping.0)),
             InputFormat::Guess => {
                 return Err(PyValueError::new_err(
                     "The serialization cannot be guessed when writing",
@@ -1298,10 +1297,7 @@ impl<'a> IntoIterator for &'a PyIndexedOntology {
 }
 
 pub struct PyOntIntoIter(
-    std::iter::Map<
-        std::collections::hash_set::IntoIter<AnnotatedComponent<ArcStr>>,
-        fn(AnnotatedComponent<ArcStr>) -> AnnotatedComponent<ArcStr>,
-    >,
+        std::iter::Map<std::collections::hash_set::IntoIter<Arc<AnnotatedComponent<ArcStr>>>, fn(Arc<AnnotatedComponent<ArcStr>>) -> AnnotatedComponent<ArcStr>>,
 );
 
 impl Iterator for PyOntIntoIter {
@@ -1323,8 +1319,7 @@ impl IntoIterator for PyIndexedOntology {
     type Item = AnnotatedComponent<ArcStr>;
     type IntoIter = PyOntIntoIter;
     fn into_iter(self) -> Self::IntoIter {
-        todo!()
-        // PyOntIntoIter(self.set_index.iter().map(|c| (c).clone()))
+        PyOntIntoIter(self.set_index.into_iter())
     }
 }
 impl From<PyIndexedOntology> for SetOntology<ArcStr> {

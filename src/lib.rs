@@ -42,7 +42,23 @@ fn parse_serialization(serialization: &str) -> PyResult<InputFormat> {
 }
 
 fn parser_config(path: &str, serialisation: Option<&str>) -> PyResult<ParserConfiguration> {
-    let input_format = serialisation.map(parse_serialization).transpose()?;
+    let input_format = serialisation
+        .map(parse_serialization)
+        .transpose()?
+        .or_else(|| {
+            use std::io::Read;
+            let mut buf = [0u8; 512];
+            let n = File::open(path).ok()?.read(&mut buf).ok()?;
+            horned_owl::io::detect_format(&buf[..n]).map(|(resource_type, format)| {
+                match resource_type {
+                    ResourceType::OBO => InputFormat::OBO,
+                    ResourceType::OMN => InputFormat::OMN,
+                    ResourceType::RDF => InputFormat::Rdf(format),
+                    ResourceType::OFN => InputFormat::OFN,
+                    ResourceType::OWX => InputFormat::OWX,
+                }
+            })
+        });
 
     let path = Path::new(path);
 
@@ -135,7 +151,7 @@ fn open_ontology_from_file(
         path
     )))?;
 
-    let file = File::open(Path::new(&path))?;
+    let file = File::open(&path)?;
     let mut f = BufReader::new(file);
 
     let b = Build::new_arc();
