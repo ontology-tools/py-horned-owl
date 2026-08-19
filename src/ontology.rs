@@ -390,7 +390,10 @@ impl PyIndexedOntology {
                 ann:
                     Annotation {
                         ap,
-                        av: AnnotationValue::Literal(Literal::Simple { literal }),
+                        av:
+                            AnnotationValue::Literal(
+                                Literal::Simple { literal } | Literal::Language { literal, .. },
+                            ),
                         ann,
                     },
             } if *literal == label
