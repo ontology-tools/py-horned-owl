@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
@@ -5,7 +6,6 @@ use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
 use curie::PrefixMapping;
-use horned_bin::with_detected_rdf_format;
 use horned_owl::error::HornedError;
 use horned_owl::io::{InputFormat, ParserConfiguration, RDFParserConfiguration, ResourceType};
 use horned_owl::model::*;
@@ -37,34 +37,58 @@ macro_rules! to_py_err {
 }
 
 fn parse_serialization(serialization: &str) -> PyResult<InputFormat> {
-    InputFormat::from_str(serialization)
-        .map_err(|_| PyValueError::new_err(format!("Unknown serialization {}", serialization)))
+    match InputFormat::from_str(serialization) {
+        Ok(InputFormat::Guess) | Err(_) => Err(PyValueError::new_err(format!(
+            "Unknown serialization {}",
+            serialization
+        ))),
+        Ok(input_format) => Ok(input_format),
+    }
 }
 
-fn parser_config(path: &str, serialisation: Option<&str>) -> PyResult<ParserConfiguration> {
+fn to_input_format(
+    (resource_type, format): (ResourceType, Option<oxrdfio::RdfFormat>),
+) -> InputFormat {
+    match resource_type {
+        ResourceType::OFN => InputFormat::OFN,
+        ResourceType::OWX => InputFormat::OWX,
+        ResourceType::OMN => InputFormat::OMN,
+        ResourceType::OBO => InputFormat::OBO,
+        ResourceType::RDF => InputFormat::Rdf(format),
+    }
+}
+
+fn sniff_input_format(path: &Path) -> Option<InputFormat> {
+    use std::io::Read;
+
+    let mut buf = [0u8; 512];
+    let n = File::open(path).ok()?.read(&mut buf).ok()?;
+
+    horned_owl::io::detect_format(&buf[..n]).map(to_input_format)
+}
+
+fn parser_config(
+    path: &Path,
+    serialisation: Option<&str>,
+) -> PyResult<(InputFormat, ParserConfiguration)> {
     let input_format = serialisation
         .map(parse_serialization)
         .transpose()?
         .or_else(|| {
-            use std::io::Read;
-            let mut buf = [0u8; 512];
-            let n = File::open(path).ok()?.read(&mut buf).ok()?;
-            horned_owl::io::detect_format(&buf[..n]).map(|(resource_type, format)| {
-                match resource_type {
-                    ResourceType::OBO => InputFormat::OBO,
-                    ResourceType::OMN => InputFormat::OMN,
-                    ResourceType::RDF => InputFormat::Rdf(format),
-                    ResourceType::OFN => InputFormat::OFN,
-                    ResourceType::OWX => InputFormat::OWX,
-                }
-            })
-        });
+            path.extension()
+                .and_then(OsStr::to_str)
+                .and_then(|extension| parse_serialization(extension).ok())
+        })
+        .or_else(|| sniff_input_format(path));
 
-    let path = Path::new(path);
+    let input_format = input_format.ok_or_else(|| {
+        PyValueError::new_err(format!(
+            "Cannot determine serialization for file {}",
+            path.display()
+        ))
+    })?;
 
-    let default_config = default_parser_config(input_format);
-
-    Ok(with_detected_rdf_format(path, default_config))
+    Ok((input_format, default_parser_config(Some(input_format))))
 }
 
 fn default_parser_config(input_format: Option<InputFormat>) -> ParserConfiguration {
@@ -141,17 +165,10 @@ fn open_ontology_from_file(
     serialization: Option<&str>,
     index_strategy: IndexCreationStrategy,
 ) -> PyResult<PyIndexedOntology> {
-    let config = parser_config(&path, serialization)?;
-    let input_format = match config.input_format {
-        Some(InputFormat::Guess) => None,
-        f => f,
-    }
-    .ok_or(PyValueError::new_err(format!(
-        "Cannot determine serialization for file {}",
-        path
-    )))?;
-
     let file = File::open(&path)?;
+
+    let (input_format, config) = parser_config(Path::new(&path), serialization)?;
+
     let mut f = BufReader::new(file);
 
     let b = Build::new_arc();
@@ -162,7 +179,12 @@ fn open_ontology_from_file(
         InputFormat::OBO => open_ontology_obo(&mut f, &b),
         InputFormat::Rdf(_) => open_ontology_rdf(&mut f, &b, index_strategy, config),
         InputFormat::OWX => open_ontology_owx(&mut f, &b, config),
-        InputFormat::Guess => unreachable!("Guess should have been resolved by parser_config"),
+        InputFormat::Guess => {
+            return Err(PyValueError::new_err(format!(
+                "Cannot determine serialization for file {}",
+                path
+            )))
+        }
     }
     .map_err(to_py_err!("Failed to open ontology"))?;
 
@@ -192,15 +214,7 @@ fn open_ontology_from_string(
         .map(parse_serialization)
         .transpose()?
         .or_else(|| {
-            horned_owl::io::detect_format(ontology.as_bytes()).map(|(resource_type, format)| {
-                match resource_type {
-                    ResourceType::OBO => InputFormat::OBO,
-                    ResourceType::OMN => InputFormat::OMN,
-                    ResourceType::RDF => InputFormat::Rdf(format),
-                    ResourceType::OFN => InputFormat::OFN,
-                    ResourceType::OWX => InputFormat::OWX,
-                }
-            })
+            horned_owl::io::detect_format(ontology.as_bytes()).map(to_input_format)
         });
 
     let config = default_parser_config(input_format);
@@ -215,18 +229,17 @@ fn open_ontology_from_string(
         Some(InputFormat::Rdf(_)) => open_ontology_rdf(&mut f, &b, index_strategy, config),
         Some(InputFormat::OMN) => open_ontology_omn(&mut f, &b),
         Some(InputFormat::OBO) => open_ontology_obo(&mut f, &b),
-        None => open_ontology_owx(&mut BufReader::new(ontology.as_bytes()), &b, config.clone())
-            .or_else(|_| open_ontology_ofn(&mut BufReader::new(ontology.as_bytes()), &b))
-            .or_else(|_| {
-                open_ontology_rdf(
-                    &mut BufReader::new(ontology.as_bytes()),
-                    &b,
-                    index_strategy,
-                    config,
-                )
-            }),
-        Some(InputFormat::Guess) => {
-            unreachable!("Guess should have been resolved by default_parser_config")
+        None | Some(InputFormat::Guess) => {
+            open_ontology_owx(&mut BufReader::new(ontology.as_bytes()), &b, config.clone())
+                .or_else(|_| open_ontology_ofn(&mut BufReader::new(ontology.as_bytes()), &b))
+                .or_else(|_| {
+                    open_ontology_rdf(
+                        &mut BufReader::new(ontology.as_bytes()),
+                        &b,
+                        index_strategy,
+                        config,
+                    )
+                })
         }
     }
     .map_err(to_py_err!("Failed to open ontology"))?;

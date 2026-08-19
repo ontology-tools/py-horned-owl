@@ -18,6 +18,7 @@ use horned_owl::ontology::indexed::OntologyIndex;
 use horned_owl::ontology::iri_mapped::IRIMappedIndex;
 use horned_owl::ontology::set::{SetIndex, SetOntology};
 use horned_owl::vocab::{AnnotationBuiltIn, OWL};
+use oxrdfio::RdfFormat;
 use pyhornedowlreasoner::{PyReasoner, Reasoner};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -1248,9 +1249,17 @@ impl PyIndexedOntology {
             InputFormat::OWX => {
                 horned_owl::io::owx::writer::write(&mut file, &amo, Some(&mapping.0))
             }
-            InputFormat::Rdf(_) => horned_owl::io::rdf::writer::write(&mut file, &amo),
-            InputFormat::OMN => horned_owl::io::omn::writer::write(&mut file, &amo, Some(&mapping.0)),
-            InputFormat::OBO => horned_owl::io::obo::writer::write(&mut file, &amo, Some(&mapping.0)),
+            InputFormat::Rdf(f) => horned_owl::io::rdf::writer::write_to_rdf_format(
+                &mut file,
+                &amo,
+                f.unwrap_or(RdfFormat::RdfXml).file_extension()
+            ),
+            InputFormat::OMN => {
+                horned_owl::io::omn::writer::write(&mut file, &amo, Some(&mapping.0))
+            }
+            InputFormat::OBO => {
+                horned_owl::io::obo::writer::write(&mut file, &amo, Some(&mapping.0))
+            }
             InputFormat::Guess => {
                 return Err(PyValueError::new_err(
                     "The serialization cannot be guessed when writing",
@@ -1297,7 +1306,10 @@ impl<'a> IntoIterator for &'a PyIndexedOntology {
 }
 
 pub struct PyOntIntoIter(
-        std::iter::Map<std::collections::hash_set::IntoIter<Arc<AnnotatedComponent<ArcStr>>>, fn(Arc<AnnotatedComponent<ArcStr>>) -> AnnotatedComponent<ArcStr>>,
+    std::iter::Map<
+        std::collections::hash_set::IntoIter<Arc<AnnotatedComponent<ArcStr>>>,
+        fn(Arc<AnnotatedComponent<ArcStr>>) -> AnnotatedComponent<ArcStr>,
+    >,
 );
 
 impl Iterator for PyOntIntoIter {
