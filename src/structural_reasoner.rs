@@ -81,8 +81,7 @@ impl StructuralReasoner {
             return Box::new(std::iter::empty()) as Box<dyn Iterator<Item = Class<ArcStr>>>;
         }
 
-        let subclass_axioms = component_index
-            .component_for_kind(ComponentKind::SubClassOf);
+        let subclass_axioms = component_index.component_for_kind(ComponentKind::SubClassOf);
 
         Box::new(subclass_axioms.filter_map(move |aax| match &aax.component {
             Component::SubClassOf(SubClassOf {
@@ -104,7 +103,8 @@ impl StructuralReasoner {
         }
 
         if superclass.is(&vocab::OWL::Thing) {
-            for c in component_index.component_for_kind(ComponentKind::DeclareClass)
+            for c in component_index
+                .component_for_kind(ComponentKind::DeclareClass)
                 .filter_map(|aax| match &aax.component {
                     Component::DeclareClass(DeclareClass(decl)) => {
                         if decl.is(&vocab::OWL::Thing) {
@@ -121,7 +121,8 @@ impl StructuralReasoner {
             return;
         }
 
-        let subclasses = StructuralReasoner::get_direct_subclasses_of_iri(component_index, superclass);
+        let subclasses =
+            StructuralReasoner::get_direct_subclasses_of_iri(component_index, superclass);
 
         for cls in subclasses.into_iter() {
             if descendants.insert(cls.clone()) {
@@ -141,7 +142,8 @@ impl StructuralReasoner {
         }
 
         if subclass.is(&vocab::OWL::Nothing) {
-            for c in component_index.component_for_kind(ComponentKind::DeclareClass)
+            for c in component_index
+                .component_for_kind(ComponentKind::DeclareClass)
                 .filter_map(|aax| match &aax.component {
                     Component::DeclareClass(DeclareClass(decl)) => {
                         if decl.is(&vocab::OWL::Thing) {
@@ -158,7 +160,8 @@ impl StructuralReasoner {
             return;
         }
 
-        let superclasses = StructuralReasoner::get_direct_superclasses_of_iri(&component_index, subclass);
+        let superclasses =
+            StructuralReasoner::get_direct_superclasses_of_iri(&component_index, subclass);
 
         for cls in superclasses.into_iter() {
             if ancestors.insert(cls.clone()) {
@@ -172,8 +175,7 @@ impl StructuralReasoner {
         component_index: &'a ComponentMappedIndex<ArcStr, ArcAnnotatedComponent>,
         prop: &'a ObjectProperty<ArcStr>,
     ) -> impl Iterator<Item = ObjectProperty<ArcStr>> + 'a {
-        let subprop_axioms = component_index
-            .component_for_kind(ComponentKind::SubObjectPropertyOf);
+        let subprop_axioms = component_index.component_for_kind(ComponentKind::SubObjectPropertyOf);
 
         subprop_axioms.filter_map(move |aax| match &aax.component {
             Component::SubObjectPropertyOf(SubObjectPropertyOf {
@@ -192,8 +194,7 @@ impl StructuralReasoner {
         component_index: &'a ComponentMappedIndex<ArcStr, ArcAnnotatedComponent>,
         prop: &'a ObjectProperty<ArcStr>,
     ) -> impl Iterator<Item = ObjectProperty<ArcStr>> + 'a {
-        let subprop_axioms = component_index
-            .component_for_kind(ComponentKind::SubObjectPropertyOf);
+        let subprop_axioms = component_index.component_for_kind(ComponentKind::SubObjectPropertyOf);
 
         subprop_axioms.filter_map(move |aax| match &aax.component {
             Component::SubObjectPropertyOf(SubObjectPropertyOf {
@@ -213,7 +214,8 @@ impl StructuralReasoner {
         superprop: &ObjectProperty<ArcStr>,
         descendants: &mut HashSet<ObjectProperty<ArcStr>>,
     ) {
-        let subprops = StructuralReasoner::get_direct_subobjectproperties(&component_index, superprop);
+        let subprops =
+            StructuralReasoner::get_direct_subobjectproperties(&component_index, superprop);
 
         for prop in subprops.into_iter() {
             if descendants.insert(prop.clone()) {
@@ -228,7 +230,8 @@ impl StructuralReasoner {
         subprop: &ObjectProperty<ArcStr>,
         ancestors: &mut HashSet<ObjectProperty<ArcStr>>,
     ) {
-        let superprops = StructuralReasoner::get_direct_superobjectproperties(&component_index, subprop);
+        let superprops =
+            StructuralReasoner::get_direct_superobjectproperties(&component_index, subprop);
 
         for prop in superprops.into_iter() {
             if ancestors.insert(prop.clone()) {
@@ -298,7 +301,11 @@ impl Reasoner<ArcStr, ArcAnnotatedComponent> for StructuralReasoner {
         match cmp {
             ClassExpression::Class(cls) => {
                 let mut descendants = HashSet::new();
-                StructuralReasoner::recurse_descendants(&self.component_index, cls, &mut descendants);
+                StructuralReasoner::recurse_descendants(
+                    &self.component_index,
+                    cls,
+                    &mut descendants,
+                );
                 Ok(Box::new(descendants.into_iter()))
             }
             _ => Err(ReasonerError::NotImplemented),
@@ -326,7 +333,11 @@ impl Reasoner<ArcStr, ArcAnnotatedComponent> for StructuralReasoner {
         match cmp {
             ObjectPropertyExpression::ObjectProperty(prop) => {
                 let mut descendants = HashSet::new();
-                StructuralReasoner::recurse_subproperties(&self.component_index, prop, &mut descendants);
+                StructuralReasoner::recurse_subproperties(
+                    &self.component_index,
+                    prop,
+                    &mut descendants,
+                );
                 Ok(Box::new(descendants.into_iter()))
             }
             _ => Err(ReasonerError::NotImplemented),
@@ -340,7 +351,11 @@ impl Reasoner<ArcStr, ArcAnnotatedComponent> for StructuralReasoner {
         match cmp {
             ObjectPropertyExpression::ObjectProperty(prop) => {
                 let mut ancestors = HashSet::new();
-                StructuralReasoner::recurse_superproperties(&self.component_index, prop, &mut ancestors);
+                StructuralReasoner::recurse_superproperties(
+                    &self.component_index,
+                    prop,
+                    &mut ancestors,
+                );
                 Ok(Box::new(ancestors.into_iter()))
             }
             _ => Err(ReasonerError::NotImplemented),
@@ -460,7 +475,11 @@ mod tests {
         let class_a = build.class("https://example.com/A");
 
         let mut descendants = HashSet::new();
-        StructuralReasoner::recurse_descendants(&reasoner.component_index, &class_a, &mut descendants);
+        StructuralReasoner::recurse_descendants(
+            &reasoner.component_index,
+            &class_a,
+            &mut descendants,
+        );
 
         // A has descendants B and D
         assert_eq!(descendants.len(), 2);

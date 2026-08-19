@@ -721,9 +721,10 @@ AnnotationValue = typing.Union[Literal,IRI,AnonymousIndividual,]
 class Annotation:
     ap: AnnotationProperty
     av: AnnotationValue
-    __match_args__ = ("ap", "av", )
+    ann: typing.Set[Annotation]
+    __match_args__ = ("ap", "av", "ann", )
 
-    def __init__(self,ap: AnnotationProperty,av: AnnotationValue,/):
+    def __init__(self,ap: AnnotationProperty,av: AnnotationValue,ann: typing.Set[Annotation],/):
         ...
 
     ...

@@ -58,14 +58,23 @@ def test_iri_guess_absolute():
 def test_find_by_absolute():
     o = simple_ontology()
 
-    expected = {AnnotatedComponent(x, set()) for x in {
-        DeclareClass(o.clazz("https://example.com/A")),
-        (SubClassOf(
-            o.clazz("https://example.com/B"),
-            o.clazz("https://example.com/A"))),
-        AnnotationAssertion(o.iri("https://example.com/A"),
-                            Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
-    }}
+    expected = {
+        AnnotatedComponent(x, set())
+        for x in {
+            DeclareClass(o.clazz("https://example.com/A")),
+            (
+                SubClassOf(
+                    o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                )
+            ),
+            AnnotationAssertion(
+                o.iri("https://example.com/A"),
+                Annotation(
+                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA"), set()
+                ),
+            ),
+        }
+    }
     actual = o.get_axioms_for_iri(("https://example.com/A", True))
 
     assert expected == set(actual)
@@ -74,14 +83,23 @@ def test_find_by_absolute():
 def test_find_by_curie():
     o = simple_ontology()
 
-    expected = {AnnotatedComponent(x, set()) for x in {
-        DeclareClass(o.clazz("https://example.com/A")),
-        (SubClassOf(
-            o.clazz("https://example.com/B"),
-            o.clazz("https://example.com/A"))),
-        AnnotationAssertion(o.iri("https://example.com/A"),
-                            Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
-    }}
+    expected = {
+        AnnotatedComponent(x, set())
+        for x in {
+            DeclareClass(o.clazz("https://example.com/A")),
+            (
+                SubClassOf(
+                    o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                )
+            ),
+            AnnotationAssertion(
+                o.iri("https://example.com/A"),
+                Annotation(
+                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA"), set()
+                ),
+            ),
+        }
+    }
     actual = o.get_axioms_for_iri((":A", False))
 
     assert expected == set(actual)
@@ -90,14 +108,23 @@ def test_find_by_curie():
 def test_find_by_absolute_guess():
     o = simple_ontology()
 
-    expected = {AnnotatedComponent(x, set()) for x in {
-        DeclareClass(o.clazz("https://example.com/A")),
-        (SubClassOf(
-            o.clazz("https://example.com/B"),
-            o.clazz("https://example.com/A"))),
-        AnnotationAssertion(o.iri("https://example.com/A"),
-                            Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
-    }}
+    expected = {
+        AnnotatedComponent(x, set())
+        for x in {
+            DeclareClass(o.clazz("https://example.com/A")),
+            (
+                SubClassOf(
+                    o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                )
+            ),
+            AnnotationAssertion(
+                o.iri("https://example.com/A"),
+                Annotation(
+                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA"), set()
+                ),
+            ),
+        }
+    }
     actual = o.get_axioms_for_iri("https://example.com/A")
 
     assert expected == set(actual)
@@ -106,14 +133,23 @@ def test_find_by_absolute_guess():
 def test_find_by_curie_guess():
     o = simple_ontology()
 
-    expected = {AnnotatedComponent(x, set()) for x in {
-        DeclareClass(o.clazz("https://example.com/A")),
-        (SubClassOf(
-            o.clazz("https://example.com/B"),
-            o.clazz("https://example.com/A"))),
-        AnnotationAssertion(o.iri("https://example.com/A"),
-                            Annotation(o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")))
-    }}
+    expected = {
+        AnnotatedComponent(x, set())
+        for x in {
+            DeclareClass(o.clazz("https://example.com/A")),
+            (
+                SubClassOf(
+                    o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                )
+            ),
+            AnnotationAssertion(
+                o.iri("https://example.com/A"),
+                Annotation(
+                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA"), set()
+                ),
+            ),
+        }
+    }
     actual = o.get_axioms_for_iri(":A")
 
     assert expected == set(actual)

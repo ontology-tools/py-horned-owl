@@ -3,8 +3,8 @@ use pyo3::types::PyAnyMethods;
 use pyo3::{Borrowed, Bound, FromPyObject, IntoPyObject};
 use std::collections::BTreeSet;
 use std::convert::Infallible;
-use std::sync::Arc;
 use std::hash::Hash;
+use std::sync::Arc;
 
 pub trait FromCompatible<T> {
     fn from_c(value: T) -> Self;
@@ -48,7 +48,7 @@ impl FromCompatible<&u32> for u32 {
 }
 
 impl<'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
-    where
+where
     U: FromCompatible<&'a T>,
 {
     fn from_c(value: &'a Option<T>) -> Self {
@@ -60,8 +60,8 @@ impl<'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
 }
 
 impl<U, V, S, T> FromCompatible<(S, T)> for (U, V)
-    where
-        U: FromCompatible<S>,
+where
+    U: FromCompatible<S>,
     V: FromCompatible<T>,
 {
     fn from_c(value: (S, T)) -> Self {
@@ -71,8 +71,8 @@ impl<U, V, S, T> FromCompatible<(S, T)> for (U, V)
 }
 
 impl<'a, U, V, S, T> FromCompatible<&'a (S, T)> for (U, V)
-    where
-        U: FromCompatible<&'a S>,
+where
+    U: FromCompatible<&'a S>,
     V: FromCompatible<&'a T>,
 {
     fn from_c(value: &'a (S, T)) -> Self {
@@ -80,7 +80,6 @@ impl<'a, U, V, S, T> FromCompatible<&'a (S, T)> for (U, V)
         (U::from_c(s), V::from_c(t))
     }
 }
-
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct VecWrap<T>(pub Vec<T>);
@@ -192,7 +191,7 @@ impl<'py> FromPyObject<'_, 'py> for StringWrapper {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct BTreeSetWrap<T>(pub (crate) BTreeSet<T>);
+pub struct BTreeSetWrap<T>(pub(crate) BTreeSet<T>);
 
 impl<T> From<BTreeSet<T>> for BTreeSetWrap<T> {
     fn from(value: BTreeSet<T>) -> Self {
@@ -205,7 +204,6 @@ impl<T> From<BTreeSetWrap<T>> for BTreeSet<T> {
         value.0
     }
 }
-
 
 impl<'py, T: IntoPyObject<'py> + Ord> IntoPyObject<'py> for BTreeSetWrap<T> {
     type Target = pyo3::types::PySet;

@@ -1,11 +1,8 @@
-use std::{collections::BTreeSet};
+use std::collections::BTreeSet;
 
 use curie::Curie;
 use horned_owl::model::{ArcStr, Build};
-use pyo3::{
-    prelude::*,
-    types::IntoPyDict,
-};
+use pyo3::{prelude::*, types::IntoPyDict};
 
 pub use crate::model_generated::*;
 use crate::wrappers::BTreeSetWrap;
@@ -63,14 +60,15 @@ impl IRIParam {
             IRIParam::IRI(iri) => Ok(iri.into()),
             IRIParam::StrIri(s) => Ok(build.iri(s.clone()).into()),
             IRIParam::Curie(prefix, reference) => {
-                if let Ok(expanded) = prefix_mapping
-                    .expand_curie(&Curie::new(prefix.as_deref(), reference.as_str()))
+                if let Ok(expanded) =
+                    prefix_mapping.expand_curie(&Curie::new(prefix.as_deref(), reference.as_str()))
                 {
                     Ok(build.iri(expanded).into())
                 } else {
                     Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
                         "Cannot expand CURIE {}:{}",
-                        prefix.as_deref().unwrap_or(""), reference
+                        prefix.as_deref().unwrap_or(""),
+                        reference
                     )))
                 }
             }

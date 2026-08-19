@@ -8,5 +8,5 @@ license = "LGPL-3.0-or-later"
 name = "pyhornedowlreasoner"
 
 [dependencies]
-# horned-owl = "^1.1"
-horned-owl = "^1.4"
+horned-owl = "^3.0"
+# horned-owl = { git = "https://github.com/phillord/horned-owl.git", branch = "devel"  }

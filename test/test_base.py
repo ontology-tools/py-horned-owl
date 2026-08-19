@@ -51,13 +51,17 @@ def simple_ontology_comps() -> list[Component]:
         AnnotationAssertion(
             IRI.parse("https://example.com/A"),
             Annotation(
-                AnnotationProperty(IRI.parse(RDFS_LABEL)), SimpleLiteral("ClassA")
+                AnnotationProperty(IRI.parse(RDFS_LABEL)),
+                SimpleLiteral("ClassA"),
+                set(),
             ),
         ),
         AnnotationAssertion(
             IRI.parse("https://example.com/B"),
             Annotation(
-                AnnotationProperty(IRI.parse(RDFS_LABEL)), SimpleLiteral("ClassB")
+                AnnotationProperty(IRI.parse(RDFS_LABEL)),
+                SimpleLiteral("ClassB"),
+                set(),
             ),
         ),
     ]

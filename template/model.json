@@ -391,7 +391,11 @@
     "name": "Annotation",
     "fields": {
       "ap": "AnnotationProperty",
-      "av": "AnnotationValue"
+      "av": "AnnotationValue",
+      "ann": {
+        "type": "BTreeSet",
+        "inner": "Annotation"
+      }
     }
   },
   {

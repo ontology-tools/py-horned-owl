@@ -9,7 +9,6 @@ use crate::to_py_err;
 #[derive(Default)]
 pub struct PrefixMapping(pub(crate) curie::PrefixMapping);
 
-
 impl From<curie::PrefixMapping> for PrefixMapping {
     fn from(value: curie::PrefixMapping) -> Self {
         PrefixMapping(value)
@@ -24,7 +23,7 @@ impl From<PrefixMapping> for curie::PrefixMapping {
 
 #[pyclass]
 struct PyIter {
-    inner: std::vec::IntoIter<(String, String)>
+    inner: std::vec::IntoIter<(String, String)>,
 }
 
 #[pymethods]
@@ -40,13 +39,17 @@ impl PyIter {
 
 #[pymethods]
 impl PrefixMapping {
-
     /// __iter__(self) -> typing.Iterable[typing.Tuple[str, str]]
     ///
     /// Get an iterator over all prefixes
     fn __iter__(slf: PyRef<'_, Self>) -> PyResult<Py<PyIter>> {
         let iter = PyIter {
-            inner: slf.0.mappings().map(|(x,y)| (x.clone(), y.clone())).collect::<Vec<(String, String)>>().into_iter(),
+            inner: slf
+                .0
+                .mappings()
+                .map(|(x, y)| (x.clone(), y.clone()))
+                .collect::<Vec<(String, String)>>()
+                .into_iter(),
         };
         Py::new(slf.py(), iter)
     }
@@ -119,7 +122,9 @@ impl PrefixMapping {
         if prefix.is_empty() {
             let mut new_mapping = curie::PrefixMapping::default();
             for (p, v) in self.0.mappings() {
-                new_mapping.add_prefix(p, v).expect("Cannot happen since self.0 contains only valid prefix mappings");
+                new_mapping
+                    .add_prefix(p, v)
+                    .expect("Cannot happen since self.0 contains only valid prefix mappings");
             }
 
             self.0 = new_mapping;
