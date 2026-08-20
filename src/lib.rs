@@ -7,6 +7,7 @@ use std::sync::{Arc, Mutex};
 
 use curie::PrefixMapping;
 use horned_owl::error::HornedError;
+use horned_owl::io::omn::writer::as_manchester::AsManchester;
 use horned_owl::io::{InputFormat, ParserConfiguration, RDFParserConfiguration, ResourceType};
 use horned_owl::model::*;
 use pyo3::exceptions::PyValueError;
@@ -37,6 +38,11 @@ macro_rules! to_py_err {
 }
 
 fn parse_serialization(serialization: &str) -> PyResult<InputFormat> {
+    // `InputFormat::from_str` accepts "omn" but not the spelled-out alias, which
+    // reads better next to "obo" in user-facing code.
+    if serialization == "manchester" {
+        return Ok(InputFormat::OMN);
+    }
     match InputFormat::from_str(serialization) {
         Ok(InputFormat::Guess) | Err(_) => Err(PyValueError::new_err(format!(
             "Unknown serialization {}",
@@ -291,12 +297,55 @@ fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReaso
     )))
 }
 
+/// to_manchester(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], prefix_mapping: typing.Optional[PrefixMapping]=None) -> str
+///
+/// Renders a single axiom, component, or class expression in OWL 2 Manchester syntax.
+///
+/// This is the per-element counterpart to `save_to_string("omn")`: that writes a whole
+/// ontology as frame-grouped Manchester, which cannot be sliced back into individual
+/// axioms. Useful for error messages, query surfaces, and any tool that needs one
+/// Manchester string per axiom.
+///
+/// If a `prefix_mapping` is given, IRIs are abbreviated with it where possible.
+#[pyfunction]
+#[pyo3(signature = (element, prefix_mapping = None))]
+fn to_manchester(
+    element: &Bound<'_, PyAny>,
+    prefix_mapping: Option<&prefix_mapping::PrefixMapping>,
+) -> PyResult<String> {
+    if let Ok(ac) = element.extract::<model::AnnotatedComponent>() {
+        let ac: AnnotatedComponent<Arc<str>> = ac.into();
+        return Ok(match prefix_mapping {
+            Some(pm) => ac.component.as_manchester_with_prefixes(&pm.0).to_string(),
+            None => ac.component.as_manchester().to_string(),
+        });
+    }
+    if let Ok(c) = element.extract::<model::Component>() {
+        let c: Component<Arc<str>> = c.into();
+        return Ok(match prefix_mapping {
+            Some(pm) => c.as_manchester_with_prefixes(&pm.0).to_string(),
+            None => c.as_manchester().to_string(),
+        });
+    }
+    if let Ok(ce) = element.extract::<model::ClassExpression>() {
+        let ce: ClassExpression<Arc<str>> = ce.into();
+        return Ok(match prefix_mapping {
+            Some(pm) => ce.as_manchester_with_prefixes(&pm.0).to_string(),
+            None => ce.as_manchester().to_string(),
+        });
+    }
+    Err(PyValueError::new_err(
+        "to_manchester expects a model.AnnotatedComponent, model.Component, or model.ClassExpression",
+    ))
+}
+
 #[pymodule]
 fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyIndexedOntology>()?;
     m.add_class::<IndexCreationStrategy>()?;
     m.add_class::<prefix_mapping::PrefixMapping>()?;
 
+    m.add_function(wrap_pyfunction!(to_manchester, m)?)?;
     m.add_function(wrap_pyfunction!(open_ontology, m)?)?;
     m.add_function(wrap_pyfunction!(open_ontology_from_file, m)?)?;
     m.add_function(wrap_pyfunction!(open_ontology_from_string, m)?)?;

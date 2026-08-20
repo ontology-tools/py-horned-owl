@@ -13,6 +13,13 @@ To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It gues
    rdf_ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
    owx_ontology = pyhornedowl.open_ontology("path/to/ontology.owx")
    ofn_ontology = pyhornedowl.open_ontology("path/to/ontology", serialization='ofn')
+   omn_ontology = pyhornedowl.open_ontology("path/to/ontology", serialization='omn')
+   obo_ontology = pyhornedowl.open_ontology("path/to/ontology", serialization='obo')
+
+Accepted ``serialization`` values are ``rdf`` (or ``owl``) for RDF/XML, ``owx`` for OWL/XML,
+``ofn`` for OWL Functional Syntax, ``omn`` (or ``manchester``) for OWL 2 Manchester Syntax,
+and ``obo`` for OBO flat files. Other RDF serializations recognised by oxrdfio, such as
+Turtle and N-Triples, are accepted by their extension.
    
 
 
@@ -138,3 +145,27 @@ Instead of writing class expressions as nested constructor calls, some expressio
     assert r.some(A) == ObjectSomeValuesFrom(r, A)
     assert r.only(A) == ObjectAllValuesFrom(r, A)
     assert r.some(A & B | (~r).only(C)) == ObjectSomeValuesFrom(r, ObjectUnionOf([ObjectIntersectionOf([A, B]), ObjectAllValuesFrom(InverseObjectProperty(r), C)]))
+
+
+Render an axiom in Manchester syntax
+------------------------------------
+
+:func:`~pyhornedowl.to_manchester` renders a single axiom, component, or class expression as
+an OWL 2 Manchester Syntax string. This is the per-element counterpart to
+``save_to_string("omn")``, which writes the whole ontology as frame-grouped Manchester and
+cannot be sliced back into individual axioms.
+
+.. code-block:: python
+
+    import pyhornedowl
+
+    ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
+
+    for axiom in ontology.get_axioms():
+        print(pyhornedowl.to_manchester(axiom))
+
+Pass a :class:`~pyhornedowl.PrefixMapping` to abbreviate IRIs:
+
+.. code-block:: python
+
+    print(pyhornedowl.to_manchester(axiom, ontology.prefix_mapping))
