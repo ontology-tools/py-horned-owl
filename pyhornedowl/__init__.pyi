@@ -435,13 +435,21 @@ def open_ontology_from_string(ontology: str, serialization: Optional[typing.Lite
     """
     ...
 
-def to_manchester(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+def write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['omn', 'manchester', 'ofn', 'functional']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
     """
-    Renders a single axiom, component, or class expression in OWL 2 Manchester syntax.
+    Renders a single axiom, component, or class expression as a string.
 
-    This is the per-element counterpart to `save_to_string("omn")`, which writes a whole
-    ontology as frame-grouped Manchester and cannot be sliced back into individual axioms.
+    This is the per-element counterpart to `save_to_string`, which serializes a whole
+    ontology. Manchester output in particular cannot be recovered from
+    `save_to_string("omn")`, because that groups axioms into entity frames.
+
+    Only `omn` (alias `manchester`) and `ofn` (alias `functional`) are supported: those are
+    the serializations for which horned-owl provides a per-element writer. The OWL/XML and
+    RDF writers operate on whole ontologies only.
 
     If a `prefix_mapping` is given, IRIs are abbreviated with it where possible.
+
+    Note that `ofn` renders an `AnnotatedComponent` including its axiom annotations, while
+    `omn` renders only the component.
     """
     ...

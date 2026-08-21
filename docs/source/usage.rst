@@ -147,13 +147,13 @@ Instead of writing class expressions as nested constructor calls, some expressio
     assert r.some(A & B | (~r).only(C)) == ObjectSomeValuesFrom(r, ObjectUnionOf([ObjectIntersectionOf([A, B]), ObjectAllValuesFrom(InverseObjectProperty(r), C)]))
 
 
-Render an axiom in Manchester syntax
-------------------------------------
+Render a single axiom
+---------------------
 
-:func:`~pyhornedowl.to_manchester` renders a single axiom, component, or class expression as
-an OWL 2 Manchester Syntax string. This is the per-element counterpart to
-``save_to_string("omn")``, which writes the whole ontology as frame-grouped Manchester and
-cannot be sliced back into individual axioms.
+:func:`~pyhornedowl.write_snippet` renders a single axiom, component, or class expression as
+a string. It is the per-element counterpart to ``save_to_string``, and for Manchester it is
+the only option: ``save_to_string("omn")`` groups axioms into entity frames, which cannot be
+sliced back into individual axioms.
 
 .. code-block:: python
 
@@ -162,10 +162,18 @@ cannot be sliced back into individual axioms.
     ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
 
     for axiom in ontology.get_axioms():
-        print(pyhornedowl.to_manchester(axiom))
+        print(pyhornedowl.write_snippet(axiom))               # Manchester (default)
+        print(pyhornedowl.write_snippet(axiom, "ofn"))        # functional syntax
+
+Accepted values are ``omn`` (alias ``manchester``) and ``ofn`` (alias ``functional``): the
+serializations for which horned-owl provides a per-element writer. The OWL/XML and RDF
+writers operate on whole ontologies only.
 
 Pass a :class:`~pyhornedowl.PrefixMapping` to abbreviate IRIs:
 
 .. code-block:: python
 
-    print(pyhornedowl.to_manchester(axiom, ontology.prefix_mapping))
+    print(pyhornedowl.write_snippet(axiom, "omn", ontology.prefix_mapping))
+
+Note that ``ofn`` renders an :class:`~pyhornedowl.model.AnnotatedComponent` including its
+axiom annotations, while ``omn`` renders only the component.
