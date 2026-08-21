@@ -15,7 +15,7 @@ Py-Horned-OWL includes a lightweight structural reasoner that traverses the asse
     from pyhornedowl.reasoning import create_structural_reasoner
 
     # Open an ontology
-    o = pyhornedowl.open_ontology("<path/to/ontology>")
+    o = pyhornedowl.open_ontology("example.owl")
 
     # Create the structural reasoner
     reasoner = create_structural_reasoner(o)
@@ -63,8 +63,9 @@ For full reasoning capabilities (consistency checking, satisfiability, entailmen
     import pywhelk
 
     # Open an ontology
-    o = pyhornedowl.open_ontology("<path/to/ontology>")
+    o = pyhornedowl.open_ontology("example.owl")
 
+    o.add_prefix_mapping("owl", "http://www.w3.org/2002/07/owl#")
     # Create a reasoner instance
     reasoner = pywhelk.create_reasoner(o)
 
@@ -73,7 +74,7 @@ For full reasoning capabilities (consistency checking, satisfiability, entailmen
 
     # Modify the ontology and make it inconsistent
     from pyhornedowl.model import SubClassOf
-    o.add_axiom(SubClassOf(o.clazz('owl:Thing'), o.clazz('owl:Nothing')))
+    o.add_axiom(SubClassOf(o.class_('owl:Thing'), o.class_('owl:Nothing')))
 
     # The ontology is now inconsistent, but the reasoner is not yet aware of it
     print(f"Ontology is consistent: {reasoner.is_consistent()}")

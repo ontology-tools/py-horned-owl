@@ -10,9 +10,9 @@ To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It gues
 .. code-block:: python
    
    import pyhornedowl
-   rdf_ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
-   owx_ontology = pyhornedowl.open_ontology("path/to/ontology.owx")
-   ofn_ontology = pyhornedowl.open_ontology("path/to/ontology", serialization='ofn')
+   rdf_ontology = pyhornedowl.open_ontology("example.owl")
+   owx_ontology = pyhornedowl.open_ontology("example.owx")
+   ofn_ontology = pyhornedowl.open_ontology("example.ofn", serialization='ofn')
    
 
 
@@ -25,11 +25,11 @@ Use the :func:`PyIndexedOntology.save_to_file <pyhornedowl.PyIndexedOntology.sav
 .. code-block:: python
 
    import pyhornedowl
-   ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
+   ontology = pyhornedowl.open_ontology("example.owl")
 
-   ontology.save_to_file("path/to/ontology.owl")
-   ontology.save_to_file("path/to/ontology.owx")
-   ontology.save_to_file("path/to/ontology", serialization='ofn')
+   ontology.save_to_file("example.owl")
+   ontology.save_to_file("example.owx")
+   ontology.save_to_file("example.ofn", serialization='ofn')
    
 
 IRIs and CURIEs
@@ -41,12 +41,12 @@ The preferred way to create IRIs is through an ontology instance as it enables H
     import pyhornedowl
     from pyhornedowl.model import IRI
 
-    ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
+    ontology = pyhornedowl.open_ontology("example.owl")
 
     i1 = ontology.iri("https://example.com/test")
     i2 = IRI.parse("https://example.com/test")
 
-    assert i1 == i2
+    assert i1 != i2
 
 The :func:`PyIndexedOntology.iri <pyhornedowl.PyIndexedOntology.iri>` function guesses if you passed it an absolute IRI or a CURIE based on the existence of ``://`` in the value. This is also true for all other convenience functions accepting IRIs as an argument. You can explicitly specify if the value is an absolute IRI or a CURIE by using the optional parameter ``absolute``.
 
@@ -66,7 +66,7 @@ By default, no prefixes are defined. The standard prefixes for ``rdf``, ``rdfs``
 
     import pyhornedowl
 
-    ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
+    ontology = pyhornedowl.open_ontology("example.owl")
 
     ontology.add_default_prefix_names()
     ontology.add_prefix_mapping("ex", "https://example.com/")
@@ -79,10 +79,10 @@ Classes, Individuals, Data- and Objectproperties can be created using convenienc
 .. code-block:: python
 
     import pyhornedowl
-    o = pyhornedowl.open_ontology("path/to/ontology.owl")
+    o = pyhornedowl.open_ontology("example.owl")
     o.add_prefix_mapping("", "https://example.com/")
 
-    c = o.clazz(":A")
+    c = o.class_(":A")
     op = o.object_property(":op")
     dp = o.data_property(":dp")
     ap = o.annotation_property(":ap")
@@ -99,7 +99,7 @@ All (``pyhornedowl.model``) classes can be pattern matched using the ``match`` s
     import pyhornedowl
     from pyhornedowl.model import *
 
-    o = pyhornedowl.open_ontology("path/to/ontology.owl")
+    o = pyhornedowl.open_ontology("example.owl")
 
     for component in o.get_components():
         match component:
@@ -126,9 +126,9 @@ Instead of writing class expressions as nested constructor calls, some expressio
     o = pyhornedowl.PyIndexedOntology()
     o.add_prefix_mapping("", "https://example.com/")
 
-    A = o.clazz(":A")
-    B = o.clazz(":B")
-    C = o.clazz(":C")
+    A = o.class_(":A")
+    B = o.class_(":B")
+    C = o.class_(":C")
     r = o.object_property(":r")
 
     assert A & B == ObjectIntersectionOf([A, B])

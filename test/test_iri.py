@@ -42,7 +42,7 @@ def test_iri_guess_curie():
     expected = "https://example.com/test#A"
 
     assert expected == str(o.iri("ex:A"))
-    assert expected == str(o.clazz("ex:A"))
+    assert expected == str(o.class_("ex:A"))
 
 
 def test_iri_guess_absolute():
@@ -52,7 +52,7 @@ def test_iri_guess_absolute():
     expected = "https://example.com/test#A"
 
     assert expected == str(o.iri(expected))
-    assert expected == str(o.clazz(expected))
+    assert expected == str(o.class_(expected))
 
 
 def test_find_by_absolute():
@@ -61,10 +61,10 @@ def test_find_by_absolute():
     expected = {
         AnnotatedComponent(x, set())
         for x in {
-            DeclareClass(o.clazz("https://example.com/A")),
+            DeclareClass(o.class_("https://example.com/A")),
             (
                 SubClassOf(
-                    o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                    o.class_("https://example.com/B"), o.class_("https://example.com/A")
                 )
             ),
             AnnotationAssertion(
@@ -86,10 +86,10 @@ def test_find_by_curie():
     expected = {
         AnnotatedComponent(x, set())
         for x in {
-            DeclareClass(o.clazz("https://example.com/A")),
+            DeclareClass(o.class_("https://example.com/A")),
             (
                 SubClassOf(
-                    o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                    o.class_("https://example.com/B"), o.class_("https://example.com/A")
                 )
             ),
             AnnotationAssertion(
@@ -111,10 +111,10 @@ def test_find_by_absolute_guess():
     expected = {
         AnnotatedComponent(x, set())
         for x in {
-            DeclareClass(o.clazz("https://example.com/A")),
+            DeclareClass(o.class_("https://example.com/A")),
             (
                 SubClassOf(
-                    o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                    o.class_("https://example.com/B"), o.class_("https://example.com/A")
                 )
             ),
             AnnotationAssertion(
@@ -136,10 +136,10 @@ def test_find_by_curie_guess():
     expected = {
         AnnotatedComponent(x, set())
         for x in {
-            DeclareClass(o.clazz("https://example.com/A")),
+            DeclareClass(o.class_("https://example.com/A")),
             (
                 SubClassOf(
-                    o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                    o.class_("https://example.com/B"), o.class_("https://example.com/A")
                 )
             ),
             AnnotationAssertion(

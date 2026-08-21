@@ -7,7 +7,7 @@ def test_add_collect_all_axioms():
     o = simple_ontology()
 
     axioms = set(o.get_axioms())
-    axiom = EquivalentClasses([o.clazz(":A"), o.clazz(":B")])
+    axiom = EquivalentClasses([o.class_(":A"), o.class_(":B")])
 
     o.add_axiom(axiom)
 
@@ -21,7 +21,7 @@ def test_add_collect_by_iri():
     o = simple_ontology()
 
     axioms = set(o.get_axioms_for_iri(":A"))
-    axiom = EquivalentClasses([o.clazz(":A"), o.clazz(":B")])
+    axiom = EquivalentClasses([o.class_(":A"), o.class_(":B")])
 
     o.add_axiom(axiom)
 
@@ -35,7 +35,7 @@ def test_remove_collect_all_axioms():
     o = simple_ontology()
 
     axioms = set(o.get_axioms())
-    axiom = SubClassOf(o.clazz(":B"), o.clazz(":A"))
+    axiom = SubClassOf(o.class_(":B"), o.class_(":A"))
 
     removed = o.remove_axiom(axiom)
     assert removed, "Axiom was not removed!"
@@ -51,7 +51,7 @@ def test_remove_collect_by_iri():
 
     all_axioms = set(o.get_axioms())
     axioms = set(o.get_components_for_iri(":A"))
-    axiom = SubClassOf(o.clazz(":B"), o.clazz(":A"))
+    axiom = SubClassOf(o.class_(":B"), o.class_(":A"))
     ann_axiom = AnnotatedComponent(axiom, set())
 
     removed = o.remove_axiom(axiom)
@@ -73,7 +73,7 @@ def test_remove_collect_by_iri():
 def test_add_component_with_set_annos():
     o = simple_ontology()
 
-    axiom = SubClassOf(o.clazz(":B"), o.clazz(":A"))
+    axiom = SubClassOf(o.class_(":B"), o.class_(":A"))
 
     annos0 = {Annotation(o.annotation_property(":a"), SimpleLiteral("Test"), set())}
     ann_axiom0 = AnnotatedComponent(axiom, annos0)
@@ -97,7 +97,7 @@ def test_add_component_with_set_annos():
 def test_add_component_with_list_annos():
     o = simple_ontology()
 
-    axiom = SubClassOf(o.clazz(":B"), o.clazz(":A"))
+    axiom = SubClassOf(o.class_(":B"), o.class_(":A"))
 
     annos0 = [Annotation(o.annotation_property(":a"), SimpleLiteral("Test"), set())]
     ann_axiom0 = AnnotatedComponent(axiom, set(annos0))
