@@ -46,7 +46,7 @@ The preferred way to create IRIs is through an ontology instance as it enables H
     i1 = ontology.iri("https://example.com/test")
     i2 = IRI.parse("https://example.com/test")
 
-    assert i1 == i2
+    assert i1 != i2
 
 The :func:`PyIndexedOntology.iri <pyhornedowl.PyIndexedOntology.iri>` function guesses if you passed it an absolute IRI or a CURIE based on the existence of ``://`` in the value. This is also true for all other convenience functions accepting IRIs as an argument. You can explicitly specify if the value is an absolute IRI or a CURIE by using the optional parameter ``absolute``.
 

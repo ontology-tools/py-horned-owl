@@ -63,8 +63,9 @@ For full reasoning capabilities (consistency checking, satisfiability, entailmen
     import pywhelk
 
     # Open an ontology
-    o = pyhornedowl.open_ontology("<path/to/ontology>")
+    o = pyhornedowl.open_ontology("example.owl")
 
+    o.add_prefix_mapping("owl", "http://www.w3.org/2002/07/owl#")
     # Create a reasoner instance
     reasoner = pywhelk.create_reasoner(o)
 
