@@ -10,7 +10,7 @@ def test_default_build_on_query():
     actual = o.get_axioms_for_iri("https://example.com/A")
 
     assert {
-        AnnotatedComponent(a, set())
+        AnnotatedComponent(a)
         for a in {
             DeclareClass(o.clazz("https://example.com/A")),
             SubClassOf(
@@ -21,7 +21,6 @@ def test_default_build_on_query():
                 Annotation(
                     AnnotationProperty(o.iri(RDFS_LABEL)),
                     SimpleLiteral("ClassA"),
-                    set(),
                 ),
             ),
         }
@@ -47,7 +46,7 @@ def test_explicit():
     actual = o.get_axioms_for_iri("https://example.com/A")
 
     assert {
-        AnnotatedComponent(a, set())
+        AnnotatedComponent(a)
         for a in {
             DeclareClass(o.clazz("https://example.com/A")),
             SubClassOf(
@@ -57,8 +56,7 @@ def test_explicit():
                 o.iri("https://example.com/A"),
                 Annotation(
                     AnnotationProperty(o.iri(RDFS_LABEL)),
-                    SimpleLiteral("ClassA"),
-                    set(),
+                    SimpleLiteral("ClassA")
                 ),
             ),
         }
@@ -73,7 +71,7 @@ def test_on_load():
     actual = o.get_axioms_for_iri("https://example.com/A")
 
     assert {
-        AnnotatedComponent(a, set())
+        AnnotatedComponent(a)
         for a in {
             DeclareClass(o.clazz("https://example.com/A")),
             SubClassOf(
@@ -83,8 +81,7 @@ def test_on_load():
                 o.iri("https://example.com/A"),
                 Annotation(
                     AnnotationProperty(o.iri(RDFS_LABEL)),
-                    SimpleLiteral("ClassA"),
-                    set(),
+                    SimpleLiteral("ClassA")
                 ),
             ),
         }

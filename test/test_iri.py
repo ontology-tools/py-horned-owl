@@ -59,7 +59,7 @@ def test_find_by_absolute():
     o = simple_ontology()
 
     expected = {
-        AnnotatedComponent(x, set())
+        AnnotatedComponent(x)
         for x in {
             DeclareClass(o.clazz("https://example.com/A")),
             (
@@ -70,7 +70,7 @@ def test_find_by_absolute():
             AnnotationAssertion(
                 o.iri("https://example.com/A"),
                 Annotation(
-                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA"), set()
+                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")
                 ),
             ),
         }
@@ -84,7 +84,7 @@ def test_find_by_curie():
     o = simple_ontology()
 
     expected = {
-        AnnotatedComponent(x, set())
+        AnnotatedComponent(x)
         for x in {
             DeclareClass(o.clazz("https://example.com/A")),
             (
@@ -95,7 +95,7 @@ def test_find_by_curie():
             AnnotationAssertion(
                 o.iri("https://example.com/A"),
                 Annotation(
-                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA"), set()
+                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")
                 ),
             ),
         }
@@ -109,7 +109,7 @@ def test_find_by_absolute_guess():
     o = simple_ontology()
 
     expected = {
-        AnnotatedComponent(x, set())
+        AnnotatedComponent(x)
         for x in {
             DeclareClass(o.clazz("https://example.com/A")),
             (
@@ -120,7 +120,7 @@ def test_find_by_absolute_guess():
             AnnotationAssertion(
                 o.iri("https://example.com/A"),
                 Annotation(
-                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA"), set()
+                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")
                 ),
             ),
         }
@@ -134,7 +134,7 @@ def test_find_by_curie_guess():
     o = simple_ontology()
 
     expected = {
-        AnnotatedComponent(x, set())
+        AnnotatedComponent(x)
         for x in {
             DeclareClass(o.clazz("https://example.com/A")),
             (
@@ -145,7 +145,7 @@ def test_find_by_curie_guess():
             AnnotationAssertion(
                 o.iri("https://example.com/A"),
                 Annotation(
-                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA"), set()
+                    o.annotation_property(RDFS_LABEL), SimpleLiteral("ClassA")
                 ),
             ),
         }
