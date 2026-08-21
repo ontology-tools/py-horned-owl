@@ -12,9 +12,9 @@ def test_default_build_on_query():
     assert {
         AnnotatedComponent(a, set())
         for a in {
-            DeclareClass(o.clazz("https://example.com/A")),
+            DeclareClass(o.class_("https://example.com/A")),
             SubClassOf(
-                o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                o.class_("https://example.com/B"), o.class_("https://example.com/A")
             ),
             AnnotationAssertion(
                 o.iri("https://example.com/A"),
@@ -49,9 +49,9 @@ def test_explicit():
     assert {
         AnnotatedComponent(a, set())
         for a in {
-            DeclareClass(o.clazz("https://example.com/A")),
+            DeclareClass(o.class_("https://example.com/A")),
             SubClassOf(
-                o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                o.class_("https://example.com/B"), o.class_("https://example.com/A")
             ),
             AnnotationAssertion(
                 o.iri("https://example.com/A"),
@@ -75,9 +75,9 @@ def test_on_load():
     assert {
         AnnotatedComponent(a, set())
         for a in {
-            DeclareClass(o.clazz("https://example.com/A")),
+            DeclareClass(o.class_("https://example.com/A")),
             SubClassOf(
-                o.clazz("https://example.com/B"), o.clazz("https://example.com/A")
+                o.class_("https://example.com/B"), o.class_("https://example.com/A")
             ),
             AnnotationAssertion(
                 o.iri("https://example.com/A"),
