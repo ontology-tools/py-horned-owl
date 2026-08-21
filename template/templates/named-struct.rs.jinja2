@@ -19,6 +19,11 @@ pub struct {{ model.name }} {
 #[pymethods]
 impl {{ model.name }} {
     #[new]
+    #[pyo3(signature = (
+    {%- for k, v in model.fields.items() -%}
+        {{ k | py_field(v) }}{% if v is optional %} = {{ v | rust_default }}{% endif %},
+    {%- endfor -%}
+))]
     fn new(
 {%- for k, v in model.fields.items() -%}
         {{ k | py_field(v) }}: {{ v | as_rust_type }},

@@ -102,6 +102,41 @@ def fields(val):
 
     return val
 
+DEFAULTS = {
+    "Option": ("None", "None"),
+    "Vec": ("VecWrap::default()", "[]"),
+    "BTreeSet": ("BTreeSetWrap::default()", "set()"),
+    "String": ("String::new()", '""'),
+    "StringWrapper": ("StringWrapper::default()", '""'),
+    "u32": ("0", "0"),
+}
+
+def rust_default(typ: str | dict[str, str] | None) -> str | None:
+    if isinstance(typ, dict):
+        typ = typ.get("type", None)
+    
+    if not isinstance(typ, str) or typ not in DEFAULTS:
+        raise ValueError(f"No default value for type {typ}")
+    
+    return DEFAULTS[typ][0]
+
+
+def py_default(typ: str | dict[str, str] | None) -> str | None:
+    if isinstance(typ, dict):
+        typ = typ.get("type", None)
+    
+    if not isinstance(typ, str) or typ not in DEFAULTS:
+        raise ValueError(f"No default value for type {typ}")
+    
+    return DEFAULTS[typ][1]
+
+def optional(field: str | dict[str, str]) -> bool:
+    if isinstance(field, dict):
+        return bool(field.get("optional", False))
+    
+    return False
+
+
 # horned-owl implements AsManchester for the OWL entities, the expressions and
 # `Component` (see its io/omn/writer/as_manchester.rs). Every component type
 # reaches the writer through `Component`; these wrappers are neither, so
@@ -141,6 +176,9 @@ def build_from_templates(lang: Literal["rs", "pyi"]):
     env.filters["py_field"] = py_field
     env.filters["fields"] = fields
     env.filters["f_rust"] = f_rust
+    env.filters["rust_default"] = rust_default
+    env.filters["py_default"] = py_default
+    env.tests["optional"] = optional
     env.tests['list'] = lambda value: isinstance(value, list)
 
     out = []

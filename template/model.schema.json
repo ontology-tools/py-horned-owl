@@ -16,6 +16,9 @@
             },
             "inner": {
               "$ref": "#/$defs/type"
+            },
+            "optional": {
+              "type": "boolean"
             }
           }
         }
@@ -37,6 +40,9 @@
               "properties": {
                 "py_name": {
                   "type": "string"
+                },
+                "optional": {
+                  "type": "boolean"
                 }
               }
             }

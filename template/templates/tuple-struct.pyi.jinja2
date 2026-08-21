@@ -7,7 +7,7 @@ class {{ model.name }}:
 
     def __init__(self,
     {%- for typ in model.fields -%}
-    {{ loop.index0 | as_py_name }}: {{ typ | as_py_type }},
+    {{ loop.index0 | as_py_name }}: {{ typ | as_py_type }}{% if typ is optional %} = {{ typ | py_default }}{% endif %},
     {%- endfor -%} /):
         ...
 
