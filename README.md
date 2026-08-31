@@ -35,7 +35,7 @@ The library parses every OWL serialization that horned-owl supports. The seriali
 | RDF/XML | `"rdf"` (or `"owl"`) | `.owl`, `.rdf` |
 | OWL/XML | `"owx"` | `.owx` |
 | OWL Functional Syntax | `"ofn"` | `.ofn` |
-| OWL 2 Manchester Syntax | `"omn"` (or `"manchester"`) | `.omn` |
+| OWL 2 Manchester Syntax | `"omn"` | `.omn` |
 | OBO flat file | `"obo"` | `.obo` |
 
 Other RDF serializations recognised by [oxrdfio](https://docs.rs/oxrdfio/) (Turtle, N-Triples, and so on) are accepted by their extension. The same values work for `save_to_string` and `save_to_file`. For anything not listed here, [ROBOT](http://robot.obolibrary.org/)'s `robot convert` can transform an ontology into one of the above.
@@ -51,7 +51,7 @@ for ac in onto.get_axioms():
     print(pyhornedowl.write_snippet(ac, "ofn"))       # functional syntax
 ```
 
-`write_snippet` accepts `"omn"` (alias `"manchester"`) and `"ofn"` (alias `"functional"`), the serializations for which horned-owl provides a per-element writer; the OWL/XML and RDF writers operate on whole ontologies only. It is the per-element counterpart to `save_to_string`, and for Manchester it is the only option: `save_to_string("omn")` groups axioms into entity frames, which cannot be sliced back into individual axioms. 
+`write_snippet` accepts `"omn"` and `"ofn"`, the serializations for which horned-owl provides a per-element writer; the OWL/XML and RDF writers operate on whole ontologies only. It is the per-element counterpart to `save_to_string`, and for Manchester it is the only option: `save_to_string("omn")` groups axioms into entity frames, which cannot be sliced back into individual axioms. 
 
 Example of simple usage:
 

@@ -17,7 +17,7 @@ To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It gues
    obo_ontology = pyhornedowl.open_ontology("path/to/ontology", serialization='obo')
 
 Accepted ``serialization`` values are ``rdf`` (or ``owl``) for RDF/XML, ``owx`` for OWL/XML,
-``ofn`` for OWL Functional Syntax, ``omn`` (or ``manchester``) for OWL 2 Manchester Syntax,
+``ofn`` for OWL Functional Syntax, ``omn`` for OWL 2 Manchester Syntax,
 and ``obo`` for OBO flat files. Other RDF serializations recognised by oxrdfio, such as
 Turtle and N-Triples, are accepted by their extension.
    
@@ -165,9 +165,8 @@ sliced back into individual axioms.
         print(pyhornedowl.write_snippet(axiom))               # Manchester (default)
         print(pyhornedowl.write_snippet(axiom, "ofn"))        # functional syntax
 
-Accepted values are ``omn`` (alias ``manchester``) and ``ofn`` (alias ``functional``): the
-serializations for which horned-owl provides a per-element writer. The OWL/XML and RDF
-writers operate on whole ontologies only.
+Accepted values are ``omn`` and ``ofn``: the serializations for which horned-owl provides
+a per-element writer. The OWL/XML and RDF writers operate on whole ontologies only.
 
 Pass a :class:`~pyhornedowl.PrefixMapping` to abbreviate IRIs:
 

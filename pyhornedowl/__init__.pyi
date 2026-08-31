@@ -132,13 +132,13 @@ class PyIndexedOntology:
         """
         ...
 
-    def save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'manchester', 'obo']) -> str:
+    def save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']) -> str:
         """
         Saves the ontology to a UTF8 string.
         """
         ...
 
-    def save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'manchester', 'obo']]=None) -> None:
+    def save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None) -> None:
         """
         Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
         Defaults to OWL/XML
@@ -406,7 +406,28 @@ class PrefixMapping:
         ...
 
 
-def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'manchester', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
+def write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    """
+    Renders a single axiom, component, or class expression as a string.
+    
+    This is the per-element counterpart to `save_to_string`, which serializes a whole
+    ontology. Manchester output in particular cannot be recovered from
+    `save_to_string("omn")`, because that groups axioms into entity frames.
+    
+    Only `"omn"` and `"ofn"` are supported: those are the serializations for which
+    horned-owl provides a per-element writer. The OWL/XML and RDF writers operate on
+    whole ontologies only.
+    
+    If a `prefix_mapping` is given, IRIs are abbreviated with it where possible.
+    
+    Note that `"ofn"` renders an `AnnotatedComponent` including its axiom annotations,
+    while `"omn"` renders only the component: horned-owl's Manchester writer has no
+    per-element rendering for annotated axioms.
+    """
+    ...
+
+
+def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from a path or plain text.
     
@@ -418,7 +439,7 @@ def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', '
     ...
 
 
-def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'manchester', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
+def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from a file
     
@@ -427,7 +448,7 @@ def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['o
     ...
 
 
-def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'manchester', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
+def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from plain text.
     
@@ -435,21 +456,4 @@ def open_ontology_from_string(ontology: str, serialization: Optional[typing.Lite
     """
     ...
 
-def write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['omn', 'manchester', 'ofn', 'functional']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
-    """
-    Renders a single axiom, component, or class expression as a string.
 
-    This is the per-element counterpart to `save_to_string`, which serializes a whole
-    ontology. Manchester output in particular cannot be recovered from
-    `save_to_string("omn")`, because that groups axioms into entity frames.
-
-    Only `omn` (alias `manchester`) and `ofn` (alias `functional`) are supported: those are
-    the serializations for which horned-owl provides a per-element writer. The OWL/XML and
-    RDF writers operate on whole ontologies only.
-
-    If a `prefix_mapping` is given, IRIs are abbreviated with it where possible.
-
-    Note that `ofn` renders an `AnnotatedComponent` including its axiom annotations, while
-    `omn` renders only the component.
-    """
-    ...

@@ -85,25 +85,15 @@ def test_renders_functional_syntax():
     assert pyhornedowl.write_snippet(ax, "ofn") == f"SubClassOf(<{A}> <{B}>)"
 
 
-def test_functional_alias():
-    ax = SubClassOf(sub=c(A), sup=c(B))
-
-    assert pyhornedowl.write_snippet(ax, "functional") == pyhornedowl.write_snippet(ax, "ofn")
-
-
-def test_manchester_alias():
-    ax = SubClassOf(sub=c(A), sup=c(B))
-
-    assert pyhornedowl.write_snippet(ax, "manchester") == pyhornedowl.write_snippet(ax, "omn")
-
-
 def test_defaults_to_manchester():
     ax = SubClassOf(sub=c(A), sup=c(B))
 
     assert pyhornedowl.write_snippet(ax) == pyhornedowl.write_snippet(ax, "omn")
 
 
-@pytest.mark.parametrize("serialization", ["owx", "rdf", "obo", "nonsense"])
+@pytest.mark.parametrize(
+    "serialization", ["owx", "rdf", "obo", "manchester", "functional", "nonsense"]
+)
 def test_rejects_serializations_without_a_per_element_writer(serialization):
     ax = SubClassOf(sub=c(A), sup=c(B))
 

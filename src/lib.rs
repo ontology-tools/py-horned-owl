@@ -39,11 +39,6 @@ macro_rules! to_py_err {
 }
 
 fn parse_serialization(serialization: &str) -> PyResult<InputFormat> {
-    // `InputFormat::from_str` accepts "omn" but not the spelled-out alias, which
-    // reads better next to "obo" in user-facing code.
-    if serialization == "manchester" {
-        return Ok(InputFormat::OMN);
-    }
     match InputFormat::from_str(serialization) {
         Ok(InputFormat::Guess) | Err(_) => Err(PyValueError::new_err(format!(
             "Unknown serialization {}",
@@ -158,7 +153,7 @@ fn open_ontology_rdf<R: BufRead>(
     })
 }
 
-/// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
+/// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
 ///
 /// Opens an ontology from a file
 ///
@@ -203,7 +198,7 @@ fn open_ontology_from_file(
     Ok(pio)
 }
 
-/// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
+/// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
 ///
 /// Opens an ontology from plain text.
 ///
@@ -259,7 +254,7 @@ fn open_ontology_from_string(
     Ok(pio)
 }
 
-/// open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
+/// open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
 ///
 /// Opens an ontology from a path or plain text.
 ///
@@ -306,18 +301,18 @@ enum SnippetSyntax {
 
 fn parse_snippet_syntax(serialization: &str) -> PyResult<SnippetSyntax> {
     match serialization {
-        "omn" | "manchester" => Ok(SnippetSyntax::Manchester),
-        "ofn" | "functional" => Ok(SnippetSyntax::Functional),
+        "omn" => Ok(SnippetSyntax::Manchester),
+        "ofn" => Ok(SnippetSyntax::Functional),
         other => Err(PyValueError::new_err(format!(
             "Cannot write a snippet in {:?}. horned-owl has per-element writers only for \
-             \"omn\" (\"manchester\") and \"ofn\" (\"functional\"); the OWL/XML and RDF \
-             writers work on whole ontologies only.",
+             \"omn\" and \"ofn\"; the OWL/XML and RDF writers work on whole ontologies \
+             only.",
             other
         ))),
     }
 }
 
-/// write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['omn', 'manchester', 'ofn', 'functional']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str
+/// write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str
 ///
 /// Renders a single axiom, component, or class expression as a string.
 ///
@@ -325,9 +320,9 @@ fn parse_snippet_syntax(serialization: &str) -> PyResult<SnippetSyntax> {
 /// ontology. Manchester output in particular cannot be recovered from
 /// `save_to_string("omn")`, because that groups axioms into entity frames.
 ///
-/// Only `"omn"` (alias `"manchester"`) and `"ofn"` (alias `"functional"`) are supported:
-/// those are the serializations for which horned-owl provides a per-element writer. The
-/// OWL/XML and RDF writers operate on whole ontologies only.
+/// Only `"omn"` and `"ofn"` are supported: those are the serializations for which
+/// horned-owl provides a per-element writer. The OWL/XML and RDF writers operate on
+/// whole ontologies only.
 ///
 /// If a `prefix_mapping` is given, IRIs are abbreviated with it where possible.
 ///

@@ -44,9 +44,8 @@ def assert_ontologies_equal(actual, expected):
     assert expected.get_iri() == actual.get_iri(), "Ontology IRIs do not match!"
 
 
-@pytest.mark.parametrize("serialization", ["omn", "manchester"])
-def test_load_omn_explicit(serialization):
-    actual = pyhornedowl.open_ontology(SIMPLE_OMN, serialization)
+def test_load_omn_explicit():
+    actual = pyhornedowl.open_ontology(SIMPLE_OMN, "omn")
 
     assert_ontologies_equal(actual, simple_ontology())
 
