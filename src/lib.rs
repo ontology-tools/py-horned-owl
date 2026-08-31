@@ -304,8 +304,8 @@ fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReaso
 /// `save_to_string("omn")`, because that groups axioms into entity frames.
 ///
 /// Only `"ofn"` (the default) and `"omn"` are supported: those are the serializations
-/// for which horned-owl provides a per-element writer. The OWL/XML and RDF writers
-/// operate on whole ontologies only.
+/// for which horned-owl provides a per-element writer. Its OWL/XML, RDF and OBO
+/// writers operate on whole ontologies only.
 ///
 /// If a `prefix_mapping` is given, IRIs are abbreviated with it where possible.
 ///

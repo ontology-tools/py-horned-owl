@@ -4,9 +4,12 @@
 //! The rules live here rather than on the classes because they are properties
 //! of the syntax, not of the element:
 //!
-//! * horned-owl provides a per-element writer for OWL 2 Manchester (`omn`) and
-//!   OWL Functional (`ofn`) syntax only. Its OWL/XML and RDF writers work on
-//!   whole ontologies.
+//! * horned-owl provides a per-element writer for OWL Functional (`ofn`) and
+//!   OWL 2 Manchester (`omn`) syntax only. Its OWL/XML, RDF and OBO writers
+//!   work on whole ontologies. OBO is the least sliceable of the three: it is
+//!   stanza-oriented, so a component does not render to a string at all but to
+//!   a clause line under some *other* entity's stanza, and which stanza that is
+//!   depends on `oboInOwl:id` annotations gathered from the whole ontology.
 //! * `ofn` renders an axiom's annotations and `omn` does not, because
 //!   `AsFunctional` has an `AnnotatedComponent` impl and `AsManchester` does
 //!   not.
@@ -36,8 +39,8 @@ pub fn parse_syntax(serialization: &str) -> PyResult<SnippetSyntax> {
         "ofn" => Ok(SnippetSyntax::Functional),
         other => Err(PyValueError::new_err(format!(
             "Cannot write a snippet in {:?}. horned-owl has per-element writers only for \
-             \"omn\" and \"ofn\"; the OWL/XML and RDF writers work on whole ontologies \
-             only.",
+             \"ofn\" and \"omn\"; its OWL/XML, RDF and OBO writers work on whole \
+             ontologies only.",
             other
         ))),
     }

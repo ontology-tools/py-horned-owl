@@ -166,8 +166,14 @@ frames, which cannot be sliced back into individual axioms.
         print(axiom.serialize("omn"))          # Manchester
 
 Accepted values are ``ofn`` (the default) and ``omn``: the serializations for which
-horned-owl provides a per-element writer. The OWL/XML and RDF writers operate on whole
-ontologies only.
+horned-owl provides a per-element writer. Its OWL/XML, RDF and OBO writers operate on
+whole ontologies only.
+
+``obo`` is the one that could not be added even in principle. OBO is stanza-oriented: a
+component does not render to a string of its own but to a clause line under some *other*
+entity's ``[Term]`` stanza, and which stanza that is depends on ``oboInOwl:id``
+annotations gathered from the whole ontology. There is nothing for a per-element writer
+to return.
 
 Pass a :class:`~pyhornedowl.PrefixMapping` to abbreviate IRIs:
 
