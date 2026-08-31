@@ -410,6 +410,9 @@ def write_snippet(element: typing.Union[model.AnnotatedComponent, model.Componen
     """
     Renders a single axiom, component, or class expression as a string.
     
+    The free-function form of `element.serialize(serialization, prefix_mapping)`, which
+    every model class has.
+    
     This is the per-element counterpart to `save_to_string`, which serializes a whole
     ontology. Manchester output in particular cannot be recovered from
     `save_to_string("omn")`, because that groups axioms into entity frames.

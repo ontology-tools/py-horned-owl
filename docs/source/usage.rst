@@ -150,10 +150,10 @@ Instead of writing class expressions as nested constructor calls, some expressio
 Render a single axiom
 ---------------------
 
-:func:`~pyhornedowl.write_snippet` renders a single axiom, component, or class expression as
-a string. It is the per-element counterpart to ``save_to_string``, and for Manchester it is
-the only option: ``save_to_string("omn")`` groups axioms into entity frames, which cannot be
-sliced back into individual axioms.
+``serialize`` renders a single axiom, component, or class expression as a string. Every
+model class has it. It is the per-element counterpart to ``save_to_string``, and for
+Manchester it is the only option: ``save_to_string("omn")`` groups axioms into entity
+frames, which cannot be sliced back into individual axioms.
 
 .. code-block:: python
 
@@ -162,8 +162,8 @@ sliced back into individual axioms.
     ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
 
     for axiom in ontology.get_axioms():
-        print(pyhornedowl.write_snippet(axiom))               # Manchester (default)
-        print(pyhornedowl.write_snippet(axiom, "ofn"))        # functional syntax
+        print(axiom.serialize())               # Manchester (default)
+        print(axiom.serialize("ofn"))          # functional syntax
 
 Accepted values are ``omn`` and ``ofn``: the serializations for which horned-owl provides
 a per-element writer. The OWL/XML and RDF writers operate on whole ontologies only.
@@ -172,7 +172,22 @@ Pass a :class:`~pyhornedowl.PrefixMapping` to abbreviate IRIs:
 
 .. code-block:: python
 
-    print(pyhornedowl.write_snippet(axiom, "omn", ontology.prefix_mapping))
+    print(axiom.serialize("omn", ontology.prefix_mapping))
 
 Note that ``ofn`` renders an :class:`~pyhornedowl.model.AnnotatedComponent` including its
 axiom annotations, while ``omn`` renders only the component.
+
+A few classes have no Manchester rendering of their own -- an
+:class:`~pyhornedowl.model.Annotation`, an
+:class:`~pyhornedowl.model.AnnotationProperty`, a
+:class:`~pyhornedowl.model.FacetRestriction` and a :class:`~pyhornedowl.model.Facet`.
+Manchester syntax writes each of them only inside the element that holds it, so
+``serialize("omn")`` raises :class:`ValueError` and ``serialize("ofn")`` is the way to
+render them alone.
+
+:func:`~pyhornedowl.write_snippet` is the same rendering as a free function, taking the
+element as its first argument:
+
+.. code-block:: python
+
+    print(pyhornedowl.write_snippet(axiom, "omn", ontology.prefix_mapping))

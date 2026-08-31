@@ -86,6 +86,25 @@ impl IRI {
         let builder = horned_owl::model::Build::new_arc();
         IRI(builder.iri(value))
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    pub fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value = self.0.clone();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl IRI {
@@ -167,6 +186,34 @@ impl Facet {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL functional (`"ofn"`) syntax.
+    ///
+    /// horned-owl has no Manchester rendering for a facet: Manchester writes it
+    /// as an operator inside the datatype restriction that holds it.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    pub fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value = horned_owl::vocab::Facet::from(self);
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                return Err(crate::snippet::no_manchester_rendering("Facet"))
+            }
+            // Facet is not generic over `A`, so `AsFunctional<A>` needs naming.
+            crate::snippet::SnippetSyntax::Functional => match prefix_mapping {
+                Some(pm) => {
+                    AsFunctional::<ArcStr>::as_functional_with_prefixes(&value, &pm.0).to_string()
+                }
+                None => AsFunctional::<ArcStr>::as_functional(&value).to_string(),
+            },
+        })
     }
 }
 
@@ -288,6 +335,25 @@ impl Class {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Class<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -504,6 +570,25 @@ impl AnonymousIndividual {
     fn __eq__(&self, other: &Self) -> bool {
         self == other
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::AnonymousIndividual<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::AnonymousIndividual<ArcStr>> for AnonymousIndividual {
@@ -702,6 +787,25 @@ impl NamedIndividual {
     fn __eq__(&self, other: &Self) -> bool {
         self == other
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::NamedIndividual<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::NamedIndividual<ArcStr>> for NamedIndividual {
@@ -899,6 +1003,25 @@ impl ObjectProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ObjectProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -1172,6 +1295,25 @@ impl Datatype {
     fn __eq__(&self, other: &Self) -> bool {
         self == other
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Datatype<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::Datatype<ArcStr>> for Datatype {
@@ -1369,6 +1511,25 @@ impl DataProperty {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DataProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -1599,6 +1760,30 @@ impl FacetRestriction {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::FacetRestriction<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
+    /// per-element counterpart to `PyIndexedOntology.save_to_string`.
+    ///
+    /// horned-owl has no Manchester rendering for this class: Manchester syntax
+    /// writes it only inside the element that contains it, so `"omn"` is an
+    /// error.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::FacetRestriction<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                return Err(crate::snippet::no_manchester_rendering("FacetRestriction"))
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -2019,6 +2204,25 @@ pub struct ObjectPropertyExpression(ObjectPropertyExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ObjectPropertyExpression<ArcStr>>::into(Into::<ObjectPropertyExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ObjectPropertyExpression<ArcStr> = Into::<ObjectPropertyExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -2388,6 +2592,25 @@ pub struct Literal(Literal_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Literal<ArcStr>>::into(Into::<Literal>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Literal<ArcStr> = Into::<Literal>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -2466,6 +2689,25 @@ pub struct Literal(Literal_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Literal<ArcStr>>::into(Into::<Literal>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Literal<ArcStr> = Into::<Literal>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -2544,6 +2786,25 @@ pub struct Literal(Literal_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Literal<ArcStr>>::into(Into::<Literal>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Literal<ArcStr> = Into::<Literal>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -2863,6 +3124,25 @@ pub struct DataRange(DataRange_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DataRange<ArcStr> = Into::<DataRange>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -2932,6 +3212,25 @@ pub struct DataRange(DataRange_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DataRange<ArcStr> = Into::<DataRange>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -3001,6 +3300,25 @@ pub struct DataRange(DataRange_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DataRange<ArcStr> = Into::<DataRange>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -3070,6 +3388,25 @@ pub struct DataRange(DataRange_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DataRange<ArcStr> = Into::<DataRange>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -3148,6 +3485,25 @@ pub struct DataRange(DataRange_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DataRange<ArcStr> = Into::<DataRange>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -3528,6 +3884,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -3614,6 +3989,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -3700,6 +4094,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -3786,6 +4199,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -3881,6 +4313,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -3976,6 +4427,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4071,6 +4541,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4157,6 +4646,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4262,6 +4770,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4367,6 +4894,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4472,6 +5018,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4567,6 +5132,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4662,6 +5246,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4757,6 +5360,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4862,6 +5484,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -4967,6 +5608,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -5072,6 +5732,25 @@ pub struct ClassExpression(ClassExpression_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassExpression<ArcStr> = Into::<ClassExpression>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -6051,6 +6730,30 @@ impl AnnotationProperty {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::AnnotationProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
+    /// per-element counterpart to `PyIndexedOntology.save_to_string`.
+    ///
+    /// horned-owl has no Manchester rendering for this class: Manchester syntax
+    /// writes it only inside the element that contains it, so `"omn"` is an
+    /// error.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::AnnotationProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                return Err(crate::snippet::no_manchester_rendering("AnnotationProperty"))
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::AnnotationProperty<ArcStr>> for AnnotationProperty {
@@ -6477,6 +7180,30 @@ impl Annotation {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::Annotation<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
+    /// per-element counterpart to `PyIndexedOntology.save_to_string`.
+    ///
+    /// horned-owl has no Manchester rendering for this class: Manchester syntax
+    /// writes it only inside the element that contains it, so `"omn"` is an
+    /// error.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Annotation<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                return Err(crate::snippet::no_manchester_rendering("Annotation"))
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::Annotation<ArcStr>> for Annotation {
@@ -6669,6 +7396,30 @@ impl OntologyAnnotation {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::OntologyAnnotation<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::OntologyAnnotation<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::OntologyAnnotation<ArcStr>> for OntologyAnnotation {
@@ -6856,6 +7607,30 @@ impl Import {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::Import<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Import<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -7045,6 +7820,30 @@ impl DeclareClass {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DeclareClass<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DeclareClass<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::DeclareClass<ArcStr>> for DeclareClass {
@@ -7232,6 +8031,30 @@ impl DeclareObjectProperty {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DeclareObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DeclareObjectProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -7421,6 +8244,30 @@ impl DeclareAnnotationProperty {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DeclareAnnotationProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DeclareAnnotationProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::DeclareAnnotationProperty<ArcStr>> for DeclareAnnotationProperty {
@@ -7608,6 +8455,30 @@ impl DeclareDataProperty {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DeclareDataProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DeclareDataProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -7797,6 +8668,30 @@ impl DeclareNamedIndividual {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DeclareNamedIndividual<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DeclareNamedIndividual<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::DeclareNamedIndividual<ArcStr>> for DeclareNamedIndividual {
@@ -7984,6 +8879,30 @@ impl DeclareDatatype {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DeclareDatatype<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DeclareDatatype<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -8202,6 +9121,30 @@ impl SubClassOf {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::SubClassOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::SubClassOf<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::SubClassOf<ArcStr>> for SubClassOf {
@@ -8392,6 +9335,30 @@ impl EquivalentClasses {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::EquivalentClasses<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::EquivalentClasses<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::EquivalentClasses<ArcStr>> for EquivalentClasses {
@@ -8579,6 +9546,30 @@ impl DisjointClasses {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DisjointClasses<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DisjointClasses<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -8771,6 +9762,30 @@ impl DisjointUnion {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DisjointUnion<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DisjointUnion<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -9180,6 +10195,30 @@ impl SubObjectPropertyOf {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::SubObjectPropertyOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::SubObjectPropertyOf<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::SubObjectPropertyOf<ArcStr>> for SubObjectPropertyOf {
@@ -9370,6 +10409,30 @@ impl EquivalentObjectProperties {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::EquivalentObjectProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::EquivalentObjectProperties<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::EquivalentObjectProperties<ArcStr>> for EquivalentObjectProperties {
@@ -9557,6 +10620,30 @@ impl DisjointObjectProperties {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DisjointObjectProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DisjointObjectProperties<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -9749,6 +10836,30 @@ impl InverseObjectProperties {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::InverseObjectProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::InverseObjectProperties<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -9969,6 +11080,30 @@ impl ObjectPropertyDomain {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::ObjectPropertyDomain<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ObjectPropertyDomain<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::ObjectPropertyDomain<ArcStr>> for ObjectPropertyDomain {
@@ -10188,6 +11323,30 @@ impl ObjectPropertyRange {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::ObjectPropertyRange<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ObjectPropertyRange<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::ObjectPropertyRange<ArcStr>> for ObjectPropertyRange {
@@ -10378,6 +11537,30 @@ impl FunctionalObjectProperty {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::FunctionalObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::FunctionalObjectProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::FunctionalObjectProperty<ArcStr>> for FunctionalObjectProperty {
@@ -10565,6 +11748,30 @@ impl InverseFunctionalObjectProperty {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::InverseFunctionalObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::InverseFunctionalObjectProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -10754,6 +11961,30 @@ impl ReflexiveObjectProperty {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::ReflexiveObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ReflexiveObjectProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::ReflexiveObjectProperty<ArcStr>> for ReflexiveObjectProperty {
@@ -10941,6 +12172,30 @@ impl IrreflexiveObjectProperty {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::IrreflexiveObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::IrreflexiveObjectProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -11130,6 +12385,30 @@ impl SymmetricObjectProperty {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::SymmetricObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::SymmetricObjectProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::SymmetricObjectProperty<ArcStr>> for SymmetricObjectProperty {
@@ -11318,6 +12597,30 @@ impl AsymmetricObjectProperty {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::AsymmetricObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::AsymmetricObjectProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::AsymmetricObjectProperty<ArcStr>> for AsymmetricObjectProperty {
@@ -11505,6 +12808,30 @@ impl TransitiveObjectProperty {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::TransitiveObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::TransitiveObjectProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -11723,6 +13050,30 @@ impl SubDataPropertyOf {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::SubDataPropertyOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::SubDataPropertyOf<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::SubDataPropertyOf<ArcStr>> for SubDataPropertyOf {
@@ -11913,6 +13264,30 @@ impl EquivalentDataProperties {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::EquivalentDataProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::EquivalentDataProperties<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::EquivalentDataProperties<ArcStr>> for EquivalentDataProperties {
@@ -12100,6 +13475,30 @@ impl DisjointDataProperties {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DisjointDataProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DisjointDataProperties<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -12317,6 +13716,30 @@ impl DataPropertyDomain {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DataPropertyDomain<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DataPropertyDomain<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -12537,6 +13960,30 @@ impl DataPropertyRange {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DataPropertyRange<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DataPropertyRange<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::DataPropertyRange<ArcStr>> for DataPropertyRange {
@@ -12726,6 +14173,30 @@ impl FunctionalDataProperty {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::FunctionalDataProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::FunctionalDataProperty<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -12943,6 +14414,30 @@ impl DatatypeDefinition {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DatatypeDefinition<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DatatypeDefinition<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -13163,6 +14658,30 @@ impl HasKey {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::HasKey<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::HasKey<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::HasKey<ArcStr>> for HasKey {
@@ -13353,6 +14872,30 @@ impl SameIndividual {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::SameIndividual<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::SameIndividual<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::SameIndividual<ArcStr>> for SameIndividual {
@@ -13540,6 +15083,30 @@ impl DifferentIndividuals {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DifferentIndividuals<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DifferentIndividuals<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -13757,6 +15324,30 @@ impl ClassAssertion {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::ClassAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ClassAssertion<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -13987,6 +15578,30 @@ impl ObjectPropertyAssertion {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::ObjectPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::ObjectPropertyAssertion<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -14220,6 +15835,30 @@ impl NegativeObjectPropertyAssertion {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::NegativeObjectPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::NegativeObjectPropertyAssertion<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::NegativeObjectPropertyAssertion<ArcStr>> for NegativeObjectPropertyAssertion {
@@ -14451,6 +16090,30 @@ impl DataPropertyAssertion {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DataPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DataPropertyAssertion<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -14684,6 +16347,30 @@ impl NegativeDataPropertyAssertion {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::NegativeDataPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::NegativeDataPropertyAssertion<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::NegativeDataPropertyAssertion<ArcStr>> for NegativeDataPropertyAssertion {
@@ -14905,6 +16592,30 @@ impl AnnotationAssertion {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::AnnotationAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::AnnotationAssertion<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::AnnotationAssertion<ArcStr>> for AnnotationAssertion {
@@ -15123,6 +16834,30 @@ impl SubAnnotationPropertyOf {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::SubAnnotationPropertyOf<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::SubAnnotationPropertyOf<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -15343,6 +17078,30 @@ impl AnnotationPropertyDomain {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::AnnotationPropertyDomain<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::AnnotationPropertyDomain<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::AnnotationPropertyDomain<ArcStr>> for AnnotationPropertyDomain {
@@ -15562,6 +17321,30 @@ impl AnnotationPropertyRange {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::AnnotationPropertyRange<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::AnnotationPropertyRange<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::AnnotationPropertyRange<ArcStr>> for AnnotationPropertyRange {
@@ -15751,6 +17534,30 @@ impl DocIRI {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::DocIRI<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::DocIRI<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -15969,6 +17776,30 @@ impl OntologyID {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::OntologyID<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::OntologyID<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl From<&horned_owl::model::OntologyID<ArcStr>> for OntologyID {
@@ -16158,6 +17989,25 @@ impl Variable {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::Variable<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Variable<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -16779,6 +18629,25 @@ pub struct Atom(Atom_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Atom<ArcStr> = Into::<Atom>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -16857,6 +18726,25 @@ pub struct Atom(Atom_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Atom<ArcStr> = Into::<Atom>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -16935,6 +18823,25 @@ pub struct Atom(Atom_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Atom<ArcStr> = Into::<Atom>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -17013,6 +18920,25 @@ pub struct Atom(Atom_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Atom<ArcStr> = Into::<Atom>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -17091,6 +19017,25 @@ pub struct Atom(Atom_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Atom<ArcStr> = Into::<Atom>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -17169,6 +19114,25 @@ pub struct Atom(Atom_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Atom<ArcStr> = Into::<Atom>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -17247,6 +19211,25 @@ pub struct Atom(Atom_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Atom<ArcStr> = Into::<Atom>::into(self.clone()).into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
     }
 
     
@@ -17628,6 +19611,30 @@ impl Rule {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::Rule<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::Rule<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 
@@ -18441,6 +20448,29 @@ impl AnnotatedComponent {
     }
     fn __str__(&self) -> String {
         Into::<horned_owl::model::AnnotatedComponent<ArcStr>>::into(self.clone()).as_functional().to_string()
+    }
+
+    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
+    /// functional (`"ofn"`) syntax. The per-element counterpart to
+    /// `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: horned_owl::model::AnnotatedComponent<ArcStr> = self.clone().into();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                // AsManchester has no AnnotatedComponent impl, so Manchester
+                // renders the bare component and drops the axiom annotations.
+                crate::as_omn!(value.component, prefix_mapping)
+            }
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
     }
 }
 

@@ -7,8 +7,6 @@ use std::sync::{Arc, Mutex};
 
 use curie::PrefixMapping;
 use horned_owl::error::HornedError;
-use horned_owl::io::ofn::writer::AsFunctional;
-use horned_owl::io::omn::writer::AsManchester;
 use horned_owl::io::{InputFormat, ParserConfiguration, RDFParserConfiguration, ResourceType};
 use horned_owl::model::*;
 use pyo3::exceptions::PyValueError;
@@ -24,6 +22,7 @@ pub mod model_generated;
 pub mod ontology;
 pub mod prefix_mapping;
 pub mod reasoning;
+pub mod snippet;
 pub mod structural_reasoner;
 mod wrappers;
 
@@ -293,28 +292,12 @@ fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReaso
     )))
 }
 
-/// The serializations that have a per-element writer in horned-owl.
-enum SnippetSyntax {
-    Manchester,
-    Functional,
-}
-
-fn parse_snippet_syntax(serialization: &str) -> PyResult<SnippetSyntax> {
-    match serialization {
-        "omn" => Ok(SnippetSyntax::Manchester),
-        "ofn" => Ok(SnippetSyntax::Functional),
-        other => Err(PyValueError::new_err(format!(
-            "Cannot write a snippet in {:?}. horned-owl has per-element writers only for \
-             \"omn\" and \"ofn\"; the OWL/XML and RDF writers work on whole ontologies \
-             only.",
-            other
-        ))),
-    }
-}
-
 /// write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str
 ///
 /// Renders a single axiom, component, or class expression as a string.
+///
+/// The free-function form of `element.serialize(serialization, prefix_mapping)`, which
+/// every model class has.
 ///
 /// This is the per-element counterpart to `save_to_string`, which serializes a whole
 /// ontology. Manchester output in particular cannot be recovered from
@@ -336,45 +319,32 @@ fn write_snippet(
     serialization: &str,
     prefix_mapping: Option<&prefix_mapping::PrefixMapping>,
 ) -> PyResult<String> {
-    let syntax = parse_snippet_syntax(serialization)?;
-
-    macro_rules! render {
-        ($value:expr) => {
-            match (&syntax, prefix_mapping) {
-                (SnippetSyntax::Manchester, Some(pm)) => {
-                    $value.as_manchester_with_prefixes(&pm.0).to_string()
-                }
-                (SnippetSyntax::Manchester, None) => $value.as_manchester().to_string(),
-                (SnippetSyntax::Functional, Some(pm)) => {
-                    $value.as_functional_with_prefixes(&pm.0).to_string()
-                }
-                (SnippetSyntax::Functional, None) => $value.as_functional().to_string(),
-            }
-        };
-    }
+    let syntax = snippet::parse_syntax(serialization)?;
 
     if let Ok(ac) = element.extract::<model::AnnotatedComponent>() {
         let ac: AnnotatedComponent<Arc<str>> = ac.into();
         // AsManchester has no impl for AnnotatedComponent, so Manchester renders the
         // bare component; functional syntax renders the annotations too.
-        return Ok(match (&syntax, prefix_mapping) {
-            (SnippetSyntax::Manchester, Some(pm)) => {
-                ac.component.as_manchester_with_prefixes(&pm.0).to_string()
+        return Ok(match syntax {
+            snippet::SnippetSyntax::Manchester => {
+                as_omn!(ac.component, prefix_mapping)
             }
-            (SnippetSyntax::Manchester, None) => ac.component.as_manchester().to_string(),
-            (SnippetSyntax::Functional, Some(pm)) => {
-                ac.as_functional_with_prefixes(&pm.0).to_string()
-            }
-            (SnippetSyntax::Functional, None) => ac.as_functional().to_string(),
+            snippet::SnippetSyntax::Functional => as_ofn!(ac, prefix_mapping),
         });
     }
     if let Ok(c) = element.extract::<model::Component>() {
         let c: Component<Arc<str>> = c.into();
-        return Ok(render!(c));
+        return Ok(match syntax {
+            snippet::SnippetSyntax::Manchester => as_omn!(c, prefix_mapping),
+            snippet::SnippetSyntax::Functional => as_ofn!(c, prefix_mapping),
+        });
     }
     if let Ok(ce) = element.extract::<model::ClassExpression>() {
         let ce: ClassExpression<Arc<str>> = ce.into();
-        return Ok(render!(ce));
+        return Ok(match syntax {
+            snippet::SnippetSyntax::Manchester => as_omn!(ce, prefix_mapping),
+            snippet::SnippetSyntax::Functional => as_ofn!(ce, prefix_mapping),
+        });
     }
     Err(PyValueError::new_err(
         "write_snippet expects a model.AnnotatedComponent, model.Component, or model.ClassExpression",

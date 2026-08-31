@@ -13,5 +13,7 @@ class {{ model.name }}:
 
 {% from 'extensions.pyi.jinja2' import include_extensions -%}
 {{ include_extensions(model.extensions, v_name_full) }}
+{%- from 'serialize.pyi.jinja2' import serialize_method -%}
+{{ serialize_method(manchester) }}
     ...
 

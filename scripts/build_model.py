@@ -99,6 +99,30 @@ def fields(val):
 
     return val
 
+# horned-owl implements AsManchester for the OWL entities, the expressions and
+# `Component` (see its io/omn/writer/as_manchester.rs). Every component type
+# reaches the writer through `Component`; these wrappers are neither, so
+# Manchester syntax can only render them inside the element that holds them.
+NO_MANCHESTER = {"Annotation", "AnnotationProperty", "FacetRestriction"}
+
+
+def manchester_route(name: str, component_variants: set) -> Optional[str]:
+    """How a model class reaches horned-owl's Manchester writer.
+
+    ``"direct"``            the class's own horned-owl type implements AsManchester
+    ``"component"``         convert to ``Component`` first
+    ``"wrapped-component"`` an AnnotatedComponent: render the component it wraps
+    ``None``                no Manchester rendering
+    """
+    if name in NO_MANCHESTER:
+        return None
+    if name == "AnnotatedComponent":
+        return "wrapped-component"
+    if name in component_variants:
+        return "component"
+    return "direct"
+
+
 def build_from_templates(lang: Literal["rs", "pyi"]):
     with open(os.path.join(REPO_ROOT, "template", "model.json")) as f:
         data = json.load(f)
@@ -118,13 +142,25 @@ def build_from_templates(lang: Literal["rs", "pyi"]):
 
     out = []
 
+    component_variants = set(
+        next(m for m in data if m["name"] == "Component")["variants"].values()
+    )
+
     header_template = env.get_template(f"static.{lang}")
     out.append(header_template.render(models=data) + "\n\n")
 
     for model in data:
         type = model["type"]
+        manchester = manchester_route(model["name"], component_variants)
+        # An enum's variants render through the parent enum's horned-owl type,
+        # so the parent is the one that has to reach the Manchester writer.
+        if type == "enum" and manchester != "direct":
+            raise ValueError(
+                f"{model['name']} is an enum but does not implement AsManchester; "
+                "enum.rs.jinja2 renders its variants through it"
+            )
         template = env.get_template(f"{type}.{lang}.jinja2")
-        res = template.render(model=model)
+        res = template.render(model=model, manchester=manchester)
         out.append(res + "\n")
 
     return "".join(out)

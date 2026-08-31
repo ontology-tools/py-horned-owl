@@ -1,8 +1,17 @@
 import typing
 from typing import *
 
+from .. import PrefixMapping
+
 class IRI:
     parse: Any
+
+    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+        """
+        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
+        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        """
+        ...
     ...
 
 class Facet:
@@ -17,6 +26,15 @@ class Facet:
     TotalDigits: Facet
     FractionDigits: Facet
     LangRange: Facet
+
+    def serialize(self, serialization: typing.Literal['ofn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+        """
+        Renders this element on its own, in OWL functional (`ofn`) syntax.
+
+        horned-owl has no Manchester rendering for a facet: Manchester writes it as an
+        operator inside the datatype restriction that holds it.
+        """
+        ...
     
 
 IRIParam = Union[str, IRI, Tuple[str, bool]]

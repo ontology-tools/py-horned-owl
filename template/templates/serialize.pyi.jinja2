@@ -1,0 +1,25 @@
+{#-
+  The `serialize` stub, emitted on every model class. `route` is None for the
+  classes horned-owl cannot render in Manchester syntax, whose only accepted
+  value is therefore "ofn".
+-#}
+{%- macro serialize_method(route) %}
+{%- if route %}
+    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+        """
+        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
+        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        """
+        ...
+{%- else %}
+    def serialize(self, serialization: typing.Literal['ofn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+        """
+        Renders this element on its own, in OWL functional (`ofn`) syntax. The per-element
+        counterpart to `PyIndexedOntology.save_to_string`.
+
+        horned-owl has no Manchester rendering for this class: Manchester syntax writes it
+        only inside the element that contains it, so `"omn"` raises `ValueError`.
+        """
+        ...
+{%- endif %}
+{%- endmacro %}

@@ -1,3 +1,4 @@
+{%- from 'serialize.rs.jinja2' import serialize_method -%}
 #[doc = concat!(
     "{{ model.name }}(
 {%- for typ in model.fields -%}
@@ -49,6 +50,7 @@ impl {{ model.name }} {
         Into::<horned_owl::model::{{ model.name }}<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 {%- endif %}
+{{ serialize_method(model.name, "horned_owl::model::" ~ model.name ~ "<ArcStr>", "self.clone().into()", manchester) }}
 }
 
 impl From<&horned_owl::model::{{ model.name }}<ArcStr>> for {{ model.name }} {

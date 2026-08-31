@@ -40,18 +40,20 @@ The library parses every OWL serialization that horned-owl supports. The seriali
 
 Other RDF serializations recognised by [oxrdfio](https://docs.rs/oxrdfio/) (Turtle, N-Triples, and so on) are accepted by their extension. The same values work for `save_to_string` and `save_to_file`. For anything not listed here, [ROBOT](http://robot.obolibrary.org/)'s `robot convert` can transform an ontology into one of the above.
 
-To render a *single* axiom or class expression rather than a whole ontology, use `write_snippet`:
+To render a *single* axiom or class expression rather than a whole ontology, call `serialize` on it:
 
 ```python
 import pyhornedowl
 
 onto = pyhornedowl.open_ontology(text)
 for ac in onto.get_axioms():
-    print(pyhornedowl.write_snippet(ac))              # Manchester (default)
-    print(pyhornedowl.write_snippet(ac, "ofn"))       # functional syntax
+    print(ac.serialize())              # Manchester (default)
+    print(ac.serialize("ofn"))         # functional syntax
 ```
 
-`write_snippet` accepts `"omn"` and `"ofn"`, the serializations for which horned-owl provides a per-element writer; the OWL/XML and RDF writers operate on whole ontologies only. It is the per-element counterpart to `save_to_string`, and for Manchester it is the only option: `save_to_string("omn")` groups axioms into entity frames, which cannot be sliced back into individual axioms. 
+Every model class has it, and `pyhornedowl.write_snippet(element, serialization)` is the same thing as a function, for when the element is not in hand.
+
+Both accept `"omn"` and `"ofn"`, the serializations for which horned-owl provides a per-element writer; the OWL/XML and RDF writers operate on whole ontologies only. This is the per-element counterpart to `save_to_string`, and for Manchester it is the only option: `save_to_string("omn")` groups axioms into entity frames, which cannot be sliced back into individual axioms.
 
 Example of simple usage:
 
