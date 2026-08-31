@@ -47,13 +47,13 @@ import pyhornedowl
 
 onto = pyhornedowl.open_ontology(text)
 for ac in onto.get_axioms():
-    print(ac.serialize())              # Manchester (default)
-    print(ac.serialize("ofn"))         # functional syntax
+    print(ac.serialize())              # functional syntax (default)
+    print(ac.serialize("omn"))         # Manchester
 ```
 
 Every model class has it, and `pyhornedowl.write_snippet(element, serialization)` is the same thing as a function, for when the element is not in hand.
 
-Both accept `"omn"` and `"ofn"`, the serializations for which horned-owl provides a per-element writer; the OWL/XML and RDF writers operate on whole ontologies only. This is the per-element counterpart to `save_to_string`, and for Manchester it is the only option: `save_to_string("omn")` groups axioms into entity frames, which cannot be sliced back into individual axioms.
+Both accept `"ofn"` and `"omn"`, the serializations for which horned-owl provides a per-element writer; the OWL/XML and RDF writers operate on whole ontologies only. This is the per-element counterpart to `save_to_string`, and for Manchester it is the only option: `save_to_string("omn")` groups axioms into entity frames, which cannot be sliced back into individual axioms.
 
 Example of simple usage:
 

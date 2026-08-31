@@ -46,10 +46,10 @@ def test_renders_an_axiom():
     assert ax.serialize("ofn") == f"SubClassOf(<{A}> <{B}>)"
 
 
-def test_defaults_to_manchester():
+def test_defaults_to_functional():
     ax = SubClassOf(sub=c(A), sup=c(B))
 
-    assert ax.serialize() == ax.serialize("omn")
+    assert ax.serialize() == ax.serialize("ofn")
 
 
 def test_renders_a_class_expression():

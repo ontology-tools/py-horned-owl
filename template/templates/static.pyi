@@ -6,10 +6,11 @@ from .. import PrefixMapping
 class IRI:
     parse: Any
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...

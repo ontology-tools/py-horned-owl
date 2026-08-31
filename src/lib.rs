@@ -292,7 +292,7 @@ fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReaso
     )))
 }
 
-/// write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str
+/// write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str
 ///
 /// Renders a single axiom, component, or class expression as a string.
 ///
@@ -303,9 +303,9 @@ fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReaso
 /// ontology. Manchester output in particular cannot be recovered from
 /// `save_to_string("omn")`, because that groups axioms into entity frames.
 ///
-/// Only `"omn"` and `"ofn"` are supported: those are the serializations for which
-/// horned-owl provides a per-element writer. The OWL/XML and RDF writers operate on
-/// whole ontologies only.
+/// Only `"ofn"` (the default) and `"omn"` are supported: those are the serializations
+/// for which horned-owl provides a per-element writer. The OWL/XML and RDF writers
+/// operate on whole ontologies only.
 ///
 /// If a `prefix_mapping` is given, IRIs are abbreviated with it where possible.
 ///
@@ -313,7 +313,7 @@ fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReaso
 /// while `"omn"` renders only the component: horned-owl's Manchester writer has no
 /// per-element rendering for annotated axioms.
 #[pyfunction]
-#[pyo3(signature = (element, serialization = "omn", prefix_mapping = None))]
+#[pyo3(signature = (element, serialization = "ofn", prefix_mapping = None))]
 fn write_snippet(
     element: &Bound<'_, PyAny>,
     serialization: &str,

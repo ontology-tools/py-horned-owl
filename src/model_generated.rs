@@ -87,12 +87,12 @@ impl IRI {
         IRI(builder.iri(value))
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     pub fn serialize(
         &self,
         serialization: &str,
@@ -337,12 +337,13 @@ impl Class {
         self == other
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -571,12 +572,13 @@ impl AnonymousIndividual {
         self == other
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -788,12 +790,13 @@ impl NamedIndividual {
         self == other
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -1005,12 +1008,13 @@ impl ObjectProperty {
         self == other
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -1296,12 +1300,13 @@ impl Datatype {
         self == other
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -1513,12 +1518,13 @@ impl DataProperty {
         self == other
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -1761,6 +1767,7 @@ impl FacetRestriction {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::FacetRestriction<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+
 
     /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
@@ -2205,12 +2212,13 @@ pub struct ObjectPropertyExpression(ObjectPropertyExpression_Inner);
             Into::<horned_owl::model::ObjectPropertyExpression<ArcStr>>::into(Into::<ObjectPropertyExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -2593,12 +2601,13 @@ pub struct Literal(Literal_Inner);
             Into::<horned_owl::model::Literal<ArcStr>>::into(Into::<Literal>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -2690,12 +2699,13 @@ pub struct Literal(Literal_Inner);
             Into::<horned_owl::model::Literal<ArcStr>>::into(Into::<Literal>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -2787,12 +2797,13 @@ pub struct Literal(Literal_Inner);
             Into::<horned_owl::model::Literal<ArcStr>>::into(Into::<Literal>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -3125,12 +3136,13 @@ pub struct DataRange(DataRange_Inner);
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -3213,12 +3225,13 @@ pub struct DataRange(DataRange_Inner);
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -3301,12 +3314,13 @@ pub struct DataRange(DataRange_Inner);
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -3389,12 +3403,13 @@ pub struct DataRange(DataRange_Inner);
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -3486,12 +3501,13 @@ pub struct DataRange(DataRange_Inner);
             Into::<horned_owl::model::DataRange<ArcStr>>::into(Into::<DataRange>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -3885,12 +3901,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -3990,12 +4007,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -4095,12 +4113,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -4200,12 +4219,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -4314,12 +4334,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -4428,12 +4449,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -4542,12 +4564,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -4647,12 +4670,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -4771,12 +4795,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -4895,12 +4920,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -5019,12 +5045,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -5133,12 +5160,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -5247,12 +5275,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -5361,12 +5390,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -5485,12 +5515,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -5609,12 +5640,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -5733,12 +5765,13 @@ pub struct ClassExpression(ClassExpression_Inner);
             Into::<horned_owl::model::ClassExpression<ArcStr>>::into(Into::<ClassExpression>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -6731,6 +6764,7 @@ impl AnnotationProperty {
         Into::<horned_owl::model::AnnotationProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
+
     /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
@@ -7181,6 +7215,7 @@ impl Annotation {
         Into::<horned_owl::model::Annotation<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
+
     /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
@@ -7397,12 +7432,13 @@ impl OntologyAnnotation {
         Into::<horned_owl::model::OntologyAnnotation<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -7609,12 +7645,13 @@ impl Import {
         Into::<horned_owl::model::Import<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -7821,12 +7858,13 @@ impl DeclareClass {
         Into::<horned_owl::model::DeclareClass<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -8033,12 +8071,13 @@ impl DeclareObjectProperty {
         Into::<horned_owl::model::DeclareObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -8245,12 +8284,13 @@ impl DeclareAnnotationProperty {
         Into::<horned_owl::model::DeclareAnnotationProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -8457,12 +8497,13 @@ impl DeclareDataProperty {
         Into::<horned_owl::model::DeclareDataProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -8669,12 +8710,13 @@ impl DeclareNamedIndividual {
         Into::<horned_owl::model::DeclareNamedIndividual<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -8881,12 +8923,13 @@ impl DeclareDatatype {
         Into::<horned_owl::model::DeclareDatatype<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -9122,12 +9165,13 @@ impl SubClassOf {
         Into::<horned_owl::model::SubClassOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -9336,12 +9380,13 @@ impl EquivalentClasses {
         Into::<horned_owl::model::EquivalentClasses<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -9548,12 +9593,13 @@ impl DisjointClasses {
         Into::<horned_owl::model::DisjointClasses<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -9764,12 +9810,13 @@ impl DisjointUnion {
         Into::<horned_owl::model::DisjointUnion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -10196,12 +10243,13 @@ impl SubObjectPropertyOf {
         Into::<horned_owl::model::SubObjectPropertyOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -10410,12 +10458,13 @@ impl EquivalentObjectProperties {
         Into::<horned_owl::model::EquivalentObjectProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -10622,12 +10671,13 @@ impl DisjointObjectProperties {
         Into::<horned_owl::model::DisjointObjectProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -10838,12 +10888,13 @@ impl InverseObjectProperties {
         Into::<horned_owl::model::InverseObjectProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -11081,12 +11132,13 @@ impl ObjectPropertyDomain {
         Into::<horned_owl::model::ObjectPropertyDomain<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -11324,12 +11376,13 @@ impl ObjectPropertyRange {
         Into::<horned_owl::model::ObjectPropertyRange<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -11538,12 +11591,13 @@ impl FunctionalObjectProperty {
         Into::<horned_owl::model::FunctionalObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -11750,12 +11804,13 @@ impl InverseFunctionalObjectProperty {
         Into::<horned_owl::model::InverseFunctionalObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -11962,12 +12017,13 @@ impl ReflexiveObjectProperty {
         Into::<horned_owl::model::ReflexiveObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -12174,12 +12230,13 @@ impl IrreflexiveObjectProperty {
         Into::<horned_owl::model::IrreflexiveObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -12386,12 +12443,13 @@ impl SymmetricObjectProperty {
         Into::<horned_owl::model::SymmetricObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -12598,12 +12656,13 @@ impl AsymmetricObjectProperty {
         Into::<horned_owl::model::AsymmetricObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -12810,12 +12869,13 @@ impl TransitiveObjectProperty {
         Into::<horned_owl::model::TransitiveObjectProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -13051,12 +13111,13 @@ impl SubDataPropertyOf {
         Into::<horned_owl::model::SubDataPropertyOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -13265,12 +13326,13 @@ impl EquivalentDataProperties {
         Into::<horned_owl::model::EquivalentDataProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -13477,12 +13539,13 @@ impl DisjointDataProperties {
         Into::<horned_owl::model::DisjointDataProperties<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -13718,12 +13781,13 @@ impl DataPropertyDomain {
         Into::<horned_owl::model::DataPropertyDomain<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -13961,12 +14025,13 @@ impl DataPropertyRange {
         Into::<horned_owl::model::DataPropertyRange<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -14175,12 +14240,13 @@ impl FunctionalDataProperty {
         Into::<horned_owl::model::FunctionalDataProperty<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -14416,12 +14482,13 @@ impl DatatypeDefinition {
         Into::<horned_owl::model::DatatypeDefinition<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -14659,12 +14726,13 @@ impl HasKey {
         Into::<horned_owl::model::HasKey<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -14873,12 +14941,13 @@ impl SameIndividual {
         Into::<horned_owl::model::SameIndividual<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -15085,12 +15154,13 @@ impl DifferentIndividuals {
         Into::<horned_owl::model::DifferentIndividuals<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -15326,12 +15396,13 @@ impl ClassAssertion {
         Into::<horned_owl::model::ClassAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -15580,12 +15651,13 @@ impl ObjectPropertyAssertion {
         Into::<horned_owl::model::ObjectPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -15836,12 +15908,13 @@ impl NegativeObjectPropertyAssertion {
         Into::<horned_owl::model::NegativeObjectPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -16092,12 +16165,13 @@ impl DataPropertyAssertion {
         Into::<horned_owl::model::DataPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -16348,12 +16422,13 @@ impl NegativeDataPropertyAssertion {
         Into::<horned_owl::model::NegativeDataPropertyAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -16593,12 +16668,13 @@ impl AnnotationAssertion {
         Into::<horned_owl::model::AnnotationAssertion<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -16836,12 +16912,13 @@ impl SubAnnotationPropertyOf {
         Into::<horned_owl::model::SubAnnotationPropertyOf<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -17079,12 +17156,13 @@ impl AnnotationPropertyDomain {
         Into::<horned_owl::model::AnnotationPropertyDomain<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -17322,12 +17400,13 @@ impl AnnotationPropertyRange {
         Into::<horned_owl::model::AnnotationPropertyRange<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -17536,12 +17615,13 @@ impl DocIRI {
         Into::<horned_owl::model::DocIRI<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -17777,12 +17857,13 @@ impl OntologyID {
         Into::<horned_owl::model::OntologyID<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -17991,12 +18072,13 @@ impl Variable {
         Into::<horned_owl::model::Variable<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -18630,12 +18712,13 @@ pub struct Atom(Atom_Inner);
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -18727,12 +18810,13 @@ pub struct Atom(Atom_Inner);
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -18824,12 +18908,13 @@ pub struct Atom(Atom_Inner);
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -18921,12 +19006,13 @@ pub struct Atom(Atom_Inner);
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -19018,12 +19104,13 @@ pub struct Atom(Atom_Inner);
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -19115,12 +19202,13 @@ pub struct Atom(Atom_Inner);
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -19212,12 +19300,13 @@ pub struct Atom(Atom_Inner);
             Into::<horned_owl::model::Atom<ArcStr>>::into(Into::<Atom>::into(self.clone())).as_functional().to_string()
         }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -19613,12 +19702,13 @@ impl Rule {
         Into::<horned_owl::model::Rule<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,
@@ -20450,12 +20540,13 @@ impl AnnotatedComponent {
         Into::<horned_owl::model::AnnotatedComponent<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     fn serialize(
         &self,
         serialization: &str,

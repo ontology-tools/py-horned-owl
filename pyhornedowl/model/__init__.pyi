@@ -6,10 +6,11 @@ from .. import PrefixMapping
 class IRI:
     parse: Any
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -68,10 +69,11 @@ class Class:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -87,10 +89,11 @@ class AnonymousIndividual:
 
     def __str__(self) -> str:
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -106,10 +109,11 @@ class NamedIndividual:
 
     def __str__(self) -> str:
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -156,10 +160,11 @@ class ObjectProperty:
     def __invert__(self) -> ObjectPropertyExpression:
         """Inverse of object property expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -175,10 +180,11 @@ class Datatype:
 
     def __str__(self) -> str:
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -194,10 +200,11 @@ class DataProperty:
 
     def __str__(self) -> str:
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -265,10 +272,11 @@ class InverseObjectProperty:
     def __invert__(self) -> ObjectPropertyExpression:
         """Inverse of object property expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -286,10 +294,11 @@ class SimpleLiteral:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -304,10 +313,11 @@ class LanguageLiteral:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -322,10 +332,11 @@ class DatatypeLiteral:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -343,10 +354,11 @@ class DataIntersectionOf:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -360,10 +372,11 @@ class DataUnionOf:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -377,10 +390,11 @@ class DataComplementOf:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -394,10 +408,11 @@ class DataOneOf:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -412,10 +427,11 @@ class DatatypeRestriction:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -444,10 +460,11 @@ class ObjectIntersectionOf:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -472,10 +489,11 @@ class ObjectUnionOf:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -500,10 +518,11 @@ class ObjectComplementOf:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -528,10 +547,11 @@ class ObjectOneOf:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -557,10 +577,11 @@ class ObjectSomeValuesFrom:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -586,10 +607,11 @@ class ObjectAllValuesFrom:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -615,10 +637,11 @@ class ObjectHasValue:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -643,10 +666,11 @@ class ObjectHasSelf:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -673,10 +697,11 @@ class ObjectMinCardinality:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -703,10 +728,11 @@ class ObjectMaxCardinality:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -733,10 +759,11 @@ class ObjectExactCardinality:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -762,10 +789,11 @@ class DataSomeValuesFrom:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -791,10 +819,11 @@ class DataAllValuesFrom:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -820,10 +849,11 @@ class DataHasValue:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -850,10 +880,11 @@ class DataMinCardinality:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -880,10 +911,11 @@ class DataMaxCardinality:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -910,10 +942,11 @@ class DataExactCardinality:
     def __invert__(self) -> ObjectIntersectionOf:
         """Complement of a class expression"""
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -975,10 +1008,11 @@ class OntologyAnnotation:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -992,10 +1026,11 @@ class Import:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1009,10 +1044,11 @@ class DeclareClass:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1026,10 +1062,11 @@ class DeclareObjectProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1043,10 +1080,11 @@ class DeclareAnnotationProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1060,10 +1098,11 @@ class DeclareDataProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1077,10 +1116,11 @@ class DeclareNamedIndividual:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1094,10 +1134,11 @@ class DeclareDatatype:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1109,10 +1150,11 @@ class SubClassOf:
 
     def __init__(self,sub: ClassExpression,sup: ClassExpression,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1127,10 +1169,11 @@ class EquivalentClasses:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1144,10 +1187,11 @@ class DisjointClasses:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1162,10 +1206,11 @@ class DisjointUnion:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1179,10 +1224,11 @@ class SubObjectPropertyOf:
 
     def __init__(self,sub: SubObjectPropertyExpression,sup: ObjectPropertyExpression,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1197,10 +1243,11 @@ class EquivalentObjectProperties:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1214,10 +1261,11 @@ class DisjointObjectProperties:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1232,10 +1280,11 @@ class InverseObjectProperties:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1247,10 +1296,11 @@ class ObjectPropertyDomain:
 
     def __init__(self,ope: ObjectPropertyExpression,ce: ClassExpression,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1263,10 +1313,11 @@ class ObjectPropertyRange:
 
     def __init__(self,ope: ObjectPropertyExpression,ce: ClassExpression,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1281,10 +1332,11 @@ class FunctionalObjectProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1298,10 +1350,11 @@ class InverseFunctionalObjectProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1315,10 +1368,11 @@ class ReflexiveObjectProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1332,10 +1386,11 @@ class IrreflexiveObjectProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1349,10 +1404,11 @@ class SymmetricObjectProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1366,10 +1422,11 @@ class AsymmetricObjectProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1383,10 +1440,11 @@ class TransitiveObjectProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1398,10 +1456,11 @@ class SubDataPropertyOf:
 
     def __init__(self,sub: DataProperty,sup: DataProperty,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1416,10 +1475,11 @@ class EquivalentDataProperties:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1433,10 +1493,11 @@ class DisjointDataProperties:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1448,10 +1509,11 @@ class DataPropertyDomain:
 
     def __init__(self,dp: DataProperty,ce: ClassExpression,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1464,10 +1526,11 @@ class DataPropertyRange:
 
     def __init__(self,dp: DataProperty,dr: DataRange,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1482,10 +1545,11 @@ class FunctionalDataProperty:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1497,10 +1561,11 @@ class DatatypeDefinition:
 
     def __init__(self,kind: Datatype,range: DataRange,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1513,10 +1578,11 @@ class HasKey:
 
     def __init__(self,ce: ClassExpression,vpe: typing.List[PropertyExpression],/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1531,10 +1597,11 @@ class SameIndividual:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1548,10 +1615,11 @@ class DifferentIndividuals:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1563,10 +1631,11 @@ class ClassAssertion:
 
     def __init__(self,ce: ClassExpression,i: Individual,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1580,10 +1649,11 @@ class ObjectPropertyAssertion:
 
     def __init__(self,ope: ObjectPropertyExpression,source: Individual,target: Individual,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1597,10 +1667,11 @@ class NegativeObjectPropertyAssertion:
 
     def __init__(self,ope: ObjectPropertyExpression,source: Individual,target: Individual,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1614,10 +1685,11 @@ class DataPropertyAssertion:
 
     def __init__(self,dp: DataProperty,source: Individual,target: Literal,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1631,10 +1703,11 @@ class NegativeDataPropertyAssertion:
 
     def __init__(self,dp: DataProperty,source: Individual,target: Literal,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1647,10 +1720,11 @@ class AnnotationAssertion:
 
     def __init__(self,subject: AnnotationSubject,ann: Annotation,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1663,10 +1737,11 @@ class SubAnnotationPropertyOf:
 
     def __init__(self,sub: AnnotationProperty,sup: AnnotationProperty,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1679,10 +1754,11 @@ class AnnotationPropertyDomain:
 
     def __init__(self,ap: AnnotationProperty,iri: IRI,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1695,10 +1771,11 @@ class AnnotationPropertyRange:
 
     def __init__(self,ap: AnnotationProperty,iri: IRI,/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1713,10 +1790,11 @@ class DocIRI:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1728,10 +1806,11 @@ class OntologyID:
 
     def __init__(self,iri: typing.Optional[IRI],viri: typing.Optional[IRI],/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1746,10 +1825,11 @@ class Variable:
         ...
 
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1770,10 +1850,11 @@ class BuiltInAtom:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1788,10 +1869,11 @@ class ClassAtom:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1806,10 +1888,11 @@ class DataPropertyAtom:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1824,10 +1907,11 @@ class DataRangeAtom:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1842,10 +1926,11 @@ class DifferentIndividualsAtom:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1860,10 +1945,11 @@ class ObjectPropertyAtom:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1878,10 +1964,11 @@ class SameIndividualAtom:
         ...
     
 
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
     ...
@@ -1895,10 +1982,11 @@ class Rule:
 
     def __init__(self,head: typing.List[Atom],body: typing.List[Atom],/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 
@@ -1913,10 +2001,11 @@ class AnnotatedComponent:
 
     def __init__(self,component: Component,ann: typing.Set[Annotation],/):
         ...
-    def serialize(self, serialization: typing.Literal['omn', 'ofn']='omn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
+    def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
-        Renders this element on its own, in OWL 2 Manchester (`omn`) or OWL functional
-        (`ofn`) syntax. The per-element counterpart to `PyIndexedOntology.save_to_string`.
+        Renders this element on its own, in OWL functional (`ofn`, the default) or OWL 2
+        Manchester (`omn`) syntax. The per-element counterpart to
+        `PyIndexedOntology.save_to_string`.
         """
         ...
 

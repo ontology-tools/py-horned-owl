@@ -162,11 +162,12 @@ frames, which cannot be sliced back into individual axioms.
     ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
 
     for axiom in ontology.get_axioms():
-        print(axiom.serialize())               # Manchester (default)
-        print(axiom.serialize("ofn"))          # functional syntax
+        print(axiom.serialize())               # functional syntax (default)
+        print(axiom.serialize("omn"))          # Manchester
 
-Accepted values are ``omn`` and ``ofn``: the serializations for which horned-owl provides
-a per-element writer. The OWL/XML and RDF writers operate on whole ontologies only.
+Accepted values are ``ofn`` (the default) and ``omn``: the serializations for which
+horned-owl provides a per-element writer. The OWL/XML and RDF writers operate on whole
+ontologies only.
 
 Pass a :class:`~pyhornedowl.PrefixMapping` to abbreviate IRIs:
 

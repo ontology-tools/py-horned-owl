@@ -87,12 +87,12 @@ impl IRI {
         IRI(builder.iri(value))
     }
 
-    /// serialize(self, serialization = "omn", prefix_mapping = None)
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
     ///
-    /// Renders this element on its own, in OWL 2 Manchester (`"omn"`) or OWL
-    /// functional (`"ofn"`) syntax. The per-element counterpart to
-    /// `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "omn", prefix_mapping = None))]
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
     pub fn serialize(
         &self,
         serialization: &str,

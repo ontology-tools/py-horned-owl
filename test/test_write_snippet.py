@@ -32,7 +32,7 @@ R = "http://example.com/r"
 def test_renders_named_subclass_axiom():
     ax = SubClassOf(sub=c(A), sup=c(B))
 
-    assert pyhornedowl.write_snippet(ax) == f"<{A}> SubClassOf <{B}>"
+    assert pyhornedowl.write_snippet(ax, "omn") == f"<{A}> SubClassOf <{B}>"
 
 
 def test_renders_existential_restriction():
@@ -41,13 +41,13 @@ def test_renders_existential_restriction():
         sup=ObjectSomeValuesFrom(ope=ObjectProperty(IRI.parse(R)), bce=c(B)),
     )
 
-    assert pyhornedowl.write_snippet(ax) == f"<{A}> SubClassOf <{R}> some <{B}>"
+    assert pyhornedowl.write_snippet(ax, "omn") == f"<{A}> SubClassOf <{R}> some <{B}>"
 
 
 def test_renders_class_expression_alone():
     ce = ObjectSomeValuesFrom(ope=ObjectProperty(IRI.parse(R)), bce=c(B))
 
-    assert pyhornedowl.write_snippet(ce) == f"<{R}> some <{B}>"
+    assert pyhornedowl.write_snippet(ce, "omn") == f"<{R}> some <{B}>"
 
 
 def test_abbreviates_with_prefix_mapping():
@@ -85,10 +85,10 @@ def test_renders_functional_syntax():
     assert pyhornedowl.write_snippet(ax, "ofn") == f"SubClassOf(<{A}> <{B}>)"
 
 
-def test_defaults_to_manchester():
+def test_defaults_to_functional():
     ax = SubClassOf(sub=c(A), sup=c(B))
 
-    assert pyhornedowl.write_snippet(ax) == pyhornedowl.write_snippet(ax, "omn")
+    assert pyhornedowl.write_snippet(ax) == pyhornedowl.write_snippet(ax, "ofn")
 
 
 @pytest.mark.parametrize(
