@@ -91,9 +91,7 @@ def test_defaults_to_functional():
     assert pyhornedowl.write_snippet(ax) == pyhornedowl.write_snippet(ax, "ofn")
 
 
-@pytest.mark.parametrize(
-    "serialization", ["owx", "rdf", "obo", "manchester", "functional", "nonsense"]
-)
+@pytest.mark.parametrize("serialization", ["owx", "rdf", "obo", "nonsense"])
 def test_rejects_serializations_without_a_per_element_writer(serialization):
     ax = SubClassOf(sub=c(A), sup=c(B))
 

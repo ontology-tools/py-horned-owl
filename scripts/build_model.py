@@ -151,16 +151,16 @@ def build_from_templates(lang: Literal["rs", "pyi"]):
 
     for model in data:
         type = model["type"]
-        manchester = manchester_route(model["name"], component_variants)
+        route = manchester_route(model["name"], component_variants)
         # An enum's variants render through the parent enum's horned-owl type,
         # so the parent is the one that has to reach the Manchester writer.
-        if type == "enum" and manchester != "direct":
+        if type == "enum" and route != "direct":
             raise ValueError(
                 f"{model['name']} is an enum but does not implement AsManchester; "
                 "enum.rs.jinja2 renders its variants through it"
             )
         template = env.get_template(f"{type}.{lang}.jinja2")
-        res = template.render(model=model, manchester=manchester)
+        res = template.render(model=model, route=route)
         out.append(res + "\n")
 
     return "".join(out)

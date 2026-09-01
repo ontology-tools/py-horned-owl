@@ -75,7 +75,7 @@ impl {{ model.name }} {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::{{ model.name }}<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
-{{ serialize_method(model.name, "horned_owl::model::" ~ model.name ~ "<ArcStr>", "self.clone().into()", manchester) }}
+{{ serialize_method(model.name, "horned_owl::model::" ~ model.name ~ "<ArcStr>", "self.clone().into()", route) }}
 {%- endif %}
 }
 

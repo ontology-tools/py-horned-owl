@@ -119,7 +119,7 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::{{ model.name }}<ArcStr>>::into(Into::<{{ model.name }}>::into(self.clone())).as_functional().to_string()
         }
-{{ serialize_method(v_name_full, "horned_owl::model::" ~ model.name ~ "<ArcStr>", "Into::<" ~ model.name ~ ">::into(self.clone()).into()", manchester) }}
+{{ serialize_method(v_name_full, "horned_owl::model::" ~ model.name ~ "<ArcStr>", "Into::<" ~ model.name ~ ">::into(self.clone()).into()", route) }}
     }
 
     {{ include_extensions(model.extensions, v_name_full)}}

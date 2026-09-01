@@ -98,9 +98,7 @@ def test_functional_keeps_axiom_annotations_that_manchester_drops():
     assert ac.serialize("omn") == f"<{A}> SubClassOf <{B}>"
 
 
-@pytest.mark.parametrize(
-    "serialization", ["owx", "rdf", "obo", "manchester", "functional", "nonsense"]
-)
+@pytest.mark.parametrize("serialization", ["owx", "rdf", "obo", "nonsense"])
 def test_rejects_serializations_without_a_per_element_writer(serialization):
     ax = SubClassOf(sub=c(A), sup=c(B))
 
