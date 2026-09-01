@@ -68,7 +68,7 @@ def test_load_obo_explicit():
     onto = pyhornedowl.open_ontology(SIMPLE_OBO, "obo")
 
     assert any(
-        "EX_1" in pyhornedowl.write_snippet(ac) for ac in onto.get_axioms()
+        "EX_1" in ac.serialize() for ac in onto.get_axioms()
     ), "expected the OBO term EX:1 to map to an IRI"
 
 

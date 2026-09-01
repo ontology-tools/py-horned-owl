@@ -406,30 +406,6 @@ class PrefixMapping:
         ...
 
 
-def write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
-    """
-    Renders a single axiom, component, or class expression as a string.
-    
-    The free-function form of `element.serialize(serialization, prefix_mapping)`, which
-    every model class has.
-    
-    This is the per-element counterpart to `save_to_string`, which serializes a whole
-    ontology. Manchester output in particular cannot be recovered from
-    `save_to_string("omn")`, because that groups axioms into entity frames.
-    
-    Only `"ofn"` (the default) and `"omn"` are supported: those are the serializations
-    for which horned-owl provides a per-element writer. Its OWL/XML, RDF and OBO
-    writers operate on whole ontologies only.
-    
-    If a `prefix_mapping` is given, IRIs are abbreviated with it where possible.
-    
-    Note that `"ofn"` renders an `AnnotatedComponent` including its axiom annotations,
-    while `"omn"` renders only the component: horned-owl's Manchester writer has no
-    per-element rendering for annotated axioms.
-    """
-    ...
-
-
 def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from a path or plain text.

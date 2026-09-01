@@ -191,10 +191,3 @@ A few classes have no Manchester rendering of their own -- an
 Manchester syntax writes each of them only inside the element that holds it, so
 ``serialize("omn")`` raises :class:`ValueError` and ``serialize("ofn")`` is the way to
 render them alone.
-
-:func:`~pyhornedowl.write_snippet` is the same rendering as a free function, taking the
-element as its first argument:
-
-.. code-block:: python
-
-    print(pyhornedowl.write_snippet(axiom, "omn", ontology.prefix_mapping))

@@ -292,72 +292,12 @@ fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReaso
     )))
 }
 
-/// write_snippet(element: typing.Union[model.AnnotatedComponent, model.Component, model.ClassExpression], serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str
-///
-/// Renders a single axiom, component, or class expression as a string.
-///
-/// The free-function form of `element.serialize(serialization, prefix_mapping)`, which
-/// every model class has.
-///
-/// This is the per-element counterpart to `save_to_string`, which serializes a whole
-/// ontology. Manchester output in particular cannot be recovered from
-/// `save_to_string("omn")`, because that groups axioms into entity frames.
-///
-/// Only `"ofn"` (the default) and `"omn"` are supported: those are the serializations
-/// for which horned-owl provides a per-element writer. Its OWL/XML, RDF and OBO
-/// writers operate on whole ontologies only.
-///
-/// If a `prefix_mapping` is given, IRIs are abbreviated with it where possible.
-///
-/// Note that `"ofn"` renders an `AnnotatedComponent` including its axiom annotations,
-/// while `"omn"` renders only the component: horned-owl's Manchester writer has no
-/// per-element rendering for annotated axioms.
-#[pyfunction]
-#[pyo3(signature = (element, serialization = "ofn", prefix_mapping = None))]
-fn write_snippet(
-    element: &Bound<'_, PyAny>,
-    serialization: &str,
-    prefix_mapping: Option<&prefix_mapping::PrefixMapping>,
-) -> PyResult<String> {
-    let syntax = snippet::parse_syntax(serialization)?;
-
-    if let Ok(ac) = element.extract::<model::AnnotatedComponent>() {
-        let ac: AnnotatedComponent<Arc<str>> = ac.into();
-        // AsManchester has no impl for AnnotatedComponent, so Manchester renders the
-        // bare component; functional syntax renders the annotations too.
-        return Ok(match syntax {
-            snippet::SnippetSyntax::Manchester => {
-                as_omn!(ac.component, prefix_mapping)
-            }
-            snippet::SnippetSyntax::Functional => as_ofn!(ac, prefix_mapping),
-        });
-    }
-    if let Ok(c) = element.extract::<model::Component>() {
-        let c: Component<Arc<str>> = c.into();
-        return Ok(match syntax {
-            snippet::SnippetSyntax::Manchester => as_omn!(c, prefix_mapping),
-            snippet::SnippetSyntax::Functional => as_ofn!(c, prefix_mapping),
-        });
-    }
-    if let Ok(ce) = element.extract::<model::ClassExpression>() {
-        let ce: ClassExpression<Arc<str>> = ce.into();
-        return Ok(match syntax {
-            snippet::SnippetSyntax::Manchester => as_omn!(ce, prefix_mapping),
-            snippet::SnippetSyntax::Functional => as_ofn!(ce, prefix_mapping),
-        });
-    }
-    Err(PyValueError::new_err(
-        "write_snippet expects a model.AnnotatedComponent, model.Component, or model.ClassExpression",
-    ))
-}
-
 #[pymodule]
 fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyIndexedOntology>()?;
     m.add_class::<IndexCreationStrategy>()?;
     m.add_class::<prefix_mapping::PrefixMapping>()?;
 
-    m.add_function(wrap_pyfunction!(write_snippet, m)?)?;
     m.add_function(wrap_pyfunction!(open_ontology, m)?)?;
     m.add_function(wrap_pyfunction!(open_ontology_from_file, m)?)?;
     m.add_function(wrap_pyfunction!(open_ontology_from_string, m)?)?;

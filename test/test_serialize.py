@@ -1,4 +1,4 @@
-"""`element.serialize(...)`, the method form of `pyhornedowl.write_snippet`."""
+"""Per-element rendering: `element.serialize(serialization, prefix_mapping)`."""
 
 import pytest
 
@@ -58,6 +58,12 @@ def test_renders_a_class_expression():
     assert ce.serialize("omn") == f"<{R}> some <{B}>"
 
 
+def test_renders_a_nested_class_expression_inside_an_axiom():
+    ax = SubClassOf(sub=c(A), sup=ObjectSomeValuesFrom(ope=ObjectProperty(IRI.parse(R)), bce=c(B)))
+
+    assert ax.serialize("omn") == f"<{A}> SubClassOf <{R}> some <{B}>"
+
+
 def test_renders_an_entity_and_an_iri():
     assert c(A).serialize("omn") == f"<{A}>"
     assert IRI.parse(A).serialize("omn") == f"<{A}>"
@@ -72,14 +78,14 @@ def test_abbreviates_with_prefix_mapping():
     assert ax.serialize("ofn", onto.prefix_mapping) == "SubClassOf(ex:A ex:B)"
 
 
-def test_agrees_with_write_snippet():
+def test_renders_every_axiom_of_a_real_ontology():
     onto = pyhornedowl.open_ontology(res("simple.owl"))
+    axioms = list(onto.get_axioms())
 
-    for ac in onto.get_axioms():
+    assert axioms, "expected at least one axiom"
+    for ac in axioms:
         for serialization in ("omn", "ofn"):
-            assert ac.serialize(serialization) == pyhornedowl.write_snippet(
-                ac, serialization
-            )
+            assert ac.serialize(serialization)
 
 
 def test_functional_keeps_axiom_annotations_that_manchester_drops():

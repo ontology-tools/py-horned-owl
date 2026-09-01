@@ -1,5 +1,5 @@
-//! Per-element serialization: the machinery shared by the `write_snippet`
-//! function and the `serialize` method on the model classes.
+//! Per-element serialization: the machinery behind the `serialize` method on
+//! the model classes.
 //!
 //! The rules live here rather than on the classes because they are properties
 //! of the syntax, not of the element:
