@@ -214,9 +214,7 @@ fn open_ontology_from_string(
     let input_format = serialization
         .map(parse_serialization)
         .transpose()?
-        .or_else(|| {
-            horned_owl::io::detect_format(ontology.as_bytes()).map(to_input_format)
-        });
+        .or_else(|| horned_owl::io::detect_format(ontology.as_bytes()).map(to_input_format));
 
     let config = default_parser_config(input_format);
 

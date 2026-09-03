@@ -1255,7 +1255,7 @@ impl PyIndexedOntology {
             InputFormat::Rdf(f) => horned_owl::io::rdf::writer::write_to_rdf_format(
                 &mut file,
                 &amo,
-                f.unwrap_or(RdfFormat::RdfXml).file_extension()
+                f.unwrap_or(RdfFormat::RdfXml).file_extension(),
             ),
             InputFormat::OMN => {
                 horned_owl::io::omn::writer::write(&mut file, &amo, Some(&mapping.0))
