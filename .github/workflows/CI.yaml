@@ -144,6 +144,34 @@ jobs:
           name: wheels-macos-${{ matrix.platform.target }}
           path: dist
 
+  generated:
+    name: Generated files up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+      - name: Check formatting
+        run: |
+          rustup component add rustfmt
+          cargo fmt --check
+      # The generators are invoked directly rather than through the Makefile:
+      # its `docs` target extracts rustdoc JSON from a local horned-owl
+      # checkout using a nightly toolchain, which CI has neither of, so
+      # src/doc.rs stays hand-regenerated.
+      - name: Regenerate the model and the type stubs
+        run: |
+          uv venv --allow-existing
+          uv sync --all-groups --no-install-project
+          .venv/bin/python scripts/build_model.py
+          uv run --with maturin maturin develop
+          .venv/bin/python scripts/gen_pyi.py
+      - name: Fail if anything regenerated differently
+        run: |
+          git diff --exit-code || {
+            echo "::error::Generated files are out of date. Run 'make dev' and commit the result."
+            exit 1
+          }
+
   sdist:
     runs-on: ubuntu-latest
     steps:
