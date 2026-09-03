@@ -13,6 +13,13 @@ To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It gues
    rdf_ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
    owx_ontology = pyhornedowl.open_ontology("path/to/ontology.owx")
    ofn_ontology = pyhornedowl.open_ontology("path/to/ontology", serialization='ofn')
+   omn_ontology = pyhornedowl.open_ontology("path/to/ontology", serialization='omn')
+   obo_ontology = pyhornedowl.open_ontology("path/to/ontology", serialization='obo')
+
+Accepted ``serialization`` values are ``rdf`` (or ``owl``) for RDF/XML, ``owx`` for OWL/XML,
+``ofn`` for OWL Functional Syntax, ``omn`` for OWL 2 Manchester Syntax,
+and ``obo`` for OBO flat files. Other RDF serializations recognised by oxrdfio, such as
+Turtle and N-Triples, are accepted by their extension.
    
 
 
@@ -138,3 +145,49 @@ Instead of writing class expressions as nested constructor calls, some expressio
     assert r.some(A) == ObjectSomeValuesFrom(r, A)
     assert r.only(A) == ObjectAllValuesFrom(r, A)
     assert r.some(A & B | (~r).only(C)) == ObjectSomeValuesFrom(r, ObjectUnionOf([ObjectIntersectionOf([A, B]), ObjectAllValuesFrom(InverseObjectProperty(r), C)]))
+
+
+Render a single axiom
+---------------------
+
+``serialize`` renders a single axiom, component, or class expression as a string. Every
+model class has it. It is the per-element counterpart to ``save_to_string``, and for
+Manchester it is the only option: ``save_to_string("omn")`` groups axioms into entity
+frames, which cannot be sliced back into individual axioms.
+
+.. code-block:: python
+
+    import pyhornedowl
+
+    ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
+
+    for axiom in ontology.get_axioms():
+        print(axiom.serialize())               # functional syntax (default)
+        print(axiom.serialize("omn"))          # Manchester
+
+Accepted values are ``ofn`` (the default) and ``omn``: the serializations for which
+horned-owl provides a per-element writer. Its OWL/XML, RDF and OBO writers operate on
+whole ontologies only.
+
+``obo`` is the one that could not be added even in principle. OBO is stanza-oriented: a
+component does not render to a string of its own but to a clause line under some *other*
+entity's ``[Term]`` stanza, and which stanza that is depends on ``oboInOwl:id``
+annotations gathered from the whole ontology. There is nothing for a per-element writer
+to return.
+
+Pass a :class:`~pyhornedowl.PrefixMapping` to abbreviate IRIs:
+
+.. code-block:: python
+
+    print(axiom.serialize("omn", ontology.prefix_mapping))
+
+Note that ``ofn`` renders an :class:`~pyhornedowl.model.AnnotatedComponent` including its
+axiom annotations, while ``omn`` renders only the component.
+
+A few classes have no Manchester rendering of their own -- an
+:class:`~pyhornedowl.model.Annotation`, an
+:class:`~pyhornedowl.model.AnnotationProperty`, a
+:class:`~pyhornedowl.model.FacetRestriction` and a :class:`~pyhornedowl.model.Facet`.
+Manchester syntax writes each of them only inside the element that holds it, so
+``serialize("omn")`` raises :class:`ValueError` and ``serialize("ofn")`` is the way to
+render them alone.

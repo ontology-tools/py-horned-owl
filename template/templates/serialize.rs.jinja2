@@ -1,0 +1,56 @@
+{#-
+  The `serialize` method, emitted on every model class.
+
+  `route` says how the class reaches horned-owl's Manchester writer; see
+  `manchester_route` in scripts/build_model.py. Functional syntax needs no
+  routing: `AsFunctional` covers the whole model.
+-#}
+{%- macro serialize_method(class, horned_type, value_expr, route) %}
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    ///
+{%- if route %}
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+{%- else %}
+    /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
+    /// per-element counterpart to `PyIndexedOntology.save_to_string`.
+    ///
+    /// horned-owl has no Manchester rendering for this class: Manchester syntax
+    /// writes it only inside the element that contains it, so `"omn"` is an
+    /// error.
+{%- endif %}
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value: {{ horned_type }} = {{ value_expr }};
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+        {%- if route == "direct" %}
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+        {%- elif route == "component" %}
+            crate::snippet::SnippetSyntax::Manchester => {
+                // No AsManchester impl for the component type itself; Manchester
+                // renders it through the Component enum.
+                let component: horned_owl::model::Component<ArcStr> = value.clone().into();
+                crate::as_omn!(component, prefix_mapping)
+            }
+        {%- elif route == "wrapped-component" %}
+            crate::snippet::SnippetSyntax::Manchester => {
+                // AsManchester has no AnnotatedComponent impl, so Manchester
+                // renders the bare component and drops the axiom annotations.
+                crate::as_omn!(value.component, prefix_mapping)
+            }
+        {%- else %}
+            crate::snippet::SnippetSyntax::Manchester => {
+                return Err(crate::snippet::no_manchester_rendering("{{ class }}"))
+            }
+        {%- endif %}
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
+{%- endmacro %}

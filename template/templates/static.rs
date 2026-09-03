@@ -86,6 +86,25 @@ impl IRI {
         let builder = horned_owl::model::Build::new_arc();
         IRI(builder.iri(value))
     }
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL functional (`"ofn"`, the
+    /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
+    /// counterpart to `PyIndexedOntology.save_to_string`.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    pub fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value = self.0.clone();
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
+            crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
+        })
+    }
 }
 
 impl IRI {
@@ -167,6 +186,34 @@ impl Facet {
 
     fn __eq__(&self, other: &Self) -> bool {
         self == other
+    }
+
+    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    ///
+    /// Renders this element on its own, in OWL functional (`"ofn"`) syntax.
+    ///
+    /// horned-owl has no Manchester rendering for a facet: Manchester writes it
+    /// as an operator inside the datatype restriction that holds it.
+    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    pub fn serialize(
+        &self,
+        serialization: &str,
+        prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
+    ) -> PyResult<String> {
+        let value = horned_owl::vocab::Facet::from(self);
+
+        Ok(match crate::snippet::parse_syntax(serialization)? {
+            crate::snippet::SnippetSyntax::Manchester => {
+                return Err(crate::snippet::no_manchester_rendering("Facet"))
+            }
+            // Facet is not generic over `A`, so `AsFunctional<A>` needs naming.
+            crate::snippet::SnippetSyntax::Functional => match prefix_mapping {
+                Some(pm) => {
+                    AsFunctional::<ArcStr>::as_functional_with_prefixes(&value, &pm.0).to_string()
+                }
+                None => AsFunctional::<ArcStr>::as_functional(&value).to_string(),
+            },
+        })
     }
 }
 

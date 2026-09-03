@@ -1,4 +1,5 @@
 {%- from 'extensions.rs.jinja2' import include_extensions -%}
+{%- from 'serialize.rs.jinja2' import serialize_method -%}
 /**************** ENUM implementation for {{ model.name }} ****************/
 #[allow(non_camel_case_types)]
 #[allow(clippy::enum_variant_names)]
@@ -118,6 +119,7 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
         fn __str__(&self) -> String {
             Into::<horned_owl::model::{{ model.name }}<ArcStr>>::into(Into::<{{ model.name }}>::into(self.clone())).as_functional().to_string()
         }
+{{ serialize_method(v_name_full, "horned_owl::model::" ~ model.name ~ "<ArcStr>", "Into::<" ~ model.name ~ ">::into(self.clone()).into()", route) }}
     }
 
     {{ include_extensions(model.extensions, v_name_full)}}

@@ -609,7 +609,7 @@ impl PyIndexedOntology {
         Ok(literal_values)
     }
 
-    /// save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx']) -> str
+    /// save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']) -> str
     ///
     /// Saves the ontology to a UTF8 string.
     pub fn save_to_string(&mut self, py: Python<'_>, serialization: &str) -> PyResult<String> {
@@ -622,7 +622,7 @@ impl PyIndexedOntology {
         String::from_utf8(writer).map_err(to_py_err!("Failed to save ontology to UTF-8"))
     }
 
-    /// save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> None
+    /// save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None) -> None
     ///
     /// Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
     /// Defaults to OWL/XML
