@@ -1,4 +1,4 @@
-.PHONY: all dev mdev model docs tests .venv
+.PHONY: all dev mdev model docs tests
 
 all: lib pyi
 
