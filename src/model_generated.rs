@@ -318,8 +318,6 @@ pub struct Class(
 impl Class {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: IRI,) -> Self {
-        Class (first,)
     fn new(first: IRI) -> Self {
         Class(first)
     }
@@ -546,8 +544,6 @@ pub struct AnonymousIndividual(
 impl AnonymousIndividual {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: StringWrapper,) -> Self {
-        AnonymousIndividual (first,)
     fn new(first: StringWrapper) -> Self {
         AnonymousIndividual(first)
     }
@@ -773,8 +769,6 @@ pub struct NamedIndividual(
 impl NamedIndividual {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: IRI,) -> Self {
-        NamedIndividual (first,)
     fn new(first: IRI) -> Self {
         NamedIndividual(first)
     }
@@ -984,8 +978,6 @@ pub struct ObjectProperty(
 impl ObjectProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: IRI,) -> Self {
-        ObjectProperty (first,)
     fn new(first: IRI) -> Self {
         ObjectProperty(first)
     }
@@ -1267,8 +1259,6 @@ pub struct Datatype(
 impl Datatype {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: IRI,) -> Self {
-        Datatype (first,)
     fn new(first: IRI) -> Self {
         Datatype(first)
     }
@@ -1478,8 +1468,6 @@ pub struct DataProperty(
 impl DataProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: IRI,) -> Self {
-        DataProperty (first,)
     fn new(first: IRI) -> Self {
         DataProperty(first)
     }
@@ -1692,11 +1680,6 @@ pub struct FacetRestriction {
 impl FacetRestriction {
     #[new]
     #[pyo3(signature = (f,l,))]
-    fn new(f: Facet,l: Literal,) -> Self {
-        FacetRestriction {
-                f,
-                l,
-        }
     fn new(f: Facet, l: Literal) -> Self {
         FacetRestriction { f, l }
     }
@@ -2144,6 +2127,7 @@ impl From<InverseObjectProperty> for ObjectPropertyExpression {
 #[pymethods]
 impl InverseObjectProperty {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: ObjectProperty) -> Self {
         InverseObjectProperty(first)
     }
@@ -2587,6 +2571,7 @@ impl From<SimpleLiteral> for Literal {
 #[pymethods]
 impl SimpleLiteral {
     #[new]
+    #[pyo3(signature = (literal,))]
     fn new(literal: String) -> Self {
         SimpleLiteral { literal }
     }
@@ -2684,6 +2669,7 @@ impl From<LanguageLiteral> for Literal {
 #[pymethods]
 impl LanguageLiteral {
     #[new]
+    #[pyo3(signature = (literal,lang,))]
     fn new(literal: String, lang: String) -> Self {
         LanguageLiteral { literal, lang }
     }
@@ -2791,6 +2777,7 @@ impl From<DatatypeLiteral> for Literal {
 #[pymethods]
 impl DatatypeLiteral {
     #[new]
+    #[pyo3(signature = (literal,datatype_iri,))]
     fn new(literal: String, datatype_iri: IRI) -> Self {
         DatatypeLiteral {
             literal,
@@ -3144,6 +3131,7 @@ impl From<DataIntersectionOf> for DataRange {
 #[pymethods]
 impl DataIntersectionOf {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: VecWrap<DataRange>) -> Self {
         DataIntersectionOf(first)
     }
@@ -3235,6 +3223,7 @@ impl From<DataUnionOf> for DataRange {
 #[pymethods]
 impl DataUnionOf {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: VecWrap<DataRange>) -> Self {
         DataUnionOf(first)
     }
@@ -3326,6 +3315,7 @@ impl From<DataComplementOf> for DataRange {
 #[pymethods]
 impl DataComplementOf {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: BoxWrap<DataRange>) -> Self {
         DataComplementOf(first)
     }
@@ -3417,6 +3407,7 @@ impl From<DataOneOf> for DataRange {
 #[pymethods]
 impl DataOneOf {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: VecWrap<Literal>) -> Self {
         DataOneOf(first)
     }
@@ -3511,6 +3502,7 @@ impl From<DatatypeRestriction> for DataRange {
 #[pymethods]
 impl DatatypeRestriction {
     #[new]
+    #[pyo3(signature = (first,second,))]
     fn new(first: Datatype, second: VecWrap<FacetRestriction>) -> Self {
         DatatypeRestriction(first, second)
     }
@@ -3914,6 +3906,7 @@ impl From<ObjectIntersectionOf> for ClassExpression {
 #[pymethods]
 impl ObjectIntersectionOf {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: VecWrap<ClassExpression>) -> Self {
         ObjectIntersectionOf(first)
     }
@@ -4025,6 +4018,7 @@ impl From<ObjectUnionOf> for ClassExpression {
 #[pymethods]
 impl ObjectUnionOf {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: VecWrap<ClassExpression>) -> Self {
         ObjectUnionOf(first)
     }
@@ -4136,6 +4130,7 @@ impl From<ObjectComplementOf> for ClassExpression {
 #[pymethods]
 impl ObjectComplementOf {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: BoxWrap<ClassExpression>) -> Self {
         ObjectComplementOf(first)
     }
@@ -4247,6 +4242,7 @@ impl From<ObjectOneOf> for ClassExpression {
 #[pymethods]
 impl ObjectOneOf {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: VecWrap<Individual>) -> Self {
         ObjectOneOf(first)
     }
@@ -4365,6 +4361,7 @@ impl From<ObjectSomeValuesFrom> for ClassExpression {
 #[pymethods]
 impl ObjectSomeValuesFrom {
     #[new]
+    #[pyo3(signature = (ope,bce,))]
     fn new(ope: ObjectPropertyExpression, bce: BoxWrap<ClassExpression>) -> Self {
         ObjectSomeValuesFrom { ope, bce }
     }
@@ -4493,6 +4490,7 @@ impl From<ObjectAllValuesFrom> for ClassExpression {
 #[pymethods]
 impl ObjectAllValuesFrom {
     #[new]
+    #[pyo3(signature = (ope,bce,))]
     fn new(ope: ObjectPropertyExpression, bce: BoxWrap<ClassExpression>) -> Self {
         ObjectAllValuesFrom { ope, bce }
     }
@@ -4621,6 +4619,7 @@ impl From<ObjectHasValue> for ClassExpression {
 #[pymethods]
 impl ObjectHasValue {
     #[new]
+    #[pyo3(signature = (ope,i,))]
     fn new(ope: ObjectPropertyExpression, i: Individual) -> Self {
         ObjectHasValue { ope, i }
     }
@@ -4742,6 +4741,7 @@ impl From<ObjectHasSelf> for ClassExpression {
 #[pymethods]
 impl ObjectHasSelf {
     #[new]
+    #[pyo3(signature = (first,))]
     fn new(first: ObjectPropertyExpression) -> Self {
         ObjectHasSelf(first)
     }
@@ -4863,6 +4863,7 @@ impl From<ObjectMinCardinality> for ClassExpression {
 #[pymethods]
 impl ObjectMinCardinality {
     #[new]
+    #[pyo3(signature = (n,ope,bce,))]
     fn new(n: u32, ope: ObjectPropertyExpression, bce: BoxWrap<ClassExpression>) -> Self {
         ObjectMinCardinality { n, ope, bce }
     }
@@ -5004,6 +5005,7 @@ impl From<ObjectMaxCardinality> for ClassExpression {
 #[pymethods]
 impl ObjectMaxCardinality {
     #[new]
+    #[pyo3(signature = (n,ope,bce,))]
     fn new(n: u32, ope: ObjectPropertyExpression, bce: BoxWrap<ClassExpression>) -> Self {
         ObjectMaxCardinality { n, ope, bce }
     }
@@ -5145,6 +5147,7 @@ impl From<ObjectExactCardinality> for ClassExpression {
 #[pymethods]
 impl ObjectExactCardinality {
     #[new]
+    #[pyo3(signature = (n,ope,bce,))]
     fn new(n: u32, ope: ObjectPropertyExpression, bce: BoxWrap<ClassExpression>) -> Self {
         ObjectExactCardinality { n, ope, bce }
     }
@@ -5283,6 +5286,7 @@ impl From<DataSomeValuesFrom> for ClassExpression {
 #[pymethods]
 impl DataSomeValuesFrom {
     #[new]
+    #[pyo3(signature = (dp,dr,))]
     fn new(dp: DataProperty, dr: DataRange) -> Self {
         DataSomeValuesFrom { dp, dr }
     }
@@ -5411,6 +5415,7 @@ impl From<DataAllValuesFrom> for ClassExpression {
 #[pymethods]
 impl DataAllValuesFrom {
     #[new]
+    #[pyo3(signature = (dp,dr,))]
     fn new(dp: DataProperty, dr: DataRange) -> Self {
         DataAllValuesFrom { dp, dr }
     }
@@ -5539,6 +5544,7 @@ impl From<DataHasValue> for ClassExpression {
 #[pymethods]
 impl DataHasValue {
     #[new]
+    #[pyo3(signature = (dp,l,))]
     fn new(dp: DataProperty, l: Literal) -> Self {
         DataHasValue { dp, l }
     }
@@ -5670,6 +5676,7 @@ impl From<DataMinCardinality> for ClassExpression {
 #[pymethods]
 impl DataMinCardinality {
     #[new]
+    #[pyo3(signature = (n,dp,dr,))]
     fn new(n: u32, dp: DataProperty, dr: DataRange) -> Self {
         DataMinCardinality { n, dp, dr }
     }
@@ -5811,6 +5818,7 @@ impl From<DataMaxCardinality> for ClassExpression {
 #[pymethods]
 impl DataMaxCardinality {
     #[new]
+    #[pyo3(signature = (n,dp,dr,))]
     fn new(n: u32, dp: DataProperty, dr: DataRange) -> Self {
         DataMaxCardinality { n, dp, dr }
     }
@@ -5952,6 +5960,7 @@ impl From<DataExactCardinality> for ClassExpression {
 #[pymethods]
 impl DataExactCardinality {
     #[new]
+    #[pyo3(signature = (n,dp,dr,))]
     fn new(n: u32, dp: DataProperty, dr: DataRange) -> Self {
         DataExactCardinality { n, dp, dr }
     }
@@ -7088,8 +7097,6 @@ pub struct AnnotationProperty(
 impl AnnotationProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: IRI,) -> Self {
-        AnnotationProperty (first,)
     fn new(first: IRI) -> Self {
         AnnotationProperty(first)
     }
@@ -7517,12 +7524,6 @@ pub struct Annotation {
 impl Annotation {
     #[new]
     #[pyo3(signature = (ap,av,ann = BTreeSetWrap::default(),))]
-    fn new(ap: AnnotationProperty,av: AnnotationValue,ann: BTreeSetWrap<Annotation>,) -> Self {
-        Annotation {
-                ap,
-                av,
-                ann,
-        }
     fn new(ap: AnnotationProperty, av: AnnotationValue, ann: BTreeSetWrap<Annotation>) -> Self {
         Annotation { ap, av, ann }
     }
@@ -7770,8 +7771,6 @@ pub struct OntologyAnnotation(
 impl OntologyAnnotation {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: Annotation,) -> Self {
-        OntologyAnnotation (first,)
     fn new(first: Annotation) -> Self {
         OntologyAnnotation(first)
     }
@@ -7994,8 +7993,6 @@ pub struct Import(
 impl Import {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: IRI,) -> Self {
-        Import (first,)
     fn new(first: IRI) -> Self {
         Import(first)
     }
@@ -8202,8 +8199,6 @@ pub struct DeclareClass(
 impl DeclareClass {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: Class,) -> Self {
-        DeclareClass (first,)
     fn new(first: Class) -> Self {
         DeclareClass(first)
     }
@@ -8410,8 +8405,6 @@ pub struct DeclareObjectProperty(
 impl DeclareObjectProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: ObjectProperty,) -> Self {
-        DeclareObjectProperty (first,)
     fn new(first: ObjectProperty) -> Self {
         DeclareObjectProperty(first)
     }
@@ -8652,8 +8645,6 @@ pub struct DeclareAnnotationProperty(
 impl DeclareAnnotationProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: AnnotationProperty,) -> Self {
-        DeclareAnnotationProperty (first,)
     fn new(first: AnnotationProperty) -> Self {
         DeclareAnnotationProperty(first)
     }
@@ -8902,8 +8893,6 @@ pub struct DeclareDataProperty(
 impl DeclareDataProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: DataProperty,) -> Self {
-        DeclareDataProperty (first,)
     fn new(first: DataProperty) -> Self {
         DeclareDataProperty(first)
     }
@@ -9126,8 +9115,6 @@ pub struct DeclareNamedIndividual(
 impl DeclareNamedIndividual {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: NamedIndividual,) -> Self {
-        DeclareNamedIndividual (first,)
     fn new(first: NamedIndividual) -> Self {
         DeclareNamedIndividual(first)
     }
@@ -9368,8 +9355,6 @@ pub struct DeclareDatatype(
 impl DeclareDatatype {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: Datatype,) -> Self {
-        DeclareDatatype (first,)
     fn new(first: Datatype) -> Self {
         DeclareDatatype(first)
     }
@@ -9579,11 +9564,6 @@ pub struct SubClassOf {
 impl SubClassOf {
     #[new]
     #[pyo3(signature = (sub,sup,))]
-    fn new(sub: ClassExpression,sup: ClassExpression,) -> Self {
-        SubClassOf {
-                sub,
-                sup,
-        }
     fn new(sub: ClassExpression, sup: ClassExpression) -> Self {
         SubClassOf { sub, sup }
     }
@@ -9824,8 +9804,6 @@ pub struct EquivalentClasses(
 impl EquivalentClasses {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: VecWrap<ClassExpression>,) -> Self {
-        EquivalentClasses (first,)
     fn new(first: VecWrap<ClassExpression>) -> Self {
         EquivalentClasses(first)
     }
@@ -10048,8 +10026,6 @@ pub struct DisjointClasses(
 impl DisjointClasses {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: VecWrap<ClassExpression>,) -> Self {
-        DisjointClasses (first,)
     fn new(first: VecWrap<ClassExpression>) -> Self {
         DisjointClasses(first)
     }
@@ -10259,8 +10235,6 @@ pub struct DisjointUnion(
 impl DisjointUnion {
     #[new]
     #[pyo3(signature = (first,second,))]
-    fn new(first: Class,second: VecWrap<ClassExpression>,) -> Self {
-        DisjointUnion (first,second,)
     fn new(first: Class, second: VecWrap<ClassExpression>) -> Self {
         DisjointUnion(first, second)
     }
@@ -10714,11 +10688,6 @@ pub struct SubObjectPropertyOf {
 impl SubObjectPropertyOf {
     #[new]
     #[pyo3(signature = (sub,sup,))]
-    fn new(sub: SubObjectPropertyExpression,sup: ObjectPropertyExpression,) -> Self {
-        SubObjectPropertyOf {
-                sub,
-                sup,
-        }
     fn new(sub: SubObjectPropertyExpression, sup: ObjectPropertyExpression) -> Self {
         SubObjectPropertyOf { sub, sup }
     }
@@ -10975,8 +10944,6 @@ pub struct EquivalentObjectProperties(
 impl EquivalentObjectProperties {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: VecWrap<ObjectPropertyExpression>,) -> Self {
-        EquivalentObjectProperties (first,)
     fn new(first: VecWrap<ObjectPropertyExpression>) -> Self {
         EquivalentObjectProperties(first)
     }
@@ -11227,8 +11194,6 @@ pub struct DisjointObjectProperties(
 impl DisjointObjectProperties {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: VecWrap<ObjectPropertyExpression>,) -> Self {
-        DisjointObjectProperties (first,)
     fn new(first: VecWrap<ObjectPropertyExpression>) -> Self {
         DisjointObjectProperties(first)
     }
@@ -11482,8 +11447,6 @@ pub struct InverseObjectProperties(
 impl InverseObjectProperties {
     #[new]
     #[pyo3(signature = (first,second,))]
-    fn new(first: ObjectProperty,second: ObjectProperty,) -> Self {
-        InverseObjectProperties (first,second,)
     fn new(first: ObjectProperty, second: ObjectProperty) -> Self {
         InverseObjectProperties(first, second)
     }
@@ -11741,11 +11704,6 @@ pub struct ObjectPropertyDomain {
 impl ObjectPropertyDomain {
     #[new]
     #[pyo3(signature = (ope,ce,))]
-    fn new(ope: ObjectPropertyExpression,ce: ClassExpression,) -> Self {
-        ObjectPropertyDomain {
-                ope,
-                ce,
-        }
     fn new(ope: ObjectPropertyExpression, ce: ClassExpression) -> Self {
         ObjectPropertyDomain { ope, ce }
     }
@@ -12005,11 +11963,6 @@ pub struct ObjectPropertyRange {
 impl ObjectPropertyRange {
     #[new]
     #[pyo3(signature = (ope,ce,))]
-    fn new(ope: ObjectPropertyExpression,ce: ClassExpression,) -> Self {
-        ObjectPropertyRange {
-                ope,
-                ce,
-        }
     fn new(ope: ObjectPropertyExpression, ce: ClassExpression) -> Self {
         ObjectPropertyRange { ope, ce }
     }
@@ -12266,8 +12219,6 @@ pub struct FunctionalObjectProperty(
 impl FunctionalObjectProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: ObjectPropertyExpression,) -> Self {
-        FunctionalObjectProperty (first,)
     fn new(first: ObjectPropertyExpression) -> Self {
         FunctionalObjectProperty(first)
     }
@@ -12516,8 +12467,6 @@ pub struct InverseFunctionalObjectProperty(
 impl InverseFunctionalObjectProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: ObjectPropertyExpression,) -> Self {
-        InverseFunctionalObjectProperty (first,)
     fn new(first: ObjectPropertyExpression) -> Self {
         InverseFunctionalObjectProperty(first)
     }
@@ -12787,8 +12736,6 @@ pub struct ReflexiveObjectProperty(
 impl ReflexiveObjectProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: ObjectPropertyExpression,) -> Self {
-        ReflexiveObjectProperty (first,)
     fn new(first: ObjectPropertyExpression) -> Self {
         ReflexiveObjectProperty(first)
     }
@@ -13037,8 +12984,6 @@ pub struct IrreflexiveObjectProperty(
 impl IrreflexiveObjectProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: ObjectPropertyExpression,) -> Self {
-        IrreflexiveObjectProperty (first,)
     fn new(first: ObjectPropertyExpression) -> Self {
         IrreflexiveObjectProperty(first)
     }
@@ -13287,8 +13232,6 @@ pub struct SymmetricObjectProperty(
 impl SymmetricObjectProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: ObjectPropertyExpression,) -> Self {
-        SymmetricObjectProperty (first,)
     fn new(first: ObjectPropertyExpression) -> Self {
         SymmetricObjectProperty(first)
     }
@@ -13537,8 +13480,6 @@ pub struct AsymmetricObjectProperty(
 impl AsymmetricObjectProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: ObjectPropertyExpression,) -> Self {
-        AsymmetricObjectProperty (first,)
     fn new(first: ObjectPropertyExpression) -> Self {
         AsymmetricObjectProperty(first)
     }
@@ -13787,8 +13728,6 @@ pub struct TransitiveObjectProperty(
 impl TransitiveObjectProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: ObjectPropertyExpression,) -> Self {
-        TransitiveObjectProperty (first,)
     fn new(first: ObjectPropertyExpression) -> Self {
         TransitiveObjectProperty(first)
     }
@@ -14040,11 +13979,6 @@ pub struct SubDataPropertyOf {
 impl SubDataPropertyOf {
     #[new]
     #[pyo3(signature = (sub,sup,))]
-    fn new(sub: DataProperty,sup: DataProperty,) -> Self {
-        SubDataPropertyOf {
-                sub,
-                sup,
-        }
     fn new(sub: DataProperty, sup: DataProperty) -> Self {
         SubDataPropertyOf { sub, sup }
     }
@@ -14301,8 +14235,6 @@ pub struct EquivalentDataProperties(
 impl EquivalentDataProperties {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: VecWrap<DataProperty>,) -> Self {
-        EquivalentDataProperties (first,)
     fn new(first: VecWrap<DataProperty>) -> Self {
         EquivalentDataProperties(first)
     }
@@ -14551,8 +14483,6 @@ pub struct DisjointDataProperties(
 impl DisjointDataProperties {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: VecWrap<DataProperty>,) -> Self {
-        DisjointDataProperties (first,)
     fn new(first: VecWrap<DataProperty>) -> Self {
         DisjointDataProperties(first)
     }
@@ -14796,11 +14726,6 @@ pub struct DataPropertyDomain {
 impl DataPropertyDomain {
     #[new]
     #[pyo3(signature = (dp,ce,))]
-    fn new(dp: DataProperty,ce: ClassExpression,) -> Self {
-        DataPropertyDomain {
-                dp,
-                ce,
-        }
     fn new(dp: DataProperty, ce: ClassExpression) -> Self {
         DataPropertyDomain { dp, ce }
     }
@@ -15060,11 +14985,6 @@ pub struct DataPropertyRange {
 impl DataPropertyRange {
     #[new]
     #[pyo3(signature = (dp,dr,))]
-    fn new(dp: DataProperty,dr: DataRange,) -> Self {
-        DataPropertyRange {
-                dp,
-                dr,
-        }
     fn new(dp: DataProperty, dr: DataRange) -> Self {
         DataPropertyRange { dp, dr }
     }
@@ -15321,8 +15241,6 @@ pub struct FunctionalDataProperty(
 impl FunctionalDataProperty {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: DataProperty,) -> Self {
-        FunctionalDataProperty (first,)
     fn new(first: DataProperty) -> Self {
         FunctionalDataProperty(first)
     }
@@ -15566,11 +15484,6 @@ pub struct DatatypeDefinition {
 impl DatatypeDefinition {
     #[new]
     #[pyo3(signature = (kind,range,))]
-    fn new(kind: Datatype,range: DataRange,) -> Self {
-        DatatypeDefinition {
-                kind,
-                range,
-        }
     fn new(kind: Datatype, range: DataRange) -> Self {
         DatatypeDefinition { kind, range }
     }
@@ -15830,11 +15743,6 @@ pub struct HasKey {
 impl HasKey {
     #[new]
     #[pyo3(signature = (ce,vpe,))]
-    fn new(ce: ClassExpression,vpe: VecWrap<PropertyExpression>,) -> Self {
-        HasKey {
-                ce,
-                vpe,
-        }
     fn new(ce: ClassExpression, vpe: VecWrap<PropertyExpression>) -> Self {
         HasKey { ce, vpe }
     }
@@ -16075,8 +15983,6 @@ pub struct SameIndividual(
 impl SameIndividual {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: VecWrap<Individual>,) -> Self {
-        SameIndividual (first,)
     fn new(first: VecWrap<Individual>) -> Self {
         SameIndividual(first)
     }
@@ -16283,8 +16189,6 @@ pub struct DifferentIndividuals(
 impl DifferentIndividuals {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: VecWrap<Individual>,) -> Self {
-        DifferentIndividuals (first,)
     fn new(first: VecWrap<Individual>) -> Self {
         DifferentIndividuals(first)
     }
@@ -16510,11 +16414,6 @@ pub struct ClassAssertion {
 impl ClassAssertion {
     #[new]
     #[pyo3(signature = (ce,i,))]
-    fn new(ce: ClassExpression,i: Individual,) -> Self {
-        ClassAssertion {
-                ce,
-                i,
-        }
     fn new(ce: ClassExpression, i: Individual) -> Self {
         ClassAssertion { ce, i }
     }
@@ -16762,7 +16661,6 @@ pub struct ObjectPropertyAssertion {
 impl ObjectPropertyAssertion {
     #[new]
     #[pyo3(signature = (ope,source,target,))]
-    fn new(ope: ObjectPropertyExpression,source: Individual,target: Individual,) -> Self {
     fn new(ope: ObjectPropertyExpression, source: Individual, target: Individual) -> Self {
         ObjectPropertyAssertion {
             ope,
@@ -17063,7 +16961,6 @@ pub struct NegativeObjectPropertyAssertion {
 impl NegativeObjectPropertyAssertion {
     #[new]
     #[pyo3(signature = (ope,source,target,))]
-    fn new(ope: ObjectPropertyExpression,source: Individual,target: Individual,) -> Self {
     fn new(ope: ObjectPropertyExpression, source: Individual, target: Individual) -> Self {
         NegativeObjectPropertyAssertion {
             ope,
@@ -17381,12 +17278,6 @@ pub struct DataPropertyAssertion {
 impl DataPropertyAssertion {
     #[new]
     #[pyo3(signature = (dp,source,target,))]
-    fn new(dp: DataProperty,source: Individual,target: Literal,) -> Self {
-        DataPropertyAssertion {
-                dp,
-                source,
-                target,
-        }
     fn new(dp: DataProperty, source: Individual, target: Literal) -> Self {
         DataPropertyAssertion { dp, source, target }
     }
@@ -17675,12 +17566,6 @@ pub struct NegativeDataPropertyAssertion {
 impl NegativeDataPropertyAssertion {
     #[new]
     #[pyo3(signature = (dp,source,target,))]
-    fn new(dp: DataProperty,source: Individual,target: Literal,) -> Self {
-        NegativeDataPropertyAssertion {
-                dp,
-                source,
-                target,
-        }
     fn new(dp: DataProperty, source: Individual, target: Literal) -> Self {
         NegativeDataPropertyAssertion { dp, source, target }
     }
@@ -17986,11 +17871,6 @@ pub struct AnnotationAssertion {
 impl AnnotationAssertion {
     #[new]
     #[pyo3(signature = (subject,ann,))]
-    fn new(subject: AnnotationSubject,ann: Annotation,) -> Self {
-        AnnotationAssertion {
-                subject,
-                ann,
-        }
     fn new(subject: AnnotationSubject, ann: Annotation) -> Self {
         AnnotationAssertion { subject, ann }
     }
@@ -18250,11 +18130,6 @@ pub struct SubAnnotationPropertyOf {
 impl SubAnnotationPropertyOf {
     #[new]
     #[pyo3(signature = (sub,sup,))]
-    fn new(sub: AnnotationProperty,sup: AnnotationProperty,) -> Self {
-        SubAnnotationPropertyOf {
-                sub,
-                sup,
-        }
     fn new(sub: AnnotationProperty, sup: AnnotationProperty) -> Self {
         SubAnnotationPropertyOf { sub, sup }
     }
@@ -18540,11 +18415,6 @@ pub struct AnnotationPropertyDomain {
 impl AnnotationPropertyDomain {
     #[new]
     #[pyo3(signature = (ap,iri,))]
-    fn new(ap: AnnotationProperty,iri: IRI,) -> Self {
-        AnnotationPropertyDomain {
-                ap,
-                iri,
-        }
     fn new(ap: AnnotationProperty, iri: IRI) -> Self {
         AnnotationPropertyDomain { ap, iri }
     }
@@ -18830,11 +18700,6 @@ pub struct AnnotationPropertyRange {
 impl AnnotationPropertyRange {
     #[new]
     #[pyo3(signature = (ap,iri,))]
-    fn new(ap: AnnotationProperty,iri: IRI,) -> Self {
-        AnnotationPropertyRange {
-                ap,
-                iri,
-        }
     fn new(ap: AnnotationProperty, iri: IRI) -> Self {
         AnnotationPropertyRange { ap, iri }
     }
@@ -19117,8 +18982,6 @@ pub struct DocIRI(
 impl DocIRI {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: IRI,) -> Self {
-        DocIRI (first,)
     fn new(first: IRI) -> Self {
         DocIRI(first)
     }
@@ -19328,11 +19191,6 @@ pub struct OntologyID {
 impl OntologyID {
     #[new]
     #[pyo3(signature = (iri = None,viri = None,))]
-    fn new(iri: Option<IRI>,viri: Option<IRI>,) -> Self {
-        OntologyID {
-                iri,
-                viri,
-        }
     fn new(iri: Option<IRI>, viri: Option<IRI>) -> Self {
         OntologyID { iri, viri }
     }
@@ -19573,8 +19431,6 @@ pub struct Variable(
 impl Variable {
     #[new]
     #[pyo3(signature = (first,))]
-    fn new(first: IRI,) -> Self {
-        Variable (first,)
     fn new(first: IRI) -> Self {
         Variable(first)
     }
@@ -20156,6 +20012,7 @@ impl From<BuiltInAtom> for Atom {
 #[pymethods]
 impl BuiltInAtom {
     #[new]
+    #[pyo3(signature = (pred,args,))]
     fn new(pred: IRI, args: VecWrap<DArgument>) -> Self {
         BuiltInAtom { pred, args }
     }
@@ -20263,6 +20120,7 @@ impl From<ClassAtom> for Atom {
 #[pymethods]
 impl ClassAtom {
     #[new]
+    #[pyo3(signature = (pred,arg,))]
     fn new(pred: ClassExpression, arg: IArgument) -> Self {
         ClassAtom { pred, arg }
     }
@@ -20370,6 +20228,7 @@ impl From<DataPropertyAtom> for Atom {
 #[pymethods]
 impl DataPropertyAtom {
     #[new]
+    #[pyo3(signature = (pred,args,))]
     fn new(pred: DataProperty, args: (DArgument, DArgument)) -> Self {
         DataPropertyAtom { pred, args }
     }
@@ -20477,6 +20336,7 @@ impl From<DataRangeAtom> for Atom {
 #[pymethods]
 impl DataRangeAtom {
     #[new]
+    #[pyo3(signature = (pred,arg,))]
     fn new(pred: DataRange, arg: DArgument) -> Self {
         DataRangeAtom { pred, arg }
     }
@@ -20580,6 +20440,7 @@ impl From<DifferentIndividualsAtom> for Atom {
 #[pymethods]
 impl DifferentIndividualsAtom {
     #[new]
+    #[pyo3(signature = (first,second,))]
     fn new(first: IArgument, second: IArgument) -> Self {
         DifferentIndividualsAtom(first, second)
     }
@@ -20687,6 +20548,7 @@ impl From<ObjectPropertyAtom> for Atom {
 #[pymethods]
 impl ObjectPropertyAtom {
     #[new]
+    #[pyo3(signature = (pred,args,))]
     fn new(pred: ObjectPropertyExpression, args: (IArgument, IArgument)) -> Self {
         ObjectPropertyAtom { pred, args }
     }
@@ -20790,6 +20652,7 @@ impl From<SameIndividualAtom> for Atom {
 #[pymethods]
 impl SameIndividualAtom {
     #[new]
+    #[pyo3(signature = (first,second,))]
     fn new(first: IArgument, second: IArgument) -> Self {
         SameIndividualAtom(first, second)
     }
@@ -21205,11 +21068,6 @@ pub struct Rule {
 impl Rule {
     #[new]
     #[pyo3(signature = (head,body,))]
-    fn new(head: VecWrap<Atom>,body: VecWrap<Atom>,) -> Self {
-        Rule {
-                head,
-                body,
-        }
     fn new(head: VecWrap<Atom>, body: VecWrap<Atom>) -> Self {
         Rule { head, body }
     }
@@ -22241,11 +22099,6 @@ pub struct AnnotatedComponent {
 impl AnnotatedComponent {
     #[new]
     #[pyo3(signature = (component,ann = BTreeSetWrap::default(),))]
-    fn new(component: Component,ann: BTreeSetWrap<Annotation>,) -> Self {
-        AnnotatedComponent {
-                component,
-                ann,
-        }
     fn new(component: Component, ann: BTreeSetWrap<Annotation>) -> Self {
         AnnotatedComponent { component, ann }
     }
