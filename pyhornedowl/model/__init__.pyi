@@ -985,7 +985,7 @@ class Annotation:
     ann: typing.Set[Annotation]
     __match_args__ = ("ap", "av", "ann", )
 
-    def __init__(self,ap: AnnotationProperty,av: AnnotationValue,ann: typing.Set[Annotation],/):
+    def __init__(self,ap: AnnotationProperty,av: AnnotationValue,ann: typing.Set[Annotation] = set(),/):
         ...
     def serialize(self, serialization: typing.Literal['ofn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
@@ -1804,7 +1804,7 @@ class OntologyID:
     viri: typing.Optional[IRI]
     __match_args__ = ("iri", "viri", )
 
-    def __init__(self,iri: typing.Optional[IRI],viri: typing.Optional[IRI],/):
+    def __init__(self,iri: typing.Optional[IRI] = None,viri: typing.Optional[IRI] = None,/):
         ...
     def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """
@@ -1999,7 +1999,7 @@ class AnnotatedComponent:
     ann: typing.Set[Annotation]
     __match_args__ = ("component", "ann", )
 
-    def __init__(self,component: Component,ann: typing.Set[Annotation],/):
+    def __init__(self,component: Component,ann: typing.Set[Annotation] = set(),/):
         ...
     def serialize(self, serialization: typing.Literal['ofn', 'omn']='ofn', prefix_mapping: typing.Optional[PrefixMapping]=None) -> str:
         """

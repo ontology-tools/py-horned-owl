@@ -6,7 +6,7 @@ class {{ model.name }}:
 
     def __init__(self,
 {%- for k, v in model.fields.items() -%}
-        {{ k | py_field(v) }}: {{ v | as_py_type }},
+        {{ k | py_field(v) }}: {{ v | as_py_type }}{% if v is optional %} = {{ v | py_default }}{% endif %},
 {%- endfor -%} /):
         ...
 

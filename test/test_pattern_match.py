@@ -6,7 +6,7 @@ from test_base import simple_ontology, RDFS_LABEL
 
 def test_pattern_match_annotated_component():
     a = AnnotatedComponent(
-        DeclareClass(Class(IRI.parse("http://example.com/A"))), set()
+        DeclareClass(Class(IRI.parse("http://example.com/A")))
     )
     match a:
         case AnnotatedComponent(_, _):
@@ -22,7 +22,7 @@ def test_pattern_match_component():
         OntologyID(None, None),
         DocIRI(iri),
         OntologyAnnotation(
-            Annotation(AnnotationProperty(iri), SimpleLiteral("Example"), set())
+            Annotation(AnnotationProperty(iri), SimpleLiteral("Example"))
         ),
         Import(iri),
         DeclareClass(Class(iri)),
@@ -59,8 +59,7 @@ def test_pattern_match_nested():
         {
             Annotation(
                 AnnotationProperty(IRI.parse("http://example.com/annotation")),
-                SimpleLiteral("Example Annotation"),
-                set(),
+                SimpleLiteral("Example Annotation")
             )
         },
     )

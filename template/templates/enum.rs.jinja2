@@ -56,6 +56,11 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
     #[pymethods]
     impl {{ v_name_full }} {
         #[new]
+        #[pyo3(signature = (
+    {%- for field, type in variant.fields | fields -%}
+    	{{ field | as_py_name }}{% if field is optional %} = {{ type | rust_default }}{% endif %},
+    {%- endfor -%}
+        ))]
         fn new(
     {%- for field, type in variant.fields | fields -%}
     	{{ field | as_py_name }}: {{ type | as_rust_type }},

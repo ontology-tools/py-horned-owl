@@ -12,7 +12,7 @@ class {{ v_name_full }}:
 
     def __init__(self,
     {%- for field, type in variant.fields | fields -%}
-        {{ field | as_py_name }}: {{ type | as_py_type}},
+        {{ field | as_py_name }}: {{ type | as_py_type}}{% if field is optional %} = {{ type | py_default }}{% endif %},
     {%- endfor -%}):
         ...
     {% endif %}

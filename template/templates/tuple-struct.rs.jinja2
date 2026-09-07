@@ -20,6 +20,7 @@ pub struct {{ model.name }} (
 #[pymethods]
 impl {{ model.name }} {
     #[new]
+    #[pyo3(signature = ({%- for typ in model.fields -%}{{ loop.index0 | as_py_name }}{% if typ is optional %} = {{ typ | rust_default }}{% endif %},{%- endfor -%}))]
     fn new({%- for typ in model.fields -%}{{ loop.index0 | as_py_name }}: {{ typ | as_rust_type }},{%- endfor -%}) -> Self {
         {{ model.name }} (
         {%- for typ in model.fields -%}{{ loop.index0 | as_py_name }}, {%- endfor -%}
