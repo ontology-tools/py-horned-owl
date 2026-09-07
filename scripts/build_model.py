@@ -1,5 +1,8 @@
 import json
 import os
+import re
+import shutil
+import subprocess
 from typing import Optional, Literal
 
 from jinja2 import Environment, select_autoescape, FileSystemLoader, pass_context
@@ -165,10 +168,39 @@ def build_from_templates(lang: Literal["rs", "pyi"]):
 
     return "".join(out)
 
-def main():
+def crate_edition() -> str:
+    """The Rust edition from Cargo.toml, which rustfmt has to be told."""
+    with open(os.path.join(REPO_ROOT, "Cargo.toml")) as f:
+        match = re.search(r'^edition\s*=\s*"(\d+)"', f.read(), re.MULTILINE)
 
-    with open(os.path.join(REPO_ROOT, "src", "model_generated.rs"), "w") as f:
+    return match.group(1) if match else "2021"
+
+
+def rustfmt(path: str):
+    """Format generated Rust in place.
+
+    The templates cannot reasonably keep to a line width of their own: how long
+    an emitted line is depends on the name of the model class it is emitted
+    for. So the generator formats its own output, the way codegen for any other
+    language would, and the templates stay readable.
+    """
+    if shutil.which("rustfmt") is None:
+        raise SystemExit(
+            "rustfmt is needed to format the generated model but was not found. "
+            "It ships with rustup's default toolchain; otherwise "
+            "`rustup component add rustfmt`."
+        )
+
+    subprocess.run(["rustfmt", "--edition", crate_edition(), path], check=True)
+
+
+def main():
+    generated = os.path.join(REPO_ROOT, "src", "model_generated.rs")
+
+    with open(generated, "w") as f:
         f.write(build_from_templates("rs"))
+
+    rustfmt(generated)
 
 
 if __name__ == "__main__":
