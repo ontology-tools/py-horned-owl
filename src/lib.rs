@@ -21,6 +21,7 @@ pub mod model;
 pub mod model_generated;
 pub mod ontology;
 pub mod prefix_mapping;
+pub mod profile;
 pub mod reasoning;
 pub mod snippet;
 pub mod structural_reasoner;
@@ -311,6 +312,18 @@ fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     reasoning_sub_module.add_class::<reasoning::PyReasoner>()?;
     m.add_submodule(&reasoning_sub_module)?;
+
+    let profile_sub_module = PyModule::new(py, "profile")?;
+    profile_sub_module.add_function(wrap_pyfunction!(
+        profile::conformant_profiles,
+        &profile_sub_module
+    )?)?;
+    profile_sub_module.add_function(wrap_pyfunction!(
+        profile::check_profile,
+        &profile_sub_module
+    )?)?;
+    profile_sub_module.add_class::<profile::PyProfileReport>()?;
+    m.add_submodule(&profile_sub_module)?;
 
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
 

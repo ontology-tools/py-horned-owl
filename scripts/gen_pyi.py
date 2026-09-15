@@ -22,6 +22,7 @@ import pyhornedowl.pyhornedowl as pho
 
 os.makedirs("pyhornedowl/model", exist_ok=True)
 os.makedirs("pyhornedowl/reasoning", exist_ok=True)
+os.makedirs("pyhornedowl/profile", exist_ok=True)
 
 
 implemented_magic = [
@@ -250,12 +251,19 @@ handle_module(
         "from typing_extensions import deprecated\n",
         "import model",
         "import reasoning",
+        "import profile",
     ],
 )
 handle_template_module("model")
 
 handle_module(
     "reasoning",
+    ["from __future__ import annotations"],
+    ["import typing", "from typing import *", "from .. import PyIndexedOntology", "from ..model import *"],
+)
+
+handle_module(
+    "profile",
     ["from __future__ import annotations"],
     ["import typing", "from typing import *", "from .. import PyIndexedOntology", "from ..model import *"],
 )

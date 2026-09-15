@@ -4,6 +4,7 @@ from typing_extensions import deprecated
 
 import model
 import reasoning
+import profile
 
 class PyIndexedOntology:
     """
