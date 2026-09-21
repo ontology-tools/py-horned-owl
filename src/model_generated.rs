@@ -302,17 +302,14 @@ impl FromCompatible<BTreeSetWrap<Annotation>>
 }
 
 #[doc = concat!(
-    "Class(first: IRI,)",
+    "Class(first: IRI)",
     "\n\n",
-    doc!(Class)
+    doc!(Class),
+    "\n\n:param IRI first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Class(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub IRI,
-);
+pub struct Class(#[pyo3(get, set, name = "first")] pub IRI);
 
 #[pymethods]
 impl Class {
@@ -337,7 +334,7 @@ impl Class {
         self == other
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -528,17 +525,14 @@ impl Class {
     }
 }
 #[doc = concat!(
-    "AnonymousIndividual(first: str,)",
+    "AnonymousIndividual(first: str)",
     "\n\n",
-    doc!(AnonymousIndividual)
+    doc!(AnonymousIndividual),
+    "\n\n:param str first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct AnonymousIndividual(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub StringWrapper,
-);
+pub struct AnonymousIndividual(#[pyo3(get, set, name = "first")] pub StringWrapper);
 
 #[pymethods]
 impl AnonymousIndividual {
@@ -563,7 +557,7 @@ impl AnonymousIndividual {
         self == other
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -753,17 +747,14 @@ impl AnonymousIndividual {
     }
 }
 #[doc = concat!(
-    "NamedIndividual(first: IRI,)",
+    "NamedIndividual(first: IRI)",
     "\n\n",
-    doc!(NamedIndividual)
+    doc!(NamedIndividual),
+    "\n\n:param IRI first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct NamedIndividual(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub IRI,
-);
+pub struct NamedIndividual(#[pyo3(get, set, name = "first")] pub IRI);
 
 #[pymethods]
 impl NamedIndividual {
@@ -788,7 +779,7 @@ impl NamedIndividual {
         self == other
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -962,17 +953,14 @@ impl NamedIndividual {
     }
 }
 #[doc = concat!(
-    "ObjectProperty(first: IRI,)",
+    "ObjectProperty(first: IRI)",
     "\n\n",
-    doc!(ObjectProperty)
+    doc!(ObjectProperty),
+    "\n\n:param IRI first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ObjectProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub IRI,
-);
+pub struct ObjectProperty(#[pyo3(get, set, name = "first")] pub IRI);
 
 #[pymethods]
 impl ObjectProperty {
@@ -997,7 +985,7 @@ impl ObjectProperty {
         self == other
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -1243,17 +1231,14 @@ impl ObjectProperty {
     }
 }
 #[doc = concat!(
-    "Datatype(first: IRI,)",
+    "Datatype(first: IRI)",
     "\n\n",
-    doc!(Datatype)
+    doc!(Datatype),
+    "\n\n:param IRI first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Datatype(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub IRI,
-);
+pub struct Datatype(#[pyo3(get, set, name = "first")] pub IRI);
 
 #[pymethods]
 impl Datatype {
@@ -1278,7 +1263,7 @@ impl Datatype {
         self == other
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -1452,17 +1437,14 @@ impl Datatype {
     }
 }
 #[doc = concat!(
-    "DataProperty(first: IRI,)",
+    "DataProperty(first: IRI)",
     "\n\n",
-    doc!(DataProperty)
+    doc!(DataProperty),
+    "\n\n:param IRI first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DataProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub IRI,
-);
+pub struct DataProperty(#[pyo3(get, set, name = "first")] pub IRI);
 
 #[pymethods]
 impl DataProperty {
@@ -1487,7 +1469,7 @@ impl DataProperty {
         self == other
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -1660,18 +1642,17 @@ impl DataProperty {
         self.to_string()
     }
 }
-#[doc = concat!("FacetRestriction(f: Facet,l: Literal,)",
+#[doc = concat!("FacetRestriction(f: Facet, l: Literal)",
     "\n\n",
-    doc!(FacetRestriction)
+    doc!(FacetRestriction),
+    "\n\n:param Facet f:\n:param Literal l:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct FacetRestriction {
-    #[doc = "f: Facet"]
     #[pyo3(get, set)]
     pub f: Facet,
 
-    #[doc = "l: Literal"]
     #[pyo3(get, set)]
     pub l: Literal,
 }
@@ -1732,7 +1713,7 @@ impl FacetRestriction {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
     /// per-element counterpart to `PyIndexedOntology.save_to_string`.
@@ -2111,8 +2092,9 @@ pub struct ObjectPropertyExpression(ObjectPropertyExpression_Inner);
 /**************** ENUM VARIANTS for ObjectPropertyExpression ****************/
 
 /**************** ENUM VARIANT InverseObjectProperty for ObjectPropertyExpression ****************/
-#[doc = concat!("InverseObjectProperty(first: ObjectProperty",
-        "\n\n",doc!(InverseObjectProperty))]
+#[doc = concat!("InverseObjectProperty(first: ObjectProperty)",
+        "\n\n",doc!(InverseObjectProperty),
+        "\n\n:param ObjectProperty first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -2185,7 +2167,7 @@ impl InverseObjectProperty {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -2551,13 +2533,13 @@ pub struct Literal(Literal_Inner);
 /**************** ENUM VARIANTS for Literal ****************/
 
 /**************** ENUM VARIANT SimpleLiteral for Literal ****************/
-#[doc = concat!("SimpleLiteral(literal: str",
-        "\n\n",doc!(SimpleLiteral))]
+#[doc = concat!("SimpleLiteral(literal: str)",
+        "\n\n",doc!(SimpleLiteral),
+        "\n\n:param str literal:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SimpleLiteral {
-    #[doc = "literal: str"]
     #[pyo3(get, set)]
     pub literal: String,
 }
@@ -2625,7 +2607,7 @@ impl SimpleLiteral {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -2646,16 +2628,15 @@ impl SimpleLiteral {
 }
 
 /**************** ENUM VARIANT LanguageLiteral for Literal ****************/
-#[doc = concat!("LanguageLiteral(literal: strlang: str",
-        "\n\n",doc!(LanguageLiteral))]
+#[doc = concat!("LanguageLiteral(literal: str, lang: str)",
+        "\n\n",doc!(LanguageLiteral),
+        "\n\n:param str literal:\n:param str lang:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct LanguageLiteral {
-    #[doc = "literal: str"]
     #[pyo3(get, set)]
     pub literal: String,
-    #[doc = "lang: str"]
     #[pyo3(get, set)]
     pub lang: String,
 }
@@ -2733,7 +2714,7 @@ impl LanguageLiteral {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -2754,16 +2735,15 @@ impl LanguageLiteral {
 }
 
 /**************** ENUM VARIANT DatatypeLiteral for Literal ****************/
-#[doc = concat!("DatatypeLiteral(literal: strdatatype_iri: IRI",
-        "\n\n",doc!(DatatypeLiteral))]
+#[doc = concat!("DatatypeLiteral(literal: str, datatype_iri: IRI)",
+        "\n\n",doc!(DatatypeLiteral),
+        "\n\n:param str literal:\n:param IRI datatype_iri:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DatatypeLiteral {
-    #[doc = "literal: str"]
     #[pyo3(get, set)]
     pub literal: String,
-    #[doc = "datatype_iri: IRI"]
     #[pyo3(get, set)]
     pub datatype_iri: IRI,
 }
@@ -2844,7 +2824,7 @@ impl DatatypeLiteral {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -3115,8 +3095,9 @@ pub struct DataRange(DataRange_Inner);
 /**************** ENUM VARIANTS for DataRange ****************/
 
 /**************** ENUM VARIANT DataIntersectionOf for DataRange ****************/
-#[doc = concat!("DataIntersectionOf(first: typing.List[DataRange]",
-        "\n\n",doc!(DataIntersectionOf))]
+#[doc = concat!("DataIntersectionOf(first: typing.List[DataRange])",
+        "\n\n",doc!(DataIntersectionOf),
+        "\n\n:param typing.List[DataRange] first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -3185,7 +3166,7 @@ impl DataIntersectionOf {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -3207,8 +3188,9 @@ impl DataIntersectionOf {
 }
 
 /**************** ENUM VARIANT DataUnionOf for DataRange ****************/
-#[doc = concat!("DataUnionOf(first: typing.List[DataRange]",
-        "\n\n",doc!(DataUnionOf))]
+#[doc = concat!("DataUnionOf(first: typing.List[DataRange])",
+        "\n\n",doc!(DataUnionOf),
+        "\n\n:param typing.List[DataRange] first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -3277,7 +3259,7 @@ impl DataUnionOf {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -3299,8 +3281,9 @@ impl DataUnionOf {
 }
 
 /**************** ENUM VARIANT DataComplementOf for DataRange ****************/
-#[doc = concat!("DataComplementOf(first: DataRange",
-        "\n\n",doc!(DataComplementOf))]
+#[doc = concat!("DataComplementOf(first: DataRange)",
+        "\n\n",doc!(DataComplementOf),
+        "\n\n:param DataRange first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -3369,7 +3352,7 @@ impl DataComplementOf {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -3391,8 +3374,9 @@ impl DataComplementOf {
 }
 
 /**************** ENUM VARIANT DataOneOf for DataRange ****************/
-#[doc = concat!("DataOneOf(first: typing.List[Literal]",
-        "\n\n",doc!(DataOneOf))]
+#[doc = concat!("DataOneOf(first: typing.List[Literal])",
+        "\n\n",doc!(DataOneOf),
+        "\n\n:param typing.List[Literal] first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -3461,7 +3445,7 @@ impl DataOneOf {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -3483,8 +3467,9 @@ impl DataOneOf {
 }
 
 /**************** ENUM VARIANT DatatypeRestriction for DataRange ****************/
-#[doc = concat!("DatatypeRestriction(first: Datatypesecond: typing.List[FacetRestriction]",
-        "\n\n",doc!(DatatypeRestriction))]
+#[doc = concat!("DatatypeRestriction(first: Datatype, second: typing.List[FacetRestriction])",
+        "\n\n",doc!(DatatypeRestriction),
+        "\n\n:param Datatype first:\n:param typing.List[FacetRestriction] second:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -3566,7 +3551,7 @@ impl DatatypeRestriction {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -3890,8 +3875,9 @@ pub struct ClassExpression(ClassExpression_Inner);
 /**************** ENUM VARIANTS for ClassExpression ****************/
 
 /**************** ENUM VARIANT ObjectIntersectionOf for ClassExpression ****************/
-#[doc = concat!("ObjectIntersectionOf(first: typing.List[ClassExpression]",
-        "\n\n",doc!(ObjectIntersectionOf))]
+#[doc = concat!("ObjectIntersectionOf(first: typing.List[ClassExpression])",
+        "\n\n",doc!(ObjectIntersectionOf),
+        "\n\n:param typing.List[ClassExpression] first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -3962,7 +3948,7 @@ impl ObjectIntersectionOf {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -4002,8 +3988,9 @@ impl ObjectIntersectionOf {
 }
 
 /**************** ENUM VARIANT ObjectUnionOf for ClassExpression ****************/
-#[doc = concat!("ObjectUnionOf(first: typing.List[ClassExpression]",
-        "\n\n",doc!(ObjectUnionOf))]
+#[doc = concat!("ObjectUnionOf(first: typing.List[ClassExpression])",
+        "\n\n",doc!(ObjectUnionOf),
+        "\n\n:param typing.List[ClassExpression] first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -4074,7 +4061,7 @@ impl ObjectUnionOf {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -4114,8 +4101,9 @@ impl ObjectUnionOf {
 }
 
 /**************** ENUM VARIANT ObjectComplementOf for ClassExpression ****************/
-#[doc = concat!("ObjectComplementOf(first: ClassExpression",
-        "\n\n",doc!(ObjectComplementOf))]
+#[doc = concat!("ObjectComplementOf(first: ClassExpression)",
+        "\n\n",doc!(ObjectComplementOf),
+        "\n\n:param ClassExpression first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -4186,7 +4174,7 @@ impl ObjectComplementOf {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -4226,8 +4214,9 @@ impl ObjectComplementOf {
 }
 
 /**************** ENUM VARIANT ObjectOneOf for ClassExpression ****************/
-#[doc = concat!("ObjectOneOf(first: typing.List[Individual]",
-        "\n\n",doc!(ObjectOneOf))]
+#[doc = concat!("ObjectOneOf(first: typing.List[Individual])",
+        "\n\n",doc!(ObjectOneOf),
+        "\n\n:param typing.List[Individual] first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -4298,7 +4287,7 @@ impl ObjectOneOf {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -4338,16 +4327,15 @@ impl ObjectOneOf {
 }
 
 /**************** ENUM VARIANT ObjectSomeValuesFrom for ClassExpression ****************/
-#[doc = concat!("ObjectSomeValuesFrom(ope: ObjectPropertyExpressionbce: ClassExpression",
-        "\n\n",doc!(ObjectSomeValuesFrom))]
+#[doc = concat!("ObjectSomeValuesFrom(ope: ObjectPropertyExpression, bce: ClassExpression)",
+        "\n\n",doc!(ObjectSomeValuesFrom),
+        "\n\n:param ObjectPropertyExpression ope:\n:param ClassExpression bce:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectSomeValuesFrom {
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
-    #[doc = "bce: ClassExpression"]
     #[pyo3(get, set)]
     pub bce: BoxWrap<ClassExpression>,
 }
@@ -4427,7 +4415,7 @@ impl ObjectSomeValuesFrom {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -4467,16 +4455,15 @@ impl ObjectSomeValuesFrom {
 }
 
 /**************** ENUM VARIANT ObjectAllValuesFrom for ClassExpression ****************/
-#[doc = concat!("ObjectAllValuesFrom(ope: ObjectPropertyExpressionbce: ClassExpression",
-        "\n\n",doc!(ObjectAllValuesFrom))]
+#[doc = concat!("ObjectAllValuesFrom(ope: ObjectPropertyExpression, bce: ClassExpression)",
+        "\n\n",doc!(ObjectAllValuesFrom),
+        "\n\n:param ObjectPropertyExpression ope:\n:param ClassExpression bce:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectAllValuesFrom {
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
-    #[doc = "bce: ClassExpression"]
     #[pyo3(get, set)]
     pub bce: BoxWrap<ClassExpression>,
 }
@@ -4556,7 +4543,7 @@ impl ObjectAllValuesFrom {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -4596,16 +4583,15 @@ impl ObjectAllValuesFrom {
 }
 
 /**************** ENUM VARIANT ObjectHasValue for ClassExpression ****************/
-#[doc = concat!("ObjectHasValue(ope: ObjectPropertyExpressioni: Individual",
-        "\n\n",doc!(ObjectHasValue))]
+#[doc = concat!("ObjectHasValue(ope: ObjectPropertyExpression, i: Individual)",
+        "\n\n",doc!(ObjectHasValue),
+        "\n\n:param ObjectPropertyExpression ope:\n:param Individual i:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectHasValue {
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
-    #[doc = "i: Individual"]
     #[pyo3(get, set)]
     pub i: Individual,
 }
@@ -4685,7 +4671,7 @@ impl ObjectHasValue {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -4725,8 +4711,9 @@ impl ObjectHasValue {
 }
 
 /**************** ENUM VARIANT ObjectHasSelf for ClassExpression ****************/
-#[doc = concat!("ObjectHasSelf(first: ObjectPropertyExpression",
-        "\n\n",doc!(ObjectHasSelf))]
+#[doc = concat!("ObjectHasSelf(first: ObjectPropertyExpression)",
+        "\n\n",doc!(ObjectHasSelf),
+        "\n\n:param ObjectPropertyExpression first:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -4797,7 +4784,7 @@ impl ObjectHasSelf {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -4837,19 +4824,17 @@ impl ObjectHasSelf {
 }
 
 /**************** ENUM VARIANT ObjectMinCardinality for ClassExpression ****************/
-#[doc = concat!("ObjectMinCardinality(n: intope: ObjectPropertyExpressionbce: ClassExpression",
-        "\n\n",doc!(ObjectMinCardinality))]
+#[doc = concat!("ObjectMinCardinality(n: int, ope: ObjectPropertyExpression, bce: ClassExpression)",
+        "\n\n",doc!(ObjectMinCardinality),
+        "\n\n:param int n:\n:param ObjectPropertyExpression ope:\n:param ClassExpression bce:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectMinCardinality {
-    #[doc = "n: int"]
     #[pyo3(get, set)]
     pub n: u32,
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
-    #[doc = "bce: ClassExpression"]
     #[pyo3(get, set)]
     pub bce: BoxWrap<ClassExpression>,
 }
@@ -4939,7 +4924,7 @@ impl ObjectMinCardinality {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -4979,19 +4964,17 @@ impl ObjectMinCardinality {
 }
 
 /**************** ENUM VARIANT ObjectMaxCardinality for ClassExpression ****************/
-#[doc = concat!("ObjectMaxCardinality(n: intope: ObjectPropertyExpressionbce: ClassExpression",
-        "\n\n",doc!(ObjectMaxCardinality))]
+#[doc = concat!("ObjectMaxCardinality(n: int, ope: ObjectPropertyExpression, bce: ClassExpression)",
+        "\n\n",doc!(ObjectMaxCardinality),
+        "\n\n:param int n:\n:param ObjectPropertyExpression ope:\n:param ClassExpression bce:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectMaxCardinality {
-    #[doc = "n: int"]
     #[pyo3(get, set)]
     pub n: u32,
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
-    #[doc = "bce: ClassExpression"]
     #[pyo3(get, set)]
     pub bce: BoxWrap<ClassExpression>,
 }
@@ -5081,7 +5064,7 @@ impl ObjectMaxCardinality {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -5121,19 +5104,17 @@ impl ObjectMaxCardinality {
 }
 
 /**************** ENUM VARIANT ObjectExactCardinality for ClassExpression ****************/
-#[doc = concat!("ObjectExactCardinality(n: intope: ObjectPropertyExpressionbce: ClassExpression",
-        "\n\n",doc!(ObjectExactCardinality))]
+#[doc = concat!("ObjectExactCardinality(n: int, ope: ObjectPropertyExpression, bce: ClassExpression)",
+        "\n\n",doc!(ObjectExactCardinality),
+        "\n\n:param int n:\n:param ObjectPropertyExpression ope:\n:param ClassExpression bce:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectExactCardinality {
-    #[doc = "n: int"]
     #[pyo3(get, set)]
     pub n: u32,
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
-    #[doc = "bce: ClassExpression"]
     #[pyo3(get, set)]
     pub bce: BoxWrap<ClassExpression>,
 }
@@ -5223,7 +5204,7 @@ impl ObjectExactCardinality {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -5263,16 +5244,15 @@ impl ObjectExactCardinality {
 }
 
 /**************** ENUM VARIANT DataSomeValuesFrom for ClassExpression ****************/
-#[doc = concat!("DataSomeValuesFrom(dp: DataPropertydr: DataRange",
-        "\n\n",doc!(DataSomeValuesFrom))]
+#[doc = concat!("DataSomeValuesFrom(dp: DataProperty, dr: DataRange)",
+        "\n\n",doc!(DataSomeValuesFrom),
+        "\n\n:param DataProperty dp:\n:param DataRange dr:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataSomeValuesFrom {
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
-    #[doc = "dr: DataRange"]
     #[pyo3(get, set)]
     pub dr: DataRange,
 }
@@ -5352,7 +5332,7 @@ impl DataSomeValuesFrom {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -5392,16 +5372,15 @@ impl DataSomeValuesFrom {
 }
 
 /**************** ENUM VARIANT DataAllValuesFrom for ClassExpression ****************/
-#[doc = concat!("DataAllValuesFrom(dp: DataPropertydr: DataRange",
-        "\n\n",doc!(DataAllValuesFrom))]
+#[doc = concat!("DataAllValuesFrom(dp: DataProperty, dr: DataRange)",
+        "\n\n",doc!(DataAllValuesFrom),
+        "\n\n:param DataProperty dp:\n:param DataRange dr:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataAllValuesFrom {
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
-    #[doc = "dr: DataRange"]
     #[pyo3(get, set)]
     pub dr: DataRange,
 }
@@ -5481,7 +5460,7 @@ impl DataAllValuesFrom {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -5521,16 +5500,15 @@ impl DataAllValuesFrom {
 }
 
 /**************** ENUM VARIANT DataHasValue for ClassExpression ****************/
-#[doc = concat!("DataHasValue(dp: DataPropertyl: Literal",
-        "\n\n",doc!(DataHasValue))]
+#[doc = concat!("DataHasValue(dp: DataProperty, l: Literal)",
+        "\n\n",doc!(DataHasValue),
+        "\n\n:param DataProperty dp:\n:param Literal l:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataHasValue {
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
-    #[doc = "l: Literal"]
     #[pyo3(get, set)]
     pub l: Literal,
 }
@@ -5610,7 +5588,7 @@ impl DataHasValue {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -5650,19 +5628,17 @@ impl DataHasValue {
 }
 
 /**************** ENUM VARIANT DataMinCardinality for ClassExpression ****************/
-#[doc = concat!("DataMinCardinality(n: intdp: DataPropertydr: DataRange",
-        "\n\n",doc!(DataMinCardinality))]
+#[doc = concat!("DataMinCardinality(n: int, dp: DataProperty, dr: DataRange)",
+        "\n\n",doc!(DataMinCardinality),
+        "\n\n:param int n:\n:param DataProperty dp:\n:param DataRange dr:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataMinCardinality {
-    #[doc = "n: int"]
     #[pyo3(get, set)]
     pub n: u32,
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
-    #[doc = "dr: DataRange"]
     #[pyo3(get, set)]
     pub dr: DataRange,
 }
@@ -5752,7 +5728,7 @@ impl DataMinCardinality {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -5792,19 +5768,17 @@ impl DataMinCardinality {
 }
 
 /**************** ENUM VARIANT DataMaxCardinality for ClassExpression ****************/
-#[doc = concat!("DataMaxCardinality(n: intdp: DataPropertydr: DataRange",
-        "\n\n",doc!(DataMaxCardinality))]
+#[doc = concat!("DataMaxCardinality(n: int, dp: DataProperty, dr: DataRange)",
+        "\n\n",doc!(DataMaxCardinality),
+        "\n\n:param int n:\n:param DataProperty dp:\n:param DataRange dr:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataMaxCardinality {
-    #[doc = "n: int"]
     #[pyo3(get, set)]
     pub n: u32,
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
-    #[doc = "dr: DataRange"]
     #[pyo3(get, set)]
     pub dr: DataRange,
 }
@@ -5894,7 +5868,7 @@ impl DataMaxCardinality {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -5934,19 +5908,17 @@ impl DataMaxCardinality {
 }
 
 /**************** ENUM VARIANT DataExactCardinality for ClassExpression ****************/
-#[doc = concat!("DataExactCardinality(n: intdp: DataPropertydr: DataRange",
-        "\n\n",doc!(DataExactCardinality))]
+#[doc = concat!("DataExactCardinality(n: int, dp: DataProperty, dr: DataRange)",
+        "\n\n",doc!(DataExactCardinality),
+        "\n\n:param int n:\n:param DataProperty dp:\n:param DataRange dr:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataExactCardinality {
-    #[doc = "n: int"]
     #[pyo3(get, set)]
     pub n: u32,
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
-    #[doc = "dr: DataRange"]
     #[pyo3(get, set)]
     pub dr: DataRange,
 }
@@ -6036,7 +6008,7 @@ impl DataExactCardinality {
         .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -7081,17 +7053,14 @@ impl FromCompatible<&Vec<horned_owl::model::AnnotationSubject<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "AnnotationProperty(first: IRI,)",
+    "AnnotationProperty(first: IRI)",
     "\n\n",
-    doc!(AnnotationProperty)
+    doc!(AnnotationProperty),
+    "\n\n:param IRI first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct AnnotationProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub IRI,
-);
+pub struct AnnotationProperty(#[pyo3(get, set, name = "first")] pub IRI);
 
 #[pymethods]
 impl AnnotationProperty {
@@ -7121,7 +7090,7 @@ impl AnnotationProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
     /// per-element counterpart to `PyIndexedOntology.save_to_string`.
@@ -7500,22 +7469,20 @@ impl FromCompatible<&Vec<horned_owl::model::AnnotationValue<ArcStr>>> for VecWra
         VecWrap::<AnnotationValue>::from(value)
     }
 }
-#[doc = concat!("Annotation(ap: AnnotationProperty,av: AnnotationValue,ann: typing.Set[Annotation],)",
+#[doc = concat!("Annotation(ap: AnnotationProperty, av: AnnotationValue, ann: typing.Set[Annotation])",
     "\n\n",
-    doc!(Annotation)
+    doc!(Annotation),
+    "\n\n:param AnnotationProperty ap:\n:param AnnotationValue av:\n:param typing.Set[Annotation] ann:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Annotation {
-    #[doc = "ap: AnnotationProperty"]
     #[pyo3(get, set)]
     pub ap: AnnotationProperty,
 
-    #[doc = "av: AnnotationValue"]
     #[pyo3(get, set)]
     pub av: AnnotationValue,
 
-    #[doc = "ann: typing.Set[Annotation]"]
     #[pyo3(get, set)]
     pub ann: BTreeSetWrap<Annotation>,
 }
@@ -7581,7 +7548,7 @@ impl Annotation {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
     /// per-element counterpart to `PyIndexedOntology.save_to_string`.
@@ -7755,17 +7722,14 @@ impl FromCompatible<&Vec<horned_owl::model::Annotation<ArcStr>>> for VecWrap<Ann
     }
 }
 #[doc = concat!(
-    "OntologyAnnotation(first: Annotation,)",
+    "OntologyAnnotation(first: Annotation)",
     "\n\n",
-    doc!(OntologyAnnotation)
+    doc!(OntologyAnnotation),
+    "\n\n:param Annotation first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct OntologyAnnotation(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub Annotation,
-);
+pub struct OntologyAnnotation(#[pyo3(get, set, name = "first")] pub Annotation);
 
 #[pymethods]
 impl OntologyAnnotation {
@@ -7795,7 +7759,7 @@ impl OntologyAnnotation {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -7977,17 +7941,14 @@ impl FromCompatible<&Vec<horned_owl::model::OntologyAnnotation<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "Import(first: IRI,)",
+    "Import(first: IRI)",
     "\n\n",
-    doc!(Import)
+    doc!(Import),
+    "\n\n:param IRI first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Import(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub IRI,
-);
+pub struct Import(#[pyo3(get, set, name = "first")] pub IRI);
 
 #[pymethods]
 impl Import {
@@ -8017,7 +7978,7 @@ impl Import {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -8183,17 +8144,14 @@ impl FromCompatible<&Vec<horned_owl::model::Import<ArcStr>>> for VecWrap<Import>
     }
 }
 #[doc = concat!(
-    "DeclareClass(first: Class,)",
+    "DeclareClass(first: Class)",
     "\n\n",
-    doc!(DeclareClass)
+    doc!(DeclareClass),
+    "\n\n:param Class first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DeclareClass(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub Class,
-);
+pub struct DeclareClass(#[pyo3(get, set, name = "first")] pub Class);
 
 #[pymethods]
 impl DeclareClass {
@@ -8223,7 +8181,7 @@ impl DeclareClass {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -8389,17 +8347,14 @@ impl FromCompatible<&Vec<horned_owl::model::DeclareClass<ArcStr>>> for VecWrap<D
     }
 }
 #[doc = concat!(
-    "DeclareObjectProperty(first: ObjectProperty,)",
+    "DeclareObjectProperty(first: ObjectProperty)",
     "\n\n",
-    doc!(DeclareObjectProperty)
+    doc!(DeclareObjectProperty),
+    "\n\n:param ObjectProperty first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DeclareObjectProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub ObjectProperty,
-);
+pub struct DeclareObjectProperty(#[pyo3(get, set, name = "first")] pub ObjectProperty);
 
 #[pymethods]
 impl DeclareObjectProperty {
@@ -8429,7 +8384,7 @@ impl DeclareObjectProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -8629,17 +8584,14 @@ impl FromCompatible<&Vec<horned_owl::model::DeclareObjectProperty<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "DeclareAnnotationProperty(first: AnnotationProperty,)",
+    "DeclareAnnotationProperty(first: AnnotationProperty)",
     "\n\n",
-    doc!(DeclareAnnotationProperty)
+    doc!(DeclareAnnotationProperty),
+    "\n\n:param AnnotationProperty first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DeclareAnnotationProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub AnnotationProperty,
-);
+pub struct DeclareAnnotationProperty(#[pyo3(get, set, name = "first")] pub AnnotationProperty);
 
 #[pymethods]
 impl DeclareAnnotationProperty {
@@ -8669,7 +8621,7 @@ impl DeclareAnnotationProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -8877,17 +8829,14 @@ impl FromCompatible<&Vec<horned_owl::model::DeclareAnnotationProperty<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "DeclareDataProperty(first: DataProperty,)",
+    "DeclareDataProperty(first: DataProperty)",
     "\n\n",
-    doc!(DeclareDataProperty)
+    doc!(DeclareDataProperty),
+    "\n\n:param DataProperty first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DeclareDataProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub DataProperty,
-);
+pub struct DeclareDataProperty(#[pyo3(get, set, name = "first")] pub DataProperty);
 
 #[pymethods]
 impl DeclareDataProperty {
@@ -8917,7 +8866,7 @@ impl DeclareDataProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -9099,17 +9048,14 @@ impl FromCompatible<&Vec<horned_owl::model::DeclareDataProperty<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "DeclareNamedIndividual(first: NamedIndividual,)",
+    "DeclareNamedIndividual(first: NamedIndividual)",
     "\n\n",
-    doc!(DeclareNamedIndividual)
+    doc!(DeclareNamedIndividual),
+    "\n\n:param NamedIndividual first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DeclareNamedIndividual(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub NamedIndividual,
-);
+pub struct DeclareNamedIndividual(#[pyo3(get, set, name = "first")] pub NamedIndividual);
 
 #[pymethods]
 impl DeclareNamedIndividual {
@@ -9139,7 +9085,7 @@ impl DeclareNamedIndividual {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -9339,17 +9285,14 @@ impl FromCompatible<&Vec<horned_owl::model::DeclareNamedIndividual<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "DeclareDatatype(first: Datatype,)",
+    "DeclareDatatype(first: Datatype)",
     "\n\n",
-    doc!(DeclareDatatype)
+    doc!(DeclareDatatype),
+    "\n\n:param Datatype first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DeclareDatatype(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub Datatype,
-);
+pub struct DeclareDatatype(#[pyo3(get, set, name = "first")] pub Datatype);
 
 #[pymethods]
 impl DeclareDatatype {
@@ -9379,7 +9322,7 @@ impl DeclareDatatype {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -9544,18 +9487,17 @@ impl FromCompatible<&Vec<horned_owl::model::DeclareDatatype<ArcStr>>> for VecWra
         VecWrap::<DeclareDatatype>::from(value)
     }
 }
-#[doc = concat!("SubClassOf(sub: ClassExpression,sup: ClassExpression,)",
+#[doc = concat!("SubClassOf(sub: ClassExpression, sup: ClassExpression)",
     "\n\n",
-    doc!(SubClassOf)
+    doc!(SubClassOf),
+    "\n\n:param ClassExpression sub:\n:param ClassExpression sup:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SubClassOf {
-    #[doc = "sub: ClassExpression"]
     #[pyo3(get, set)]
     pub sub: ClassExpression,
 
-    #[doc = "sup: ClassExpression"]
     #[pyo3(get, set)]
     pub sup: ClassExpression,
 }
@@ -9616,7 +9558,7 @@ impl SubClassOf {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -9788,17 +9730,14 @@ impl FromCompatible<&Vec<horned_owl::model::SubClassOf<ArcStr>>> for VecWrap<Sub
     }
 }
 #[doc = concat!(
-    "EquivalentClasses(first: typing.List[ClassExpression],)",
+    "EquivalentClasses(first: typing.List[ClassExpression])",
     "\n\n",
-    doc!(EquivalentClasses)
+    doc!(EquivalentClasses),
+    "\n\n:param typing.List[ClassExpression] first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct EquivalentClasses(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub VecWrap<ClassExpression>,
-);
+pub struct EquivalentClasses(#[pyo3(get, set, name = "first")] pub VecWrap<ClassExpression>);
 
 #[pymethods]
 impl EquivalentClasses {
@@ -9828,7 +9767,7 @@ impl EquivalentClasses {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -10010,17 +9949,14 @@ impl FromCompatible<&Vec<horned_owl::model::EquivalentClasses<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "DisjointClasses(first: typing.List[ClassExpression],)",
+    "DisjointClasses(first: typing.List[ClassExpression])",
     "\n\n",
-    doc!(DisjointClasses)
+    doc!(DisjointClasses),
+    "\n\n:param typing.List[ClassExpression] first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DisjointClasses(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub VecWrap<ClassExpression>,
-);
+pub struct DisjointClasses(#[pyo3(get, set, name = "first")] pub VecWrap<ClassExpression>);
 
 #[pymethods]
 impl DisjointClasses {
@@ -10050,7 +9986,7 @@ impl DisjointClasses {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -10216,19 +10152,16 @@ impl FromCompatible<&Vec<horned_owl::model::DisjointClasses<ArcStr>>> for VecWra
     }
 }
 #[doc = concat!(
-    "DisjointUnion(first: Class,second: typing.List[ClassExpression],)",
+    "DisjointUnion(first: Class, second: typing.List[ClassExpression])",
     "\n\n",
-    doc!(DisjointUnion)
+    doc!(DisjointUnion),
+    "\n\n:param Class first:\n:param typing.List[ClassExpression] second:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DisjointUnion(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub Class,
-    #[doc = "second: "]
-    #[pyo3(get, set, name = "second")]
-    pub VecWrap<ClassExpression>,
+    #[pyo3(get, set, name = "first")] pub Class,
+    #[pyo3(get, set, name = "second")] pub VecWrap<ClassExpression>,
 );
 
 #[pymethods]
@@ -10259,7 +10192,7 @@ impl DisjointUnion {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -10668,18 +10601,17 @@ impl FromCompatible<&Vec<horned_owl::model::SubObjectPropertyExpression<ArcStr>>
         VecWrap::<SubObjectPropertyExpression>::from(value)
     }
 }
-#[doc = concat!("SubObjectPropertyOf(sub: SubObjectPropertyExpression,sup: ObjectPropertyExpression,)",
+#[doc = concat!("SubObjectPropertyOf(sub: SubObjectPropertyExpression, sup: ObjectPropertyExpression)",
     "\n\n",
-    doc!(SubObjectPropertyOf)
+    doc!(SubObjectPropertyOf),
+    "\n\n:param SubObjectPropertyExpression sub:\n:param ObjectPropertyExpression sup:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SubObjectPropertyOf {
-    #[doc = "sub: SubObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub sub: SubObjectPropertyExpression,
 
-    #[doc = "sup: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub sup: ObjectPropertyExpression,
 }
@@ -10740,7 +10672,7 @@ impl SubObjectPropertyOf {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -10928,16 +10860,15 @@ impl FromCompatible<&Vec<horned_owl::model::SubObjectPropertyOf<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "EquivalentObjectProperties(first: typing.List[ObjectPropertyExpression],)",
+    "EquivalentObjectProperties(first: typing.List[ObjectPropertyExpression])",
     "\n\n",
-    doc!(EquivalentObjectProperties)
+    doc!(EquivalentObjectProperties),
+    "\n\n:param typing.List[ObjectPropertyExpression] first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct EquivalentObjectProperties(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub VecWrap<ObjectPropertyExpression>,
+    #[pyo3(get, set, name = "first")] pub VecWrap<ObjectPropertyExpression>,
 );
 
 #[pymethods]
@@ -10968,7 +10899,7 @@ impl EquivalentObjectProperties {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -11178,16 +11109,15 @@ impl FromCompatible<&Vec<horned_owl::model::EquivalentObjectProperties<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "DisjointObjectProperties(first: typing.List[ObjectPropertyExpression],)",
+    "DisjointObjectProperties(first: typing.List[ObjectPropertyExpression])",
     "\n\n",
-    doc!(DisjointObjectProperties)
+    doc!(DisjointObjectProperties),
+    "\n\n:param typing.List[ObjectPropertyExpression] first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DisjointObjectProperties(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub VecWrap<ObjectPropertyExpression>,
+    #[pyo3(get, set, name = "first")] pub VecWrap<ObjectPropertyExpression>,
 );
 
 #[pymethods]
@@ -11218,7 +11148,7 @@ impl DisjointObjectProperties {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -11428,19 +11358,16 @@ impl FromCompatible<&Vec<horned_owl::model::DisjointObjectProperties<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "InverseObjectProperties(first: ObjectProperty,second: ObjectProperty,)",
+    "InverseObjectProperties(first: ObjectProperty, second: ObjectProperty)",
     "\n\n",
-    doc!(InverseObjectProperties)
+    doc!(InverseObjectProperties),
+    "\n\n:param ObjectProperty first:\n:param ObjectProperty second:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct InverseObjectProperties(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub ObjectProperty,
-    #[doc = "second: "]
-    #[pyo3(get, set, name = "second")]
-    pub ObjectProperty,
+    #[pyo3(get, set, name = "first")] pub ObjectProperty,
+    #[pyo3(get, set, name = "second")] pub ObjectProperty,
 );
 
 #[pymethods]
@@ -11471,7 +11398,7 @@ impl InverseObjectProperties {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -11684,18 +11611,17 @@ impl FromCompatible<&Vec<horned_owl::model::InverseObjectProperties<ArcStr>>>
         VecWrap::<InverseObjectProperties>::from(value)
     }
 }
-#[doc = concat!("ObjectPropertyDomain(ope: ObjectPropertyExpression,ce: ClassExpression,)",
+#[doc = concat!("ObjectPropertyDomain(ope: ObjectPropertyExpression, ce: ClassExpression)",
     "\n\n",
-    doc!(ObjectPropertyDomain)
+    doc!(ObjectPropertyDomain),
+    "\n\n:param ObjectPropertyExpression ope:\n:param ClassExpression ce:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectPropertyDomain {
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
 
-    #[doc = "ce: ClassExpression"]
     #[pyo3(get, set)]
     pub ce: ClassExpression,
 }
@@ -11756,7 +11682,7 @@ impl ObjectPropertyDomain {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -11943,18 +11869,17 @@ impl FromCompatible<&Vec<horned_owl::model::ObjectPropertyDomain<ArcStr>>>
         VecWrap::<ObjectPropertyDomain>::from(value)
     }
 }
-#[doc = concat!("ObjectPropertyRange(ope: ObjectPropertyExpression,ce: ClassExpression,)",
+#[doc = concat!("ObjectPropertyRange(ope: ObjectPropertyExpression, ce: ClassExpression)",
     "\n\n",
-    doc!(ObjectPropertyRange)
+    doc!(ObjectPropertyRange),
+    "\n\n:param ObjectPropertyExpression ope:\n:param ClassExpression ce:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectPropertyRange {
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
 
-    #[doc = "ce: ClassExpression"]
     #[pyo3(get, set)]
     pub ce: ClassExpression,
 }
@@ -12015,7 +11940,7 @@ impl ObjectPropertyRange {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -12203,17 +12128,14 @@ impl FromCompatible<&Vec<horned_owl::model::ObjectPropertyRange<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "FunctionalObjectProperty(first: ObjectPropertyExpression,)",
+    "FunctionalObjectProperty(first: ObjectPropertyExpression)",
     "\n\n",
-    doc!(FunctionalObjectProperty)
+    doc!(FunctionalObjectProperty),
+    "\n\n:param ObjectPropertyExpression first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct FunctionalObjectProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub ObjectPropertyExpression,
-);
+pub struct FunctionalObjectProperty(#[pyo3(get, set, name = "first")] pub ObjectPropertyExpression);
 
 #[pymethods]
 impl FunctionalObjectProperty {
@@ -12243,7 +12165,7 @@ impl FunctionalObjectProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -12451,16 +12373,15 @@ impl FromCompatible<&Vec<horned_owl::model::FunctionalObjectProperty<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "InverseFunctionalObjectProperty(first: ObjectPropertyExpression,)",
+    "InverseFunctionalObjectProperty(first: ObjectPropertyExpression)",
     "\n\n",
-    doc!(InverseFunctionalObjectProperty)
+    doc!(InverseFunctionalObjectProperty),
+    "\n\n:param ObjectPropertyExpression first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct InverseFunctionalObjectProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub ObjectPropertyExpression,
+    #[pyo3(get, set, name = "first")] pub ObjectPropertyExpression,
 );
 
 #[pymethods]
@@ -12491,7 +12412,7 @@ impl InverseFunctionalObjectProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -12720,17 +12641,14 @@ impl FromCompatible<&Vec<horned_owl::model::InverseFunctionalObjectProperty<ArcS
     }
 }
 #[doc = concat!(
-    "ReflexiveObjectProperty(first: ObjectPropertyExpression,)",
+    "ReflexiveObjectProperty(first: ObjectPropertyExpression)",
     "\n\n",
-    doc!(ReflexiveObjectProperty)
+    doc!(ReflexiveObjectProperty),
+    "\n\n:param ObjectPropertyExpression first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ReflexiveObjectProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub ObjectPropertyExpression,
-);
+pub struct ReflexiveObjectProperty(#[pyo3(get, set, name = "first")] pub ObjectPropertyExpression);
 
 #[pymethods]
 impl ReflexiveObjectProperty {
@@ -12760,7 +12678,7 @@ impl ReflexiveObjectProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -12968,16 +12886,15 @@ impl FromCompatible<&Vec<horned_owl::model::ReflexiveObjectProperty<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "IrreflexiveObjectProperty(first: ObjectPropertyExpression,)",
+    "IrreflexiveObjectProperty(first: ObjectPropertyExpression)",
     "\n\n",
-    doc!(IrreflexiveObjectProperty)
+    doc!(IrreflexiveObjectProperty),
+    "\n\n:param ObjectPropertyExpression first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct IrreflexiveObjectProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub ObjectPropertyExpression,
+    #[pyo3(get, set, name = "first")] pub ObjectPropertyExpression,
 );
 
 #[pymethods]
@@ -13008,7 +12925,7 @@ impl IrreflexiveObjectProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -13216,17 +13133,14 @@ impl FromCompatible<&Vec<horned_owl::model::IrreflexiveObjectProperty<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "SymmetricObjectProperty(first: ObjectPropertyExpression,)",
+    "SymmetricObjectProperty(first: ObjectPropertyExpression)",
     "\n\n",
-    doc!(SymmetricObjectProperty)
+    doc!(SymmetricObjectProperty),
+    "\n\n:param ObjectPropertyExpression first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct SymmetricObjectProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub ObjectPropertyExpression,
-);
+pub struct SymmetricObjectProperty(#[pyo3(get, set, name = "first")] pub ObjectPropertyExpression);
 
 #[pymethods]
 impl SymmetricObjectProperty {
@@ -13256,7 +13170,7 @@ impl SymmetricObjectProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -13464,17 +13378,14 @@ impl FromCompatible<&Vec<horned_owl::model::SymmetricObjectProperty<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "AsymmetricObjectProperty(first: ObjectPropertyExpression,)",
+    "AsymmetricObjectProperty(first: ObjectPropertyExpression)",
     "\n\n",
-    doc!(AsymmetricObjectProperty)
+    doc!(AsymmetricObjectProperty),
+    "\n\n:param ObjectPropertyExpression first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct AsymmetricObjectProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub ObjectPropertyExpression,
-);
+pub struct AsymmetricObjectProperty(#[pyo3(get, set, name = "first")] pub ObjectPropertyExpression);
 
 #[pymethods]
 impl AsymmetricObjectProperty {
@@ -13504,7 +13415,7 @@ impl AsymmetricObjectProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -13712,17 +13623,14 @@ impl FromCompatible<&Vec<horned_owl::model::AsymmetricObjectProperty<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "TransitiveObjectProperty(first: ObjectPropertyExpression,)",
+    "TransitiveObjectProperty(first: ObjectPropertyExpression)",
     "\n\n",
-    doc!(TransitiveObjectProperty)
+    doc!(TransitiveObjectProperty),
+    "\n\n:param ObjectPropertyExpression first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct TransitiveObjectProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub ObjectPropertyExpression,
-);
+pub struct TransitiveObjectProperty(#[pyo3(get, set, name = "first")] pub ObjectPropertyExpression);
 
 #[pymethods]
 impl TransitiveObjectProperty {
@@ -13752,7 +13660,7 @@ impl TransitiveObjectProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -13959,18 +13867,17 @@ impl FromCompatible<&Vec<horned_owl::model::TransitiveObjectProperty<ArcStr>>>
         VecWrap::<TransitiveObjectProperty>::from(value)
     }
 }
-#[doc = concat!("SubDataPropertyOf(sub: DataProperty,sup: DataProperty,)",
+#[doc = concat!("SubDataPropertyOf(sub: DataProperty, sup: DataProperty)",
     "\n\n",
-    doc!(SubDataPropertyOf)
+    doc!(SubDataPropertyOf),
+    "\n\n:param DataProperty sub:\n:param DataProperty sup:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SubDataPropertyOf {
-    #[doc = "sub: DataProperty"]
     #[pyo3(get, set)]
     pub sub: DataProperty,
 
-    #[doc = "sup: DataProperty"]
     #[pyo3(get, set)]
     pub sup: DataProperty,
 }
@@ -14031,7 +13938,7 @@ impl SubDataPropertyOf {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -14219,17 +14126,14 @@ impl FromCompatible<&Vec<horned_owl::model::SubDataPropertyOf<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "EquivalentDataProperties(first: typing.List[DataProperty],)",
+    "EquivalentDataProperties(first: typing.List[DataProperty])",
     "\n\n",
-    doc!(EquivalentDataProperties)
+    doc!(EquivalentDataProperties),
+    "\n\n:param typing.List[DataProperty] first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct EquivalentDataProperties(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub VecWrap<DataProperty>,
-);
+pub struct EquivalentDataProperties(#[pyo3(get, set, name = "first")] pub VecWrap<DataProperty>);
 
 #[pymethods]
 impl EquivalentDataProperties {
@@ -14259,7 +14163,7 @@ impl EquivalentDataProperties {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -14467,17 +14371,14 @@ impl FromCompatible<&Vec<horned_owl::model::EquivalentDataProperties<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "DisjointDataProperties(first: typing.List[DataProperty],)",
+    "DisjointDataProperties(first: typing.List[DataProperty])",
     "\n\n",
-    doc!(DisjointDataProperties)
+    doc!(DisjointDataProperties),
+    "\n\n:param typing.List[DataProperty] first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DisjointDataProperties(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub VecWrap<DataProperty>,
-);
+pub struct DisjointDataProperties(#[pyo3(get, set, name = "first")] pub VecWrap<DataProperty>);
 
 #[pymethods]
 impl DisjointDataProperties {
@@ -14507,7 +14408,7 @@ impl DisjointDataProperties {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -14706,18 +14607,17 @@ impl FromCompatible<&Vec<horned_owl::model::DisjointDataProperties<ArcStr>>>
         VecWrap::<DisjointDataProperties>::from(value)
     }
 }
-#[doc = concat!("DataPropertyDomain(dp: DataProperty,ce: ClassExpression,)",
+#[doc = concat!("DataPropertyDomain(dp: DataProperty, ce: ClassExpression)",
     "\n\n",
-    doc!(DataPropertyDomain)
+    doc!(DataPropertyDomain),
+    "\n\n:param DataProperty dp:\n:param ClassExpression ce:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataPropertyDomain {
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
 
-    #[doc = "ce: ClassExpression"]
     #[pyo3(get, set)]
     pub ce: ClassExpression,
 }
@@ -14778,7 +14678,7 @@ impl DataPropertyDomain {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -14965,18 +14865,17 @@ impl FromCompatible<&Vec<horned_owl::model::DataPropertyDomain<ArcStr>>>
         VecWrap::<DataPropertyDomain>::from(value)
     }
 }
-#[doc = concat!("DataPropertyRange(dp: DataProperty,dr: DataRange,)",
+#[doc = concat!("DataPropertyRange(dp: DataProperty, dr: DataRange)",
     "\n\n",
-    doc!(DataPropertyRange)
+    doc!(DataPropertyRange),
+    "\n\n:param DataProperty dp:\n:param DataRange dr:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataPropertyRange {
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
 
-    #[doc = "dr: DataRange"]
     #[pyo3(get, set)]
     pub dr: DataRange,
 }
@@ -15037,7 +14936,7 @@ impl DataPropertyRange {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -15225,17 +15124,14 @@ impl FromCompatible<&Vec<horned_owl::model::DataPropertyRange<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "FunctionalDataProperty(first: DataProperty,)",
+    "FunctionalDataProperty(first: DataProperty)",
     "\n\n",
-    doc!(FunctionalDataProperty)
+    doc!(FunctionalDataProperty),
+    "\n\n:param DataProperty first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct FunctionalDataProperty(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub DataProperty,
-);
+pub struct FunctionalDataProperty(#[pyo3(get, set, name = "first")] pub DataProperty);
 
 #[pymethods]
 impl FunctionalDataProperty {
@@ -15265,7 +15161,7 @@ impl FunctionalDataProperty {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -15464,18 +15360,17 @@ impl FromCompatible<&Vec<horned_owl::model::FunctionalDataProperty<ArcStr>>>
         VecWrap::<FunctionalDataProperty>::from(value)
     }
 }
-#[doc = concat!("DatatypeDefinition(kind: Datatype,range: DataRange,)",
+#[doc = concat!("DatatypeDefinition(kind: Datatype, range: DataRange)",
     "\n\n",
-    doc!(DatatypeDefinition)
+    doc!(DatatypeDefinition),
+    "\n\n:param Datatype kind:\n:param DataRange range:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DatatypeDefinition {
-    #[doc = "kind: Datatype"]
     #[pyo3(get, set)]
     pub kind: Datatype,
 
-    #[doc = "range: DataRange"]
     #[pyo3(get, set)]
     pub range: DataRange,
 }
@@ -15536,7 +15431,7 @@ impl DatatypeDefinition {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -15723,18 +15618,17 @@ impl FromCompatible<&Vec<horned_owl::model::DatatypeDefinition<ArcStr>>>
         VecWrap::<DatatypeDefinition>::from(value)
     }
 }
-#[doc = concat!("HasKey(ce: ClassExpression,vpe: typing.List[PropertyExpression],)",
+#[doc = concat!("HasKey(ce: ClassExpression, vpe: typing.List[PropertyExpression])",
     "\n\n",
-    doc!(HasKey)
+    doc!(HasKey),
+    "\n\n:param ClassExpression ce:\n:param typing.List[PropertyExpression] vpe:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct HasKey {
-    #[doc = "ce: ClassExpression"]
     #[pyo3(get, set)]
     pub ce: ClassExpression,
 
-    #[doc = "vpe: typing.List[PropertyExpression]"]
     #[pyo3(get, set)]
     pub vpe: VecWrap<PropertyExpression>,
 }
@@ -15795,7 +15689,7 @@ impl HasKey {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -15967,17 +15861,14 @@ impl FromCompatible<&Vec<horned_owl::model::HasKey<ArcStr>>> for VecWrap<HasKey>
     }
 }
 #[doc = concat!(
-    "SameIndividual(first: typing.List[Individual],)",
+    "SameIndividual(first: typing.List[Individual])",
     "\n\n",
-    doc!(SameIndividual)
+    doc!(SameIndividual),
+    "\n\n:param typing.List[Individual] first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct SameIndividual(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub VecWrap<Individual>,
-);
+pub struct SameIndividual(#[pyo3(get, set, name = "first")] pub VecWrap<Individual>);
 
 #[pymethods]
 impl SameIndividual {
@@ -16007,7 +15898,7 @@ impl SameIndividual {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -16173,17 +16064,14 @@ impl FromCompatible<&Vec<horned_owl::model::SameIndividual<ArcStr>>> for VecWrap
     }
 }
 #[doc = concat!(
-    "DifferentIndividuals(first: typing.List[Individual],)",
+    "DifferentIndividuals(first: typing.List[Individual])",
     "\n\n",
-    doc!(DifferentIndividuals)
+    doc!(DifferentIndividuals),
+    "\n\n:param typing.List[Individual] first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DifferentIndividuals(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub VecWrap<Individual>,
-);
+pub struct DifferentIndividuals(#[pyo3(get, set, name = "first")] pub VecWrap<Individual>);
 
 #[pymethods]
 impl DifferentIndividuals {
@@ -16213,7 +16101,7 @@ impl DifferentIndividuals {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -16394,18 +16282,17 @@ impl FromCompatible<&Vec<horned_owl::model::DifferentIndividuals<ArcStr>>>
         VecWrap::<DifferentIndividuals>::from(value)
     }
 }
-#[doc = concat!("ClassAssertion(ce: ClassExpression,i: Individual,)",
+#[doc = concat!("ClassAssertion(ce: ClassExpression, i: Individual)",
     "\n\n",
-    doc!(ClassAssertion)
+    doc!(ClassAssertion),
+    "\n\n:param ClassExpression ce:\n:param Individual i:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ClassAssertion {
-    #[doc = "ce: ClassExpression"]
     #[pyo3(get, set)]
     pub ce: ClassExpression,
 
-    #[doc = "i: Individual"]
     #[pyo3(get, set)]
     pub i: Individual,
 }
@@ -16466,7 +16353,7 @@ impl ClassAssertion {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -16637,22 +16524,20 @@ impl FromCompatible<&Vec<horned_owl::model::ClassAssertion<ArcStr>>> for VecWrap
         VecWrap::<ClassAssertion>::from(value)
     }
 }
-#[doc = concat!("ObjectPropertyAssertion(ope: ObjectPropertyExpression,source: Individual,target: Individual,)",
+#[doc = concat!("ObjectPropertyAssertion(ope: ObjectPropertyExpression, source: Individual, target: Individual)",
     "\n\n",
-    doc!(ObjectPropertyAssertion)
+    doc!(ObjectPropertyAssertion),
+    "\n\n:param ObjectPropertyExpression ope:\n:param Individual source:\n:param Individual target:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectPropertyAssertion {
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
 
-    #[doc = "source: Individual"]
     #[pyo3(get, set)]
     pub source: Individual,
 
-    #[doc = "target: Individual"]
     #[pyo3(get, set)]
     pub target: Individual,
 }
@@ -16722,7 +16607,7 @@ impl ObjectPropertyAssertion {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -16937,22 +16822,20 @@ impl FromCompatible<&Vec<horned_owl::model::ObjectPropertyAssertion<ArcStr>>>
         VecWrap::<ObjectPropertyAssertion>::from(value)
     }
 }
-#[doc = concat!("NegativeObjectPropertyAssertion(ope: ObjectPropertyExpression,source: Individual,target: Individual,)",
+#[doc = concat!("NegativeObjectPropertyAssertion(ope: ObjectPropertyExpression, source: Individual, target: Individual)",
     "\n\n",
-    doc!(NegativeObjectPropertyAssertion)
+    doc!(NegativeObjectPropertyAssertion),
+    "\n\n:param ObjectPropertyExpression ope:\n:param Individual source:\n:param Individual target:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NegativeObjectPropertyAssertion {
-    #[doc = "ope: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub ope: ObjectPropertyExpression,
 
-    #[doc = "source: Individual"]
     #[pyo3(get, set)]
     pub source: Individual,
 
-    #[doc = "target: Individual"]
     #[pyo3(get, set)]
     pub target: Individual,
 }
@@ -17022,7 +16905,7 @@ impl NegativeObjectPropertyAssertion {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -17254,22 +17137,20 @@ impl FromCompatible<&Vec<horned_owl::model::NegativeObjectPropertyAssertion<ArcS
         VecWrap::<NegativeObjectPropertyAssertion>::from(value)
     }
 }
-#[doc = concat!("DataPropertyAssertion(dp: DataProperty,source: Individual,target: Literal,)",
+#[doc = concat!("DataPropertyAssertion(dp: DataProperty, source: Individual, target: Literal)",
     "\n\n",
-    doc!(DataPropertyAssertion)
+    doc!(DataPropertyAssertion),
+    "\n\n:param DataProperty dp:\n:param Individual source:\n:param Literal target:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataPropertyAssertion {
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
 
-    #[doc = "source: Individual"]
     #[pyo3(get, set)]
     pub source: Individual,
 
-    #[doc = "target: Literal"]
     #[pyo3(get, set)]
     pub target: Literal,
 }
@@ -17335,7 +17216,7 @@ impl DataPropertyAssertion {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -17542,22 +17423,20 @@ impl FromCompatible<&Vec<horned_owl::model::DataPropertyAssertion<ArcStr>>>
         VecWrap::<DataPropertyAssertion>::from(value)
     }
 }
-#[doc = concat!("NegativeDataPropertyAssertion(dp: DataProperty,source: Individual,target: Literal,)",
+#[doc = concat!("NegativeDataPropertyAssertion(dp: DataProperty, source: Individual, target: Literal)",
     "\n\n",
-    doc!(NegativeDataPropertyAssertion)
+    doc!(NegativeDataPropertyAssertion),
+    "\n\n:param DataProperty dp:\n:param Individual source:\n:param Literal target:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NegativeDataPropertyAssertion {
-    #[doc = "dp: DataProperty"]
     #[pyo3(get, set)]
     pub dp: DataProperty,
 
-    #[doc = "source: Individual"]
     #[pyo3(get, set)]
     pub source: Individual,
 
-    #[doc = "target: Literal"]
     #[pyo3(get, set)]
     pub target: Literal,
 }
@@ -17623,7 +17502,7 @@ impl NegativeDataPropertyAssertion {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -17851,18 +17730,17 @@ impl FromCompatible<&Vec<horned_owl::model::NegativeDataPropertyAssertion<ArcStr
         VecWrap::<NegativeDataPropertyAssertion>::from(value)
     }
 }
-#[doc = concat!("AnnotationAssertion(subject: AnnotationSubject,ann: Annotation,)",
+#[doc = concat!("AnnotationAssertion(subject: AnnotationSubject, ann: Annotation)",
     "\n\n",
-    doc!(AnnotationAssertion)
+    doc!(AnnotationAssertion),
+    "\n\n:param AnnotationSubject subject:\n:param Annotation ann:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AnnotationAssertion {
-    #[doc = "subject: AnnotationSubject"]
     #[pyo3(get, set)]
     pub subject: AnnotationSubject,
 
-    #[doc = "ann: Annotation"]
     #[pyo3(get, set)]
     pub ann: Annotation,
 }
@@ -17923,7 +17801,7 @@ impl AnnotationAssertion {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -18110,18 +17988,17 @@ impl FromCompatible<&Vec<horned_owl::model::AnnotationAssertion<ArcStr>>>
         VecWrap::<AnnotationAssertion>::from(value)
     }
 }
-#[doc = concat!("SubAnnotationPropertyOf(sub: AnnotationProperty,sup: AnnotationProperty,)",
+#[doc = concat!("SubAnnotationPropertyOf(sub: AnnotationProperty, sup: AnnotationProperty)",
     "\n\n",
-    doc!(SubAnnotationPropertyOf)
+    doc!(SubAnnotationPropertyOf),
+    "\n\n:param AnnotationProperty sub:\n:param AnnotationProperty sup:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SubAnnotationPropertyOf {
-    #[doc = "sub: AnnotationProperty"]
     #[pyo3(get, set)]
     pub sub: AnnotationProperty,
 
-    #[doc = "sup: AnnotationProperty"]
     #[pyo3(get, set)]
     pub sup: AnnotationProperty,
 }
@@ -18182,7 +18059,7 @@ impl SubAnnotationPropertyOf {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -18395,18 +18272,17 @@ impl FromCompatible<&Vec<horned_owl::model::SubAnnotationPropertyOf<ArcStr>>>
         VecWrap::<SubAnnotationPropertyOf>::from(value)
     }
 }
-#[doc = concat!("AnnotationPropertyDomain(ap: AnnotationProperty,iri: IRI,)",
+#[doc = concat!("AnnotationPropertyDomain(ap: AnnotationProperty, iri: IRI)",
     "\n\n",
-    doc!(AnnotationPropertyDomain)
+    doc!(AnnotationPropertyDomain),
+    "\n\n:param AnnotationProperty ap:\n:param IRI iri:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AnnotationPropertyDomain {
-    #[doc = "ap: AnnotationProperty"]
     #[pyo3(get, set)]
     pub ap: AnnotationProperty,
 
-    #[doc = "iri: IRI"]
     #[pyo3(get, set)]
     pub iri: IRI,
 }
@@ -18467,7 +18343,7 @@ impl AnnotationPropertyDomain {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -18680,18 +18556,17 @@ impl FromCompatible<&Vec<horned_owl::model::AnnotationPropertyDomain<ArcStr>>>
         VecWrap::<AnnotationPropertyDomain>::from(value)
     }
 }
-#[doc = concat!("AnnotationPropertyRange(ap: AnnotationProperty,iri: IRI,)",
+#[doc = concat!("AnnotationPropertyRange(ap: AnnotationProperty, iri: IRI)",
     "\n\n",
-    doc!(AnnotationPropertyRange)
+    doc!(AnnotationPropertyRange),
+    "\n\n:param AnnotationProperty ap:\n:param IRI iri:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AnnotationPropertyRange {
-    #[doc = "ap: AnnotationProperty"]
     #[pyo3(get, set)]
     pub ap: AnnotationProperty,
 
-    #[doc = "iri: IRI"]
     #[pyo3(get, set)]
     pub iri: IRI,
 }
@@ -18752,7 +18627,7 @@ impl AnnotationPropertyRange {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -18966,17 +18841,14 @@ impl FromCompatible<&Vec<horned_owl::model::AnnotationPropertyRange<ArcStr>>>
     }
 }
 #[doc = concat!(
-    "DocIRI(first: IRI,)",
+    "DocIRI(first: IRI)",
     "\n\n",
-    doc!(DocIRI)
+    doc!(DocIRI),
+    "\n\n:param IRI first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DocIRI(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub IRI,
-);
+pub struct DocIRI(#[pyo3(get, set, name = "first")] pub IRI);
 
 #[pymethods]
 impl DocIRI {
@@ -19006,7 +18878,7 @@ impl DocIRI {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -19171,18 +19043,17 @@ impl FromCompatible<&Vec<horned_owl::model::DocIRI<ArcStr>>> for VecWrap<DocIRI>
         VecWrap::<DocIRI>::from(value)
     }
 }
-#[doc = concat!("OntologyID(iri: typing.Optional[IRI],viri: typing.Optional[IRI],)",
+#[doc = concat!("OntologyID(iri: typing.Optional[IRI], viri: typing.Optional[IRI])",
     "\n\n",
-    doc!(OntologyID)
+    doc!(OntologyID),
+    "\n\n:param typing.Optional[IRI] iri:\n:param typing.Optional[IRI] viri:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OntologyID {
-    #[doc = "iri: typing.Optional[IRI]"]
     #[pyo3(get, set)]
     pub iri: Option<IRI>,
 
-    #[doc = "viri: typing.Optional[IRI]"]
     #[pyo3(get, set)]
     pub viri: Option<IRI>,
 }
@@ -19243,7 +19114,7 @@ impl OntologyID {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -19415,17 +19286,14 @@ impl FromCompatible<&Vec<horned_owl::model::OntologyID<ArcStr>>> for VecWrap<Ont
     }
 }
 #[doc = concat!(
-    "Variable(first: IRI,)",
+    "Variable(first: IRI)",
     "\n\n",
-    doc!(Variable)
+    doc!(Variable),
+    "\n\n:param IRI first:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Variable(
-    #[doc = "first: "]
-    #[pyo3(get, set, name = "first")]
-    pub IRI,
-);
+pub struct Variable(#[pyo3(get, set, name = "first")] pub IRI);
 
 #[pymethods]
 impl Variable {
@@ -19455,7 +19323,7 @@ impl Variable {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -19989,16 +19857,15 @@ pub struct Atom(Atom_Inner);
 /**************** ENUM VARIANTS for Atom ****************/
 
 /**************** ENUM VARIANT BuiltInAtom for Atom ****************/
-#[doc = concat!("BuiltInAtom(pred: IRIargs: typing.List[DArgument]",
-        "\n\n",doc!(BuiltInAtom))]
+#[doc = concat!("BuiltInAtom(pred: IRI, args: typing.List[DArgument])",
+        "\n\n",doc!(BuiltInAtom),
+        "\n\n:param IRI pred:\n:param typing.List[DArgument] args:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BuiltInAtom {
-    #[doc = "pred: IRI"]
     #[pyo3(get, set)]
     pub pred: IRI,
-    #[doc = "args: typing.List[DArgument]"]
     #[pyo3(get, set)]
     pub args: VecWrap<DArgument>,
 }
@@ -20076,7 +19943,7 @@ impl BuiltInAtom {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -20097,16 +19964,15 @@ impl BuiltInAtom {
 }
 
 /**************** ENUM VARIANT ClassAtom for Atom ****************/
-#[doc = concat!("ClassAtom(pred: ClassExpressionarg: IArgument",
-        "\n\n",doc!(ClassAtom))]
+#[doc = concat!("ClassAtom(pred: ClassExpression, arg: IArgument)",
+        "\n\n",doc!(ClassAtom),
+        "\n\n:param ClassExpression pred:\n:param IArgument arg:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ClassAtom {
-    #[doc = "pred: ClassExpression"]
     #[pyo3(get, set)]
     pub pred: ClassExpression,
-    #[doc = "arg: IArgument"]
     #[pyo3(get, set)]
     pub arg: IArgument,
 }
@@ -20184,7 +20050,7 @@ impl ClassAtom {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -20205,16 +20071,15 @@ impl ClassAtom {
 }
 
 /**************** ENUM VARIANT DataPropertyAtom for Atom ****************/
-#[doc = concat!("DataPropertyAtom(pred: DataPropertyargs: typing.Tuple[DArgument,DArgument]",
-        "\n\n",doc!(DataPropertyAtom))]
+#[doc = concat!("DataPropertyAtom(pred: DataProperty, args: typing.Tuple[DArgument,DArgument])",
+        "\n\n",doc!(DataPropertyAtom),
+        "\n\n:param DataProperty pred:\n:param typing.Tuple[DArgument,DArgument] args:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataPropertyAtom {
-    #[doc = "pred: DataProperty"]
     #[pyo3(get, set)]
     pub pred: DataProperty,
-    #[doc = "args: typing.Tuple[DArgument,DArgument]"]
     #[pyo3(get, set)]
     pub args: (DArgument, DArgument),
 }
@@ -20292,7 +20157,7 @@ impl DataPropertyAtom {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -20313,16 +20178,15 @@ impl DataPropertyAtom {
 }
 
 /**************** ENUM VARIANT DataRangeAtom for Atom ****************/
-#[doc = concat!("DataRangeAtom(pred: DataRangearg: DArgument",
-        "\n\n",doc!(DataRangeAtom))]
+#[doc = concat!("DataRangeAtom(pred: DataRange, arg: DArgument)",
+        "\n\n",doc!(DataRangeAtom),
+        "\n\n:param DataRange pred:\n:param DArgument arg:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DataRangeAtom {
-    #[doc = "pred: DataRange"]
     #[pyo3(get, set)]
     pub pred: DataRange,
-    #[doc = "arg: DArgument"]
     #[pyo3(get, set)]
     pub arg: DArgument,
 }
@@ -20400,7 +20264,7 @@ impl DataRangeAtom {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -20421,8 +20285,9 @@ impl DataRangeAtom {
 }
 
 /**************** ENUM VARIANT DifferentIndividualsAtom for Atom ****************/
-#[doc = concat!("DifferentIndividualsAtom(first: IArgumentsecond: IArgument",
-        "\n\n",doc!(DifferentIndividualsAtom))]
+#[doc = concat!("DifferentIndividualsAtom(first: IArgument, second: IArgument)",
+        "\n\n",doc!(DifferentIndividualsAtom),
+        "\n\n:param IArgument first:\n:param IArgument second:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -20504,7 +20369,7 @@ impl DifferentIndividualsAtom {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -20525,16 +20390,15 @@ impl DifferentIndividualsAtom {
 }
 
 /**************** ENUM VARIANT ObjectPropertyAtom for Atom ****************/
-#[doc = concat!("ObjectPropertyAtom(pred: ObjectPropertyExpressionargs: typing.Tuple[IArgument,IArgument]",
-        "\n\n",doc!(ObjectPropertyAtom))]
+#[doc = concat!("ObjectPropertyAtom(pred: ObjectPropertyExpression, args: typing.Tuple[IArgument,IArgument])",
+        "\n\n",doc!(ObjectPropertyAtom),
+        "\n\n:param ObjectPropertyExpression pred:\n:param typing.Tuple[IArgument,IArgument] args:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ObjectPropertyAtom {
-    #[doc = "pred: ObjectPropertyExpression"]
     #[pyo3(get, set)]
     pub pred: ObjectPropertyExpression,
-    #[doc = "args: typing.Tuple[IArgument,IArgument]"]
     #[pyo3(get, set)]
     pub args: (IArgument, IArgument),
 }
@@ -20612,7 +20476,7 @@ impl ObjectPropertyAtom {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -20633,8 +20497,9 @@ impl ObjectPropertyAtom {
 }
 
 /**************** ENUM VARIANT SameIndividualAtom for Atom ****************/
-#[doc = concat!("SameIndividualAtom(first: IArgumentsecond: IArgument",
-        "\n\n",doc!(SameIndividualAtom))]
+#[doc = concat!("SameIndividualAtom(first: IArgument, second: IArgument)",
+        "\n\n",doc!(SameIndividualAtom),
+        "\n\n:param IArgument first:\n:param IArgument second:\n")]
 #[allow(non_camel_case_types)]
 #[pyclass(module = "pyhornedowl.model", from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -20716,7 +20581,7 @@ impl SameIndividualAtom {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -21048,18 +20913,17 @@ impl FromCompatible<&Vec<horned_owl::model::Atom<ArcStr>>> for VecWrap<Atom> {
         VecWrap::<Atom>::from(value)
     }
 }
-#[doc = concat!("Rule(head: typing.List[Atom],body: typing.List[Atom],)",
+#[doc = concat!("Rule(head: typing.List[Atom], body: typing.List[Atom])",
     "\n\n",
-    doc!(Rule)
+    doc!(Rule),
+    "\n\n:param typing.List[Atom] head:\n:param typing.List[Atom] body:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Rule {
-    #[doc = "head: typing.List[Atom]"]
     #[pyo3(get, set)]
     pub head: VecWrap<Atom>,
 
-    #[doc = "body: typing.List[Atom]"]
     #[pyo3(get, set)]
     pub body: VecWrap<Atom>,
 }
@@ -21120,7 +20984,7 @@ impl Rule {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
@@ -22079,18 +21943,17 @@ impl FromCompatible<&Vec<horned_owl::model::Component<ArcStr>>> for VecWrap<Comp
         VecWrap::<Component>::from(value)
     }
 }
-#[doc = concat!("AnnotatedComponent(component: Component,ann: typing.Set[Annotation],)",
+#[doc = concat!("AnnotatedComponent(component: Component, ann: typing.Set[Annotation])",
     "\n\n",
-    doc!(AnnotatedComponent)
+    doc!(AnnotatedComponent),
+    "\n\n:param Component component:\n:param typing.Set[Annotation] ann:\n"
 )]
 #[pyclass(module = "pyhornedowl.model", mapping, from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AnnotatedComponent {
-    #[doc = "component: Component"]
     #[pyo3(get, set)]
     pub component: Component,
 
-    #[doc = "ann: typing.Set[Annotation]"]
     #[pyo3(get, set)]
     pub ann: BTreeSetWrap<Annotation>,
 }
@@ -22155,7 +22018,7 @@ impl AnnotatedComponent {
             .to_string()
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
+    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
     ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element

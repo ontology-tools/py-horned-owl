@@ -1,16 +1,20 @@
 {%- from 'serialize.rs.jinja2' import serialize_method -%}
 #[doc = concat!("{{ model.name }}(
 {%- for k, v in model.fields.items() -%}
-        {{ k | py_field(v) }}: {{ v | as_py_type }},
+    {{ k | py_field(v) }}: {{ v | as_py_type }}{% if not loop.last %}, {% endif %}
 {%- endfor -%})",
     "\n\n",
-    doc!({{ model.name }})
+    doc!({{ model.name }}),
+    "\n\n
+    {%- for k, v in model.fields.items() -%}
+        :param {{ v | as_py_type }} {{ k | py_field(v) }}:\n
+    {%- endfor -%}
+    "
 )]
 #[pyclass(module="pyhornedowl.model",mapping,from_py_object)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct {{ model.name }} {
     {%- for field, type in model.fields.items() %}
-        #[doc="{{ field | py_field(type) }}: {{ type | as_py_type }}"]
         #[pyo3(get,set)]
         pub {{ field | py_field(type) }}: {{ type | as_rust_type }},
     {% endfor -%}

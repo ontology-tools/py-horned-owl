@@ -31,9 +31,9 @@ Py-Horned-OWL includes a lightweight structural reasoner that traverses the asse
 
 **Supported operations:**
 
-- :func:`~pyhornedowl.reasoning.PyReasoner.get_subclasses` — returns all subclasses (transitive)
-- :func:`~pyhornedowl.reasoning.PyReasoner.get_superclasses` — returns all superclasses (transitive)
-- :func:`~pyhornedowl.reasoning.PyReasoner.flush` — updates the reasoner after ontology changes
+- :meth:`~pyhornedowl.reasoning.PyReasoner.get_subclasses` — returns all subclasses (transitive)
+- :meth:`~pyhornedowl.reasoning.PyReasoner.get_superclasses` — returns all superclasses (transitive)
+- :meth:`~pyhornedowl.reasoning.PyReasoner.flush` — updates the reasoner after ontology changes
 
 **Not supported** (raises ``ValueError``):
 
@@ -97,7 +97,7 @@ To make a reasoner written in Rust and with Horned-OWL compatible with Py-Horned
         ontology: SetOntology<ArcStr>,
     ) -> Box<dyn Reasoner<ArcStr, ArcAnnotatedComponent>>
 
-The library must be compiled as a shared C library (crate type "cdylib"). The reasoner can then be used in Python using :func:`~pyhornedowl.create_reasoner`, which takes the path to the shared library as an argument and returns a :func:`~pyhornedowl.PyReasoner` instance. There is the helper trait `PyReasoner` and macro `export_py_reasoner!` to get type checking for the `create_reasoner` function. A typical reasoner implementation would look like this:
+The library must be compiled as a shared C library (crate type "cdylib"). The reasoner can then be used in Python using :func:`~pyhornedowl.reasoning.create_reasoner`, which takes the path to the shared library as an argument and returns a :class:`~pyhornedowl.reasoning.PyReasoner` instance. There is the helper trait `PyReasoner` and macro `export_py_reasoner!` to get type checking for the `create_reasoner` function. A typical reasoner implementation would look like this:
 
 .. code-block:: rust
 

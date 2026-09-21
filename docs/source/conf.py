@@ -7,9 +7,27 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'py-horned-owl'
-copyright = '2024, Janna Hastings, Björn Gehrke'
+copyright = '2026, Janna Hastings, Björn Gehrke'
 author = 'Janna Hastings, Björn Gehrke'
-release = '0.3.1'
+release = 'unknown'
+
+
+import datetime
+import tomllib
+from pathlib import Path
+
+with open(Path(__file__).parent.parent.parent / "Cargo.toml", "rb") as f:
+    cargo = tomllib.load(f)
+
+pkg = cargo["package"]
+
+project = pkg["name"]
+version = pkg["version"]
+release = pkg["version"]
+copyright = f"{datetime.datetime.now().year}, " + ", ".join(
+    a.split("<")[0].strip() for a in pkg.get("authors", [])
+)
+
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -32,9 +50,12 @@ autodoc_typehints = "both"
 
 autosummary_generate = True
 
-autodoc_type_aliases = {
-    'ClassExpression ': 'pyhornedowl.module.ClassExpression',
-}
+# Union aliases (ClassExpression, Component, ...) are documented as ``py:type``
+# by the autosummary module template so that annotations referring to them link.
+type_aliases = custom_doc.type_aliases(
+    'pyhornedowl', 'pyhornedowl.model', 'pyhornedowl.reasoning')
+autosummary_context = {'type_aliases': type_aliases}
+
 
 extensions = [
     'sphinx.ext.autodoc',

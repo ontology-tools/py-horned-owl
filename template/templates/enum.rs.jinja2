@@ -25,9 +25,14 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
     /**************** ENUM VARIANT {{ v_name_full }} for {{ model.name }} ****************/
     #[doc = concat!("{{ v_name_full }}(
     {%- for field, type in variant.fields | fields -%}
-        {{ field | as_py_name }}: {{ type | as_py_type}}
-    {%- endfor -%}",
-        "\n\n",doc!({{ v_name_full }}))]
+    {{ field | as_py_name }}: {{ type | as_py_type }}{% if not loop.last %}, {% endif %}
+    {%- endfor -%})",
+        "\n\n",doc!({{ v_name_full }}),
+        "\n\n
+        {%- for field, type in variant.fields | fields -%}
+            :param {{ type | as_py_type }} {{ field | as_py_name }}:\n
+        {%- endfor -%}
+        ")]
     #[allow(non_camel_case_types)]
     #[pyclass(module="pyhornedowl.model",from_py_object)]
     #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -40,7 +45,6 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
     );
     {%- else -%}
         { {%- for field, type in variant.fields.items() %}
-        #[doc="{{ field }}: {{ type | as_py_type }}"]
         #[pyo3(get,set)]
         pub {{ field }}: {{ type | as_rust_type }},
         {%- endfor -%}

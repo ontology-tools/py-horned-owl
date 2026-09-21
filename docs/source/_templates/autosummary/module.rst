@@ -1,7 +1,6 @@
 {{ fullname | escape | underline}}
 
-{% set defined_aliases = [ "ClassExpression","ObjectPropertyExpression","Literal","DataRange","Individual","PropertyExpression","AnnotationSubject","AnnotationValue","SubObjectPropertyExpression","Axiom" ] %}
-{% set aliases = members | select("in", defined_aliases) %}
+{% set aliases = type_aliases.get(fullname, {}) %}
 
 
 .. py:currentmodule:: {{ fullname }}
@@ -60,13 +59,13 @@
 {% endblock %}
 
 {% block aliases %}
+{% if aliases %}
 .. rubric:: Module aliases
-
-{% for item in aliases %}
-{%- if not item.startswith("_") %}
-.. autodata:: {{ item }}
-{%- endif -%}
+{% for name, canonical in aliases | dictsort %}
+.. py:type:: {{ name }}
+   :canonical: {{ canonical }}
 {% endfor %}
+{% endif %}
 {% endblock %}
 
 {% block modules %}
