@@ -5,7 +5,7 @@ Usage
 Open an existing ontology
 -------------------------
 
-To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It guesses the serialization of the ontology by the file extension or tries all parsers. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :doc:`Serializations <serializations>` for a list of supported formats.
+To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It guesses the serialization of the ontology by the file extension or the first bytes. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :ref:`sec_serializations` for a list of supported formats.
 
 .. code-block:: python
    
@@ -17,7 +17,7 @@ To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It gues
 Save an ontology
 ----------------
 
-Use the :func:`PyIndexedOntology.save_to_file <pyhornedowl.PyIndexedOntology.save_to_file>` function to write the ontology to a file. Again, the serialization is guessed by the file extension and defaults to OWL/XML. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :doc:`Serializations <serializations>` for a list of supported formats.
+Use the :func:`PyIndexedOntology.save_to_file <pyhornedowl.PyIndexedOntology.save_to_file>` function to write the ontology to a file. Again, the serialization is guessed by the file extension and defaults to OWL/XML. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :ref:`sec_serializations` for a list of supported formats.
 
 .. code-block:: python
 
@@ -26,6 +26,8 @@ Use the :func:`PyIndexedOntology.save_to_file <pyhornedowl.PyIndexedOntology.sav
 
    ontology.save_to_file("example.owl")
    ontology.save_to_file("example.ofn", serialization='ofn')
+
+.. _sec_serializations:
 
 Serializations
 --------------
@@ -82,7 +84,7 @@ By default, no prefixes are defined. The standard prefixes for ``rdf``, ``rdfs``
 
 Create entities
 ---------------
-Classes, Individuals, Data- and Objectproperties can be created using convenience methods on an ontology.
+Classes, Individuals, Data-, Annotation- and Objectproperties can be created using convenience methods on an ontology.
 
 .. code-block:: python
 
@@ -95,7 +97,7 @@ Classes, Individuals, Data- and Objectproperties can be created using convenienc
     dp = o.data_property(":dp")
     ap = o.annotation_property(":ap")
     i = o.named_individual(":I")
-    n = o.anonymous_individual(":n")
+    n = o.anonymous_individual("_:n")
 
 
 Pattern match
