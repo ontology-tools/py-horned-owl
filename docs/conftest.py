@@ -1,6 +1,10 @@
-import tempfile, shutil, os
+import os
+import shutil
+import tempfile
+
 from sybil import Sybil
-from sybil.parsers.rest import PythonCodeBlockParser, DocTestParser
+from sybil.parsers.rest import DocTestParser, PythonCodeBlockParser
+
 import pyhornedowl
 from pyhornedowl.model import ObjectSomeValuesFrom, SubClassOf
 
@@ -11,7 +15,7 @@ def setup(namespace):
     os.chdir(workdir)
     o = pyhornedowl.PyIndexedOntology()
 
-    o.add_prefix_mapping("", "https://example.com/test#")
+    o.prefix_mapping.add_prefix("", "https://example.com/test#")
     axiom = SubClassOf(
         o.class_(":Child"),
         ObjectSomeValuesFrom(o.object_property(":has_parent"), o.class_(":Human")),
@@ -19,9 +23,11 @@ def setup(namespace):
 
     o.add_axiom(axiom)
 
-    o.save_to_file("example.owx")
-    o.save_to_file("example.owl")
+    o.save_to_file("example.owx", serialization="owx")
+    o.save_to_file("example.owl", serialization="rdf")
     o.save_to_file("example.ofn", serialization="ofn")
+    o.save_to_file("example.omn", serialization="omn")
+    o.save_to_file("example.obo", serialization="obo")
 
 
 def teardown(namespace):

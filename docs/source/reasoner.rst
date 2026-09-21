@@ -31,9 +31,9 @@ Py-Horned-OWL includes a lightweight structural reasoner that traverses the asse
 
 **Supported operations:**
 
-- :func:`~pyhornedowl.PyReasoner.get_subclasses` — returns all subclasses (transitive)
-- :func:`~pyhornedowl.PyReasoner.get_superclasses` — returns all superclasses (transitive)
-- :func:`~pyhornedowl.PyReasoner.flush` — updates the reasoner after ontology changes
+- :func:`~pyhornedowl.reasoning.PyReasoner.get_subclasses` — returns all subclasses (transitive)
+- :func:`~pyhornedowl.reasoning.PyReasoner.get_superclasses` — returns all superclasses (transitive)
+- :func:`~pyhornedowl.reasoning.PyReasoner.flush` — updates the reasoner after ontology changes
 
 **Not supported** (raises ``ValueError``):
 
@@ -50,7 +50,7 @@ The structural reasoner is useful for quick hierarchy traversals without the ove
 Using External Reasoners
 ------------------------
 
-For full reasoning capabilities (consistency checking, satisfiability, entailment, etc.), you can use an external reasoner. A compatible reasoner should provide a Python package that exports a ``create_reasoner`` function. This function takes an ontology as an argument and returns a :class:`~pyhornedowl.PyReasoner` instance which can be used to perform reasoning tasks. The ontology instance is linked to the reasoner, which means that any changes to the ontology will be reflected in the reasoner. But, a manual call to :func:`PyReasoner.flush <pyhornedowl.PyReasoner.flush>` is required to update the reasoner with any changes made to the ontology. Here is an example with the EL Reasoner `whelk-rs <https://github.com/INCATools/whelk-rs>`__ via `PyWhelk <https://github.com/ontology-tools/py-whelk/>`__.
+For full reasoning capabilities (consistency checking, satisfiability, entailment, etc.), you can use an external reasoner. A compatible reasoner should provide a Python package that exports a ``create_reasoner`` function. This function takes an ontology as an argument and returns a :class:`~pyhornedowl.reasoning.PyReasoner` instance which can be used to perform reasoning tasks. The ontology instance is linked to the reasoner, which means that any changes to the ontology will be reflected in the reasoner. But, a manual call to :func:`PyReasoner.flush <pyhornedowl.reasoning.PyReasoner.flush>` is required to update the reasoner with any changes made to the ontology. Here is an example with the EL Reasoner `whelk-rs <https://github.com/INCATools/whelk-rs>`__ via `PyWhelk <https://github.com/ontology-tools/py-whelk/>`__.
 
 .. code-block:: console
 
@@ -151,6 +151,6 @@ It might be useful to package the reasoner as a Python package that exports the 
 
 How it works
 ------------
-A specific reasoner can be developed using Horned-OWL without targeting Py-Horned-OWL directly. To add support for a specific reasoner anybody can create a Rust library that implements the `Reasoner` trait and exports a `create_reasoner` function without dealing with the specifics of PyO3 or Py-Horned-OWLs inner workings. Py-Horned-OWL provides the necessary wrappers and facades to make the Rust functions available in Python through the :class:`~pyhornedowl.PyReasoner` class.  To create a reasoner it will load the shared library dynamically, look for the `create_reasoner` function and call it.
+A specific reasoner can be developed using Horned-OWL without targeting Py-Horned-OWL directly. To add support for a specific reasoner anybody can create a Rust library that implements the `Reasoner` trait and exports a `create_reasoner` function without dealing with the specifics of PyO3 or Py-Horned-OWLs inner workings. Py-Horned-OWL provides the necessary wrappers and facades to make the Rust functions available in Python through the :class:`~pyhornedowl.reasoning.PyReasoner` class.  To create a reasoner it will load the shared library dynamically, look for the `create_reasoner` function and call it.
 
 This seperation allows for reasoners to be developed and installed independently of Py-Horned-OWL and without the need to understand the Python bindings or the PyO3 library. 

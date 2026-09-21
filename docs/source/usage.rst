@@ -5,29 +5,19 @@ Usage
 Open an existing ontology
 -------------------------
 
-To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It guesses the serialization of the ontology by the file extension or tries all parsers. Alternatively, specify the serialization format explicitly with the ``serialization`` option.
+To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It guesses the serialization of the ontology by the file extension or tries all parsers. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :doc:`Serializations <serializations>` for a list of supported formats.
 
 .. code-block:: python
    
    import pyhornedowl
    rdf_ontology = pyhornedowl.open_ontology("example.owl")
-   owx_ontology = pyhornedowl.open_ontology("example.owx")
-   ofn_ontology = pyhornedowl.open_ontology("example.ofn", serialization='ofn')
    omn_ontology = pyhornedowl.open_ontology("example.omn", serialization='omn')
-   obo_ontology = pyhornedowl.open_ontology("example.obo", serialization='obo')
-
-Accepted ``serialization`` values are ``rdf`` (or ``owl``) for RDF/XML, ``owx`` for OWL/XML,
-``ofn`` for OWL Functional Syntax, ``omn`` for OWL 2 Manchester Syntax,
-and ``obo`` for OBO flat files. Other RDF serializations recognised by oxrdfio, such as
-Turtle and N-Triples, are accepted by their extension.
-   
-
 
 
 Save an ontology
 ----------------
 
-Use the :func:`PyIndexedOntology.save_to_file <pyhornedowl.PyIndexedOntology.save_to_file>` function to write the ontology to a file. Again, the serialization is guessed by the file extension and defaults to OWL/XML. Alternatively, specify the serialization format explicitly with the ``serialization`` option.
+Use the :func:`PyIndexedOntology.save_to_file <pyhornedowl.PyIndexedOntology.save_to_file>` function to write the ontology to a file. Again, the serialization is guessed by the file extension and defaults to OWL/XML. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :doc:`Serializations <serializations>` for a list of supported formats.
 
 .. code-block:: python
 
@@ -35,12 +25,23 @@ Use the :func:`PyIndexedOntology.save_to_file <pyhornedowl.PyIndexedOntology.sav
    ontology = pyhornedowl.open_ontology("example.owl")
 
    ontology.save_to_file("example.owl")
-   ontology.save_to_file("example.owx")
    ontology.save_to_file("example.ofn", serialization='ofn')
+
+Serializations
+--------------
+The following serializations are supported:
+
+- ``rdf`` (or ``owl``) for RDF/XML
+- ``owx`` for OWL/XML
+- ``ofn`` for OWL Functional Syntax
+- ``omn`` for OWL 2 Manchester Syntax
+- ``obo`` for OBO flat files
+- Other RDF serializations recognised by oxrdfio, such as Turtle and N-Triples, are accepted by their extension. See `the supported oxrdfio formats <https://docs.rs/oxrdfio/0.2.6/oxrdfio/enum.RdfFormat.html>`__ for details.
+
    
 
 IRIs and CURIEs
---------------------------
+---------------
 The preferred way to create IRIs is through an ontology instance as it enables Horned-OWLs caching mechanism. Alternatively, they can be created by hand using :func:`IRI.parse <pyhornedowl.model.IRI.parse>`.
 
 .. code-block:: python
@@ -67,7 +68,7 @@ An exception to this is the the function :func:`PyIndexedOntology.curie <pyhorne
 Prefixes
 --------
 
-By default, no prefixes are defined. The standard prefixes for ``rdf``, ``rdfs``, ``xsd``, and ``owl`` can be added via the :func:`PyIndexedOntology.add_default_prefix_names <pyhornedowl.PyIndexedOntology.add_default_prefix_names>`. Other prefixes can be added using the :func:`PyIndexedOntology.add_prefix_mapping <pyhornedowl.PyIndexedOntology.add_prefix_mapping>` method. 
+By default, no prefixes are defined. The standard prefixes for ``rdf``, ``rdfs``, ``xsd``, and ``owl`` can be added via the :func:`PrefixMapping.add_default_prefix_names <pyhornedowl.PrefixMapping.add_default_prefix_names>`. Other prefixes can be added using the :func:`PrefixMapping.add_prefix <pyhornedowl.PrefixMapping.add_prefix>` method. 
 
 .. code-block:: python
 
@@ -75,8 +76,8 @@ By default, no prefixes are defined. The standard prefixes for ``rdf``, ``rdfs``
 
     ontology = pyhornedowl.open_ontology("example.owl")
 
-    ontology.add_default_prefix_names()
-    ontology.add_prefix_mapping("ex", "https://example.com/")
+    ontology.prefix_mapping.add_default_prefix_names()
+    ontology.prefix_mapping.add_prefix("ex", "https://example.com/")
 
 
 Create entities
@@ -150,30 +151,21 @@ Instead of writing class expressions as nested constructor calls, some expressio
 Render a single axiom
 ---------------------
 
-``serialize`` renders a single axiom, component, or class expression as a string. Every
-model class has it. It is the per-element counterpart to ``save_to_string``, and for
-Manchester it is the only option: ``save_to_string("omn")`` groups axioms into entity
-frames, which cannot be sliced back into individual axioms.
+``serialize`` renders a single axiom, component, or class expression as a string. Every model class has it. It is the per-element counterpart to ``save_to_string``, and for Manchester it is the only option: ``save_to_string("omn")`` groups axioms into entity frames, which cannot be sliced back into individual axioms.
 
 .. code-block:: python
 
     import pyhornedowl
 
-    ontology = pyhornedowl.open_ontology("path/to/ontology.owl")
+    ontology = pyhornedowl.open_ontology("example.owl")
 
     for axiom in ontology.get_axioms():
         print(axiom.serialize())               # functional syntax (default)
         print(axiom.serialize("omn"))          # Manchester
 
-Accepted values are ``ofn`` (the default) and ``omn``: the serializations for which
-horned-owl provides a per-element writer. Its OWL/XML, RDF and OBO writers operate on
-whole ontologies only.
+Accepted values are ``ofn`` (the default) and ``omn``: the serializations for which horned-owl provides a per-element writer. Its OWL/XML, RDF and OBO writers operate on whole ontologies only.
 
-``obo`` is the one that could not be added even in principle. OBO is stanza-oriented: a
-component does not render to a string of its own but to a clause line under some *other*
-entity's ``[Term]`` stanza, and which stanza that is depends on ``oboInOwl:id``
-annotations gathered from the whole ontology. There is nothing for a per-element writer
-to return.
+Serializing a single construct to ``obo`` is not possible as OBO is stanza-oriented: A component does not render to a string of its own but to a clause line under some *other* entity's ``[Term]`` stanza, and which stanza that is depends on ``oboInOwl:id`` annotations gathered from the whole ontology. There is nothing for a per-element writer to return.
 
 Pass a :class:`~pyhornedowl.PrefixMapping` to abbreviate IRIs:
 
@@ -181,13 +173,12 @@ Pass a :class:`~pyhornedowl.PrefixMapping` to abbreviate IRIs:
 
     print(axiom.serialize("omn", ontology.prefix_mapping))
 
-Note that ``ofn`` renders an :class:`~pyhornedowl.model.AnnotatedComponent` including its
-axiom annotations, while ``omn`` renders only the component.
+Note, that ``ofn`` renders an :class:`~pyhornedowl.model.AnnotatedComponent` including its axiom annotations, while ``omn`` renders only the component.
 
-A few classes have no Manchester rendering of their own -- an
-:class:`~pyhornedowl.model.Annotation`, an
-:class:`~pyhornedowl.model.AnnotationProperty`, a
-:class:`~pyhornedowl.model.FacetRestriction` and a :class:`~pyhornedowl.model.Facet`.
-Manchester syntax writes each of them only inside the element that holds it, so
-``serialize("omn")`` raises :class:`ValueError` and ``serialize("ofn")`` is the way to
-render them alone.
+Currently, the following classes do not support Manchester syntax rendering on their own:
+- :class:`~pyhornedowl.model.Annotation`
+- :class:`~pyhornedowl.model.AnnotationProperty`
+- :class:`~pyhornedowl.model.FacetRestriction`
+- :class:`~pyhornedowl.model.Facet`
+
+However, they are rendered if they occur as part of a larger construct (e.g. a class expression).
