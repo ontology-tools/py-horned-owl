@@ -22,6 +22,7 @@ pub mod model_generated;
 pub mod ontology;
 pub mod prefix_mapping;
 pub mod reasoning;
+pub mod snippet;
 pub mod structural_reasoner;
 mod wrappers;
 
@@ -151,7 +152,7 @@ fn open_ontology_rdf<R: BufRead>(
     })
 }
 
-/// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
+/// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
 ///
 /// Opens an ontology from a file
 ///
@@ -196,7 +197,7 @@ fn open_ontology_from_file(
     Ok(pio)
 }
 
-/// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
+/// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
 ///
 /// Opens an ontology from plain text.
 ///
@@ -213,9 +214,7 @@ fn open_ontology_from_string(
     let input_format = serialization
         .map(parse_serialization)
         .transpose()?
-        .or_else(|| {
-            horned_owl::io::detect_format(ontology.as_bytes()).map(to_input_format)
-        });
+        .or_else(|| horned_owl::io::detect_format(ontology.as_bytes()).map(to_input_format));
 
     let config = default_parser_config(input_format);
 
@@ -252,7 +251,7 @@ fn open_ontology_from_string(
     Ok(pio)
 }
 
-/// open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
+/// open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
 ///
 /// Opens an ontology from a path or plain text.
 ///

@@ -52,8 +52,7 @@ def simple_ontology_comps() -> list[Component]:
             IRI.parse("https://example.com/A"),
             Annotation(
                 AnnotationProperty(IRI.parse(RDFS_LABEL)),
-                SimpleLiteral("ClassA"),
-                set(),
+                SimpleLiteral("ClassA")
             ),
         ),
         AnnotationAssertion(
@@ -61,14 +60,13 @@ def simple_ontology_comps() -> list[Component]:
             Annotation(
                 AnnotationProperty(IRI.parse(RDFS_LABEL)),
                 SimpleLiteral("ClassB"),
-                set(),
             ),
         ),
     ]
 
 
 def simple_ontology_comps_annotated() -> List[AnnotatedComponent]:
-    return [AnnotatedComponent(x, set()) for x in simple_ontology_comps()]
+    return [AnnotatedComponent(x) for x in simple_ontology_comps()]
 
 
 def simple_ontology() -> pyhornedowl.PyIndexedOntology:

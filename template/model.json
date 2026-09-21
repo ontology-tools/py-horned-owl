@@ -394,7 +394,8 @@
       "av": "AnnotationValue",
       "ann": {
         "type": "BTreeSet",
-        "inner": "Annotation"
+        "inner": "Annotation",
+        "optional": true
       }
     }
   },
@@ -808,11 +809,13 @@
     "fields": {
       "iri": {
         "type": "Option",
-        "inner": "IRI"
+        "inner": "IRI",
+        "optional": true
       },
       "viri": {
         "type": "Option",
-        "inner": "IRI"
+        "inner": "IRI",
+        "optional": true
       }
     }
   },
@@ -977,7 +980,8 @@
       "component": "Component",
       "ann": {
         "type": "BTreeSet",
-        "inner": "Annotation"
+        "inner": "Annotation",
+        "optional": true
       }
     }
   }

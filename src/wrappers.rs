@@ -84,6 +84,12 @@ where
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct VecWrap<T>(pub Vec<T>);
 
+impl<T> Default for VecWrap<T> {
+    fn default() -> Self {
+        VecWrap(Vec::new())
+    }
+}
+
 impl<T> From<Vec<T>> for VecWrap<T> {
     fn from(value: Vec<T>) -> Self {
         VecWrap(value)
@@ -145,7 +151,7 @@ impl<'py, T: IntoPyObject<'py>> IntoPyObject<'py> for BoxWrap<T> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct StringWrapper(pub String);
 
 impl From<String> for StringWrapper {
@@ -192,6 +198,12 @@ impl<'py> FromPyObject<'_, 'py> for StringWrapper {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BTreeSetWrap<T>(pub(crate) BTreeSet<T>);
+
+impl<T: Ord> Default for BTreeSetWrap<T> {
+    fn default() -> Self {
+        BTreeSetWrap(BTreeSet::new())
+    }
+}
 
 impl<T> From<BTreeSet<T>> for BTreeSetWrap<T> {
     fn from(value: BTreeSet<T>) -> Self {

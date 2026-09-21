@@ -1,3 +1,4 @@
+{%- from 'serialize.rs.jinja2' import serialize_method -%}
 #[doc = concat!("{{ model.name }}(
 {%- for k, v in model.fields.items() -%}
         {{ k | py_field(v) }}: {{ v | as_py_type }},
@@ -18,6 +19,11 @@ pub struct {{ model.name }} {
 #[pymethods]
 impl {{ model.name }} {
     #[new]
+    #[pyo3(signature = (
+    {%- for k, v in model.fields.items() -%}
+        {{ k | py_field(v) }}{% if v is optional %} = {{ v | rust_default }}{% endif %},
+    {%- endfor -%}
+))]
     fn new(
 {%- for k, v in model.fields.items() -%}
         {{ k | py_field(v) }}: {{ v | as_rust_type }},
@@ -74,6 +80,7 @@ impl {{ model.name }} {
     fn __str__(&self) -> String {
         Into::<horned_owl::model::{{ model.name }}<ArcStr>>::into(self.clone()).as_functional().to_string()
     }
+{{ serialize_method(model.name, "horned_owl::model::" ~ model.name ~ "<ArcStr>", "self.clone().into()", route) }}
 {%- endif %}
 }
 

@@ -132,13 +132,13 @@ class PyIndexedOntology:
         """
         ...
 
-    def save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx']) -> str:
+    def save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']) -> str:
         """
         Saves the ontology to a UTF8 string.
         """
         ...
 
-    def save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None) -> None:
+    def save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None) -> None:
         """
         Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
         Defaults to OWL/XML
@@ -406,7 +406,7 @@ class PrefixMapping:
         ...
 
 
-def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
+def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from a path or plain text.
     
@@ -418,7 +418,7 @@ def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', '
     ...
 
 
-def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
+def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from a file
     
@@ -427,7 +427,7 @@ def open_ontology_from_file(path: str, serialization: Optional[typing.Literal['o
     ...
 
 
-def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
+def open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology:
     """
     Opens an ontology from plain text.
     

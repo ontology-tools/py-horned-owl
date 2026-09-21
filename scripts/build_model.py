@@ -1,5 +1,8 @@
 import json
 import os
+import re
+import shutil
+import subprocess
 from typing import Optional, Literal
 
 from jinja2 import Environment, select_autoescape, FileSystemLoader, pass_context
@@ -99,6 +102,65 @@ def fields(val):
 
     return val
 
+DEFAULTS = {
+    "Option": ("None", "None"),
+    "Vec": ("VecWrap::default()", "[]"),
+    "BTreeSet": ("BTreeSetWrap::default()", "set()"),
+    "String": ("String::new()", '""'),
+    "StringWrapper": ("StringWrapper::default()", '""'),
+    "u32": ("0", "0"),
+}
+
+def rust_default(typ: str | dict[str, str] | None) -> str | None:
+    if isinstance(typ, dict):
+        typ = typ.get("type", None)
+    
+    if not isinstance(typ, str) or typ not in DEFAULTS:
+        raise ValueError(f"No default value for type {typ}")
+    
+    return DEFAULTS[typ][0]
+
+
+def py_default(typ: str | dict[str, str] | None) -> str | None:
+    if isinstance(typ, dict):
+        typ = typ.get("type", None)
+    
+    if not isinstance(typ, str) or typ not in DEFAULTS:
+        raise ValueError(f"No default value for type {typ}")
+    
+    return DEFAULTS[typ][1]
+
+def optional(field: str | dict[str, str]) -> bool:
+    if isinstance(field, dict):
+        return bool(field.get("optional", False))
+    
+    return False
+
+
+# horned-owl implements AsManchester for the OWL entities, the expressions and
+# `Component` (see its io/omn/writer/as_manchester.rs). Every component type
+# reaches the writer through `Component`; these wrappers are neither, so
+# Manchester syntax can only render them inside the element that holds them.
+NO_MANCHESTER = {"Annotation", "AnnotationProperty", "FacetRestriction"}
+
+
+def manchester_route(name: str, component_variants: set) -> Optional[str]:
+    """How a model class reaches horned-owl's Manchester writer.
+
+    ``"direct"``            the class's own horned-owl type implements AsManchester
+    ``"component"``         convert to ``Component`` first
+    ``"wrapped-component"`` an AnnotatedComponent: render the component it wraps
+    ``None``                no Manchester rendering
+    """
+    if name in NO_MANCHESTER:
+        return None
+    if name == "AnnotatedComponent":
+        return "wrapped-component"
+    if name in component_variants:
+        return "component"
+    return "direct"
+
+
 def build_from_templates(lang: Literal["rs", "pyi"]):
     with open(os.path.join(REPO_ROOT, "template", "model.json")) as f:
         data = json.load(f)
@@ -114,25 +176,69 @@ def build_from_templates(lang: Literal["rs", "pyi"]):
     env.filters["py_field"] = py_field
     env.filters["fields"] = fields
     env.filters["f_rust"] = f_rust
+    env.filters["rust_default"] = rust_default
+    env.filters["py_default"] = py_default
+    env.tests["optional"] = optional
     env.tests['list'] = lambda value: isinstance(value, list)
 
     out = []
+
+    component_variants = set(
+        next(m for m in data if m["name"] == "Component")["variants"].values()
+    )
 
     header_template = env.get_template(f"static.{lang}")
     out.append(header_template.render(models=data) + "\n\n")
 
     for model in data:
         type = model["type"]
+        route = manchester_route(model["name"], component_variants)
+        # An enum's variants render through the parent enum's horned-owl type,
+        # so the parent is the one that has to reach the Manchester writer.
+        if type == "enum" and route != "direct":
+            raise ValueError(
+                f"{model['name']} is an enum but does not implement AsManchester; "
+                "enum.rs.jinja2 renders its variants through it"
+            )
         template = env.get_template(f"{type}.{lang}.jinja2")
-        res = template.render(model=model)
+        res = template.render(model=model, route=route)
         out.append(res + "\n")
 
     return "".join(out)
 
-def main():
+def crate_edition() -> str:
+    """The Rust edition from Cargo.toml, which rustfmt has to be told."""
+    with open(os.path.join(REPO_ROOT, "Cargo.toml")) as f:
+        match = re.search(r'^edition\s*=\s*"(\d+)"', f.read(), re.MULTILINE)
 
-    with open(os.path.join(REPO_ROOT, "src", "model_generated.rs"), "w") as f:
+    return match.group(1) if match else "2021"
+
+
+def rustfmt(path: str):
+    """Format generated Rust in place.
+
+    The templates cannot reasonably keep to a line width of their own: how long
+    an emitted line is depends on the name of the model class it is emitted
+    for. So the generator formats its own output, the way codegen for any other
+    language would, and the templates stay readable.
+    """
+    if shutil.which("rustfmt") is None:
+        raise SystemExit(
+            "rustfmt is needed to format the generated model but was not found. "
+            "It ships with rustup's default toolchain; otherwise "
+            "`rustup component add rustfmt`."
+        )
+
+    subprocess.run(["rustfmt", "--edition", crate_edition(), path], check=True)
+
+
+def main():
+    generated = os.path.join(REPO_ROOT, "src", "model_generated.rs")
+
+    with open(generated, "w") as f:
         f.write(build_from_templates("rs"))
+
+    rustfmt(generated)
 
 
 if __name__ == "__main__":

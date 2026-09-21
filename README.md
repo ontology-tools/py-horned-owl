@@ -28,7 +28,32 @@ Then you can get maturin to build the library and install it into the virtual Py
 
 ## Usage
 
-The library supports loading ontologies from `.owl` (RDF-XML) and `.owx` (OWL-XML) files via horned-owl's parsing functionality. [ROBOT](http://robot.obolibrary.org/) can transform ontologies that are in other OWL flavours into one of these formats using `robot convert`. 
+The library parses every OWL serialization that horned-owl supports. The serialization is inferred from the file extension or the content, or you can pass it explicitly (e.g. `open_ontology(text, "omn")`):
+
+| Serialization | `serialization` value | Typical extension |
+| --- | --- | --- |
+| RDF/XML | `"rdf"` (or `"owl"`) | `.owl`, `.rdf` |
+| OWL/XML | `"owx"` | `.owx` |
+| OWL Functional Syntax | `"ofn"` | `.ofn` |
+| OWL 2 Manchester Syntax | `"omn"` | `.omn` |
+| OBO flat file | `"obo"` | `.obo` |
+
+Other RDF serializations recognised by [oxrdfio](https://docs.rs/oxrdfio/) (Turtle, N-Triples, and so on) are accepted by their extension. The same values work for `save_to_string` and `save_to_file`. For anything not listed here, [ROBOT](http://robot.obolibrary.org/)'s `robot convert` can transform an ontology into one of the above.
+
+To render a *single* axiom or class expression rather than a whole ontology, call `serialize` on it:
+
+```python
+import pyhornedowl
+
+onto = pyhornedowl.open_ontology(text)
+for ac in onto.get_axioms():
+    print(ac.serialize())              # functional syntax (default)
+    print(ac.serialize("omn"))         # Manchester
+```
+
+Every model class has it.
+
+It accepts `"ofn"` and `"omn"`, the serializations for which horned-owl provides a per-element writer; its OWL/XML, RDF and OBO writers operate on whole ontologies only. This is the per-element counterpart to `save_to_string`, and for Manchester it is the only option: `save_to_string("omn")` groups axioms into entity frames, which cannot be sliced back into individual axioms.
 
 Example of simple usage:
 
