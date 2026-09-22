@@ -72,7 +72,8 @@ def handle_module(module: str, py_imports: list[str], pyi_imports: list[str]):
 
         for name, entry in m.__dict__.items():
             if isinstance(entry, type):
-                f.write(f"class {name}:\n")
+                bases = [b.__name__ for b in entry.__bases__ if b is not object]
+                f.write(f"class {name}({', '.join(bases)}):\n" if bases else f"class {name}:\n")
                 # There appears to be a bug with pyo3. Documentation on enum
                 # variants is not attached to their mapped python types. Hence we
                 # use a workarround of adding their documentation to the enum in

@@ -2,7 +2,34 @@ from __future__ import annotations
 from ..pyhornedowl import profile
 conformant_profiles = profile.conformant_profiles
 check_profile = profile.check_profile
+Profile = profile.Profile
 ProfileReport = profile.ProfileReport
+ProfileViolation = profile.ProfileViolation
+UseOfNonAtomicClassExpression = profile.UseOfNonAtomicClassExpression
+UseOfNonSubClassExpression = profile.UseOfNonSubClassExpression
+UseOfNonSuperClassExpression = profile.UseOfNonSuperClassExpression
+UseOfIllegalClassExpression = profile.UseOfIllegalClassExpression
+UseOfClassExpressionWithTooFewOperands = profile.UseOfClassExpressionWithTooFewOperands
+UseOfDataRangeWithTooFewOperands = profile.UseOfDataRangeWithTooFewOperands
+UseOfBuiltinDatatypeInDatatypeDefinition = profile.UseOfBuiltinDatatypeInDatatypeDefinition
+UseOfNonSimplePropertyInObjectHasSelf = profile.UseOfNonSimplePropertyInObjectHasSelf
+UseOfNonSimplePropertyInCardinalityRestriction = profile.UseOfNonSimplePropertyInCardinalityRestriction
+UseOfNonSimplePropertyInDisjointPropertiesAxiom = profile.UseOfNonSimplePropertyInDisjointPropertiesAxiom
+UseOfNonSimplePropertyInIrreflexivePropertyAxiom = profile.UseOfNonSimplePropertyInIrreflexivePropertyAxiom
+UseOfNonSimplePropertyInAsymmetricPropertyAxiom = profile.UseOfNonSimplePropertyInAsymmetricPropertyAxiom
+UseOfNonSimplePropertyInFunctionalPropertyAxiom = profile.UseOfNonSimplePropertyInFunctionalPropertyAxiom
+UseOfNonSimplePropertyInInverseFunctionalPropertyAxiom = profile.UseOfNonSimplePropertyInInverseFunctionalPropertyAxiom
+UseOfPropertyInChainCausingCycle = profile.UseOfPropertyInChainCausingCycle
+UseOfUndeclaredClass = profile.UseOfUndeclaredClass
+UseOfUndeclaredObjectProperty = profile.UseOfUndeclaredObjectProperty
+UseOfUndeclaredDataProperty = profile.UseOfUndeclaredDataProperty
+UseOfUndeclaredAnnotationProperty = profile.UseOfUndeclaredAnnotationProperty
+UseOfUndeclaredDatatype = profile.UseOfUndeclaredDatatype
+UseOfIllegalPunning = profile.UseOfIllegalPunning
+UseOfReservedVocabulary = profile.UseOfReservedVocabulary
+UseOfDataOneOfWithMultipleLiterals = profile.UseOfDataOneOfWithMultipleLiterals
+UseOfObjectPropertyInverse = profile.UseOfObjectPropertyInverse
+UseOfIllegalAxiomKind = profile.UseOfIllegalAxiomKind
 
 
-__all__ = ["conformant_profiles", "check_profile", "ProfileReport"]
+__all__ = ["conformant_profiles", "check_profile", "Profile", "ProfileReport", "ProfileViolation", "UseOfNonAtomicClassExpression", "UseOfNonSubClassExpression", "UseOfNonSuperClassExpression", "UseOfIllegalClassExpression", "UseOfClassExpressionWithTooFewOperands", "UseOfDataRangeWithTooFewOperands", "UseOfBuiltinDatatypeInDatatypeDefinition", "UseOfNonSimplePropertyInObjectHasSelf", "UseOfNonSimplePropertyInCardinalityRestriction", "UseOfNonSimplePropertyInDisjointPropertiesAxiom", "UseOfNonSimplePropertyInIrreflexivePropertyAxiom", "UseOfNonSimplePropertyInAsymmetricPropertyAxiom", "UseOfNonSimplePropertyInFunctionalPropertyAxiom", "UseOfNonSimplePropertyInInverseFunctionalPropertyAxiom", "UseOfPropertyInChainCausingCycle", "UseOfUndeclaredClass", "UseOfUndeclaredObjectProperty", "UseOfUndeclaredDataProperty", "UseOfUndeclaredAnnotationProperty", "UseOfUndeclaredDatatype", "UseOfIllegalPunning", "UseOfReservedVocabulary", "UseOfDataOneOfWithMultipleLiterals", "UseOfObjectPropertyInverse", "UseOfIllegalAxiomKind"]

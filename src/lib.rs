@@ -313,16 +313,7 @@ fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     reasoning_sub_module.add_class::<reasoning::PyReasoner>()?;
     m.add_submodule(&reasoning_sub_module)?;
 
-    let profile_sub_module = PyModule::new(py, "profile")?;
-    profile_sub_module.add_function(wrap_pyfunction!(
-        profile::conformant_profiles,
-        &profile_sub_module
-    )?)?;
-    profile_sub_module.add_function(wrap_pyfunction!(
-        profile::check_profile,
-        &profile_sub_module
-    )?)?;
-    profile_sub_module.add_class::<profile::PyProfileReport>()?;
+    let profile_sub_module = profile::py_module(py)?;
     m.add_submodule(&profile_sub_module)?;
 
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
