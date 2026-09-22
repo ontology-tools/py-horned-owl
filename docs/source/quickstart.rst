@@ -17,21 +17,21 @@ Work with ontologies
 .. code-block:: python
    
    import pyhornedowl
-   ontology = pyhornedowl.open_ontology("<path/to/ontology>")
+   ontology = pyhornedowl.open_ontology("example.owl")
 
    # Get all axioms
    axioms = ontology.get_axioms()
 
    # Add a prefix
-   ontology.add_prefix_mapping(":", "https://example.com/test#")
+   ontology.add_prefix_mapping("", "https://example.com/test#")
 
    # Construct an axiom
    from pyhornedowl.model import *
    axiom = SubClassOf(
-    o.clazz(':Child'),
+    ontology.class_(':Child'),
     ObjectSomeValuesFrom(
-        o.object_property(':has_parent'),
-        o.clazz(':Human')
+        ontology.object_property(':has_parent'),
+        ontology.class_(':Human')
     )
    )
 
@@ -39,4 +39,4 @@ Work with ontologies
    ontology.add_axiom(axiom)
 
    # Save the ontology
-   o.save_to_file("output.owx")
+   ontology.save_to_file("output.owx")

@@ -5,7 +5,7 @@ from pyhornedowl.model import *
 
 def test_ce_not():
     o = PyIndexedOntology()
-    c = o.clazz("https://example.com/A")
+    c = o.class_("https://example.com/A")
 
     expected = ObjectComplementOf(c)
     actual = ~c
@@ -15,7 +15,7 @@ def test_ce_not():
 
 def test_ce_not_complex():
     o = PyIndexedOntology()
-    c = ObjectUnionOf([o.clazz("https://example.com/A"), o.clazz("https://example.com/B")])
+    c = ObjectUnionOf([o.class_("https://example.com/A"), o.class_("https://example.com/B")])
 
     expected = ObjectComplementOf(c)
     actual = ~c
@@ -25,8 +25,8 @@ def test_ce_not_complex():
 
 def test_ce_and():
     o = PyIndexedOntology()
-    c1 = o.clazz("https://example.com/A")
-    c2 = o.clazz("https://example.com/B")
+    c1 = o.class_("https://example.com/A")
+    c2 = o.class_("https://example.com/B")
 
     expected = ObjectIntersectionOf([c1, c2])
     actual = c1 & c2
@@ -36,8 +36,8 @@ def test_ce_and():
 
 def test_ce_or():
     o = PyIndexedOntology()
-    c1 = o.clazz("https://example.com/A")
-    c2 = o.clazz("https://example.com/B")
+    c1 = o.class_("https://example.com/A")
+    c2 = o.class_("https://example.com/B")
 
     expected = ObjectUnionOf([c1, c2])
     actual = c1 | c2
@@ -57,7 +57,7 @@ def test_op_not():
 
 def test_ce_some():
     o = PyIndexedOntology()
-    c = o.clazz("https://example.com/A")
+    c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
     expected = ObjectSomeValuesFrom(op, c)
@@ -68,7 +68,7 @@ def test_ce_some():
 
 def test_ce_only():
     o = PyIndexedOntology()
-    c = o.clazz("https://example.com/A")
+    c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
     expected = ObjectAllValuesFrom(op, c)
@@ -79,7 +79,7 @@ def test_ce_only():
 
 def test_ce_min():
     o = PyIndexedOntology()
-    c = o.clazz("https://example.com/A")
+    c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
     expected = ObjectMinCardinality(2, op, c)
@@ -90,7 +90,7 @@ def test_ce_min():
 
 def test_ce_max():
     o = PyIndexedOntology()
-    c = o.clazz("https://example.com/A")
+    c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
     expected = ObjectMaxCardinality(2, op, c)
@@ -101,7 +101,7 @@ def test_ce_max():
 
 def test_ce_exact():
     o = PyIndexedOntology()
-    c = o.clazz("https://example.com/A")
+    c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
     expected = ObjectExactCardinality(2, op, c)

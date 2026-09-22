@@ -288,8 +288,8 @@ class TestIsEntailed:
         reasoner = create_structural_reasoner(onto)
         
         axiom = SubClassOf(
-            onto.clazz("https://example.com/B"),
-            onto.clazz("https://example.com/A")
+            onto.class_("https://example.com/B"),
+            onto.class_("https://example.com/A")
         )
         
         with pytest.raises(ValueError):
@@ -354,21 +354,21 @@ class TestMultipleInheritance:
 
         # B and C are both subclasses of A
         onto.add_component(SubClassOf(
-            onto.clazz("https://example.com/B"),
-            onto.clazz("https://example.com/A"),
+            onto.class_("https://example.com/B"),
+            onto.class_("https://example.com/A"),
         ))
         onto.add_component(SubClassOf(
-            onto.clazz("https://example.com/C"),
-            onto.clazz("https://example.com/A"),
+            onto.class_("https://example.com/C"),
+            onto.class_("https://example.com/A"),
         ))
         # D is subclass of both B and C
         onto.add_component(SubClassOf(
-            onto.clazz("https://example.com/D"),
-            onto.clazz("https://example.com/B"),
+            onto.class_("https://example.com/D"),
+            onto.class_("https://example.com/B"),
         ))
         onto.add_component(SubClassOf(
-            onto.clazz("https://example.com/D"),
-            onto.clazz("https://example.com/C"),
+            onto.class_("https://example.com/D"),
+            onto.class_("https://example.com/C"),
         ))
         
         reasoner = create_structural_reasoner(onto)
