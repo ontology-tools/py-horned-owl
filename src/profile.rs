@@ -14,9 +14,9 @@ use horned_profile::{Profile, Violation};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
-use std::collections::HashMap;
 use std::str::FromStr;
 
+/// OWL 2 profiles
 #[pyclass(
     eq,
     eq_int,
@@ -28,9 +28,16 @@ use std::str::FromStr;
 )]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum PyProfile {
+    /// The [OWL 2 DL profile](https://www.w3.org/TR/owl2-syntax/#Global_Restrictions_on_Axioms_in_OWL_2_DL).
     OWL2DL,
+
+    /// The [OWL 2 EL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_EL).
     EL,
+
+    /// The [OWL 2 QL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_QL).
     QL,
+
+    /// The OWL 2 [RL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_RL).
     RL,
 }
 
@@ -117,9 +124,10 @@ impl FromCompatible<&&'static str> for String {
     }
 }
 
+/// Base class for profile violations
 #[pyclass(
     subclass,
-    name = "PyViolation",
+    name = "Violation",
     module = "pyhornedowl.profile",
     skip_from_py_object
 )]
@@ -164,7 +172,7 @@ macro_rules! violation_field {
     (doc $field:ident : $ty:ty $(as $py_ty:literal)?) => { "See the class documentation." };
 }
 
-/// Generates the `PyViolation` subclass hierarchy.
+/// Generates the `Violation` subclass hierarchy.
 ///
 /// Each entry is `Name { field, .. } = "message";`, where the fields are named
 /// exactly as on the matching `horned_profile::Violation` variant
@@ -177,6 +185,19 @@ macro_rules! violations {
     )*) => {
         $(
             $(#[$meta])*
+            #[doc = ""]
+            $(
+                #[doc = concat!(
+                    ":ivar ", stringify!($field), ": ",
+                    violation_field!(doc $field $(: $ty $(as $py_ty)?)?)
+                )]
+                #[doc = concat!(
+                    ":vartype ", stringify!($field), ": ",
+                    violation_field!(py $field $(: $ty $(as $py_ty)?)?)
+                )]
+            )*
+            #[doc = ":ivar message: A human readable description of the violation."]
+            #[doc = ":vartype message: str"]
             #[pyclass(
                 extends = PyViolation,
                 module = "pyhornedowl.profile",
@@ -242,14 +263,6 @@ macro_rules! violations {
             };
 
             Ok(object.unbind())
-        }
-
-        /// The subclass name of `violation`, used to group a report's
-        /// violations by kind without a round trip through Python.
-        pub fn violation_kind(violation: &Violation<ArcStr>) -> &'static str {
-            match violation {
-                $( Violation::$name { .. } => stringify!($name), )*
-            }
         }
 
         fn add_violation_classes(module: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -377,72 +390,61 @@ violations! {
 }
 
 /// The result of checking an ontology against one OWL 2 profile.
+///
+/// :ivar profile: The profile this report is for.
+/// :vartype profile: Profile
+/// :ivar conformant: True if the ontology has no violations of this profile.
+/// :vartype conformant: bool
+/// :ivar violations: Every violation found, as `Violation` subclass instances.
+/// :vartype violations: typing.List[Violation]
 #[pyclass(
     name = "ProfileReport",
     module = "pyhornedowl.profile",
     skip_from_py_object
 )]
 pub struct PyProfileReport {
-    #[doc = "profile: Profile"]
-    #[doc = ""]
+    /// profile: Profile
+    ///
     /// The profile this report is for.
     #[pyo3(get)]
     pub profile: PyProfile,
 
-    #[doc = "conformant: bool"]
-    #[doc = ""]
+    /// conformant: bool
+    ///
     /// True if the ontology has no violations of this profile.
     #[pyo3(get)]
     pub conformant: bool,
 
-    #[doc = "violations: typing.List[PyViolation]"]
-    #[doc = ""]
-    /// Every violation found, as `PyViolation` subclass instances.
+    /// violations: typing.List[Violation]
+    ///
+    /// Every violation found, as `Violation` subclass instances.
     #[pyo3(get)]
     pub violations: Vec<Py<PyViolation>>,
-
-    #[doc = "violations_by_kind: typing.Dict[str, int]"]
-    #[doc = ""]
-    /// Violation counts grouped by violation class name, e.g.
-    /// `{"UseOfNonSubClassExpression": 3}`.
-    #[pyo3(get)]
-    pub violations_by_kind: HashMap<String, usize>,
 }
 
 #[pymethods]
 impl PyProfileReport {
     fn __repr__(&self) -> String {
         format!(
-            "ProfileReport(profile={}, conformant={}, num_violations={})",
+            "ProfileReport(profile={}, conformant={})",
             self.profile.__repr__(),
-            if self.conformant { "True" } else { "False" },
-            self.violations.len()
+            if self.conformant { "True" } else { "False" }
         )
-    }
-
-    /// Total number of violations.
-    fn __len__(&self) -> usize {
-        self.violations.len()
     }
 }
 
 fn build_report(py: Python<'_>, o: &SetOntology<ArcStr>, p: Profile) -> PyResult<PyProfileReport> {
     let report = horned_profile::check(o, p);
-    let mut violations_by_kind: HashMap<String, usize> = HashMap::new();
-    let mut violations = Vec::with_capacity(report.violations().len());
-
-    for v in report.violations() {
-        *violations_by_kind
-            .entry(violation_kind(v).to_string())
-            .or_insert(0) += 1;
-        violations.push(violation_to_py(py, v)?);
-    }
+    let violations = report
+        .violations()
+        .iter()
+        .map(|v| violation_to_py(py, v))
+        .collect::<PyResult<Vec<_>>>()?;
 
     Ok(PyProfileReport {
         profile: report.profile().into(),
         conformant: report.is_conformant(),
         violations,
-        violations_by_kind,
     })
 }
 
@@ -450,6 +452,8 @@ fn build_report(py: Python<'_>, o: &SetOntology<ArcStr>, p: Profile) -> PyResult
 ///
 /// Returns every OWL 2 profile the ontology conforms to, in declaration order
 /// (OWL2DL, EL, QL, RL). The profiles overlap, so more than one may be returned.
+///
+/// :param PyIndexedOntology ontology: the ontology to check
 #[pyfunction]
 pub fn conformant_profiles(ontology: PyIndexedOntology) -> Vec<PyProfile> {
     let o: SetOntology<ArcStr> = ontology.into();
@@ -461,9 +465,11 @@ pub fn conformant_profiles(ontology: PyIndexedOntology) -> Vec<PyProfile> {
 
 /// check_profile(ontology: PyIndexedOntology, profile: Profile) -> ProfileReport
 ///
-/// Checks `ontology` against a single profile -- a `Profile` member or one of
-/// the strings "DL"/"OWL2DL", "EL", "QL", "RL" (case-insensitive) -- and
-/// returns a `ProfileReport` with conformance and the violations found.
+/// Checks `ontology` against a single profile and returns a `ProfileReport` with
+/// conformance and the violations found.
+///
+/// :param PyIndexedOntology ontology: the ontology to check
+/// :param Profile profile: the profile to check against, either a `Profile` member or one of the strings "DL"/"OWL2DL", "EL", "QL", "RL" (case-insensitive)
 #[pyfunction]
 pub fn check_profile(
     py: Python<'_>,

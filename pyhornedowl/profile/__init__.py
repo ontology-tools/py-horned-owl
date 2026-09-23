@@ -2,9 +2,9 @@ from __future__ import annotations
 from ..pyhornedowl import profile
 conformant_profiles = profile.conformant_profiles
 check_profile = profile.check_profile
+Violation = profile.Violation
 Profile = profile.Profile
 ProfileReport = profile.ProfileReport
-ProfileViolation = profile.ProfileViolation
 UseOfNonAtomicClassExpression = profile.UseOfNonAtomicClassExpression
 UseOfNonSubClassExpression = profile.UseOfNonSubClassExpression
 UseOfNonSuperClassExpression = profile.UseOfNonSuperClassExpression
@@ -32,4 +32,4 @@ UseOfObjectPropertyInverse = profile.UseOfObjectPropertyInverse
 UseOfIllegalAxiomKind = profile.UseOfIllegalAxiomKind
 
 
-__all__ = ["conformant_profiles", "check_profile", "Profile", "ProfileReport", "ProfileViolation", "UseOfNonAtomicClassExpression", "UseOfNonSubClassExpression", "UseOfNonSuperClassExpression", "UseOfIllegalClassExpression", "UseOfClassExpressionWithTooFewOperands", "UseOfDataRangeWithTooFewOperands", "UseOfBuiltinDatatypeInDatatypeDefinition", "UseOfNonSimplePropertyInObjectHasSelf", "UseOfNonSimplePropertyInCardinalityRestriction", "UseOfNonSimplePropertyInDisjointPropertiesAxiom", "UseOfNonSimplePropertyInIrreflexivePropertyAxiom", "UseOfNonSimplePropertyInAsymmetricPropertyAxiom", "UseOfNonSimplePropertyInFunctionalPropertyAxiom", "UseOfNonSimplePropertyInInverseFunctionalPropertyAxiom", "UseOfPropertyInChainCausingCycle", "UseOfUndeclaredClass", "UseOfUndeclaredObjectProperty", "UseOfUndeclaredDataProperty", "UseOfUndeclaredAnnotationProperty", "UseOfUndeclaredDatatype", "UseOfIllegalPunning", "UseOfReservedVocabulary", "UseOfDataOneOfWithMultipleLiterals", "UseOfObjectPropertyInverse", "UseOfIllegalAxiomKind"]
+__all__ = ["conformant_profiles", "check_profile", "Violation", "Profile", "ProfileReport", "UseOfNonAtomicClassExpression", "UseOfNonSubClassExpression", "UseOfNonSuperClassExpression", "UseOfIllegalClassExpression", "UseOfClassExpressionWithTooFewOperands", "UseOfDataRangeWithTooFewOperands", "UseOfBuiltinDatatypeInDatatypeDefinition", "UseOfNonSimplePropertyInObjectHasSelf", "UseOfNonSimplePropertyInCardinalityRestriction", "UseOfNonSimplePropertyInDisjointPropertiesAxiom", "UseOfNonSimplePropertyInIrreflexivePropertyAxiom", "UseOfNonSimplePropertyInAsymmetricPropertyAxiom", "UseOfNonSimplePropertyInFunctionalPropertyAxiom", "UseOfNonSimplePropertyInInverseFunctionalPropertyAxiom", "UseOfPropertyInChainCausingCycle", "UseOfUndeclaredClass", "UseOfUndeclaredObjectProperty", "UseOfUndeclaredDataProperty", "UseOfUndeclaredAnnotationProperty", "UseOfUndeclaredDatatype", "UseOfIllegalPunning", "UseOfReservedVocabulary", "UseOfDataOneOfWithMultipleLiterals", "UseOfObjectPropertyInverse", "UseOfIllegalAxiomKind"]

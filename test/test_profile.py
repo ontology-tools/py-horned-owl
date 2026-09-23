@@ -6,7 +6,7 @@ from pyhornedowl.model import Class, IRI, DeclareClass, ObjectUnionOf, SubClassO
 from pyhornedowl.profile import (
     Profile,
     ProfileReport,
-    ProfileViolation,
+    Violation,
     UseOfNonSubClassExpression,
     UseOfUndeclaredClass,
     check_profile,
@@ -51,9 +51,8 @@ def test_check_profile_returns_report():
     assert isinstance(r, ProfileReport)
     assert r.profile == Profile.EL
     assert r.conformant is True
-    assert len(r) == 0
     assert r.violations == []
-    assert r.violations_by_kind == {}
+    assert repr(r) == "ProfileReport(profile=Profile.EL, conformant=True)"
 
 
 def test_check_profile_accepts_profile_enum():
@@ -76,11 +75,10 @@ def test_violations_are_typed_subclasses():
 
     r = check_profile(onto, Profile.EL)
     assert r.conformant is False
-    assert r.violations_by_kind == {"UseOfNonSubClassExpression": 1}
 
     (v,) = r.violations
     assert isinstance(v, UseOfNonSubClassExpression)
-    assert isinstance(v, ProfileViolation)
+    assert isinstance(v, Violation)
     # The base class carries the offending axiom, the subclass its own payload.
     assert v.axiom.component == SubClassOf(
         ObjectUnionOf([Class(IRI.parse(EX + "A")), Class(IRI.parse(EX + "B"))]),
@@ -110,6 +108,6 @@ def test_violation_exposes_only_the_fields_it_has():
 
 
 def test_base_class_carries_no_data():
-    # ProfileViolation is a pure type collector: no fields of its own.
-    assert not hasattr(ProfileViolation, "axiom")
-    assert not hasattr(ProfileViolation, "message")
+    # Violation is a pure type collector: no fields of its own.
+    assert not hasattr(Violation, "axiom")
+    assert not hasattr(Violation, "message")

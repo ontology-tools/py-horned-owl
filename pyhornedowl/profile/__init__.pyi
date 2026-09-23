@@ -7,35 +7,73 @@ def conformant_profiles(ontology: PyIndexedOntology) -> List[Profile]:
     """
     Returns every OWL 2 profile the ontology conforms to, in declaration order
     (OWL2DL, EL, QL, RL). The profiles overlap, so more than one may be returned.
+    
+    :param PyIndexedOntology ontology: the ontology to check
     """
     ...
 
 
 def check_profile(ontology: PyIndexedOntology, profile: Profile) -> ProfileReport:
     """
-    Checks `ontology` against a single profile -- a `Profile` member or one of
-    the strings "DL"/"OWL2DL", "EL", "QL", "RL" (case-insensitive) -- and
-    returns a `ProfileReport` with conformance and the violations found.
+    Checks `ontology` against a single profile and returns a `ProfileReport` with
+    conformance and the violations found.
+    
+    :param PyIndexedOntology ontology: the ontology to check
+    :param Profile profile: the profile to check against, either a `Profile` member or one of the strings "DL"/"OWL2DL", "EL", "QL", "RL" (case-insensitive)
     """
     ...
 
 
+class Violation:
+    """
+    Marker base class of every profile violation, mirroring the OWL API's
+    `OWLProfileViolation`.
+    
+    Carries no data of its own: it exists so that every violation is one type in
+    Python. The payload lives on the subclasses, each of which exposes only the
+    fields its own violation actually has.
+    """
+
 class Profile:
+    """
+    An OWL 2 profile to check conformance against.
+    
+    The profiles overlap rather than forming a linear ladder, so an ontology can
+    conform to several at once. Wherever one is expected, its name is also
+    accepted as a case-insensitive string.
+    
+    """
     OWL2DL: typing.Self
+    """
+    Plain OWL 2 DL -- the global restrictions, and a prerequisite for the three sub-profiles
+    """
     EL: typing.Self
+    """
+    The OWL 2 EL profile
+    """
     QL: typing.Self
+    """
+    The OWL 2 QL profile
+    """
     RL: typing.Self
+    """
+    The OWL 2 RL profile
+    """
 
 class ProfileReport:
     """
     The result of checking an ontology against one OWL 2 profile.
+    
+    :ivar profile: The profile this report is for.
+    :vartype profile: Profile
+    :ivar conformant: True if the ontology has no violations of this profile.
+    :vartype conformant: bool
+    :ivar violations: Every violation found, as `Violation` subclass instances.
+    :vartype violations: typing.List[Violation]
     """
-    def __len__(self, /):
-        ...
-
-    violations: typing.List[ProfileViolation]
+    violations: typing.List[Violation]
     """
-    Every violation found, as `ProfileViolation` subclass instances.
+    Every violation found, as `Violation` subclass instances.
     """
 
     conformant: bool
@@ -48,34 +86,18 @@ class ProfileReport:
     The profile this report is for.
     """
 
-    violations_by_kind: typing.Dict[str, int]
-    """
-    Violation counts grouped by violation class name, e.g.
-    `{"UseOfNonSubClassExpression": 3}`.
-    """
 
-
-class ProfileViolation:
-    """
-    Marker base class of every profile violation, mirroring the OWL API's
-    `OWLProfileViolation`.
-    
-    Carries no data of its own: it exists so that every violation is one type in
-    Python (`isinstance(v, ProfileViolation)`, `List[ProfileViolation]`). The
-    payload lives on the subclasses, each of which exposes only the fields its
-    own violation actually has -- an `axiom` getter, for instance, appears only
-    where the violation is attributable to a single axiom.
-    """
-
-class UseOfNonAtomicClassExpression(ProfileViolation):
+class UseOfNonAtomicClassExpression(Violation):
     """
     A class expression is not *atomic* where OWL 2 DL requires one to be.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar ce: The offending class expression.
+    :vartype ce: ClassExpression
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
-    ce: ClassExpression
-    """
-    The offending class expression.
-    """
-
     message: str
     """
     A human readable description of the violation.
@@ -86,19 +108,26 @@ class UseOfNonAtomicClassExpression(ProfileViolation):
     The axiom the violation was found in.
     """
 
+    ce: ClassExpression
+    """
+    The offending class expression.
+    """
 
-class UseOfNonSubClassExpression(ProfileViolation):
+
+class UseOfNonSubClassExpression(Violation):
     """
     `ce` is not legal in the profile's subclass-position grammar.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar ce: The offending class expression.
+    :vartype ce: ClassExpression
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     ce: ClassExpression
     """
     The offending class expression.
-    """
-
-    message: str
-    """
-    A human readable description of the violation.
     """
 
     axiom: AnnotatedComponent
@@ -106,16 +135,23 @@ class UseOfNonSubClassExpression(ProfileViolation):
     The axiom the violation was found in.
     """
 
+    message: str
+    """
+    A human readable description of the violation.
+    """
 
-class UseOfNonSuperClassExpression(ProfileViolation):
+
+class UseOfNonSuperClassExpression(Violation):
     """
     `ce` is not legal in the profile's superclass-position grammar.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar ce: The offending class expression.
+    :vartype ce: ClassExpression
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
-    axiom: AnnotatedComponent
-    """
-    The axiom the violation was found in.
-    """
-
     ce: ClassExpression
     """
     The offending class expression.
@@ -126,10 +162,22 @@ class UseOfNonSuperClassExpression(ProfileViolation):
     A human readable description of the violation.
     """
 
+    axiom: AnnotatedComponent
+    """
+    The axiom the violation was found in.
+    """
 
-class UseOfIllegalClassExpression(ProfileViolation):
+
+class UseOfIllegalClassExpression(Violation):
     """
     A class expression is not legal in OWL 2 DL at all, in any position.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar ce: The offending class expression.
+    :vartype ce: ClassExpression
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     message: str
     """
@@ -147,10 +195,17 @@ class UseOfIllegalClassExpression(ProfileViolation):
     """
 
 
-class UseOfClassExpressionWithTooFewOperands(ProfileViolation):
+class UseOfClassExpressionWithTooFewOperands(Violation):
     """
     `ObjectUnionOf`/`ObjectIntersectionOf` built with fewer than the two
     operands OWL 2 DL requires for these n-ary constructors.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar ce: The offending class expression.
+    :vartype ce: ClassExpression
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     message: str
     """
@@ -168,13 +223,25 @@ class UseOfClassExpressionWithTooFewOperands(ProfileViolation):
     """
 
 
-class UseOfDataRangeWithTooFewOperands(ProfileViolation):
+class UseOfDataRangeWithTooFewOperands(Violation):
     """
     `DataUnionOf`/`DataIntersectionOf` built with fewer than two operands.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar dr: The offending data range.
+    :vartype dr: DataRange
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     message: str
     """
     A human readable description of the violation.
+    """
+
+    axiom: AnnotatedComponent
+    """
+    The axiom the violation was found in.
     """
 
     dr: DataRange
@@ -182,17 +249,17 @@ class UseOfDataRangeWithTooFewOperands(ProfileViolation):
     The offending data range.
     """
 
-    axiom: AnnotatedComponent
-    """
-    The axiom the violation was found in.
-    """
 
-
-class UseOfBuiltinDatatypeInDatatypeDefinition(ProfileViolation):
+class UseOfBuiltinDatatypeInDatatypeDefinition(Violation):
     """
     A `DatatypeDefinition` whose subject is itself a built-in XSD/OWL 2
     datatype -- `DatatypeDefinition` introduces a *new* datatype, it cannot
     redefine an existing built-in one.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     axiom: AnnotatedComponent
     """
@@ -205,13 +272,25 @@ class UseOfBuiltinDatatypeInDatatypeDefinition(ProfileViolation):
     """
 
 
-class UseOfNonSimplePropertyInObjectHasSelf(ProfileViolation):
+class UseOfNonSimplePropertyInObjectHasSelf(Violation):
     """
     `ObjectHasSelf` is given a composite (non-simple) object property.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar ope: The composite (non-simple) object property expression.
+    :vartype ope: ObjectPropertyExpression
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     message: str
     """
     A human readable description of the violation.
+    """
+
+    axiom: AnnotatedComponent
+    """
+    The axiom the violation was found in.
     """
 
     ope: ObjectPropertyExpression
@@ -219,22 +298,19 @@ class UseOfNonSimplePropertyInObjectHasSelf(ProfileViolation):
     The composite (non-simple) object property expression.
     """
 
-    axiom: AnnotatedComponent
-    """
-    The axiom the violation was found in.
-    """
 
-
-class UseOfNonSimplePropertyInCardinalityRestriction(ProfileViolation):
+class UseOfNonSimplePropertyInCardinalityRestriction(Violation):
     """
     An object-cardinality restriction is given a composite (non-simple)
     object property.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar ope: The composite (non-simple) object property expression.
+    :vartype ope: ObjectPropertyExpression
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
-    axiom: AnnotatedComponent
-    """
-    The axiom the violation was found in.
-    """
-
     ope: ObjectPropertyExpression
     """
     The composite (non-simple) object property expression.
@@ -245,27 +321,42 @@ class UseOfNonSimplePropertyInCardinalityRestriction(ProfileViolation):
     A human readable description of the violation.
     """
 
+    axiom: AnnotatedComponent
+    """
+    The axiom the violation was found in.
+    """
 
-class UseOfNonSimplePropertyInDisjointPropertiesAxiom(ProfileViolation):
+
+class UseOfNonSimplePropertyInDisjointPropertiesAxiom(Violation):
     """
     `DisjointObjectProperties` includes a composite (non-simple) object
     property.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
-    axiom: AnnotatedComponent
-    """
-    The axiom the violation was found in.
-    """
-
     message: str
     """
     A human readable description of the violation.
     """
 
+    axiom: AnnotatedComponent
+    """
+    The axiom the violation was found in.
+    """
 
-class UseOfNonSimplePropertyInIrreflexivePropertyAxiom(ProfileViolation):
+
+class UseOfNonSimplePropertyInIrreflexivePropertyAxiom(Violation):
     """
     `IrreflexiveObjectProperty` is given a composite (non-simple) object
     property.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     message: str
     """
@@ -278,26 +369,36 @@ class UseOfNonSimplePropertyInIrreflexivePropertyAxiom(ProfileViolation):
     """
 
 
-class UseOfNonSimplePropertyInAsymmetricPropertyAxiom(ProfileViolation):
+class UseOfNonSimplePropertyInAsymmetricPropertyAxiom(Violation):
     """
     `AsymmetricObjectProperty` is given a composite (non-simple) object
     property.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
-    message: str
-    """
-    A human readable description of the violation.
-    """
-
     axiom: AnnotatedComponent
     """
     The axiom the violation was found in.
     """
 
+    message: str
+    """
+    A human readable description of the violation.
+    """
 
-class UseOfNonSimplePropertyInFunctionalPropertyAxiom(ProfileViolation):
+
+class UseOfNonSimplePropertyInFunctionalPropertyAxiom(Violation):
     """
     `FunctionalObjectProperty` is given a composite (non-simple) object
     property.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     axiom: AnnotatedComponent
     """
@@ -310,10 +411,15 @@ class UseOfNonSimplePropertyInFunctionalPropertyAxiom(ProfileViolation):
     """
 
 
-class UseOfNonSimplePropertyInInverseFunctionalPropertyAxiom(ProfileViolation):
+class UseOfNonSimplePropertyInInverseFunctionalPropertyAxiom(Violation):
     """
     `InverseFunctionalObjectProperty` is given a composite (non-simple)
     object property.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     message: str
     """
@@ -326,10 +432,15 @@ class UseOfNonSimplePropertyInInverseFunctionalPropertyAxiom(ProfileViolation):
     """
 
 
-class UseOfPropertyInChainCausingCycle(ProfileViolation):
+class UseOfPropertyInChainCausingCycle(Violation):
     """
     A cycle in the role hierarchy's property-chain graph. Spans potentially
     many chain axioms, so -- unlike most violations -- it has no `axiom`.
+    
+    :ivar cycle: The properties forming the cycle, the first repeated as the last to close the loop.
+    :vartype cycle: typing.List[ObjectProperty]
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     cycle: typing.List[ObjectProperty]
     """
@@ -342,9 +453,14 @@ class UseOfPropertyInChainCausingCycle(ProfileViolation):
     """
 
 
-class UseOfUndeclaredClass(ProfileViolation):
+class UseOfUndeclaredClass(Violation):
     """
     `iri` is used as a class without a `DeclareClass` axiom.
+    
+    :ivar iri: The IRI the violation is about.
+    :vartype iri: IRI
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     iri: IRI
     """
@@ -357,25 +473,35 @@ class UseOfUndeclaredClass(ProfileViolation):
     """
 
 
-class UseOfUndeclaredObjectProperty(ProfileViolation):
+class UseOfUndeclaredObjectProperty(Violation):
     """
     `iri` is used as an object property without a `DeclareObjectProperty`
     axiom.
+    
+    :ivar iri: The IRI the violation is about.
+    :vartype iri: IRI
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
-    iri: IRI
-    """
-    The IRI the violation is about.
-    """
-
     message: str
     """
     A human readable description of the violation.
     """
 
+    iri: IRI
+    """
+    The IRI the violation is about.
+    """
 
-class UseOfUndeclaredDataProperty(ProfileViolation):
+
+class UseOfUndeclaredDataProperty(Violation):
     """
     `iri` is used as a data property without a `DeclareDataProperty` axiom.
+    
+    :ivar iri: The IRI the violation is about.
+    :vartype iri: IRI
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     iri: IRI
     """
@@ -388,25 +514,57 @@ class UseOfUndeclaredDataProperty(ProfileViolation):
     """
 
 
-class UseOfUndeclaredAnnotationProperty(ProfileViolation):
+class UseOfUndeclaredAnnotationProperty(Violation):
     """
     `iri` is used as an annotation property without a
     `DeclareAnnotationProperty` axiom.
+    
+    :ivar iri: The IRI the violation is about.
+    :vartype iri: IRI
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
-    iri: IRI
-    """
-    The IRI the violation is about.
-    """
-
     message: str
     """
     A human readable description of the violation.
     """
 
+    iri: IRI
+    """
+    The IRI the violation is about.
+    """
 
-class UseOfUndeclaredDatatype(ProfileViolation):
+
+class UseOfUndeclaredDatatype(Violation):
     """
     `iri` is used as a datatype without a `DeclareDatatype` axiom.
+    
+    :ivar iri: The IRI the violation is about.
+    :vartype iri: IRI
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
+    """
+    message: str
+    """
+    A human readable description of the violation.
+    """
+
+    iri: IRI
+    """
+    The IRI the violation is about.
+    """
+
+
+class UseOfIllegalPunning(Violation):
+    """
+    `iri` is declared as more than one mutually-exclusive entity kind.
+    
+    :ivar iri: The IRI the violation is about.
+    :vartype iri: IRI
+    :ivar kinds: The mutually-exclusive entity kinds the IRI is declared as.
+    :vartype kinds: typing.List[str]
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     iri: IRI
     """
@@ -416,16 +574,6 @@ class UseOfUndeclaredDatatype(ProfileViolation):
     message: str
     """
     A human readable description of the violation.
-    """
-
-
-class UseOfIllegalPunning(ProfileViolation):
-    """
-    `iri` is declared as more than one mutually-exclusive entity kind.
-    """
-    iri: IRI
-    """
-    The IRI the violation is about.
     """
 
     kinds: typing.List[str]
@@ -433,46 +581,56 @@ class UseOfIllegalPunning(ProfileViolation):
     The mutually-exclusive entity kinds the IRI is declared as.
     """
 
-    message: str
-    """
-    A human readable description of the violation.
-    """
 
-
-class UseOfReservedVocabulary(ProfileViolation):
+class UseOfReservedVocabulary(Violation):
     """
     A reserved `rdf:`/`rdfs:`/`owl:` structural vocabulary term is the
     subject of a `Declare*` axiom.
+    
+    :ivar iri: The IRI the violation is about.
+    :vartype iri: IRI
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
-    message: str
-    """
-    A human readable description of the violation.
-    """
-
     iri: IRI
     """
     The IRI the violation is about.
     """
 
+    message: str
+    """
+    A human readable description of the violation.
+    """
 
-class UseOfDataOneOfWithMultipleLiterals(ProfileViolation):
+
+class UseOfDataOneOfWithMultipleLiterals(Violation):
     """
     EL-specific: `DataOneOf` with more than one literal.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
-    axiom: AnnotatedComponent
-    """
-    The axiom the violation was found in.
-    """
-
     message: str
     """
     A human readable description of the violation.
     """
 
+    axiom: AnnotatedComponent
+    """
+    The axiom the violation was found in.
+    """
 
-class UseOfObjectPropertyInverse(ProfileViolation):
+
+class UseOfObjectPropertyInverse(Violation):
     """
     EL-specific: object property inverses are not permitted at all.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
     axiom: AnnotatedComponent
     """
@@ -485,11 +643,23 @@ class UseOfObjectPropertyInverse(ProfileViolation):
     """
 
 
-class UseOfIllegalAxiomKind(ProfileViolation):
+class UseOfIllegalAxiomKind(Violation):
     """
     This whole axiom *kind* is not permitted in the profile, regardless of
     its content -- e.g. `FunctionalObjectProperty` in EL.
+    
+    :ivar axiom: The axiom the violation was found in.
+    :vartype axiom: AnnotatedComponent
+    :ivar reason: Which profile rule the axiom kind falls foul of.
+    :vartype reason: str
+    :ivar message: A human readable description of the violation.
+    :vartype message: str
     """
+    message: str
+    """
+    A human readable description of the violation.
+    """
+
     axiom: AnnotatedComponent
     """
     The axiom the violation was found in.
@@ -498,11 +668,6 @@ class UseOfIllegalAxiomKind(ProfileViolation):
     reason: str
     """
     Which profile rule the axiom kind falls foul of.
-    """
-
-    message: str
-    """
-    A human readable description of the violation.
     """
 
 
