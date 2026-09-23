@@ -300,3 +300,16 @@ jobs:
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
 
+
+  # Single required status check for the main branch ruleset, so the ruleset
+  # does not have to list every matrix entry. always() + the result check are
+  # needed because a skipped required check counts as passing.
+  ci-ok:
+    name: CI ok
+    if: always()
+    needs: [linux, musllinux, windows, macos, sdist, tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any required job did not succeed
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
+        run: exit 1
