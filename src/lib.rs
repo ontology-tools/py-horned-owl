@@ -7,7 +7,10 @@ use std::sync::{Arc, Mutex};
 
 use curie::PrefixMapping;
 use horned_owl::error::HornedError;
-use horned_owl::io::{InputFormat, ParserConfiguration as HornedParserConfiguration, RDFParserConfiguration, ResourceType};
+use horned_owl::io::{
+    InputFormat, ParserConfiguration as HornedParserConfiguration, RDFParserConfiguration,
+    ResourceType,
+};
 use horned_owl::model::*;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -93,13 +96,17 @@ fn parser_config(
         ))
     })?;
 
-    Ok((input_format, default_parser_config(Some(input_format), build)))
+    Ok((
+        input_format,
+        default_parser_config(Some(input_format), build),
+    ))
 }
 
-fn default_parser_config(input_format: Option<InputFormat>, build: Option<Build<ArcStr>>) -> ParserConfiguration {
-    let mut conf = ParserConfiguration::new(
-        build.unwrap_or_else(|| Build::new_arc())
-    );
+fn default_parser_config(
+    input_format: Option<InputFormat>,
+    build: Option<Build<ArcStr>>,
+) -> ParserConfiguration {
+    let mut conf = ParserConfiguration::new(build.unwrap_or_else(|| Build::new_arc()));
 
     conf.lax = true;
     conf.input_format = input_format;
@@ -111,7 +118,7 @@ fn open_ontology_owx<R: BufRead>(
     content: &mut R,
     config: ParserConfiguration,
 ) -> Result<(PyIndexedOntology, PrefixMapping), HornedError> {
-    horned_owl::io::owx::reader::read(content,  config)
+    horned_owl::io::owx::reader::read(content, config)
 }
 
 fn open_ontology_ofn<R: BufRead>(
@@ -177,9 +184,8 @@ fn open_ontology_from_file(
 
     let b = Build::new_arc();
     let (input_format, config) = parser_config(Path::new(&path), serialization, Some(b))?;
-    
+
     let mut f = BufReader::new(file);
-    
 
     let (mut pio, mapping) = match input_format {
         InputFormat::OFN => open_ontology_ofn(&mut f, config),
@@ -228,7 +234,6 @@ fn open_ontology_from_string(
     let config = default_parser_config(input_format, Some(b));
 
     let mut f = BufReader::new(ontology.as_bytes());
-
 
     let (mut pio, mapping) = match input_format {
         Some(InputFormat::OFN) => open_ontology_ofn(&mut f, config),
