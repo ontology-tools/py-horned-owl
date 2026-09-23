@@ -94,7 +94,7 @@ def handle_module(module: str, py_imports: list[str], pyi_imports: list[str]):
 
                         f.write('    """\n')
 
-                for member_name, member in entry.__dict__.items():
+                for member_name, member in sorted(entry.__dict__.items()):
                     if (
                         member_name.startswith("_")
                         and member_name not in implemented_magic

@@ -20,21 +20,51 @@ def create_structural_reasoner(ontology: PyIndexedOntology) -> PyReasoner:
 
 
 class PyReasoner:
+    def flush(self) -> None:
+        """
+        Flushes pending changes to the reasoner. This invalidates any cached results and updates the reasoner with the current state of the ontology.
+        """
+        ...
+
+    def get_disjoint_classes(self, cmp: ClassExpression) -> Set[Class]:
+        """
+        Returns the set of classes asserted or inferred to be disjoint with the given class expression.
+        """
+        ...
+
+    def get_equivalent_classes(self, cmp: ClassExpression) -> Set[Class]:
+        """
+        Returns the set of classes asserted or inferred to be equivalent to given the class expression.
+        """
+        ...
+
     def get_name(self) -> str:
         """
         Returns the name of the reasoner.
         """
         ...
 
-    def get_version(self) -> str:
+    def get_subclasses(self, cmp: ClassExpression) -> Set[Class]:
         """
-        Returns the version of the reasoner.
+        Returns the set of asserted and inferred subclasses for the given class expression.
         """
         ...
 
-    def flush(self) -> None:
+    def get_superclasses(self, cmp: ClassExpression) -> Set[Class]:
         """
-        Flushes pending changes to the reasoner. This invalidates any cached results and updates the reasoner with the current state of the ontology.
+        Returns the set of asserted and inferred superclasses for the given class expression.
+        """
+        ...
+
+    def get_unsatisfiable_classes(self) -> Set[Class]:
+        """
+        Returns the set of unsatisfiable classes.
+        """
+        ...
+
+    def get_version(self) -> str:
+        """
+        Returns the version of the reasoner.
         """
         ...
 
@@ -59,36 +89,6 @@ class PyReasoner:
     def is_satifisable(self, cmp: ClassExpression) -> bool:
         """
         Checks if the given class expression is satisfiable.
-        """
-        ...
-
-    def get_unsatisfiable_classes(self) -> Set[Class]:
-        """
-        Returns the set of unsatisfiable classes.
-        """
-        ...
-
-    def get_subclasses(self, cmp: ClassExpression) -> Set[Class]:
-        """
-        Returns the set of asserted and inferred subclasses for the given class expression.
-        """
-        ...
-
-    def get_superclasses(self, cmp: ClassExpression) -> Set[Class]:
-        """
-        Returns the set of asserted and inferred superclasses for the given class expression.
-        """
-        ...
-
-    def get_equivalent_classes(self, cmp: ClassExpression) -> Set[Class]:
-        """
-        Returns the set of classes asserted or inferred to be equivalent to given the class expression.
-        """
-        ...
-
-    def get_disjoint_classes(self, cmp: ClassExpression) -> Set[Class]:
-        """
-        Returns the set of classes asserted or inferred to be disjoint with the given class expression.
         """
         ...
 

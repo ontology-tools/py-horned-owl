@@ -9,7 +9,6 @@ use crate::model::{
 use crate::wrappers::{FromCompatible, IntoCompatible, VecWrap};
 use crate::PyIndexedOntology;
 use horned_owl::model::ArcStr;
-use horned_owl::ontology::set::SetOntology;
 use horned_profile::{Profile, Violation};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -17,6 +16,11 @@ use pyo3::types::PyModule;
 use std::str::FromStr;
 
 /// OWL 2 profiles
+///
+/// OWL2DL: The [OWL 2 DL profile](https://www.w3.org/TR/owl2-syntax/#Global_Restrictions_on_Axioms_in_OWL_2_DL).
+/// EL: The [OWL 2 EL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_EL).
+/// QL: The [OWL 2 QL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_QL).
+/// RL: The [OWL 2 RL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_RL).
 #[pyclass(
     eq,
     eq_int,
@@ -28,16 +32,9 @@ use std::str::FromStr;
 )]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum PyProfile {
-    /// The [OWL 2 DL profile](https://www.w3.org/TR/owl2-syntax/#Global_Restrictions_on_Axioms_in_OWL_2_DL).
     OWL2DL,
-
-    /// The [OWL 2 EL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_EL).
     EL,
-
-    /// The [OWL 2 QL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_QL).
     QL,
-
-    /// The OWL 2 [RL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_RL).
     RL,
 }
 
@@ -106,11 +103,6 @@ impl PyProfile {
     }
 }
 
-// `FromCompatible` (src/wrappers.rs) is the codebase's conversion vocabulary
-// between horned-owl model types and their `pyhornedowl.model` wrappers, and
-// `model_generated.rs` already implements it for most of what a `Violation`
-// carries. These two fill the gaps, so that `violations!` below can write a
-// uniform `field.into_c()` for every field.
 
 impl FromCompatible<&Vec<&'static str>> for VecWrap<String> {
     fn from_c(value: &Vec<&'static str>) -> Self {
@@ -166,10 +158,6 @@ macro_rules! violation_field {
     (py  reason) => { "str" };
     (doc reason) => { "Which profile rule the axiom kind falls foul of." };
 
-    (ty  $field:ident : $ty:ty $(as $py_ty:literal)?) => { $ty };
-    (py  $field:ident : $ty:ty) => { stringify!($ty) };
-    (py  $field:ident : $ty:ty as $py_ty:literal) => { $py_ty };
-    (doc $field:ident : $ty:ty $(as $py_ty:literal)?) => { "See the class documentation." };
 }
 
 /// Generates the `Violation` subclass hierarchy.
@@ -180,24 +168,11 @@ macro_rules! violations {
     ($(
         $(#[$meta:meta])*
         $name:ident {
-            $($field:ident $(: $ty:ty $(as $py_ty:literal)?)?),* $(,)?
+            $($field:ident),* $(,)?
         } = $message:literal;
     )*) => {
         $(
             $(#[$meta])*
-            #[doc = ""]
-            $(
-                #[doc = concat!(
-                    ":ivar ", stringify!($field), ": ",
-                    violation_field!(doc $field $(: $ty $(as $py_ty)?)?)
-                )]
-                #[doc = concat!(
-                    ":vartype ", stringify!($field), ": ",
-                    violation_field!(py $field $(: $ty $(as $py_ty)?)?)
-                )]
-            )*
-            #[doc = ":ivar message: A human readable description of the violation."]
-            #[doc = ":vartype message: str"]
             #[pyclass(
                 extends = PyViolation,
                 module = "pyhornedowl.profile",
@@ -207,12 +182,12 @@ macro_rules! violations {
                 $(
                     #[doc = concat!(
                         stringify!($field), ": ",
-                        violation_field!(py $field $(: $ty $(as $py_ty)?)?)
+                        violation_field!(py $field)
                     )]
                     #[doc = ""]
-                    #[doc = concat!(violation_field!(doc $field $(: $ty $(as $py_ty)?)?))]
+                    #[doc = concat!(violation_field!(doc $field))]
                     #[pyo3(get)]
-                    pub $field: violation_field!(ty $field $(: $ty $(as $py_ty)?)?),
+                    pub $field: violation_field!(ty $field),
                 )*
             }
 
@@ -390,13 +365,6 @@ violations! {
 }
 
 /// The result of checking an ontology against one OWL 2 profile.
-///
-/// :ivar profile: The profile this report is for.
-/// :vartype profile: Profile
-/// :ivar conformant: True if the ontology has no violations of this profile.
-/// :vartype conformant: bool
-/// :ivar violations: Every violation found, as `Violation` subclass instances.
-/// :vartype violations: typing.List[Violation]
 #[pyclass(
     name = "ProfileReport",
     module = "pyhornedowl.profile",
@@ -433,7 +401,11 @@ impl PyProfileReport {
     }
 }
 
-fn build_report(py: Python<'_>, o: &SetOntology<ArcStr>, p: Profile) -> PyResult<PyProfileReport> {
+fn build_report<O: horned_owl::model::Ontology<ArcStr>>(
+    py: Python<'_>,
+    o: &O,
+    p: Profile,
+) -> PyResult<PyProfileReport> {
     let report = horned_profile::check(o, p);
     let violations = report
         .violations()
@@ -455,29 +427,27 @@ fn build_report(py: Python<'_>, o: &SetOntology<ArcStr>, p: Profile) -> PyResult
 ///
 /// :param PyIndexedOntology ontology: the ontology to check
 #[pyfunction]
-pub fn conformant_profiles(ontology: PyIndexedOntology) -> Vec<PyProfile> {
-    let o: SetOntology<ArcStr> = ontology.into();
-    horned_profile::conformant_profiles(&o)
+pub fn conformant_profiles(ontology: &PyIndexedOntology) -> Vec<PyProfile> {
+    horned_profile::conformant_profiles::<ArcStr, _>(ontology)
         .into_iter()
         .map(Into::into)
         .collect()
 }
 
-/// check_profile(ontology: PyIndexedOntology, profile: Profile) -> ProfileReport
+/// check_profile(ontology: PyIndexedOntology, profile: typing.Union[Profile, Literal["DL", "EL", "QL", "RL"]]) -> ProfileReport
 ///
 /// Checks `ontology` against a single profile and returns a `ProfileReport` with
 /// conformance and the violations found.
 ///
 /// :param PyIndexedOntology ontology: the ontology to check
-/// :param Profile profile: the profile to check against, either a `Profile` member or one of the strings "DL"/"OWL2DL", "EL", "QL", "RL" (case-insensitive)
+/// :param typing.Union[Profile, Literal["DL", "EL", "QL", "RL"]] profile: the profile to check against, either a `Profile` member or one of the strings "DL"/"OWL2DL", "EL", "QL", "RL" (case-insensitive)
 #[pyfunction]
 pub fn check_profile(
     py: Python<'_>,
-    ontology: PyIndexedOntology,
+    ontology: &PyIndexedOntology,
     profile: PyProfile,
 ) -> PyResult<PyProfileReport> {
-    let o: SetOntology<ArcStr> = ontology.into();
-    build_report(py, &o, profile.into())
+    build_report(py, ontology, profile.into())
 }
 
 pub fn py_module<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyModule>> {
