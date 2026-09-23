@@ -17,9 +17,6 @@ dependencies = [
 ]
 
 
-[tool.maturin]
-features = ["pyo3/extension-module"]
-
 [tool.maturin.generate-ci.github]
 trusted-publishing = true
 
