@@ -342,7 +342,6 @@ class PyIndexedOntology:
 class IndexCreationStrategy:
     """
     Values to indicate when to build the additional indexes.
-    
     """
     Explicit: typing.Self
     """

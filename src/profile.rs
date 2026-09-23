@@ -17,10 +17,10 @@ use std::str::FromStr;
 
 /// OWL 2 profiles
 ///
-/// OWL2DL: The [OWL 2 DL profile](https://www.w3.org/TR/owl2-syntax/#Global_Restrictions_on_Axioms_in_OWL_2_DL).
-/// EL: The [OWL 2 EL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_EL).
-/// QL: The [OWL 2 QL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_QL).
-/// RL: The [OWL 2 RL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_RL).
+/// :cvar OWL2DL: The [OWL 2 DL profile](https://www.w3.org/TR/owl2-syntax/#Global_Restrictions_on_Axioms_in_OWL_2_DL).
+/// :cvar EL: The [OWL 2 EL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_EL).
+/// :cvar QL: The [OWL 2 QL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_QL).
+/// :cvar RL: The [OWL 2 RL profile](https://www.w3.org/TR/owl2-profiles/#OWL_2_RL).
 #[pyclass(
     eq,
     eq_int,
@@ -103,7 +103,6 @@ impl PyProfile {
     }
 }
 
-
 impl FromCompatible<&Vec<&'static str>> for VecWrap<String> {
     fn from_c(value: &Vec<&'static str>) -> Self {
         VecWrap(value.iter().map(|s| s.to_string()).collect())
@@ -173,6 +172,13 @@ macro_rules! violations {
     )*) => {
         $(
             $(#[$meta])*
+            #[doc = ""]
+            $(
+                #[doc = concat!(":ivar ", stringify!($field), ": ", violation_field!(doc $field))]
+                #[doc = concat!(":vartype ", stringify!($field), ": ", violation_field!(py $field))]
+            )*
+            #[doc = ":ivar message: A human readable description of the violation."]
+            #[doc = ":vartype message: str"]
             #[pyclass(
                 extends = PyViolation,
                 module = "pyhornedowl.profile",
@@ -180,12 +186,6 @@ macro_rules! violations {
             )]
             pub struct $name {
                 $(
-                    #[doc = concat!(
-                        stringify!($field), ": ",
-                        violation_field!(py $field)
-                    )]
-                    #[doc = ""]
-                    #[doc = concat!(violation_field!(doc $field))]
                     #[pyo3(get)]
                     pub $field: violation_field!(ty $field),
                 )*
@@ -193,9 +193,6 @@ macro_rules! violations {
 
             #[pymethods]
             impl $name {
-                #[doc = "message: str"]
-                #[doc = ""]
-                /// A human readable description of the violation.
                 #[getter]
                 fn message(&self) -> &'static str {
                     $message
@@ -365,27 +362,25 @@ violations! {
 }
 
 /// The result of checking an ontology against one OWL 2 profile.
+///
+/// :ivar profile: The profile this report is for.
+/// :vartype profile: Profile
+/// :ivar conformant: True if the ontology has no violations of this profile.
+/// :vartype conformant: bool
+/// :ivar violations: Every violation found, as `Violation` subclass instances.
+/// :vartype violations: typing.List[Violation]
 #[pyclass(
     name = "ProfileReport",
     module = "pyhornedowl.profile",
     skip_from_py_object
 )]
 pub struct PyProfileReport {
-    /// profile: Profile
-    ///
-    /// The profile this report is for.
     #[pyo3(get)]
     pub profile: PyProfile,
 
-    /// conformant: bool
-    ///
-    /// True if the ontology has no violations of this profile.
     #[pyo3(get)]
     pub conformant: bool,
 
-    /// violations: typing.List[Violation]
-    ///
-    /// Every violation found, as `Violation` subclass instances.
     #[pyo3(get)]
     pub violations: Vec<Py<PyViolation>>,
 }

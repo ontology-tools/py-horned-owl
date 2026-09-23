@@ -32,7 +32,6 @@ class Violation:
 class Profile:
     """
     OWL 2 profiles
-    
     """
     EL: typing.Self
     """

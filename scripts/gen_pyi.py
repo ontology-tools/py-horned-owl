@@ -3,6 +3,7 @@ import inspect
 import json
 import os
 import re
+import types
 import typing
 
 from build_model import as_py_type, as_py_name, build_from_templates
@@ -77,21 +78,32 @@ def handle_module(module: str, py_imports: list[str], pyi_imports: list[str]):
                 # There appears to be a bug with pyo3. Documentation on enum
                 # variants is not attached to their mapped python types. Hence we
                 # use a workarround of adding their documentation to the enum in
-                # the style: "<MemberName>: <doc string>".
+                # the style: ":cvar <MemberName>: <doc string>". Fields are
+                # documented the same way, as ":ivar <name>: <doc>" and
+                # ":vartype <name>: <type>", since their getters carry no docs.
                 member_docs = {}
+                field_docs = {}
+                field_types = {}
                 if hasattr(entry, "__doc__"):
                     entry_doc = entry.__doc__
                     if entry_doc is not None:
-                        f.write('    """\n')
+                        # Member and field docs move to the members themselves.
+                        class_doc = []
                         for line in entry_doc.splitlines():
-                            member_doc_m = re.match(r"^(\w+): (.*)$", line)
-                            if member_doc_m:
-                                member_docs[member_doc_m.group(1)] = member_doc_m.group(
-                                    2
-                                )
+                            if m_ := re.match(r"^:ivar (\w+): (.*)$", line):
+                                field_docs[m_.group(1)] = m_.group(2)
+                            elif m_ := re.match(r"^:vartype (\w+): (.*)$", line):
+                                field_types[m_.group(1)] = m_.group(2)
+                            elif m_ := re.match(r"^:cvar (\w+): (.*)$", line):
+                                member_docs[m_.group(1)] = m_.group(2)
                             else:
-                                f.write(f"    {line}\n")
+                                class_doc.append(line)
 
+                        while class_doc and not class_doc[-1].strip():
+                            class_doc.pop()
+                        f.write('    """\n')
+                        for line in class_doc:
+                            f.write(f"    {line}\n")
                         f.write('    """\n')
 
                 for member_name, member in sorted(entry.__dict__.items()):
@@ -117,6 +129,16 @@ def handle_module(module: str, py_imports: list[str], pyi_imports: list[str]):
                                 f.write(f"    {line}\n")
                             f.write('    """\n')
 
+                        continue
+
+                    if (
+                        isinstance(member, types.GetSetDescriptorType)
+                        and member_name in field_types
+                    ):
+                        f.write(f"    {member_name}: {field_types[member_name]}\n")
+                        if member_name in field_docs:
+                            f.write(f'    """\n    {field_docs[member_name]}\n    """\n')
+                        f.write("\n")
                         continue
 
                     if hasattr(member, "__doc__"):
