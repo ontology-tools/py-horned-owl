@@ -3,6 +3,7 @@ import inspect
 import json
 import os
 import re
+import types
 import typing
 
 from build_model import as_py_type, as_py_name, build_from_templates
@@ -22,6 +23,7 @@ import pyhornedowl.pyhornedowl as pho
 
 os.makedirs("pyhornedowl/model", exist_ok=True)
 os.makedirs("pyhornedowl/reasoning", exist_ok=True)
+os.makedirs("pyhornedowl/profile", exist_ok=True)
 
 
 implemented_magic = [
@@ -71,28 +73,40 @@ def handle_module(module: str, py_imports: list[str], pyi_imports: list[str]):
 
         for name, entry in m.__dict__.items():
             if isinstance(entry, type):
-                f.write(f"class {name}:\n")
+                bases = [b.__name__ for b in entry.__bases__ if b is not object]
+                f.write(f"class {name}({', '.join(bases)}):\n" if bases else f"class {name}:\n")
                 # There appears to be a bug with pyo3. Documentation on enum
                 # variants is not attached to their mapped python types. Hence we
                 # use a workarround of adding their documentation to the enum in
-                # the style: "<MemberName>: <doc string>".
+                # the style: ":cvar <MemberName>: <doc string>". Fields are
+                # documented the same way, as ":ivar <name>: <doc>" and
+                # ":vartype <name>: <type>", since their getters carry no docs.
                 member_docs = {}
+                field_docs = {}
+                field_types = {}
                 if hasattr(entry, "__doc__"):
                     entry_doc = entry.__doc__
                     if entry_doc is not None:
-                        f.write('    """\n')
+                        # Member and field docs move to the members themselves.
+                        class_doc = []
                         for line in entry_doc.splitlines():
-                            member_doc_m = re.match(r"^(\w+): (.*)$", line)
-                            if member_doc_m:
-                                member_docs[member_doc_m.group(1)] = member_doc_m.group(
-                                    2
-                                )
+                            if m_ := re.match(r"^:ivar (\w+): (.*)$", line):
+                                field_docs[m_.group(1)] = m_.group(2)
+                            elif m_ := re.match(r"^:vartype (\w+): (.*)$", line):
+                                field_types[m_.group(1)] = m_.group(2)
+                            elif m_ := re.match(r"^:cvar (\w+): (.*)$", line):
+                                member_docs[m_.group(1)] = m_.group(2)
                             else:
-                                f.write(f"    {line}\n")
+                                class_doc.append(line)
 
+                        while class_doc and not class_doc[-1].strip():
+                            class_doc.pop()
+                        f.write('    """\n')
+                        for line in class_doc:
+                            f.write(f"    {line}\n")
                         f.write('    """\n')
 
-                for member_name, member in entry.__dict__.items():
+                for member_name, member in sorted(entry.__dict__.items()):
                     if (
                         member_name.startswith("_")
                         and member_name not in implemented_magic
@@ -115,6 +129,16 @@ def handle_module(module: str, py_imports: list[str], pyi_imports: list[str]):
                                 f.write(f"    {line}\n")
                             f.write('    """\n')
 
+                        continue
+
+                    if (
+                        isinstance(member, types.GetSetDescriptorType)
+                        and member_name in field_types
+                    ):
+                        f.write(f"    {member_name}: {field_types[member_name]}\n")
+                        if member_name in field_docs:
+                            f.write(f'    """\n    {field_docs[member_name]}\n    """\n')
+                        f.write("\n")
                         continue
 
                     if hasattr(member, "__doc__"):
@@ -250,12 +274,19 @@ handle_module(
         "from typing_extensions import deprecated\n",
         "import model",
         "import reasoning",
+        "import profile",
     ],
 )
 handle_template_module("model")
 
 handle_module(
     "reasoning",
+    ["from __future__ import annotations"],
+    ["import typing", "from typing import *", "from .. import PyIndexedOntology", "from ..model import *"],
+)
+
+handle_module(
+    "profile",
     ["from __future__ import annotations"],
     ["import typing", "from typing import *", "from .. import PyIndexedOntology", "from ..model import *"],
 )

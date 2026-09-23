@@ -30,7 +30,9 @@ def type_aliases(*modules: str) -> dict[str, dict[str, str]]:
 def skip_member(app, what, name, obj, skip, options):
     # Fields are documented in their class' docstring (:ivar:/:vartype:), so
     # their getters would only repeat the name without adding anything.
-    return isinstance(obj, types.GetSetDescriptorType) or skip
+    # Enum variants are documented in their class' docstring (:cvar:) as well.
+    is_variant = getattr(type(obj), name, None) is obj
+    return isinstance(obj, types.GetSetDescriptorType) or is_variant or skip
 
 
 def process_signature(app, what, name, obj, options, signature: str, return_annotation):

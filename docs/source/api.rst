@@ -7,3 +7,4 @@ API
    pyhornedowl
    pyhornedowl.model
    pyhornedowl.reasoning
+   pyhornedowl.profile

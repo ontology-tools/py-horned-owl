@@ -63,9 +63,9 @@ macro_rules! entity_query {
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
 /// Values to indicate when to build the additional indexes.
 ///
-/// OnLoad: Create the additional indexes when the ontology is loaded
-/// OnQuery: Create the additional indexes only when they are needed
-/// Explicit: Only create the additional indexes when explicity requested
+/// :cvar OnLoad: Create the additional indexes when the ontology is loaded
+/// :cvar OnQuery: Create the additional indexes only when they are needed
+/// :cvar Explicit: Only create the additional indexes when explicity requested
 #[derive(Default)]
 pub enum IndexCreationStrategy {
     /// Create the additional indexes when the ontology is loaded

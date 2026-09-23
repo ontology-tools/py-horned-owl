@@ -18,6 +18,7 @@ features = ["experimental-inspect", "multiple-pymethods"]
 [dependencies]
 horned-owl = "^3.0"
 horned-bin = "^3.0"
+horned-profile = "^3.0"
 # horned-owl = { git = "https://github.com/phillord/horned-owl.git", branch = "devel" }
 # horned-bin = { git = "https://github.com/phillord/horned-owl.git", branch = "devel" }
 py-horned-owl-reasoner = { path = "lib/reasoner" }
