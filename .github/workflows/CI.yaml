@@ -287,7 +287,7 @@ jobs:
       - name: "Install packages"
         run: |
           uv sync --frozen --no-install-project
-          uv pip install --find-links wheels/ --no-build py-horned-owl
+          uv pip install --no-cache --no-index --find-links wheels/ --no-build py-horned-owl
       - name: Test with pytest
         run: uv run --no-project pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}.xml test/
       - name: Validate doc examples
