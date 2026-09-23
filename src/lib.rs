@@ -214,7 +214,7 @@ fn open_ontology_from_file(
 ///
 /// Opens an ontology from plain text.
 ///
-/// If no serialization is specified, all parsers are tried until one succeeds
+/// If no serialization is specified, it is detected from the content. Raises ValueError if it cannot be detected.
 #[pyfunction(
     signature = (ontology, serialization = None, index_strategy = IndexCreationStrategy::OnQuery)
 )]
@@ -263,8 +263,8 @@ fn open_ontology_from_string(
 ///
 /// If `ontology` is a path, the file is loaded. Otherwise, `ontology` is interpreted as an ontology
 /// in plain text.
-/// If no serialization is specified the serialization is guessed by the file extension or all parsers are tried
-/// until one succeeds.
+/// If no serialization is specified, it is guessed from the file extension (for a path) or detected from the content.
+/// Raises a `ValueError` if the serialization cannot be determined.
 #[pyfunction(
     signature = (ontology, serialization = None, index_strategy = IndexCreationStrategy::OnQuery)
 )]
