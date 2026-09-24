@@ -2,7 +2,6 @@
 #
 # The classes live in the native module; this package adds the union type
 # aliases, which PyO3 cannot express.
-import abc
 import typing
 
 from ..pyhornedowl.model import *
@@ -12,7 +11,7 @@ Individual = typing.Union[AnonymousIndividual, NamedIndividual]
 ObjectPropertyExpression = typing.Union[ObjectProperty, InverseObjectProperty]
 Literal = typing.Union[SimpleLiteral, LanguageLiteral, DatatypeLiteral]
 DataRange = typing.Union[Datatype, DataIntersectionOf, DataUnionOf, DataComplementOf, DataOneOf, DatatypeRestriction]
-# ClassExpression = typing.Union[Class, ObjectIntersectionOf, ObjectUnionOf, ObjectComplementOf, ObjectOneOf, ObjectSomeValuesFrom, ObjectAllValuesFrom, ObjectHasValue, ObjectHasSelf, ObjectMinCardinality, ObjectMaxCardinality, ObjectExactCardinality, DataSomeValuesFrom, DataAllValuesFrom, DataHasValue, DataMinCardinality, DataMaxCardinality, DataExactCardinality]
+ClassExpression = typing.Union[Class, ObjectIntersectionOf, ObjectUnionOf, ObjectComplementOf, ObjectOneOf, ObjectSomeValuesFrom, ObjectAllValuesFrom, ObjectHasValue, ObjectHasSelf, ObjectMinCardinality, ObjectMaxCardinality, ObjectExactCardinality, DataSomeValuesFrom, DataAllValuesFrom, DataHasValue, DataMinCardinality, DataMaxCardinality, DataExactCardinality]
 PropertyExpression = typing.Union[ObjectPropertyExpression, DataProperty, AnnotationProperty]
 AnnotationSubject = typing.Union[IRI, AnonymousIndividual]
 AnnotationValue = typing.Union[Literal, IRI, AnonymousIndividual]
@@ -21,25 +20,3 @@ DArgument = typing.Union[Literal, Variable]
 IArgument = typing.Union[Individual, Variable]
 Atom = typing.Union[BuiltInAtom, ClassAtom, DataPropertyAtom, DataRangeAtom, DifferentIndividualsAtom, ObjectPropertyAtom, SameIndividualAtom]
 Component = typing.Union[OntologyID, DocIRI, OntologyAnnotation, Import, DeclareClass, DeclareObjectProperty, DeclareAnnotationProperty, DeclareDataProperty, DeclareNamedIndividual, DeclareDatatype, SubClassOf, EquivalentClasses, DisjointClasses, DisjointUnion, SubObjectPropertyOf, EquivalentObjectProperties, DisjointObjectProperties, InverseObjectProperties, ObjectPropertyDomain, ObjectPropertyRange, FunctionalObjectProperty, InverseFunctionalObjectProperty, ReflexiveObjectProperty, IrreflexiveObjectProperty, SymmetricObjectProperty, AsymmetricObjectProperty, TransitiveObjectProperty, SubDataPropertyOf, EquivalentDataProperties, DisjointDataProperties, DataPropertyDomain, DataPropertyRange, FunctionalDataProperty, DatatypeDefinition, HasKey, SameIndividual, DifferentIndividuals, ClassAssertion, ObjectPropertyAssertion, NegativeObjectPropertyAssertion, DataPropertyAssertion, NegativeDataPropertyAssertion, AnnotationAssertion, SubAnnotationPropertyOf, AnnotationPropertyDomain, AnnotationPropertyRange, Rule]
-
-class ClassExpression(abc.ABC):
-    pass
-
-ClassExpression.register(Class)
-ClassExpression.register(ObjectIntersectionOf)
-ClassExpression.register(ObjectUnionOf)
-ClassExpression.register(ObjectComplementOf)
-ClassExpression.register(ObjectOneOf)
-ClassExpression.register(ObjectSomeValuesFrom)
-ClassExpression.register(ObjectAllValuesFrom)
-ClassExpression.register(ObjectHasValue)
-ClassExpression.register(ObjectHasSelf)
-ClassExpression.register(ObjectMinCardinality)
-ClassExpression.register(ObjectMaxCardinality)
-ClassExpression.register(ObjectExactCardinality)
-ClassExpression.register(DataSomeValuesFrom)
-ClassExpression.register(DataAllValuesFrom)
-ClassExpression.register(DataHasValue)
-ClassExpression.register(DataMinCardinality)
-ClassExpression.register(DataMaxCardinality)
-ClassExpression.register(DataExactCardinality)
