@@ -412,8 +412,8 @@ def open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', '
     
     If `ontology` is a path, the file is loaded. Otherwise, `ontology` is interpreted as an ontology
     in plain text.
-    If no serialization is specified the serialization is guessed by the file extension or all parsers are tried
-    until one succeeds.
+    If no serialization is specified, it is guessed from the file extension (for a path) or detected from the content.
+    Raises a `ValueError` if the serialization cannot be determined.
     """
     ...
 
@@ -431,7 +431,7 @@ def open_ontology_from_string(ontology: str, serialization: Optional[typing.Lite
     """
     Opens an ontology from plain text.
     
-    If no serialization is specified, all parsers are tried until one succeeds
+    If no serialization is specified, it is detected from the content. Raises ValueError if it cannot be detected.
     """
     ...
 
