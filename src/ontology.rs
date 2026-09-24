@@ -1,7 +1,7 @@
 use crate::prefix_mapping::PrefixMapping;
 use crate::reasoning::DynamicLoadedReasoner;
 use crate::structural_reasoner::StructuralReasoner;
-use crate::wrappers::BTreeSetWrap;
+use crate::wrappers::{BTreeSetWrap, LiteralStr, Serializations};
 use crate::{model, parse_serialization, to_py_err};
 use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
@@ -22,8 +22,7 @@ use oxrdfio::RdfFormat;
 use pyhornedowlreasoner::{PyReasoner, Reasoner};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use pyo3::types::PyNone;
-use pyo3::{pyclass, pymethods, Bound, Py, PyAny, PyResult, Python};
+use pyo3::{pyclass, pymethods, Bound, Py, PyResult, Python};
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::ffi::OsStr;
 use std::fs::File;
@@ -216,8 +215,6 @@ impl PyIndexedOntology {
         s
     }
 
-    /// get_id_for_iri(self, iri: model.IRIParam) -> Optional[str]
-    ///
     /// Gets the ID of term by it IRI.
     ///
     /// If the term does not have an ID, `None` is returned.
@@ -240,16 +237,10 @@ impl PyIndexedOntology {
         }
     }
 
-    /// get_iri_for_id(self, id: str) -> Optional[str]
-    ///
     /// Gets the IRI of a term by its ID.
     ///
     /// If the term does not have an IRI, `None` is returned.
-    pub fn get_iri_for_id<'py>(
-        &mut self,
-        py: Python<'py>,
-        id: String,
-    ) -> PyResult<Bound<'py, PyAny>> {
+    pub fn get_iri_for_id(&mut self, py: Python<'_>, id: String) -> Option<String> {
         let idparts: Vec<&str> = id.split(":").collect();
 
         if idparts.len() == 2 {
@@ -258,23 +249,13 @@ impl PyIndexedOntology {
             let mapping = self.mapping.borrow_mut(py);
             let res = mapping.0.expand_curie(&curie);
 
-            if let Ok(iri) = res {
-                iri.to_string()
-                    .into_pyobject(py)
-                    .map(Bound::into_any)
-                    .map_err(PyErr::from)
-            } else {
-                //Return null
-                Ok(PyNone::get(py).to_owned().into_any())
-            }
+            res.ok().map(|iri| iri.to_string())
         } else {
             //Not a CURIE, at least not of the form PREFIX:NUMBER
-            Ok(PyNone::get(py).to_owned().into_any())
+            None
         }
     }
 
-    /// prefix_mapping: PrefixMapping
-    ///
     /// The prefix mapping
     #[getter]
     pub fn get_prefix_mapping<'py>(&self, py: Python<'py>) -> PyResult<&Bound<'py, PrefixMapping>> {
@@ -282,8 +263,6 @@ impl PyIndexedOntology {
         Ok(mapping)
     }
 
-    /// add_prefix_mapping(self, iriprefix: str, mappedid: str) -> None
-    ///
     /// Adds the prefix `iriprefix`.
     pub fn add_prefix_mapping<'py>(
         &mut self,
@@ -294,8 +273,6 @@ impl PyIndexedOntology {
         self.mapping.borrow_mut(py).add_prefix(iriprefix, mappedid)
     }
 
-    /// set_label(self, iri: model.IRIParam, label: str) -> None
-    ///
     /// Sets the label of a term by iri.
     ///
     /// Adds an or updates the `AnnotationAssertion` axiom for `rdfs:label`.
@@ -365,8 +342,6 @@ impl PyIndexedOntology {
         Ok(())
     }
 
-    /// get_iri_for_label(self, label: str) -> Optional[str]
-    ///
     /// Returns the IRI of a term by its label if it exists.
     ///
     /// If the term does not have a label, `None` is returned.
@@ -407,8 +382,6 @@ impl PyIndexedOntology {
         Ok(labels.next().map(|i| i.to_string()))
     }
 
-    /// get_iri(self) -> Optional[str]
-    ///
     /// Returns the ontology iri, if it exists.
     pub fn get_iri(&mut self) -> PyResult<Option<model::IRI>> {
         Ok(self
@@ -417,8 +390,6 @@ impl PyIndexedOntology {
             .map(model::IRI::from))
     }
 
-    /// get_version_iri(self) -> Optional[str]
-    ///
     /// Returns the ontologys version iri, if it exists.
     pub fn get_version_iri(&mut self) -> PyResult<Option<model::IRI>> {
         Ok(self
@@ -427,8 +398,6 @@ impl PyIndexedOntology {
             .map(model::IRI::from))
     }
 
-    /// get_subclasses(self, iri: model.IRIParam) -> Set[str]
-    ///
     /// Gets all asserted (named) direct subclasses of a class.
     #[pyo3[name="get_subclasses", signature = (iri)]]
     pub fn py_get_subclasses(
@@ -450,8 +419,6 @@ impl PyIndexedOntology {
         Ok(classes)
     }
 
-    /// get_superclasses(self, iri: model.IRIParam) -> Set[str]
-    ///
     /// Gets all asserted (named) direct superclasses of a class.
     #[pyo3[name="get_superclasses", signature = (iri)]]
     pub fn py_get_superclasses(
@@ -473,8 +440,6 @@ impl PyIndexedOntology {
         Ok(classes)
     }
 
-    /// get_root_classes(self) -> Set[str]
-    ///
     /// Gets all (named) root classes, i.e. all classes with no superclasses (except owl:Thing).
     pub fn get_root_classes(&mut self) -> PyResult<HashSet<String>> {
         let owl_thing = self
@@ -500,50 +465,36 @@ impl PyIndexedOntology {
         )
     }
 
-    /// get_classes(self) -> Set[str]
-    ///
     /// Returns the IRIs of all declared classes in the ontology.
     pub fn get_classes(&mut self) -> PyResult<HashSet<String>> {
         entity_query!(self, ComponentKind::DeclareClass, Component::DeclareClass(x) => x)
     }
 
-    /// get_datatypes(self) -> Set[str]
-    ///
     /// Returns the IRIs of all declared datatypes in the ontology.
     pub fn get_datatypes(&mut self) -> PyResult<HashSet<String>> {
         entity_query!(self, ComponentKind::DeclareDatatype, Component::DeclareDatatype(x) => x)
     }
 
-    /// get_object_properties(self) -> Set[str]
-    ///
     /// Returns the IRIs of all declared object properties in the ontology.
     pub fn get_object_properties(&mut self) -> PyResult<HashSet<String>> {
         entity_query!(self, ComponentKind::DeclareObjectProperty, Component::DeclareObjectProperty(x) => x)
     }
 
-    /// get_annotation_properties(self) -> Set[str]
-    ///
     /// Returns the IRIs of all declared annotation properties in the ontology.
     pub fn get_annotation_properties(&mut self) -> PyResult<HashSet<String>> {
         entity_query!(self, ComponentKind::DeclareAnnotationProperty, Component::DeclareAnnotationProperty(x) => x)
     }
 
-    /// get_data_properties(self) -> Set[str]
-    ///
     /// Returns the IRIs of all declared data properties in the ontology.
     pub fn get_data_properties(&mut self) -> PyResult<HashSet<String>> {
         entity_query!(self, ComponentKind::DeclareDataProperty, Component::DeclareDataProperty(x) => x)
     }
 
-    /// get_named_individuals(self) -> Set[str]
-    ///
     /// Returns the IRIs of all declared named individuals in the ontology.
     pub fn get_named_individuals(&mut self) -> PyResult<HashSet<String>> {
         entity_query!(self, ComponentKind::DeclareNamedIndividual, Component::DeclareNamedIndividual(x) => x)
     }
 
-    /// get_annotation(self, entity_iri: model.IRIParam, ann_iri: model.IRIParam) -> Optional[str]
-    ///
     /// Gets the first annotated value for an entity and annotation property.
     ///
     /// Note: If there are multiple annotation axioms for the queried entity and annotation property,
@@ -560,8 +511,6 @@ impl PyIndexedOntology {
             .map(|x| x.first().map(Into::into))
     }
 
-    /// get_annotations(self, entity_iri: model.IRIParam, ann_iri: model.IRIParam) -> List[str]
-    ///
     /// Gets all annotated value for an entity and annotation property.
     ///
     /// Note: The order is neither necessarily the same as in the ontology neither is it stable.
@@ -609,11 +558,13 @@ impl PyIndexedOntology {
         Ok(literal_values)
     }
 
-    /// save_to_string(self, serialization: typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']) -> str
-    ///
     /// Saves the ontology to a UTF8 string.
-    pub fn save_to_string(&mut self, py: Python<'_>, serialization: &str) -> PyResult<String> {
-        let serialization = parse_serialization(serialization)?;
+    pub fn save_to_string(
+        &mut self,
+        py: Python<'_>,
+        serialization: LiteralStr<Serializations>,
+    ) -> PyResult<String> {
+        let serialization = parse_serialization(&serialization)?;
 
         let mut writer = Vec::<u8>::new();
 
@@ -622,8 +573,6 @@ impl PyIndexedOntology {
         String::from_utf8(writer).map_err(to_py_err!("Failed to save ontology to UTF-8"))
     }
 
-    /// save_to_file(self, file_name: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None) -> None
-    ///
     /// Saves the ontology to disk. If no serialization is given it is guessed by the file extension.
     /// Defaults to OWL/XML
     #[pyo3(signature = (file_name, serialization = None))]
@@ -631,9 +580,10 @@ impl PyIndexedOntology {
         &mut self,
         py: Python<'_>,
         file_name: String,
-        serialization: Option<&str>,
+        serialization: Option<LiteralStr<Serializations>>,
     ) -> PyResult<()> {
         let serialization = serialization
+            .as_deref()
             .map(parse_serialization)
             .or_else(|| {
                 Path::new(&file_name)
@@ -648,8 +598,6 @@ impl PyIndexedOntology {
         self.save_to_buf(py, &mut file, serialization)
     }
 
-    /// get_axioms_for_iri(self, iri: model.IRIParam) -> List[model.AnnotatedComponent]
-    ///
     /// Gets all axioms for an entity.
     #[pyo3[signature = (iri)]]
     pub fn get_axioms_for_iri(
@@ -690,8 +638,6 @@ impl PyIndexedOntology {
         }
     }
 
-    /// get_components_for_iri(self, iri: model.IRIParam) -> List[model.AnnotatedComponent]
-    ///
     /// Gets all components (axiom, swrl, and meta component) for an entity.
     #[pyo3[signature = (iri)]]
     pub fn get_components_for_iri(
@@ -722,8 +668,6 @@ impl PyIndexedOntology {
         }
     }
 
-    /// get_axioms(self) -> List[model.AnnotatedComponent]
-    ///
     /// Returns all axioms of the ontology.
     pub fn get_axioms(&mut self) -> PyResult<Vec<model::AnnotatedComponent>> {
         let r = (&self.set_index)
@@ -740,8 +684,6 @@ impl PyIndexedOntology {
         Ok(r)
     }
 
-    /// get_components(self) -> List[model.AnnotatedComponent]
-    ///
     /// Returns all axioms of the ontology.
     pub fn get_components(&mut self) -> PyResult<Vec<model::AnnotatedComponent>> {
         let r = (&self.set_index)
@@ -752,24 +694,14 @@ impl PyIndexedOntology {
         Ok(r)
     }
 
-    /// add_component(self, component: model.Component, annotations: Optional[List[model.Annotation]|Set[model.Annotation]]=None) -> None
-    ///
     /// Adds an axiom to the ontology with optional annotations.
     #[pyo3(signature = (component, annotations = None))]
     pub fn add_component(
         &mut self,
         component: model::Component,
-        annotations: Option<&Bound<'_, PyAny>>,
+        annotations: Option<BTreeSetWrap<model::Annotation>>,
     ) -> PyResult<()> {
-        let ann: BTreeSetWrap<model::Annotation> = match annotations {
-            Some(a) => a.extract::<BTreeSet<model::Annotation>>().or_else(|_| {
-                Ok::<BTreeSet<model::Annotation>, PyErr>(
-                    a.extract::<Vec<model::Annotation>>()?.into_iter().collect(),
-                )
-            })?,
-            None => BTreeSet::new(),
-        }
-        .into();
+        let ann = annotations.unwrap_or_default();
 
         let annotated_component: AnnotatedComponent<ArcStr> =
             model::AnnotatedComponent { component, ann }.into();
@@ -778,20 +710,16 @@ impl PyIndexedOntology {
         Ok(())
     }
 
-    /// add_axiom(self, ax: model.Component, annotations: Optional[List[model.Annotation]|Set[model.Annotation]]=None) -> None
-    ///
     /// Synonym for `add_component`
     #[pyo3(signature = (ax, annotations = None))]
     pub fn add_axiom(
         &mut self,
         ax: model::Component,
-        annotations: Option<&Bound<'_, PyAny>>,
+        annotations: Option<BTreeSetWrap<model::Annotation>>,
     ) -> PyResult<()> {
         self.add_component(ax, annotations)
     }
 
-    /// remove_component(self, component: model.Component) -> bool
-    ///
     /// Removes a component from the ontology.
     pub fn remove_component(&mut self, component: model::Component) -> PyResult<bool> {
         let ax: Component<Arc<str>> = component.into();
@@ -803,15 +731,11 @@ impl PyIndexedOntology {
         Ok(self.remove(&annotated))
     }
 
-    /// remove_axiom(self, ax: model.Component) ->  bool
-    ///
     /// Synonym for `remove_component`
     pub fn remove_axiom(&mut self, ax: model::Component) -> PyResult<bool> {
         self.remove_component(ax)
     }
 
-    /// iri(self, iri: model.IRIParam) -> model.IRI
-    ///
     /// Creates a new IRI from string.
     ///
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
@@ -820,8 +744,6 @@ impl PyIndexedOntology {
         Ok(into_iri!(self, py, iri).into())
     }
 
-    /// curie(self, iri: model.IRIParam) -> model.IRI
-    ///
     /// Creates a new IRI from CURIE string.
     ///
     /// Use this method instead of  `model.IRI.parse` if possible as it is more optimized using caches.
@@ -838,8 +760,6 @@ impl PyIndexedOntology {
         Ok(model::IRI::new(iri, &build))
     }
 
-    /// clazz(self, iri: model.IRIParam) -> model.Class
-    ///
     /// Convenience method to create a Class from an IRI.
     ///
     /// Uses the `iri` method to cache native IRI instances.
@@ -857,8 +777,6 @@ impl PyIndexedOntology {
         self.class_(py, iri)
     }
 
-    /// class_(self, iri: model.IRIParam) -> model.Class
-    ///
     /// Convenience method to create a Class from an IRI.
     ///
     /// Uses the `iri` method to cache native IRI instances.
@@ -867,16 +785,12 @@ impl PyIndexedOntology {
         Ok(model::Class(into_iri!(self, py, iri).into()))
     }
 
-    /// declare_class(self, iri: model.IRIParam) -> bool
-    ///
     /// Convenience method to add a Declare(Class(iri)) axiom.
     #[pyo3(signature = (iri))]
     pub fn declare_class(&mut self, py: Python<'_>, iri: model::IRIParam) -> PyResult<bool> {
         Ok(self.declare::<horned_owl::model::Class<ArcStr>>(self.class_(py, iri)?.into()))
     }
 
-    /// object_property(self, iri: model.IRIParam) -> model.ObjectProperty
-    ///
     /// Convenience method to create an ObjectProperty from an IRI.
     ///
     /// Uses the `iri` method to cache native IRI instances.
@@ -889,8 +803,6 @@ impl PyIndexedOntology {
         Ok(model::ObjectProperty(into_iri!(self, py, iri).into()))
     }
 
-    /// declare_object_property(self, iri: model.IRIParam) -> bool
-    ///
     /// Convenience method to add a Declare(ObjectProperty(iri)) axiom.
     #[pyo3(signature = (iri))]
     pub fn declare_object_property(
@@ -903,8 +815,6 @@ impl PyIndexedOntology {
         ))
     }
 
-    /// data_property(self, iri: model.IRIParam) -> model.DataProperty
-    ///
     /// Convenience method to create a DataProperty from an IRI.
     ///
     /// Uses the `iri` method to cache native IRI instances.
@@ -917,8 +827,6 @@ impl PyIndexedOntology {
         Ok(model::DataProperty(into_iri!(self, py, iri).into()))
     }
 
-    /// declare_data_property(self, iri: model.IRIParam) -> bool
-    ///
     /// Convenience method to add a Declare(DataProperty(iri)) axiom.
     #[pyo3(signature = (iri))]
     pub fn declare_data_property(
@@ -931,8 +839,6 @@ impl PyIndexedOntology {
         ))
     }
 
-    /// annotation_property(self, iri: model.IRIParam) -> model.AnnotationProperty
-    ///
     /// Convenience method to create an annotationProperty from an IRI.
     ///
     /// Uses the `iri` method to cache native IRI instances.
@@ -945,8 +851,6 @@ impl PyIndexedOntology {
         Ok(model::AnnotationProperty(into_iri!(self, py, iri).into()))
     }
 
-    /// declare_annotation_property(self, iri: model.IRIParam) -> bool
-    ///
     /// Convenience method to add a Declare(annotationProperty(iri)) axiom.
     #[pyo3(signature = (iri))]
     pub fn declare_annotation_property(
@@ -961,8 +865,6 @@ impl PyIndexedOntology {
         )
     }
 
-    /// named_individual(self, iri: model.IRIParam) -> model.NamedIndividual
-    ///
     /// Convenience method to create a NamedIndividual from an IRI.
     ///
     /// Uses the `iri` method to cache native IRI instances.
@@ -975,8 +877,6 @@ impl PyIndexedOntology {
         Ok(model::NamedIndividual(into_iri!(self, py, iri).into()))
     }
 
-    /// declare_individual(self, iri: model.IRIParam) -> bool
-    ///
     /// Convenience method to add a Declare(NamedIndividual(iri)) axiom.
     #[pyo3(signature = (iri))]
     pub fn declare_individual(&mut self, py: Python<'_>, iri: model::IRIParam) -> PyResult<bool> {
@@ -985,15 +885,11 @@ impl PyIndexedOntology {
         ))
     }
 
-    /// anonymous_individual(self, iri: model.IRIParam) -> model.AnonymousIndividual
-    ///
     /// Convenience method to create an AnonymousIndividual from a string.
     pub fn anonymous_individual(&self, name: String) -> model::AnonymousIndividual {
         model::AnonymousIndividual(name.into())
     }
 
-    /// get_descendants(self, parent: str) -> Set[str]
-    ///
     /// Gets all direct and indirect subclasses of a class.
     ///
     /// .. deprecated::
@@ -1022,8 +918,6 @@ impl PyIndexedOntology {
         Ok(descendants.into_iter().map(|c| c.to_string()).collect())
     }
 
-    /// get_ancestors(self, child: str) -> Set[str]
-    ///
     /// Gets all direct and indirect super classes of a class.
     ///
     /// .. deprecated::
@@ -1052,8 +946,6 @@ impl PyIndexedOntology {
         Ok(ancestors.into_iter().map(|c| c.to_string()).collect())
     }
 
-    /// build_iri_index(self) -> None
-    ///
     /// Builds an index by iri (IRIMappedIndex).
     pub fn build_iri_index(&mut self) {
         if self.iri_index.is_some() {
@@ -1069,8 +961,6 @@ impl PyIndexedOntology {
         self.iri_index = Some(iri_index);
     }
 
-    /// component_index(self) -> None
-    ///
     /// Builds an index by component kind (ComponentMappedIndex).
     pub fn build_component_index(&mut self) {
         if self.component_index.is_some() {
@@ -1086,8 +976,6 @@ impl PyIndexedOntology {
         self.component_index = Some(component_index);
     }
 
-    /// build_indexes(self) -> None
-    ///
     /// Builds indexes to allow (a quicker) access to axioms and entities.
     pub fn build_indexes(&mut self) {
         match (&self.iri_index, &self.component_index) {

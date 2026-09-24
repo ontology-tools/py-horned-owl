@@ -1,5 +1,10 @@
-from __future__ import annotations
-from .pyhornedowl import PyIndexedOntology, IndexCreationStrategy, PrefixMapping, open_ontology, open_ontology_from_file, open_ontology_from_string
+import sys
 
+from . import pyhornedowl as _native
 
-__all__ = ["PyIndexedOntology", "IndexCreationStrategy", "PrefixMapping", "open_ontology", "open_ontology_from_file", "open_ontology_from_string"]
+# PyO3 submodules cannot be imported by their dotted path. Registering them lets
+# the subpackages below re-export them with `from ..pyhornedowl.<name> import *`.
+for _name in ("model", "reasoning", "profile"):
+    sys.modules[f"{__name__}.pyhornedowl.{_name}"] = getattr(_native, _name)
+
+from . import model, profile, reasoning

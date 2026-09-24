@@ -8,6 +8,7 @@ use horned_owl::io::ofn::writer::AsFunctional;
 
 use horned_owl::model::ArcStr;
 use pyo3::{exceptions::PyKeyError, prelude::*, PyAny, types::PyType};
+use pyo3::{inspect::PyStaticExpr, type_hint_union};
 
 use crate::wrappers::*;
 
@@ -87,20 +88,18 @@ impl IRI {
         IRI(builder.iri(value))
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
-    ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
     /// counterpart to `PyIndexedOntology.save_to_string`.
-    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    #[pyo3(signature = (serialization = None, prefix_mapping = None))]
     pub fn serialize(
         &self,
-        serialization: &str,
+        serialization: Option<LiteralStr<SnippetSyntaxes>>,
         prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
     ) -> PyResult<String> {
         let value = self.0.clone();
 
-        Ok(match crate::snippet::parse_syntax(serialization)? {
+        Ok(match crate::snippet::parse_syntax(serialization.as_deref().unwrap_or("ofn"))? {
             crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
             crate::snippet::SnippetSyntax::Functional => crate::as_ofn!(value, prefix_mapping),
         })
@@ -159,25 +158,6 @@ pub enum Facet {
 
 #[pymethods]
 impl Facet {
-    #[cfg(pyi)]
-    #[classmethod]
-    fn __pyi__(_: &Bound<'_, PyType>) -> String {
-        "class Facet:
-    Length: Facet
-    MinLength: Facet
-    MaxLength: Facet
-    Pattern: Facet
-    MinInclusive: Facet
-    MinExclusive: Facet
-    MaxInclusive: Facet
-    MaxExclusive: Facet
-    TotalDigits: Facet
-    FractionDigits: Facet
-    LangRange: Facet
-"
-            .to_owned()
-    }
-
     fn __hash__(&self) -> u64 {
         let mut s = DefaultHasher::new();
         Hash::hash(&self, &mut s);
@@ -188,21 +168,19 @@ impl Facet {
         self == other
     }
 
-    /// serialize(self, serialization = "ofn", prefix_mapping = None)
-    ///
     /// Renders this element on its own, in OWL functional (`"ofn"`) syntax.
     ///
     /// horned-owl has no Manchester rendering for a facet: Manchester writes it
     /// as an operator inside the datatype restriction that holds it.
-    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    #[pyo3(signature = (serialization = None, prefix_mapping = None))]
     pub fn serialize(
         &self,
-        serialization: &str,
+        serialization: Option<LiteralStr<FunctionalSyntax>>,
         prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
     ) -> PyResult<String> {
         let value = horned_owl::vocab::Facet::from(self);
 
-        Ok(match crate::snippet::parse_syntax(serialization)? {
+        Ok(match crate::snippet::parse_syntax(serialization.as_deref().unwrap_or("ofn"))? {
             crate::snippet::SnippetSyntax::Manchester => {
                 return Err(crate::snippet::no_manchester_rendering("Facet"))
             }

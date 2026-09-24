@@ -1,10 +1,5 @@
 {%- from 'serialize.rs.jinja2' import serialize_method -%}
 #[doc = concat!(
-    "{{ model.name }}(
-    {%- for typ in model.fields -%}
-        {{ loop.index0 | as_py_name }}: {{ typ | as_py_type }}{% if not loop.last %}, {% endif %}
-    {%- endfor -%})",
-    "\n\n",
     doc!({{ model.name }}),
     "\n\n
     {%- for typ in model.fields -%}
