@@ -11,7 +11,7 @@ use horned_owl::io::{InputFormat, ParserConfiguration, RDFParserConfiguration, R
 use horned_owl::model::*;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
+use wrappers::{LiteralStr, Serializations};
 
 use pyhornedowlreasoner::PyReasoner;
 
@@ -153,8 +153,6 @@ fn open_ontology_rdf<R: BufRead>(
     })
 }
 
-/// open_ontology_from_file(path: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
-///
 /// Opens an ontology from a file
 ///
 /// If the serialization is not specified it is guessed from the file extension. Defaults to OWL/XML.
@@ -164,12 +162,12 @@ fn open_ontology_rdf<R: BufRead>(
 fn open_ontology_from_file(
     py: Python<'_>,
     path: String,
-    serialization: Option<&str>,
+    serialization: Option<LiteralStr<Serializations>>,
     index_strategy: IndexCreationStrategy,
 ) -> PyResult<PyIndexedOntology> {
     let file = File::open(&path)?;
 
-    let (input_format, config) = parser_config(Path::new(&path), serialization)?;
+    let (input_format, config) = parser_config(Path::new(&path), serialization.as_deref())?;
 
     let mut f = BufReader::new(file);
 
@@ -198,8 +196,6 @@ fn open_ontology_from_file(
     Ok(pio)
 }
 
-/// open_ontology_from_string(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
-///
 /// Opens an ontology from plain text.
 ///
 /// If no serialization is specified, all parsers are tried until one succeeds
@@ -209,10 +205,11 @@ fn open_ontology_from_file(
 fn open_ontology_from_string(
     py: Python<'_>,
     ontology: String,
-    serialization: Option<&str>,
+    serialization: Option<LiteralStr<Serializations>>,
     index_strategy: IndexCreationStrategy,
 ) -> PyResult<PyIndexedOntology> {
     let input_format = serialization
+        .as_deref()
         .map(parse_serialization)
         .transpose()?
         .or_else(|| horned_owl::io::detect_format(ontology.as_bytes()).map(to_input_format));
@@ -252,8 +249,6 @@ fn open_ontology_from_string(
     Ok(pio)
 }
 
-/// open_ontology(ontology: str, serialization: Optional[typing.Literal['owl', 'rdf','ofn', 'owx', 'omn', 'obo']]=None, index_strategy = IndexCreationStrategy.OnQuery) -> PyIndexedOntology
-///
 /// Opens an ontology from a path or plain text.
 ///
 /// If `ontology` is a path, the file is loaded. Otherwise, `ontology` is interpreted as an ontology
@@ -266,7 +261,7 @@ fn open_ontology_from_string(
 fn open_ontology(
     py: Python<'_>,
     ontology: String,
-    serialization: Option<&str>,
+    serialization: Option<LiteralStr<Serializations>>,
     index_strategy: IndexCreationStrategy,
 ) -> PyResult<PyIndexedOntology> {
     if Path::exists(ontology.as_ref()) {
@@ -276,8 +271,6 @@ fn open_ontology(
     }
 }
 
-/// create_structural_reasoner(ontology: PyIndexedOntology) -> PyReasoner
-///
 /// Creates a structural reasoner for the given ontology. The structural reasoner only uses the asserted named subclass and sub-property hierarchies to answer queries.
 #[pyfunction]
 fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReasoner {
@@ -292,31 +285,30 @@ fn create_structural_reasoner(ontology: PyIndexedOntology) -> reasoning::PyReaso
 }
 
 #[pymodule]
-fn pyhornedowl(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<PyIndexedOntology>()?;
-    m.add_class::<IndexCreationStrategy>()?;
-    m.add_class::<prefix_mapping::PrefixMapping>()?;
+mod pyhornedowl {
+    use pyo3::prelude::*;
 
-    m.add_function(wrap_pyfunction!(open_ontology, m)?)?;
-    m.add_function(wrap_pyfunction!(open_ontology_from_file, m)?)?;
-    m.add_function(wrap_pyfunction!(open_ontology_from_string, m)?)?;
+    #[pymodule_export]
+    use super::prefix_mapping::PrefixMapping;
+    #[pymodule_export]
+    use super::{open_ontology, open_ontology_from_file, open_ontology_from_string};
+    #[pymodule_export]
+    use super::{IndexCreationStrategy, PyIndexedOntology};
 
-    let model_sub_module = model::py_module(py)?;
-    m.add_submodule(&model_sub_module)?;
+    #[pymodule_export]
+    use crate::model::py_model;
+    #[pymodule_export]
+    use crate::profile::py_profile;
 
-    let reasoning_sub_module = PyModule::new(py, "reasoning")?;
-    reasoning_sub_module.add_function(wrap_pyfunction!(create_reasoner, &reasoning_sub_module)?)?;
-    reasoning_sub_module.add_function(wrap_pyfunction!(
-        create_structural_reasoner,
-        &reasoning_sub_module
-    )?)?;
-    reasoning_sub_module.add_class::<reasoning::PyReasoner>()?;
-    m.add_submodule(&reasoning_sub_module)?;
+    #[pymodule]
+    mod reasoning {
+        #[pymodule_export]
+        use crate::reasoning::PyReasoner;
+        #[pymodule_export]
+        use crate::{create_reasoner, create_structural_reasoner};
+    }
 
-    let profile_sub_module = profile::py_module(py)?;
-    m.add_submodule(&profile_sub_module)?;
-
-    m.add("__version__", env!("CARGO_PKG_VERSION"))?;
-
-    Ok(())
+    #[pymodule_export]
+    #[allow(non_upper_case_globals)]
+    const __version__: &str = env!("CARGO_PKG_VERSION");
 }

@@ -1,9 +1,5 @@
 {%- from 'serialize.rs.jinja2' import serialize_method -%}
-#[doc = concat!("{{ model.name }}(
-{%- for k, v in model.fields.items() -%}
-    {{ k | py_field(v) }}: {{ v | as_py_type }}{% if not loop.last %}, {% endif %}
-{%- endfor -%})",
-    "\n\n",
+#[doc = concat!(
     doc!({{ model.name }}),
     "\n\n
     {%- for k, v in model.fields.items() -%}

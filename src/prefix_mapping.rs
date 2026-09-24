@@ -39,8 +39,6 @@ impl PyIter {
 
 #[pymethods]
 impl PrefixMapping {
-    /// __iter__(self) -> typing.Iterable[typing.Tuple[str, str]]
-    ///
     /// Get an iterator over all prefixes
     fn __iter__(slf: PyRef<'_, Self>) -> PyResult<Py<PyIter>> {
         let iter = PyIter {
@@ -79,8 +77,6 @@ impl PrefixMapping {
         self.0.mappings().len()
     }
 
-    /// add_default_prefix_names(self) -> None
-    ///
     /// Adds the prefix for rdf, rdfs, xsd, and owl
     pub fn add_default_prefix_names(&mut self) -> PyResult<()> {
         self.0
@@ -99,8 +95,6 @@ impl PrefixMapping {
         Ok(())
     }
 
-    /// add_prefix(self, iriprefix: str, mappedid: str) -> None
-    ///
     /// Adds the prefix `iriprefix`.
     pub fn add_prefix(&mut self, iriprefix: String, mappedid: String) -> PyResult<()> {
         let result = self.0.add_prefix(&iriprefix, &mappedid);
@@ -113,8 +107,6 @@ impl PrefixMapping {
         Ok(())
     }
 
-    /// remove_prefix(self, iriprefix: str) -> None
-    ///
     /// Remove a prefix from the mapping.
     pub fn remove_prefix(&mut self, prefix: &str) {
         self.0.remove_prefix(prefix);
@@ -131,8 +123,6 @@ impl PrefixMapping {
         }
     }
 
-    /// expand_curie(self, curie: str) -> str
-    ///
     /// Expands a curie. Throws a ValueError if the prefix is invalid or unknown
     pub fn expand_curie(&self, curie: &str) -> PyResult<String> {
         self.0
@@ -140,8 +130,6 @@ impl PrefixMapping {
             .map_err(to_py_err!("Invalid or unknown prefix"))
     }
 
-    /// shrink_iri(self, iri: str) -> str
-    ///
     /// Shrinks an absolute IRI to a CURIE. Throws a ValueError on failure
     pub fn shrink_iri(&self, iri: &str) -> PyResult<String> {
         self.0

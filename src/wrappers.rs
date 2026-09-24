@@ -1,9 +1,12 @@
 use pyo3::conversion::FromPyObjectOwned;
+use pyo3::inspect::PyStaticExpr;
 use pyo3::types::PyAnyMethods;
+use pyo3::{type_hint_identifier, type_hint_subscript};
 use pyo3::{Borrowed, Bound, FromPyObject, IntoPyObject};
 use std::collections::BTreeSet;
 use std::convert::Infallible;
 use std::hash::Hash;
+use std::marker::PhantomData;
 use std::sync::Arc;
 
 pub trait FromCompatible<T> {
@@ -103,6 +106,10 @@ impl<T> From<VecWrap<T>> for Vec<T> {
 }
 
 impl<'py, T: FromPyObjectOwned<'py>> FromPyObject<'_, 'py> for VecWrap<T> {
+    const INPUT_TYPE: PyStaticExpr = type_hint_subscript!(
+        type_hint_identifier!("collections.abc", "Iterable"),
+        T::INPUT_TYPE
+    );
     type Error = pyo3::PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
@@ -115,6 +122,7 @@ impl<'py, T: FromPyObjectOwned<'py>> FromPyObject<'_, 'py> for VecWrap<T> {
 }
 
 impl<'py, T: IntoPyObject<'py>> IntoPyObject<'py> for VecWrap<T> {
+    const OUTPUT_TYPE: PyStaticExpr = <Vec<T>>::OUTPUT_TYPE;
     type Target = pyo3::PyAny;
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
@@ -134,6 +142,7 @@ impl<T> From<Box<T>> for BoxWrap<T> {
 }
 
 impl<'a, 'py, T: FromPyObject<'a, 'py>> FromPyObject<'a, 'py> for BoxWrap<T> {
+    const INPUT_TYPE: PyStaticExpr = T::INPUT_TYPE;
     type Error = T::Error;
 
     fn extract(ob: Borrowed<'a, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
@@ -142,6 +151,7 @@ impl<'a, 'py, T: FromPyObject<'a, 'py>> FromPyObject<'a, 'py> for BoxWrap<T> {
 }
 
 impl<'py, T: IntoPyObject<'py>> IntoPyObject<'py> for BoxWrap<T> {
+    const OUTPUT_TYPE: PyStaticExpr = T::OUTPUT_TYPE;
     type Target = T::Target;
     type Output = T::Output;
     type Error = T::Error;
@@ -179,6 +189,7 @@ impl From<&StringWrapper> for Arc<str> {
 }
 
 impl<'py> IntoPyObject<'py> for StringWrapper {
+    const OUTPUT_TYPE: PyStaticExpr = String::OUTPUT_TYPE;
     type Target = pyo3::types::PyString;
     type Output = Bound<'py, Self::Target>;
     type Error = Infallible;
@@ -189,6 +200,7 @@ impl<'py> IntoPyObject<'py> for StringWrapper {
 }
 
 impl<'py> FromPyObject<'_, 'py> for StringWrapper {
+    const INPUT_TYPE: PyStaticExpr = String::INPUT_TYPE;
     type Error = pyo3::PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
@@ -218,6 +230,7 @@ impl<T> From<BTreeSetWrap<T>> for BTreeSet<T> {
 }
 
 impl<'py, T: IntoPyObject<'py> + Ord> IntoPyObject<'py> for BTreeSetWrap<T> {
+    const OUTPUT_TYPE: PyStaticExpr = <BTreeSet<T>>::OUTPUT_TYPE;
     type Target = pyo3::types::PySet;
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
@@ -228,6 +241,10 @@ impl<'py, T: IntoPyObject<'py> + Ord> IntoPyObject<'py> for BTreeSetWrap<T> {
 }
 
 impl<'py, T: FromPyObjectOwned<'py> + Ord> FromPyObject<'_, 'py> for BTreeSetWrap<T> {
+    const INPUT_TYPE: PyStaticExpr = type_hint_subscript!(
+        type_hint_identifier!("collections.abc", "Iterable"),
+        T::INPUT_TYPE
+    );
     type Error = pyo3::PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
@@ -237,4 +254,60 @@ impl<'py, T: FromPyObjectOwned<'py> + Ord> FromPyObject<'_, 'py> for BTreeSetWra
         }
         Ok(v)
     }
+}
+
+/// Builds a `typing.Literal["a", "b", ...]` type hint.
+macro_rules! literal_hint {
+    ($($s:literal),+) => {
+        PyStaticExpr::Subscript {
+            value: &type_hint_identifier!("typing", "Literal"),
+            slice: &PyStaticExpr::Tuple {
+                elts: &[$(PyStaticExpr::Constant { value: pyo3::inspect::PyStaticConstant::Str($s) }),+],
+            },
+        }
+    };
+}
+
+/// The allowed values of a [`LiteralStr`] argument.
+pub trait StrChoices {
+    const HINT: PyStaticExpr;
+}
+
+/// A `str` argument that shows up as `typing.Literal[...]` in the type stubs.
+/// Values are not validated here; the function receiving it does that.
+pub struct LiteralStr<C>(String, PhantomData<C>);
+
+impl<C> std::ops::Deref for LiteralStr<C> {
+    type Target = str;
+
+    fn deref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl<'py, C: StrChoices> FromPyObject<'_, 'py> for LiteralStr<C> {
+    const INPUT_TYPE: PyStaticExpr = C::HINT;
+    type Error = pyo3::PyErr;
+
+    fn extract(ob: Borrowed<'_, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
+        Ok(LiteralStr(ob.extract()?, PhantomData))
+    }
+}
+
+/// Serializations horned-owl can read and write whole ontologies in.
+pub struct Serializations;
+impl StrChoices for Serializations {
+    const HINT: PyStaticExpr = literal_hint!("owl", "rdf", "ofn", "owx", "omn", "obo");
+}
+
+/// Syntaxes a single model element can be rendered in.
+pub struct SnippetSyntaxes;
+impl StrChoices for SnippetSyntaxes {
+    const HINT: PyStaticExpr = literal_hint!("ofn", "omn");
+}
+
+/// For model elements horned-owl can only render in functional syntax.
+pub struct FunctionalSyntax;
+impl StrChoices for FunctionalSyntax {
+    const HINT: PyStaticExpr = literal_hint!("ofn");
 }

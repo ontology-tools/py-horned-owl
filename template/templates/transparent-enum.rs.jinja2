@@ -7,6 +7,11 @@ pub enum {{ model.name }} {
 }
 
 impl<'py> IntoPyObject<'py> for {{ model.name }} {
+    const OUTPUT_TYPE: PyStaticExpr = pyo3::type_hint_union!(
+        {%- for type in model.variants.values() %}
+        <{{ type | as_rust_type }} as IntoPyObject<'static>>::OUTPUT_TYPE{% if not loop.last %},{% endif %}
+        {%- endfor %}
+    );
     type Target = PyAny;
     type Output = Bound<'py, Self::Target>;
     type Error = PyErr;
@@ -41,14 +46,5 @@ impl From<&horned_owl::model::{{ model.name }}<ArcStr>> for {{ model.name }} {
     }
 }
 
-
-impl {{ model.name }} {
-    pub fn py_def() -> String {
-        "typing.Union[
-        {%- for type in model.variants.values() -%}
-            {{ type | as_py_type("m") }},
-        {%- endfor -%}]".into()
-    }
-}
 
 {% include "base.rs.jinja2" %}

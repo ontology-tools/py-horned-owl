@@ -2,30 +2,10 @@ use std::collections::BTreeSet;
 
 use curie::Curie;
 use horned_owl::model::{ArcStr, Build};
-use pyo3::{prelude::*, types::IntoPyDict};
+use pyo3::{inspect::PyStaticExpr, prelude::*, type_hint_union};
 
 pub use crate::model_generated::*;
 use crate::wrappers::BTreeSetWrap;
-
-macro_rules! add_type_alias {
-    ($py:ident, $module:ident, $($name:ident),*) => {
-        {
-            let locals = [("typing", &$py.import("typing")?), ("m", &$module)].into_py_dict($py)?;
-
-            let mut code: String;
-            let mut ta: Bound<'_, PyAny>;
-            let mut code_cstr: std::ffi::CString;
-
-            $(
-                code = $name::py_def();
-                code_cstr = std::ffi::CString::new(code.as_str()).unwrap();
-                ta = $py.eval(code_cstr.as_c_str(), None, Some(&locals))?;
-                locals.set_item(stringify!($name), &ta)?;
-                $module.add(stringify!($name), &ta)?;
-            )*
-        }
-    };
-}
 
 impl From<&BTreeSet<horned_owl::model::Annotation<ArcStr>>> for BTreeSetWrap<Annotation> {
     fn from(value: &BTreeSet<horned_owl::model::Annotation<ArcStr>>) -> Self {
@@ -47,10 +27,6 @@ pub enum IRIParam {
 }
 
 impl IRIParam {
-    pub fn py_def() -> String {
-        "typing.Union[m.IRI,str,typing.Tuple[str, bool]]".into()
-    }
-
     pub fn into_iri(
         self,
         prefix_mapping: &curie::PrefixMapping,
@@ -77,6 +53,11 @@ impl IRIParam {
 }
 
 impl<'py> FromPyObject<'_, 'py> for IRIParam {
+    const INPUT_TYPE: PyStaticExpr = type_hint_union!(
+        <IRI as pyo3::PyTypeInfo>::TYPE_HINT,
+        <(String, bool)>::INPUT_TYPE,
+        String::INPUT_TYPE
+    );
     type Error = PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
@@ -116,127 +97,32 @@ impl<'py> FromPyObject<'_, 'py> for IRIParam {
     }
 }
 
-pub fn py_module<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyModule>> {
-    let module = PyModule::new(py, "model")?;
-
-    // To get all members to export on the documentation website for horned_ows::model execute the following javascript command
-    // console.log([...(await Promise.all(Array.from(document.querySelectorAll("a.enum")).filter(x => ["ClassExpression", "ObjectPropertyExpression", "Literal", "DataRange", ""].indexOf(x.innerText) >= 0).map(async a => { html = await(await fetch(a.href)).text(); doc = document.createElement("html"); doc.innerHTML=html; return Array.from(doc.querySelectorAll(".variant")).map(x => x.id.replace("variant.", "")); }))).flatMap(arr => arr.map(x => `module.add_class::<${ x }>()?;`)), ...Array.from(document.querySelectorAll("a.struct")).map(x=>x.innerText).filter(x => ["Build", "OntologyID"].indexOf(x) < 0).map(x => `module.add_class::<${ x }>()?;`)].join("\n"))
-    module.add_class::<Class>()?;
-    module.add_class::<ObjectIntersectionOf>()?;
-    module.add_class::<ObjectUnionOf>()?;
-    module.add_class::<ObjectComplementOf>()?;
-    module.add_class::<ObjectOneOf>()?;
-    module.add_class::<ObjectSomeValuesFrom>()?;
-    module.add_class::<ObjectAllValuesFrom>()?;
-    module.add_class::<ObjectHasValue>()?;
-    module.add_class::<ObjectHasSelf>()?;
-    module.add_class::<ObjectMinCardinality>()?;
-    module.add_class::<ObjectMaxCardinality>()?;
-    module.add_class::<ObjectExactCardinality>()?;
-    module.add_class::<DataSomeValuesFrom>()?;
-    module.add_class::<DataAllValuesFrom>()?;
-    module.add_class::<DataHasValue>()?;
-    module.add_class::<DataMinCardinality>()?;
-    module.add_class::<DataMaxCardinality>()?;
-    module.add_class::<DataExactCardinality>()?;
-    module.add_class::<Datatype>()?;
-    module.add_class::<DataIntersectionOf>()?;
-    module.add_class::<DataUnionOf>()?;
-    module.add_class::<DataComplementOf>()?;
-    module.add_class::<DataOneOf>()?;
-    module.add_class::<DatatypeRestriction>()?;
-    module.add_class::<SimpleLiteral>()?;
-    module.add_class::<LanguageLiteral>()?;
-    module.add_class::<DatatypeLiteral>()?;
-    module.add_class::<ObjectProperty>()?;
-    module.add_class::<InverseObjectProperty>()?;
-    module.add_class::<AnnotatedComponent>()?;
-    module.add_class::<Annotation>()?;
-    module.add_class::<AnnotationAssertion>()?;
-    module.add_class::<AnnotationProperty>()?;
-    module.add_class::<AnnotationPropertyDomain>()?;
-    module.add_class::<AnnotationPropertyRange>()?;
-    module.add_class::<AnonymousIndividual>()?;
-    module.add_class::<AsymmetricObjectProperty>()?;
-    module.add_class::<Class>()?;
-    module.add_class::<ClassAssertion>()?;
-    module.add_class::<DataProperty>()?;
-    module.add_class::<DataPropertyAssertion>()?;
-    module.add_class::<DataPropertyDomain>()?;
-    module.add_class::<DataPropertyRange>()?;
-    module.add_class::<Datatype>()?;
-    module.add_class::<DatatypeDefinition>()?;
-    module.add_class::<DeclareAnnotationProperty>()?;
-    module.add_class::<DeclareClass>()?;
-    module.add_class::<DeclareDataProperty>()?;
-    module.add_class::<DeclareDatatype>()?;
-    module.add_class::<DeclareNamedIndividual>()?;
-    module.add_class::<DeclareObjectProperty>()?;
-    module.add_class::<DifferentIndividuals>()?;
-    module.add_class::<DisjointClasses>()?;
-    module.add_class::<DisjointDataProperties>()?;
-    module.add_class::<DisjointObjectProperties>()?;
-    module.add_class::<DisjointUnion>()?;
-    module.add_class::<EquivalentClasses>()?;
-    module.add_class::<EquivalentDataProperties>()?;
-    module.add_class::<EquivalentObjectProperties>()?;
-    module.add_class::<FacetRestriction>()?;
-    module.add_class::<FunctionalDataProperty>()?;
-    module.add_class::<FunctionalObjectProperty>()?;
-    module.add_class::<HasKey>()?;
-    module.add_class::<IRI>()?;
-    module.add_class::<Import>()?;
-    module.add_class::<InverseFunctionalObjectProperty>()?;
-    module.add_class::<InverseObjectProperties>()?;
-    module.add_class::<IrreflexiveObjectProperty>()?;
-    module.add_class::<NamedIndividual>()?;
-    module.add_class::<NegativeDataPropertyAssertion>()?;
-    module.add_class::<NegativeObjectPropertyAssertion>()?;
-    module.add_class::<ObjectProperty>()?;
-    module.add_class::<ObjectPropertyAssertion>()?;
-    module.add_class::<ObjectPropertyDomain>()?;
-    module.add_class::<ObjectPropertyRange>()?;
-    module.add_class::<OntologyAnnotation>()?;
-    module.add_class::<ReflexiveObjectProperty>()?;
-    module.add_class::<SameIndividual>()?;
-    module.add_class::<SubAnnotationPropertyOf>()?;
-    module.add_class::<SubClassOf>()?;
-    module.add_class::<SubDataPropertyOf>()?;
-    module.add_class::<SubObjectPropertyOf>()?;
-    module.add_class::<SymmetricObjectProperty>()?;
-    module.add_class::<TransitiveObjectProperty>()?;
-    module.add_class::<OntologyID>()?;
-    module.add_class::<DocIRI>()?;
-    module.add_class::<Rule>()?;
-    module.add_class::<Variable>()?;
-    module.add_class::<BuiltInAtom>()?;
-    module.add_class::<ClassAtom>()?;
-    module.add_class::<DataPropertyAtom>()?;
-    module.add_class::<DataRangeAtom>()?;
-    module.add_class::<DifferentIndividualsAtom>()?;
-    module.add_class::<ObjectPropertyAtom>()?;
-    module.add_class::<SameIndividualAtom>()?;
-
-    module.add_class::<Facet>()?;
-
-    add_type_alias!(
-        py,
-        module,
-        ClassExpression,
-        ObjectPropertyExpression,
-        SubObjectPropertyExpression,
-        Literal,
-        DataRange,
-        Individual,
-        PropertyExpression,
-        AnnotationSubject,
-        AnnotationValue,
-        Component,
-        Atom,
-        IArgument,
-        DArgument,
-        IRIParam
-    );
-
-    Ok(module)
+#[pymodule(name = "model")]
+pub mod py_model {
+    #[pymodule_export]
+    use super::{
+        AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationProperty,
+        AnnotationPropertyDomain, AnnotationPropertyRange, AnonymousIndividual,
+        AsymmetricObjectProperty, BuiltInAtom, Class, ClassAssertion, ClassAtom, DataAllValuesFrom,
+        DataComplementOf, DataExactCardinality, DataHasValue, DataIntersectionOf,
+        DataMaxCardinality, DataMinCardinality, DataOneOf, DataProperty, DataPropertyAssertion,
+        DataPropertyAtom, DataPropertyDomain, DataPropertyRange, DataRangeAtom, DataSomeValuesFrom,
+        DataUnionOf, Datatype, DatatypeDefinition, DatatypeLiteral, DatatypeRestriction,
+        DeclareAnnotationProperty, DeclareClass, DeclareDataProperty, DeclareDatatype,
+        DeclareNamedIndividual, DeclareObjectProperty, DifferentIndividuals,
+        DifferentIndividualsAtom, DisjointClasses, DisjointDataProperties,
+        DisjointObjectProperties, DisjointUnion, DocIRI, EquivalentClasses,
+        EquivalentDataProperties, EquivalentObjectProperties, Facet, FacetRestriction,
+        FunctionalDataProperty, FunctionalObjectProperty, HasKey, Import,
+        InverseFunctionalObjectProperty, InverseObjectProperties, InverseObjectProperty,
+        IrreflexiveObjectProperty, LanguageLiteral, NamedIndividual, NegativeDataPropertyAssertion,
+        NegativeObjectPropertyAssertion, ObjectAllValuesFrom, ObjectComplementOf,
+        ObjectExactCardinality, ObjectHasSelf, ObjectHasValue, ObjectIntersectionOf,
+        ObjectMaxCardinality, ObjectMinCardinality, ObjectOneOf, ObjectProperty,
+        ObjectPropertyAssertion, ObjectPropertyAtom, ObjectPropertyDomain, ObjectPropertyRange,
+        ObjectSomeValuesFrom, ObjectUnionOf, OntologyAnnotation, OntologyID,
+        ReflexiveObjectProperty, Rule, SameIndividual, SameIndividualAtom, SimpleLiteral,
+        SubAnnotationPropertyOf, SubClassOf, SubDataPropertyOf, SubObjectPropertyOf,
+        SymmetricObjectProperty, TransitiveObjectProperty, Variable, IRI,
+    };
 }

@@ -3,9 +3,9 @@ import os
 import re
 import shutil
 import subprocess
-from typing import Optional, Literal
+from typing import Optional
 
-from jinja2 import Environment, select_autoescape, FileSystemLoader, pass_context
+from jinja2 import Environment, select_autoescape, FileSystemLoader
 
 REPO_ROOT=os.path.join(os.path.dirname(__file__), "..")
 
@@ -77,23 +77,6 @@ def py_field(field, type):
     return field
 
 
-@pass_context
-def f_rust(ctx, val):
-    if "variant" in ctx:
-        fields = ctx["variant"]["fields"]
-    else:
-        fields = ctx["model"]["fields"]
-
-    if isinstance(val, tuple) and isinstance(fields, dict):
-        return val[0]
-    if isinstance(val, str) and isinstance(fields, dict):
-        return val
-    if isinstance(val, list) and "loop" in ctx:
-        return ctx["loop"]["index0"]
-
-    return val
-
-
 def fields(val):
     if isinstance(val, dict):
         return val.items()
@@ -120,15 +103,6 @@ def rust_default(typ: str | dict[str, str] | None) -> str | None:
     
     return DEFAULTS[typ][0]
 
-
-def py_default(typ: str | dict[str, str] | None) -> str | None:
-    if isinstance(typ, dict):
-        typ = typ.get("type", None)
-    
-    if not isinstance(typ, str) or typ not in DEFAULTS:
-        raise ValueError(f"No default value for type {typ}")
-    
-    return DEFAULTS[typ][1]
 
 def optional(field: str | dict[str, str]) -> bool:
     if isinstance(field, dict):
@@ -161,10 +135,12 @@ def manchester_route(name: str, component_variants: set) -> Optional[str]:
     return "direct"
 
 
-def build_from_templates(lang: Literal["rs", "pyi"]):
+def load_model():
     with open(os.path.join(REPO_ROOT, "template", "model.json")) as f:
-        data = json.load(f)
+        return json.load(f)
 
+
+def template_env():
     env = Environment(
         loader=FileSystemLoader(os.path.join(REPO_ROOT, "template", "templates")),
         autoescape=select_autoescape()
@@ -175,19 +151,21 @@ def build_from_templates(lang: Literal["rs", "pyi"]):
     env.filters["as_py_name"] = as_py_name
     env.filters["py_field"] = py_field
     env.filters["fields"] = fields
-    env.filters["f_rust"] = f_rust
     env.filters["rust_default"] = rust_default
-    env.filters["py_default"] = py_default
     env.tests["optional"] = optional
     env.tests['list'] = lambda value: isinstance(value, list)
+    return env
 
+
+def build_rust(data) -> str:
+    env = template_env()
     out = []
 
     component_variants = set(
         next(m for m in data if m["name"] == "Component")["variants"].values()
     )
 
-    header_template = env.get_template(f"static.{lang}")
+    header_template = env.get_template("static.rs")
     out.append(header_template.render(models=data) + "\n\n")
 
     for model in data:
@@ -200,7 +178,7 @@ def build_from_templates(lang: Literal["rs", "pyi"]):
                 f"{model['name']} is an enum but does not implement AsManchester; "
                 "enum.rs.jinja2 renders its variants through it"
             )
-        template = env.get_template(f"{type}.{lang}.jinja2")
+        template = env.get_template(f"{type}.rs.jinja2")
         res = template.render(model=model, route=route)
         out.append(res + "\n")
 
@@ -233,12 +211,16 @@ def rustfmt(path: str):
 
 
 def main():
+    data = load_model()
     generated = os.path.join(REPO_ROOT, "src", "model_generated.rs")
 
     with open(generated, "w") as f:
-        f.write(build_from_templates("rs"))
+        f.write(build_rust(data))
 
     rustfmt(generated)
+
+    with open(os.path.join(REPO_ROOT, "pyhornedowl", "model", "__init__.py"), "w") as f:
+        f.write(template_env().get_template("model.py.jinja2").render(models=data) + "\n")
 
 
 if __name__ == "__main__":
