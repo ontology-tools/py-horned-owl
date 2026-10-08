@@ -228,7 +228,7 @@ jobs:
           path: wheels/
       - name: "Install packages"
         run: |
-          pip install -U sphinx sphinx_rtd_theme
+          pip install -U sphinx furo
           pip install --find-links wheels/ py-horned-owl
       - name: "Build docs"
         working-directory: docs
