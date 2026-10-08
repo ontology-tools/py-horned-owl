@@ -12,16 +12,13 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = [
-    "Jinja2>=3.1.6",
-]
-
 
 [tool.maturin.generate-ci.github]
 trusted-publishing = true
 
 [dependency-groups]
 dev = [
+    "Jinja2>=3.1.6",
     "pytest>=8.0.0",
     "sphinx>=5.3.0",
     "sphinx-autobuild>=2021.3.14",

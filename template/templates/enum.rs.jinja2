@@ -23,11 +23,7 @@ pub struct {{ model.name }}({{ model.name }}_Inner);
     {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name) %}
 
     /**************** ENUM VARIANT {{ v_name_full }} for {{ model.name }} ****************/
-    #[doc = concat!("{{ v_name_full }}(
-    {%- for field, type in variant.fields | fields -%}
-    {{ field | as_py_name }}: {{ type | as_py_type }}{% if not loop.last %}, {% endif %}
-    {%- endfor -%})",
-        "\n\n",doc!({{ v_name_full }}),
+    #[doc = concat!(doc!({{ v_name_full }}),
         "\n\n
         {%- for field, type in variant.fields | fields -%}
             :param {{ type | as_py_type }} {{ field | as_py_name }}:\n
@@ -203,6 +199,11 @@ impl From<&{{ model.name }}> for horned_owl::model::{{ model.name }}<ArcStr> {
 }
 
 impl<'py> IntoPyObject<'py> for {{ model.name }} {
+    const OUTPUT_TYPE: PyStaticExpr = pyo3::type_hint_union!(
+        {%- for v_name, variant in model.variants.items() %}{%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name) -%}
+        <{{ v_name_full }} as IntoPyObject<'static>>::OUTPUT_TYPE{% if not loop.last %},{% endif %}
+        {%- endfor %}
+    );
     type Target = PyAny;
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
@@ -220,6 +221,11 @@ impl<'py> IntoPyObject<'py> for {{ model.name }} {
 }
 
 impl <'py> FromPyObject<'_, 'py> for {{ model.name }} {
+    const INPUT_TYPE: PyStaticExpr = pyo3::type_hint_union!(
+        {%- for v_name, variant in model.variants.items() %}{%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name) -%}
+        <{{ v_name_full }} as FromPyObject<'static, 'static>>::INPUT_TYPE{% if not loop.last %},{% endif %}
+        {%- endfor %}
+    );
     type Error = PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
@@ -245,17 +251,6 @@ impl <'py> FromPyObject<'_, 'py> for {{ model.name }} {
         {%- endfor %}
 
         Err(pyo3::PyErr::new::<pyo3::exceptions::PyTypeError, _>("Object cannot be converted to {{ model.name }}"))
-    }
-}
-
-impl {{ model.name }} {
-    pub fn py_def() -> String {
-        "typing.Union[
-        {%- for v_name, variant in model.variants.items() -%}
-        {%- set v_name_full = variant.py_name if variant.py_name else (variant.name if variant.name else v_name)-%}
-            m.{{ v_name_full }},
-        {%- endfor -%}
-        ]".into()
     }
 }
 

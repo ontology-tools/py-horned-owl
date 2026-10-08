@@ -1,14 +1,11 @@
 .PHONY: all dev mdev model docs tests
 
-all: lib pyi
+all: lib
 
-dev: mdev pyi
+dev: mdev
 
 mdev: model docs
-	uv run --with maturin maturin develop
-
-pyi: .venv
-	.venv/bin/python scripts/gen_pyi.py
+	uv run --with 'maturin>=1.15' maturin develop --generate-stubs
 
 docs: src/doc.rs
 
@@ -19,7 +16,7 @@ model: .venv
 	.venv/bin/python scripts/build_model.py
 
 lib: model docs
-	uvx maturin build --release
+	uvx --from 'maturin>=1.15' maturin build --release --generate-stubs
 
 .venv:
 	uv venv

@@ -8,14 +8,10 @@
 {%- macro serialize_method(class, horned_type, value_expr, route) %}
 
 {%- if route %}
-    /// serialize(self, serialization: typing.Literal["ofn", "omn"] = "ofn", prefix_mapping: PrefixMapping = None)
-    ///
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
     /// counterpart to `PyIndexedOntology.save_to_string`.
 {%- else %}
-    /// serialize(self, serialization: typing.Literal["ofn"] = "ofn", prefix_mapping: PrefixMapping = None)
-    ///
     /// Renders this element on its own, in OWL functional (`"ofn"`) syntax. The
     /// per-element counterpart to `PyIndexedOntology.save_to_string`.
     ///
@@ -23,15 +19,15 @@
     /// writes it only inside the element that contains it, so `"omn"` is an
     /// error.
 {%- endif %}
-    #[pyo3(signature = (serialization = "ofn", prefix_mapping = None))]
+    #[pyo3(signature = (serialization = None, prefix_mapping = None))]
     fn serialize(
         &self,
-        serialization: &str,
+        serialization: Option<LiteralStr<{% if route %}SnippetSyntaxes{% else %}FunctionalSyntax{% endif %}>>,
         prefix_mapping: Option<&crate::prefix_mapping::PrefixMapping>,
     ) -> PyResult<String> {
         let value: {{ horned_type }} = {{ value_expr }};
 
-        Ok(match crate::snippet::parse_syntax(serialization)? {
+        Ok(match crate::snippet::parse_syntax(serialization.as_deref().unwrap_or("ofn"))? {
         {%- if route == "direct" %}
             crate::snippet::SnippetSyntax::Manchester => crate::as_omn!(value, prefix_mapping),
         {%- elif route == "component" %}

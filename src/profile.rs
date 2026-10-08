@@ -11,8 +11,9 @@ use crate::PyIndexedOntology;
 use horned_owl::model::ArcStr;
 use horned_profile::{Profile, Violation};
 use pyo3::exceptions::PyValueError;
+use pyo3::inspect::PyStaticExpr;
 use pyo3::prelude::*;
-use pyo3::types::PyModule;
+use pyo3::type_hint_union;
 use std::str::FromStr;
 
 /// OWL 2 profiles
@@ -75,6 +76,10 @@ impl FromStr for PyProfile {
 }
 
 impl<'a, 'py> FromPyObject<'a, 'py> for PyProfile {
+    const INPUT_TYPE: PyStaticExpr = type_hint_union!(
+        <PyProfile as pyo3::PyTypeInfo>::TYPE_HINT,
+        String::INPUT_TYPE
+    );
     type Error = PyErr;
 
     fn extract(obj: Borrowed<'a, 'py, PyAny>) -> Result<Self, Self::Error> {
@@ -96,10 +101,6 @@ impl PyProfile {
             PyProfile::QL => "QL",
             PyProfile::RL => "RL",
         }
-    }
-
-    fn __repr__(&self) -> String {
-        format!("Profile.{}", self.__str__())
     }
 }
 
@@ -237,10 +238,16 @@ macro_rules! violations {
             Ok(object.unbind())
         }
 
-        fn add_violation_classes(module: &Bound<'_, PyModule>) -> PyResult<()> {
-            module.add_class::<PyViolation>()?;
-            $( module.add_class::<$name>()?; )*
-            Ok(())
+        #[pymodule(name = "profile")]
+        pub mod py_profile {
+            #[pymodule_export]
+            use super::{check_profile, conformant_profiles};
+            #[pymodule_export]
+            use super::{PyProfile, PyProfileReport, PyViolation};
+            $(
+                #[pymodule_export]
+                use super::$name;
+            )*
         }
     };
 }
@@ -390,7 +397,7 @@ impl PyProfileReport {
     fn __repr__(&self) -> String {
         format!(
             "ProfileReport(profile={}, conformant={})",
-            self.profile.__repr__(),
+            format!("Profile.{}", self.profile.__str__()),
             if self.conformant { "True" } else { "False" }
         )
     }
@@ -415,8 +422,6 @@ fn build_report<O: horned_owl::model::Ontology<ArcStr>>(
     })
 }
 
-/// conformant_profiles(ontology: PyIndexedOntology) -> List[Profile]
-///
 /// Returns every OWL 2 profile the ontology conforms to, in declaration order
 /// (OWL2DL, EL, QL, RL). The profiles overlap, so more than one may be returned.
 ///
@@ -429,8 +434,6 @@ pub fn conformant_profiles(ontology: &PyIndexedOntology) -> Vec<PyProfile> {
         .collect()
 }
 
-/// check_profile(ontology: PyIndexedOntology, profile: typing.Union[Profile, Literal["DL", "EL", "QL", "RL"]]) -> ProfileReport
-///
 /// Checks `ontology` against a single profile and returns a `ProfileReport` with
 /// conformance and the violations found.
 ///
@@ -443,17 +446,4 @@ pub fn check_profile(
     profile: PyProfile,
 ) -> PyResult<PyProfileReport> {
     build_report(py, ontology, profile.into())
-}
-
-pub fn py_module<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyModule>> {
-    let module = PyModule::new(py, "profile")?;
-
-    module.add_function(wrap_pyfunction!(conformant_profiles, &module)?)?;
-    module.add_function(wrap_pyfunction!(check_profile, &module)?)?;
-    module.add_class::<PyViolation>()?;
-    module.add_class::<PyProfile>()?;
-    module.add_class::<PyProfileReport>()?;
-    add_violation_classes(&module)?;
-
-    Ok(module)
 }

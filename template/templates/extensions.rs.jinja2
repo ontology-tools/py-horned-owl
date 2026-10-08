@@ -18,13 +18,11 @@
     /******** EXTENSION "class-expression" for {{ name }} ********/
     #[pymethods]
     impl {{ name }} {
-        fn __and__(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectIntersectionOf> {
-            let ce: ClassExpression = obj.extract()?;
+        fn __and__(&self, ce: ClassExpression) -> PyResult<ObjectIntersectionOf> {
             Ok(ObjectIntersectionOf(vec![self.clone().into(), ce].into()))
         }
 
-        fn __or__(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectUnionOf> {
-            let ce: ClassExpression = obj.extract()?;
+        fn __or__(&self, ce: ClassExpression) -> PyResult<ObjectUnionOf> {
             Ok(ObjectUnionOf(vec![self.clone().into(), ce].into()))
         }
 
@@ -37,27 +35,24 @@
     /******** EXTENSION "object-property-expression" for {{ name }} ********/
        #[pymethods]
         impl {{ name }} {
-            fn some(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectSomeValuesFrom> {
-                let ce: ClassExpression = obj.extract()?;
+            fn some(&self, ce: ClassExpression) -> PyResult<ObjectSomeValuesFrom> {
                 Ok(ObjectSomeValuesFrom {
                     ope: self.clone().into(),
                     bce: Box::new(ce).into(),
                 })
             }
 
-            fn only(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectAllValuesFrom> {
-                let ce: ClassExpression = obj.extract()?;
+            fn only(&self, ce: ClassExpression) -> PyResult<ObjectAllValuesFrom> {
                 Ok(ObjectAllValuesFrom {
                     ope: self.clone().into(),
                     bce: Box::new(ce).into(),
                 })
             }
 
-            fn has_value(&self, obj: &Bound<'_, PyAny>) -> PyResult<ObjectHasValue> {
-                let i: Individual = obj.extract()?;
+            fn has_value(&self, individual: Individual) -> PyResult<ObjectHasValue> {
                 Ok(ObjectHasValue{
                     ope: self.clone().into(),
-                    i
+                    i: individual,
                 })
             }
 
@@ -65,8 +60,7 @@
                 Ok(ObjectHasSelf(self.clone().into()))
             }
 
-            fn min(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectMinCardinality> {
-                let ce: ClassExpression = obj.extract()?;
+            fn min(&self, n: u32, ce: ClassExpression) -> PyResult<ObjectMinCardinality> {
                 Ok(ObjectMinCardinality {
                     n,
                     ope: self.clone().into(),
@@ -74,8 +68,7 @@
                 })
             }
 
-            fn max(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectMaxCardinality> {
-                let ce: ClassExpression = obj.extract()?;
+            fn max(&self, n: u32, ce: ClassExpression) -> PyResult<ObjectMaxCardinality> {
                 Ok(ObjectMaxCardinality {
                     n,
                     ope: self.clone().into(),
@@ -83,8 +76,7 @@
                 })
             }
 
-            fn exact(&self, n: u32, obj: &Bound<'_, PyAny>) -> PyResult<ObjectExactCardinality> {
-                let ce: ClassExpression = obj.extract()?;
+            fn exact(&self, n: u32, ce: ClassExpression) -> PyResult<ObjectExactCardinality> {
                 Ok(ObjectExactCardinality {
                     n,
                     ope: self.clone().into(),
