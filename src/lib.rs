@@ -181,7 +181,8 @@ fn open_ontology_from_file(
     let file = File::open(&path)?;
 
     let b = Build::new_arc();
-    let (input_format, config) = parser_config(Path::new(&path), serialization.as_deref(), Some(b))?;
+    let (input_format, config) =
+        parser_config(Path::new(&path), serialization.as_deref(), Some(b))?;
 
     let mut f = BufReader::new(file);
 
