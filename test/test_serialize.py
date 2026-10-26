@@ -30,36 +30,36 @@ def c(iri: str) -> Class:
 
 # Classes horned-owl cannot render in Manchester syntax on their own: they are
 # neither an OWL entity nor a component, so Manchester only writes them inside
-# the element that holds them. Mirrors NO_MANCHESTER in scripts/build_model.py.
+# the element that holds them: the classes declared with `render = functional`.
 NO_MANCHESTER = [
     Annotation(AnnotationProperty(IRI.parse(R)), SimpleLiteral("v"), set()),
     AnnotationProperty(IRI.parse(R)),
-    FacetRestriction(f=Facet.MinInclusive, l=SimpleLiteral("1")),
+    FacetRestriction(facet=Facet.MinInclusive, literal=SimpleLiteral("1")),
     Facet.MinInclusive,
 ]
 
 
 def test_renders_an_axiom():
-    ax = SubClassOf(sub=c(A), sup=c(B))
+    ax = SubClassOf(sub_class=c(A), super_class=c(B))
 
     assert ax.serialize("omn") == f"<{A}> SubClassOf <{B}>"
     assert ax.serialize("ofn") == f"SubClassOf(<{A}> <{B}>)"
 
 
 def test_defaults_to_functional():
-    ax = SubClassOf(sub=c(A), sup=c(B))
+    ax = SubClassOf(sub_class=c(A), super_class=c(B))
 
     assert ax.serialize() == ax.serialize("ofn")
 
 
 def test_renders_a_class_expression():
-    ce = ObjectSomeValuesFrom(ope=ObjectProperty(IRI.parse(R)), bce=c(B))
+    ce = ObjectSomeValuesFrom(object_property_expression=ObjectProperty(IRI.parse(R)), class_expression=c(B))
 
     assert ce.serialize("omn") == f"<{R}> some <{B}>"
 
 
 def test_renders_a_nested_class_expression_inside_an_axiom():
-    ax = SubClassOf(sub=c(A), sup=ObjectSomeValuesFrom(ope=ObjectProperty(IRI.parse(R)), bce=c(B)))
+    ax = SubClassOf(sub_class=c(A), super_class=ObjectSomeValuesFrom(object_property_expression=ObjectProperty(IRI.parse(R)), class_expression=c(B)))
 
     assert ax.serialize("omn") == f"<{A}> SubClassOf <{R}> some <{B}>"
 
@@ -72,7 +72,7 @@ def test_renders_an_entity_and_an_iri():
 def test_abbreviates_with_prefix_mapping():
     onto = pyhornedowl.open_ontology(res("simple.owl"))
     onto.add_prefix_mapping("ex", "http://example.com/")
-    ax = SubClassOf(sub=c(A), sup=c(B))
+    ax = SubClassOf(sub_class=c(A), super_class=c(B))
 
     assert ax.serialize("omn", onto.prefix_mapping) == "ex:A SubClassOf ex:B"
     assert ax.serialize("ofn", onto.prefix_mapping) == "SubClassOf(ex:A ex:B)"
@@ -90,7 +90,7 @@ def test_renders_every_axiom_of_a_real_ontology():
 
 def test_functional_keeps_axiom_annotations_that_manchester_drops():
     ac = AnnotatedComponent(
-        SubClassOf(sub=c(A), sup=c(B)),
+        SubClassOf(sub_class=c(A), super_class=c(B)),
         {
             Annotation(
                 AnnotationProperty(IRI.parse("http://www.w3.org/2000/01/rdf-schema#comment")),
@@ -106,7 +106,7 @@ def test_functional_keeps_axiom_annotations_that_manchester_drops():
 
 @pytest.mark.parametrize("serialization", ["owx", "rdf", "obo", "nonsense"])
 def test_rejects_serializations_without_a_per_element_writer(serialization):
-    ax = SubClassOf(sub=c(A), sup=c(B))
+    ax = SubClassOf(sub_class=c(A), super_class=c(B))
 
     with pytest.raises(ValueError, match="per-element"):
         ax.serialize(serialization)
@@ -124,7 +124,10 @@ def test_every_model_class_has_serialize():
     without = [
         name
         for name, obj in vars(pyhornedowl.model).items()
-        if isinstance(obj, type) and not name.startswith("_") and not hasattr(obj, "serialize")
+        if isinstance(obj, type)
+        and not name.startswith("_")
+        and not getattr(obj, "_is_protocol", False)
+        and not hasattr(obj, "serialize")
     ]
 
     assert without == []

@@ -28,6 +28,9 @@ pub use literal::*;
 pub use property_expression::*;
 pub use swrl::*;
 
+/// Ontology input with prefix-aware string resolution and explicit
+/// `(value, is_absolute)` tuples. Model `IRI` extraction intentionally does
+/// not resolve prefixes, so it cannot replace this type.
 #[derive(Debug, Clone)]
 pub enum IRIParam {
     IRI(IRI),
@@ -62,11 +65,8 @@ impl IRIParam {
 }
 
 impl<'py> FromPyObject<'_, 'py> for IRIParam {
-    const INPUT_TYPE: PyStaticExpr = type_hint_union!(
-        <IRI as pyo3::PyTypeInfo>::TYPE_HINT,
-        <(String, bool)>::INPUT_TYPE,
-        String::INPUT_TYPE
-    );
+    const INPUT_TYPE: PyStaticExpr =
+        type_hint_union!(IRI::INPUT_TYPE, <(String, bool)>::INPUT_TYPE);
     type Error = PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
@@ -99,10 +99,9 @@ impl<'py> FromPyObject<'_, 'py> for IRIParam {
             }
         }
 
-        // Fallback: wrong type
-        Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
-            "expected IRI instance or IRI string",
-        ))
+        // Strings above retain ontology-specific CURIE handling; entities use
+        // the same IRI conversion as model constructors.
+        ob.extract::<IRI>().map(IRIParam::IRI)
     }
 }
 

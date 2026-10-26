@@ -35,13 +35,25 @@ pub enum ClassExpression {
 impl ClassExpressionBase {
     fn __and__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
         Ok(ObjectIntersectionOf {
-            operands: vec![slf.extract()?, other].into(),
+            operands: intersection_operands(slf.extract()?, other).into(),
         })
     }
 
     fn __or__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
         Ok(ObjectUnionOf {
-            operands: vec![slf.extract()?, other].into(),
+            operands: union_operands(slf.extract()?, other).into(),
+        })
+    }
+
+    fn __rand__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
+        Ok(ObjectIntersectionOf {
+            operands: intersection_operands(other, slf.extract()?).into(),
+        })
+    }
+
+    fn __ror__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
+        Ok(ObjectUnionOf {
+            operands: union_operands(other, slf.extract()?).into(),
         })
     }
 
@@ -50,6 +62,41 @@ impl ClassExpressionBase {
             operand: Box::new(slf.extract::<ClassExpression>()?).into(),
         })
     }
+}
+
+// Flatten only the matching connective, preserving operand order and duplicates.
+fn intersection_operands(left: ClassExpression, right: ClassExpression) -> Vec<ClassExpression> {
+    fn append(value: ClassExpression, result: &mut Vec<ClassExpression>) {
+        match value {
+            ClassExpression::ObjectIntersectionOf(value) => {
+                for operand in value.operands.0 {
+                    append(operand, result);
+                }
+            }
+            value => result.push(value),
+        }
+    }
+    let mut result = Vec::new();
+    append(left, &mut result);
+    append(right, &mut result);
+    result
+}
+
+fn union_operands(left: ClassExpression, right: ClassExpression) -> Vec<ClassExpression> {
+    fn append(value: ClassExpression, result: &mut Vec<ClassExpression>) {
+        match value {
+            ClassExpression::ObjectUnionOf(value) => {
+                for operand in value.operands.0 {
+                    append(operand, result);
+                }
+            }
+            value => result.push(value),
+        }
+    }
+    let mut result = Vec::new();
+    append(left, &mut result);
+    append(right, &mut result);
+    result
 }
 
 #[model(variant_of = ClassExpression)]

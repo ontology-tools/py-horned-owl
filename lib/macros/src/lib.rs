@@ -31,7 +31,8 @@
 //!   Manchester syntax.
 //! * `str = field`: `__str__` is that field's `str()`.
 //! * `entity`: a named entity, holding one field `iri: IRI`. `str()` is the
-//!   IRI and a `str` converts to the entity (see `entity_from_str`).
+//!   IRI, `__owl_entity_iri__()` exposes it for the named-entity protocol,
+//!   and a `str` converts to the entity (see `entity_from_str`).
 //! * `coerce = function`, `accepts = [Type, ...]`: other Python values the
 //!   class is extracted from. `function(&Bound<PyAny>) -> PyResult<Option<T>>`
 //!   with `T: Into<Self>`; `accepts` lists their types for the stubs.
@@ -58,7 +59,8 @@
 //!
 //! An enum whose variants each hold one Python type, named like horned-owl's.
 //! It has no Python class: in Python it is the union of the variants' types,
-//! which are tried in order.
+//! which are tried in order. An optional `coerce = function` runs before
+//! variant extraction (and propagates errors, including warning filters).
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
@@ -100,6 +102,9 @@ struct Coercion {
     function: Option<Path>,
     accepts: Vec<Type>,
 }
+
+/// The generated methods `skip(...)` can leave out.
+const SKIPPABLE: &[&str] = &["new", "repr", "reduce", "replace", "match_args"];
 
 #[derive(Default)]
 struct StructOptions {
@@ -161,7 +166,11 @@ fn parse_struct_options(attr: TokenStream2) -> syn::Result<StructOptions> {
             options.entity = true;
         } else if meta.path.is_ident("skip") {
             meta.parse_nested_meta(|m| {
-                options.skip.push(m.path.require_ident()?.clone());
+                let method = m.path.require_ident()?;
+                if !SKIPPABLE.iter().any(|s| method == s) {
+                    return Err(m.error(format!("expected one of {}", SKIPPABLE.join(", "))));
+                }
+                options.skip.push(method.clone());
                 Ok(())
             })?;
         } else {
@@ -291,7 +300,11 @@ fn from_bindings(fields: &[Field]) -> TokenStream2 {
 }
 
 fn is_tuple(fields: &[Field]) -> syn::Result<bool> {
-    let tuple = matches!(fields[0].horned, Member::Unnamed(_));
+    // No fields: `Path {}`, which also builds and matches a unit struct.
+    let Some(first) = fields.first() else {
+        return Ok(false);
+    };
+    let tuple = matches!(first.horned, Member::Unnamed(_));
     match fields
         .iter()
         .find(|f| matches!(f.horned, Member::Unnamed(_)) != tuple)
@@ -431,7 +444,19 @@ fn str_as_functional(name: &Ident) -> TokenStream2 {
 
 fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenStream2> {
     let mut options = parse_struct_options(attr)?;
+    if options.render.is_some() && (options.variant_of.is_some() || options.extends.is_some()) {
+        return Err(syn::Error::new_spanned(
+            &item.ident,
+            "`render` is only supported for classes without a base (`variant_of` or `extends`)",
+        ));
+    }
     let fields = take_fields(&mut item)?;
+    if fields.is_empty() {
+        return Err(syn::Error::new_spanned(
+            &item.ident,
+            "`#[model]` needs at least one named field",
+        ));
+    }
     let name = item.ident.clone();
     let doc = default_doc(&item.attrs, &name);
     let protocol = quote!(crate::model::protocol);
@@ -489,6 +514,14 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
     let names: Vec<String> = idents.iter().map(|i| i.to_string()).collect();
 
     let mut methods = Vec::new();
+    if options.entity {
+        methods.push(quote! {
+            /// Returns this named entity's IRI for the `NamedEntity` protocol.
+            fn __owl_entity_iri__(&self) -> crate::model::IRI {
+                self.iri.clone()
+            }
+        });
+    }
     if !options.skips("new") {
         let signature = fields.iter().map(|f| {
             let ident = &f.ident;
@@ -659,6 +692,32 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
     });
 
     let pyclass_extends = base.as_ref().map(|b| quote!(extends = #b,));
+    // Defining `eq` on a subclass hides the base's ordering. Define hashing
+    // explicitly and forward comparison to the base: CPython inherits the
+    // hash and rich comparison slots together, so a hash override prevents
+    // automatic inheritance of rich comparison.
+    let pyclass_comparison = base.is_none().then(|| quote!(eq, ord, hash,));
+    let comparison_methods = base.as_ref().map(|base| {
+        quote! {
+            #[::pyo3::pymethods]
+            impl #name {
+                fn __richcmp__<'py>(
+                    slf: &::pyo3::Bound<'py, Self>,
+                    other: &::pyo3::Bound<'py, ::pyo3::PyAny>,
+                    op: ::pyo3::basic::CompareOp,
+                ) -> ::pyo3::PyResult<::pyo3::Bound<'py, ::pyo3::PyAny>> {
+                    #base::__richcmp__(slf.as_super(), other, op)
+                }
+
+                fn __hash__(&self) -> u64 {
+                    use ::std::hash::{Hash, Hasher};
+                    let mut hasher = ::std::collections::hash_map::DefaultHasher::new();
+                    self.hash(&mut hasher);
+                    hasher.finish()
+                }
+            }
+        }
+    });
     let pyclass_from_py = if options.coercion.function.is_some() {
         quote!(skip_from_py_object)
     } else {
@@ -667,7 +726,7 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
 
     Ok(quote! {
         #doc
-        #[::pyo3::pyclass(module = "pyhornedowl.model", #pyclass_extends frozen, eq, ord, hash, #pyclass_from_py)]
+        #[::pyo3::pyclass(module = "pyhornedowl.model", #pyclass_extends frozen, #pyclass_comparison #pyclass_from_py)]
         #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
         #item
 
@@ -685,6 +744,7 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
             }
         }
 
+        #comparison_methods
         #conversions
         #from_iri
         #into_py_object
@@ -791,6 +851,25 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
         #serialize
         #str
 
+        #[::pyo3::pymethods]
+        impl #base {
+            pub(crate) fn __richcmp__<'py>(
+                slf: &::pyo3::Bound<'py, Self>,
+                other: &::pyo3::Bound<'py, ::pyo3::PyAny>,
+                op: ::pyo3::basic::CompareOp,
+            ) -> ::pyo3::PyResult<::pyo3::Bound<'py, ::pyo3::PyAny>> {
+                use ::pyo3::{IntoPyObjectExt, types::PyAnyMethods};
+                // Compare only members of this hierarchy, without coercing
+                // strings or other convenient constructor inputs.
+                if !other.is_instance_of::<#base>() {
+                    return Ok(slf.py().NotImplemented().into_bound(slf.py()));
+                }
+                let left = slf.extract::<#name>()?;
+                let right = other.extract::<#name>()?;
+                op.matches(left.cmp(&right)).into_bound_py_any(slf.py())
+            }
+        }
+
         #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
         #item
 
@@ -843,12 +922,22 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
 }
 
 fn model_union_impl(attr: TokenStream2, item: ItemEnum) -> syn::Result<TokenStream2> {
-    if !attr.is_empty() {
-        return Err(syn::Error::new_spanned(
-            attr,
-            "`model_union` takes no options",
-        ));
-    }
+    let mut coercion = Coercion::default();
+    syn::meta::parser(|meta| {
+        if parse_coercion(&mut coercion, &meta)? {
+            Ok(())
+        } else {
+            Err(meta.error("unknown `model_union` option"))
+        }
+    })
+    .parse2(attr)?;
+    let coerce = coercion.function.as_ref().map(|f| {
+        quote! {
+            if let Some(value) = #f(&ob)? {
+                return Ok(value.into());
+            }
+        }
+    });
     let name = item.ident.clone();
     let horned_enum = horned(&name);
 
@@ -877,6 +966,8 @@ fn model_union_impl(attr: TokenStream2, item: ItemEnum) -> syn::Result<TokenStre
     let input_type = hint_union(
         types
             .iter()
+            .copied()
+            .chain(coercion.accepts.iter())
             .map(|ty| quote!(<#ty as ::pyo3::FromPyObject<'static, 'static>>::INPUT_TYPE))
             .collect(),
     );
@@ -923,6 +1014,7 @@ fn model_union_impl(attr: TokenStream2, item: ItemEnum) -> syn::Result<TokenStre
 
             fn extract(ob: ::pyo3::Borrowed<'_, 'py, ::pyo3::PyAny>) -> ::pyo3::PyResult<Self> {
                 use ::pyo3::types::{PyAnyMethods, PyTypeMethods};
+                #coerce
                 #(
                     if let Ok(x) = ob.extract::<#types>() {
                         return Ok(#name::#idents(x));
