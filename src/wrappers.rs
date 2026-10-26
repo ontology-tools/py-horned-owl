@@ -9,107 +9,103 @@ use std::hash::Hash;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-pub trait FromCompatible<T> {
-    fn from_c(value: T) -> Self;
+/// Conversion from a value's counterpart in the other model: between a
+/// Python class and its horned-owl type, field by field and element by
+/// element. A trait of its own because the orphan rules forbid `From` impls
+/// such as `From<&Option<H>> for Option<P>` or `From<&u32> for u32`.
+pub trait FromCounterpart<T> {
+    fn from_counterpart(value: &T) -> Self;
 }
 
-pub trait IntoCompatible<T> {
-    fn into_c(self) -> T;
+/// The counterpart of a value in the other model; see [`FromCounterpart`].
+pub trait ToCounterpart<T> {
+    fn to_counterpart(&self) -> T;
 }
 
-impl<T, U> IntoCompatible<U> for T
-where
-    U: FromCompatible<T>,
-{
-    fn into_c(self) -> U {
-        U::from_c(self)
+impl<T, U: FromCounterpart<T>> ToCounterpart<U> for T {
+    fn to_counterpart(&self) -> U {
+        U::from_counterpart(self)
     }
 }
 
-impl FromCompatible<&Arc<str>> for StringWrapper {
-    fn from_c(value: &Arc<str>) -> Self {
+impl FromCounterpart<Arc<str>> for StringWrapper {
+    fn from_counterpart(value: &Arc<str>) -> Self {
         StringWrapper::from(value)
     }
 }
 
-impl FromCompatible<&StringWrapper> for Arc<str> {
-    fn from_c(value: &StringWrapper) -> Self {
+impl FromCounterpart<StringWrapper> for Arc<str> {
+    fn from_counterpart(value: &StringWrapper) -> Self {
         Arc::<str>::from(value)
     }
 }
 
-impl FromCompatible<&String> for String {
-    fn from_c(value: &String) -> Self {
-        String::from(value)
+impl FromCounterpart<String> for String {
+    fn from_counterpart(value: &String) -> Self {
+        value.clone()
     }
 }
 
-impl FromCompatible<&u32> for u32 {
-    fn from_c(value: &u32) -> Self {
+impl FromCounterpart<u32> for u32 {
+    fn from_counterpart(value: &u32) -> Self {
         *value
     }
 }
 
-impl<'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
-where
-    U: FromCompatible<&'a T>,
-{
-    fn from_c(value: &'a Option<T>) -> Self {
-        match value {
-            None => None,
-            Some(x) => Some(U::from_c(x)),
-        }
+impl<T, U: FromCounterpart<T>> FromCounterpart<Option<T>> for Option<U> {
+    fn from_counterpart(value: &Option<T>) -> Self {
+        value.as_ref().map(U::from_counterpart)
     }
 }
 
-impl<'a, U, V, S, T> FromCompatible<&'a (S, T)> for (U, V)
+impl<U, V, S, T> FromCounterpart<(S, T)> for (U, V)
 where
-    U: FromCompatible<&'a S>,
-    V: FromCompatible<&'a T>,
+    U: FromCounterpart<S>,
+    V: FromCounterpart<T>,
 {
-    fn from_c(value: &'a (S, T)) -> Self {
+    fn from_counterpart(value: &(S, T)) -> Self {
         let (s, t) = value;
-        (U::from_c(s), V::from_c(t))
+        (U::from_counterpart(s), V::from_counterpart(t))
     }
 }
 
-// The containers convert element-wise, generically: `FromCompatible` is
+// The containers convert element-wise, generically: `FromCounterpart` is
 // local, so unlike `From` (`From<BoxWrap<P>> for Box<H>` would overlap std's
 // `From<T> for Box<T>`) it allows these impls.
 
-impl<'a, H, P: FromCompatible<&'a H>> FromCompatible<&'a Box<H>> for BoxWrap<P> {
-    fn from_c(value: &'a Box<H>) -> Self {
-        BoxWrap(Box::new(P::from_c(value)))
+impl<H, P: FromCounterpart<H>> FromCounterpart<Box<H>> for BoxWrap<P> {
+    fn from_counterpart(value: &Box<H>) -> Self {
+        BoxWrap(Box::new(P::from_counterpart(value)))
     }
 }
 
-impl<'a, P, H: FromCompatible<&'a P>> FromCompatible<&'a BoxWrap<P>> for Box<H> {
-    fn from_c(value: &'a BoxWrap<P>) -> Self {
-        Box::new(H::from_c(&value.0))
+impl<P, H: FromCounterpart<P>> FromCounterpart<BoxWrap<P>> for Box<H> {
+    fn from_counterpart(value: &BoxWrap<P>) -> Self {
+        Box::new(H::from_counterpart(&value.0))
     }
 }
 
-impl<'a, H, P: FromCompatible<&'a H>> FromCompatible<&'a Vec<H>> for VecWrap<P> {
-    fn from_c(value: &'a Vec<H>) -> Self {
-        VecWrap(value.iter().map(P::from_c).collect())
+impl<H, P: FromCounterpart<H>> FromCounterpart<Vec<H>> for VecWrap<P> {
+    fn from_counterpart(value: &Vec<H>) -> Self {
+        VecWrap(value.iter().map(P::from_counterpart).collect())
     }
 }
 
-impl<'a, P, H: FromCompatible<&'a P>> FromCompatible<&'a VecWrap<P>> for Vec<H> {
-    fn from_c(value: &'a VecWrap<P>) -> Self {
-        value.0.iter().map(H::from_c).collect()
+impl<P, H: FromCounterpart<P>> FromCounterpart<VecWrap<P>> for Vec<H> {
+    fn from_counterpart(value: &VecWrap<P>) -> Self {
+        value.0.iter().map(H::from_counterpart).collect()
     }
 }
 
-impl<'a, H, P: FromCompatible<&'a H> + Ord> FromCompatible<&'a BTreeSet<H>> for BTreeSetWrap<P> {
-    fn from_c(value: &'a BTreeSet<H>) -> Self {
-        BTreeSetWrap(value.iter().map(P::from_c).collect())
+impl<H, P: FromCounterpart<H> + Ord> FromCounterpart<BTreeSet<H>> for BTreeSetWrap<P> {
+    fn from_counterpart(value: &BTreeSet<H>) -> Self {
+        BTreeSetWrap(value.iter().map(P::from_counterpart).collect())
     }
 }
 
-impl<'a, P, H: FromCompatible<&'a P> + Ord> FromCompatible<&'a BTreeSetWrap<P>> for BTreeSet<H> {
-    fn from_c(value: &'a BTreeSetWrap<P>) -> Self {
-        value.0.iter().map(H::from_c).collect()
+impl<P, H: FromCounterpart<P> + Ord> FromCounterpart<BTreeSetWrap<P>> for BTreeSet<H> {
+    fn from_counterpart(value: &BTreeSetWrap<P>) -> Self {
+        value.0.iter().map(H::from_counterpart).collect()
     }
 }
 

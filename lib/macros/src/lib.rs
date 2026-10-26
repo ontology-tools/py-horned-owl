@@ -260,7 +260,7 @@ fn horned_constructor(
 ) -> syn::Result<TokenStream2> {
     let value = |f: &Field| {
         let ident = &f.ident;
-        quote!(crate::wrappers::IntoCompatible::into_c(&#model.#ident))
+        quote!(crate::wrappers::ToCounterpart::to_counterpart(&#model.#ident))
     };
     Ok(if is_tuple(fields)? {
         let values = by_position(fields).into_iter().map(value);
@@ -294,7 +294,7 @@ fn from_bindings(fields: &[Field]) -> TokenStream2 {
     let idents = fields.iter().map(|f| &f.ident);
     let values = fields.iter().map(|f| {
         let (ident, ty) = (&f.ident, &f.ty);
-        quote!(crate::wrappers::IntoCompatible::<#ty>::into_c(#ident))
+        quote!(crate::wrappers::ToCounterpart::<#ty>::to_counterpart(#ident))
     });
     quote!(Self { #(#idents: #values),* })
 }
@@ -990,7 +990,7 @@ fn model_union_impl(attr: TokenStream2, item: ItemEnum) -> syn::Result<TokenStre
         impl From<&#horned_enum> for #name {
             fn from(value: &#horned_enum) -> Self {
                 match value {
-                    #( ::horned_owl::model::#name::#idents(x) => #name::#idents(crate::wrappers::IntoCompatible::into_c(x)), )*
+                    #( ::horned_owl::model::#name::#idents(x) => #name::#idents(crate::wrappers::ToCounterpart::to_counterpart(x)), )*
                 }
             }
         }
@@ -998,7 +998,7 @@ fn model_union_impl(attr: TokenStream2, item: ItemEnum) -> syn::Result<TokenStre
         impl From<&#name> for #horned_enum {
             fn from(value: &#name) -> Self {
                 match value {
-                    #( #name::#idents(x) => ::horned_owl::model::#name::#idents(crate::wrappers::IntoCompatible::into_c(x)), )*
+                    #( #name::#idents(x) => ::horned_owl::model::#name::#idents(crate::wrappers::ToCounterpart::to_counterpart(x)), )*
                 }
             }
         }

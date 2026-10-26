@@ -6,7 +6,7 @@
 use crate::model::{
     AnnotatedComponent, ClassExpression, DataRange, ObjectProperty, ObjectPropertyExpression, IRI,
 };
-use crate::wrappers::{FromCompatible, IntoCompatible, VecWrap};
+use crate::wrappers::{FromCounterpart, ToCounterpart, VecWrap};
 use crate::PyIndexedOntology;
 use horned_owl::model::ArcStr;
 use horned_profile::{Profile, Violation};
@@ -104,8 +104,8 @@ impl PyProfile {
     }
 }
 
-impl FromCompatible<&&'static str> for String {
-    fn from_c(value: &&'static str) -> Self {
+impl FromCounterpart<&'static str> for String {
+    fn from_counterpart(value: &&'static str) -> Self {
         value.to_string()
     }
 }
@@ -223,7 +223,7 @@ macro_rules! violations {
                     Violation::$name { $($field),* } => Bound::new(
                         py,
                         PyClassInitializer::from(PyViolation {})
-                            .add_subclass($name { $($field: $field.into_c()),* }),
+                            .add_subclass($name { $($field: $field.to_counterpart()),* }),
                     )?
                     .into_super(),
                 )*

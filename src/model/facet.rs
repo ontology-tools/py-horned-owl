@@ -6,14 +6,14 @@ use pyo3::prelude::*;
 
 use crate::wrappers::*;
 
-impl FromCompatible<&horned_owl::vocab::Facet> for Facet {
-    fn from_c(value: &horned_owl::vocab::Facet) -> Self {
+impl FromCounterpart<horned_owl::vocab::Facet> for Facet {
+    fn from_counterpart(value: &horned_owl::vocab::Facet) -> Self {
         Facet::from(value)
     }
 }
 
-impl FromCompatible<&Facet> for horned_owl::vocab::Facet {
-    fn from_c(value: &Facet) -> Self {
+impl FromCounterpart<Facet> for horned_owl::vocab::Facet {
+    fn from_counterpart(value: &Facet) -> Self {
         horned_owl::vocab::Facet::from(value)
     }
 }
