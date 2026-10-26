@@ -161,20 +161,8 @@ impl FromCompatible<&horned_owl::model::IRI<ArcStr>> for IRI {
     }
 }
 
-impl FromCompatible<horned_owl::model::IRI<ArcStr>> for IRI {
-    fn from_c(value: horned_owl::model::IRI<ArcStr>) -> Self {
-        value.into()
-    }
-}
-
 impl FromCompatible<&IRI> for horned_owl::model::IRI<ArcStr> {
     fn from_c(value: &IRI) -> Self {
-        value.into()
-    }
-}
-
-impl FromCompatible<IRI> for horned_owl::model::IRI<ArcStr> {
-    fn from_c(value: IRI) -> Self {
         value.into()
     }
 }

@@ -12,21 +12,9 @@ impl FromCompatible<&horned_owl::vocab::Facet> for Facet {
     }
 }
 
-impl FromCompatible<Facet> for horned_owl::vocab::Facet {
-    fn from_c(value: Facet) -> Self {
-        From::from(value.borrow())
-    }
-}
-
 impl FromCompatible<&Facet> for horned_owl::vocab::Facet {
     fn from_c(value: &Facet) -> Self {
         horned_owl::vocab::Facet::from(value)
-    }
-}
-
-impl FromCompatible<horned_owl::vocab::Facet> for Facet {
-    fn from_c(value: horned_owl::vocab::Facet) -> Self {
-        Facet::from(value.borrow())
     }
 }
 

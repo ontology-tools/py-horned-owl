@@ -598,19 +598,24 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
         Some((e, v)) => {
             let horned_enum = horned(e);
             let path = quote!(::horned_owl::model::#e::#v);
-            let construct = horned_constructor(&path, quote!(self), &fields)?;
+            let construct = horned_constructor(&path, quote!(value), &fields)?;
             let pattern = horned_pattern(&path, &fields)?;
             let from_bindings = from_bindings(&fields);
             quote! {
-                impl #protocol::EnumVariant<#horned_enum> for #name {
-                    fn to_horned(&self) -> #horned_enum {
+                impl From<&#name> for #horned_enum {
+                    fn from(value: &#name) -> Self {
                         #construct
                     }
+                }
 
-                    fn from_horned(value: &#horned_enum) -> Self {
+                /// Fails on the other variants.
+                impl TryFrom<&#horned_enum> for #name {
+                    type Error = ();
+
+                    fn try_from(value: &#horned_enum) -> Result<Self, ()> {
                         match value {
-                            #pattern => #from_bindings,
-                            _ => unreachable!(concat!("not a ", stringify!(#e), "::", stringify!(#v))),
+                            #pattern => Ok(#from_bindings),
+                            _ => Err(()),
                         }
                     }
                 }
@@ -773,7 +778,6 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
     let python_name = LitStr::new(&name.to_string(), name.span());
     let horned_enum = horned(&name);
     let doc = default_doc(&item.attrs, &name);
-    let protocol = quote!(crate::model::protocol);
 
     let mut variants = Vec::new();
     let mut wraps = Vec::new();
@@ -808,15 +812,20 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
 
     let wrap_impls = wraps.iter().map(|(v, ty)| {
         quote! {
-            impl #protocol::EnumVariant<#horned_enum> for #ty {
-                fn to_horned(&self) -> #horned_enum {
-                    ::horned_owl::model::#name::#v(self.into())
+            impl From<&#ty> for #horned_enum {
+                fn from(value: &#ty) -> Self {
+                    ::horned_owl::model::#name::#v(value.into())
                 }
+            }
 
-                fn from_horned(value: &#horned_enum) -> Self {
+            /// Fails on the other variants.
+            impl TryFrom<&#horned_enum> for #ty {
+                type Error = ();
+
+                fn try_from(value: &#horned_enum) -> Result<Self, ()> {
                     match value {
-                        ::horned_owl::model::#name::#v(x) => x.into(),
-                        _ => unreachable!(concat!("not a ", stringify!(#name), "::", stringify!(#v))),
+                        ::horned_owl::model::#name::#v(x) => Ok(x.into()),
+                        _ => Err(()),
                     }
                 }
             }
@@ -885,18 +894,20 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
 
         impl From<&#horned_enum> for #name {
             fn from(value: &#horned_enum) -> Self {
-                use #protocol::EnumVariant;
+                // Each variant's class converts from its own variant only,
+                // which the pattern has just matched.
                 match value {
-                    #( v @ ::horned_owl::model::#name::#variant_idents { .. } => #name::#variant_idents(EnumVariant::from_horned(v)), )*
+                    #( v @ ::horned_owl::model::#name::#variant_idents { .. } => #name::#variant_idents(
+                        <#variant_types as TryFrom<&#horned_enum>>::try_from(v).unwrap()
+                    ), )*
                 }
             }
         }
 
         impl From<&#name> for #horned_enum {
             fn from(value: &#name) -> Self {
-                use #protocol::EnumVariant;
                 match value {
-                    #( #name::#variant_idents(v) => v.to_horned(), )*
+                    #( #name::#variant_idents(v) => v.into(), )*
                 }
             }
         }
@@ -979,7 +990,7 @@ fn model_union_impl(attr: TokenStream2, item: ItemEnum) -> syn::Result<TokenStre
         impl From<&#horned_enum> for #name {
             fn from(value: &#horned_enum) -> Self {
                 match value {
-                    #( ::horned_owl::model::#name::#idents(x) => #name::#idents(x.into()), )*
+                    #( ::horned_owl::model::#name::#idents(x) => #name::#idents(crate::wrappers::IntoCompatible::into_c(x)), )*
                 }
             }
         }
@@ -987,7 +998,7 @@ fn model_union_impl(attr: TokenStream2, item: ItemEnum) -> syn::Result<TokenStre
         impl From<&#name> for #horned_enum {
             fn from(value: &#name) -> Self {
                 match value {
-                    #( #name::#idents(x) => ::horned_owl::model::#name::#idents(x.into()), )*
+                    #( #name::#idents(x) => ::horned_owl::model::#name::#idents(crate::wrappers::IntoCompatible::into_c(x)), )*
                 }
             }
         }

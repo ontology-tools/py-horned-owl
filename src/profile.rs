@@ -104,12 +104,6 @@ impl PyProfile {
     }
 }
 
-impl FromCompatible<&Vec<&'static str>> for VecWrap<String> {
-    fn from_c(value: &Vec<&'static str>) -> Self {
-        VecWrap(value.iter().map(|s| s.to_string()).collect())
-    }
-}
-
 impl FromCompatible<&&'static str> for String {
     fn from_c(value: &&'static str) -> Self {
         value.to_string()
