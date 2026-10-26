@@ -23,11 +23,11 @@ Py-Horned-OWL includes a lightweight structural reasoner that traverses the asse
     # Query subclasses (returns transitive closure)
     my_class = Class(IRI.parse("http://example.org/MyClass"))
     subclasses = reasoner.get_subclasses(my_class)
-    print(f"Subclasses: {[str(c.first) for c in subclasses]}")
+    print(f"Subclasses: {[str(c.iri) for c in subclasses]}")
 
     # Query superclasses (returns transitive closure)
     superclasses = reasoner.get_superclasses(my_class)
-    print(f"Superclasses: {[str(c.first) for c in superclasses]}")
+    print(f"Superclasses: {[str(c.iri) for c in superclasses]}")
 
 **Supported operations:**
 

@@ -23,7 +23,6 @@ type ParserConfiguration = HornedParserConfiguration<ArcStr>;
 #[macro_use]
 mod doc;
 pub mod model;
-pub mod model_generated;
 pub mod ontology;
 pub mod prefix_mapping;
 pub mod profile;

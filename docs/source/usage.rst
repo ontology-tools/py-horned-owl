@@ -44,7 +44,7 @@ The following serializations are supported:
 
 IRIs and CURIEs
 ---------------
-The preferred way to create IRIs is through an ontology instance as it enables Horned-OWLs caching mechanism. Alternatively, they can be created by hand using :func:`IRI.parse <pyhornedowl.model.IRI.parse>`.
+The preferred way to create IRIs is through an ontology instance as it enables Horned-OWLs caching mechanism. Alternatively, they can be created by hand using :class:`IRI <pyhornedowl.model.IRI>`. Both are equal, the cache only saves memory.
 
 .. code-block:: python
 
@@ -54,9 +54,9 @@ The preferred way to create IRIs is through an ontology instance as it enables H
     ontology = pyhornedowl.open_ontology("example.owl")
 
     i1 = ontology.iri("https://example.com/test")
-    i2 = IRI.parse("https://example.com/test")
+    i2 = IRI("https://example.com/test")
 
-    assert i1 != i2
+    assert i1 == i2
 
 The :func:`PyIndexedOntology.iri <pyhornedowl.PyIndexedOntology.iri>` function guesses if you passed it an absolute IRI or a CURIE based on the existence of ``://`` in the value. This is also true for all other convenience functions accepting IRIs as an argument. You can explicitly specify if the value is an absolute IRI or a CURIE by using the optional parameter ``absolute``.
 

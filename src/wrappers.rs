@@ -84,6 +84,17 @@ where
     }
 }
 
+/// A `str` is iterable, but never meant as a collection of its characters: a
+/// collection of classes, say, would take every character as a class name.
+fn reject_str(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<()> {
+    if ob.is_instance_of::<pyo3::types::PyString>() {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected a collection, got a str",
+        ));
+    }
+    Ok(())
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct VecWrap<T>(pub Vec<T>);
 
@@ -113,6 +124,7 @@ impl<'py, T: FromPyObjectOwned<'py>> FromPyObject<'_, 'py> for VecWrap<T> {
     type Error = pyo3::PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
+        reject_str(&ob)?;
         let mut v = VecWrap(Vec::new());
         for item in ob.try_iter()? {
             v.0.push(item?.extract::<T>().map_err(Into::into)?);
@@ -188,6 +200,12 @@ impl From<&StringWrapper> for Arc<str> {
     }
 }
 
+impl std::fmt::Display for StringWrapper {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
 impl<'py> IntoPyObject<'py> for StringWrapper {
     const OUTPUT_TYPE: PyStaticExpr = String::OUTPUT_TYPE;
     type Target = pyo3::types::PyString;
@@ -248,6 +266,7 @@ impl<'py, T: FromPyObjectOwned<'py> + Ord> FromPyObject<'_, 'py> for BTreeSetWra
     type Error = pyo3::PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
+        reject_str(&ob)?;
         let mut v = BTreeSetWrap(BTreeSet::new());
         for item in ob.try_iter()? {
             v.0.insert(item?.extract::<T>().map_err(Into::into)?);
