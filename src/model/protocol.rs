@@ -17,14 +17,6 @@ pub trait ModelFields: PyClass<Frozen = True> + Sync + Clone {
     fn field_values<'py>(&self, py: Python<'py>) -> PyResult<Vec<Bound<'py, PyAny>>>;
 }
 
-/// A model class that is one variant of the horned-owl enum `H`.
-pub trait EnumVariant<H> {
-    fn to_horned(&self) -> H;
-
-    /// Panics if `value` is another variant.
-    fn from_horned(value: &H) -> Self;
-}
-
 pub fn match_args<T: ModelFields>(py: Python<'_>) -> PyResult<Bound<'_, PyTuple>> {
     PyTuple::new(py, T::FIELDS)
 }

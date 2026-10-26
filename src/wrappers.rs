@@ -62,17 +62,6 @@ where
     }
 }
 
-impl<U, V, S, T> FromCompatible<(S, T)> for (U, V)
-where
-    U: FromCompatible<S>,
-    V: FromCompatible<T>,
-{
-    fn from_c(value: (S, T)) -> Self {
-        let (s, t) = value;
-        (U::from_c(s), V::from_c(t))
-    }
-}
-
 impl<'a, U, V, S, T> FromCompatible<&'a (S, T)> for (U, V)
 where
     U: FromCompatible<&'a S>,
@@ -81,6 +70,46 @@ where
     fn from_c(value: &'a (S, T)) -> Self {
         let (s, t) = value;
         (U::from_c(s), V::from_c(t))
+    }
+}
+
+// The containers convert element-wise, generically: `FromCompatible` is
+// local, so unlike `From` (`From<BoxWrap<P>> for Box<H>` would overlap std's
+// `From<T> for Box<T>`) it allows these impls.
+
+impl<'a, H, P: FromCompatible<&'a H>> FromCompatible<&'a Box<H>> for BoxWrap<P> {
+    fn from_c(value: &'a Box<H>) -> Self {
+        BoxWrap(Box::new(P::from_c(value)))
+    }
+}
+
+impl<'a, P, H: FromCompatible<&'a P>> FromCompatible<&'a BoxWrap<P>> for Box<H> {
+    fn from_c(value: &'a BoxWrap<P>) -> Self {
+        Box::new(H::from_c(&value.0))
+    }
+}
+
+impl<'a, H, P: FromCompatible<&'a H>> FromCompatible<&'a Vec<H>> for VecWrap<P> {
+    fn from_c(value: &'a Vec<H>) -> Self {
+        VecWrap(value.iter().map(P::from_c).collect())
+    }
+}
+
+impl<'a, P, H: FromCompatible<&'a P>> FromCompatible<&'a VecWrap<P>> for Vec<H> {
+    fn from_c(value: &'a VecWrap<P>) -> Self {
+        value.0.iter().map(H::from_c).collect()
+    }
+}
+
+impl<'a, H, P: FromCompatible<&'a H> + Ord> FromCompatible<&'a BTreeSet<H>> for BTreeSetWrap<P> {
+    fn from_c(value: &'a BTreeSet<H>) -> Self {
+        BTreeSetWrap(value.iter().map(P::from_c).collect())
+    }
+}
+
+impl<'a, P, H: FromCompatible<&'a P> + Ord> FromCompatible<&'a BTreeSetWrap<P>> for BTreeSet<H> {
+    fn from_c(value: &'a BTreeSetWrap<P>) -> Self {
+        value.0.iter().map(H::from_c).collect()
     }
 }
 
