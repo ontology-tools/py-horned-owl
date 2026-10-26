@@ -49,6 +49,16 @@ pub enum Facet {
 
 #[pymethods]
 impl Facet {
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, (Bound<'py, pyo3::types::PyType>, String))> {
+        let getattr = slf.py().import("builtins")?.getattr("getattr")?;
+        Ok((
+            getattr,
+            (slf.py().get_type::<Self>(), format!("{:?}", slf.get())),
+        ))
+    }
+
     /// Renders this element on its own, in OWL functional (`"ofn"`) syntax.
     ///
     /// horned-owl has no Manchester rendering for a facet: Manchester writes it

@@ -66,6 +66,34 @@ An exception to this is the the function :func:`PyIndexedOntology.curie <pyhorne
     To create a curie the prefix must be defined.
 
 
+Named entity wrappers
+~~~~~~~~~~~~~~~~~~~~~
+
+Model arguments expecting an IRI and ontology convenience methods also accept
+named entities. The six native entity classes (``Class``, ``ObjectProperty``,
+``DataProperty``, ``AnnotationProperty``, ``Datatype`` and ``NamedIndividual``)
+implement the runtime-checkable ``NamedEntity`` protocol through
+``__owl_entity_iri__()``. External wrappers can opt in with the same method:
+
+.. code-block:: python
+
+    from pyhornedowl import PyIndexedOntology
+    from pyhornedowl.model import Class, IRI, NamedEntity
+
+    class EntityReference:
+        def __owl_entity_iri__(self) -> IRI:
+            return IRI("https://example.com/A")
+
+    entity = EntityReference()
+    assert isinstance(entity, NamedEntity)
+    assert Class(entity).iri == PyIndexedOntology().iri(entity)
+
+The method must take no arguments besides ``self`` and return an actual ``IRI``;
+strings and other wrappers are rejected as return values. Its IRI is used
+without CURIE expansion. Runtime protocol checks test method presence;
+conversion checks the returned value. Exceptions from the method propagate
+when converting an IRI argument.
+
 
 Prefixes
 --------

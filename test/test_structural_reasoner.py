@@ -112,7 +112,7 @@ class TestSubclasses:
         
         # A has subclass B, which has subclass D (transitive)
         expected_iris = {"https://example.com/B", "https://example.com/D"}
-        actual_iris = {str(c.first) for c in subclasses}
+        actual_iris = {str(c.iri) for c in subclasses}
         
         assert actual_iris == expected_iris
 
@@ -145,7 +145,7 @@ class TestSubclasses:
         subclasses = reasoner.get_subclasses(class_b)
         
         expected_iris = {"https://example.com/D"}
-        actual_iris = {str(c.first) for c in subclasses}
+        actual_iris = {str(c.iri) for c in subclasses}
         
         assert actual_iris == expected_iris
 
@@ -162,7 +162,7 @@ class TestSuperclasses:
         
         # D has superclass owl:Thing (asserted) and B, which has superclass A (transitive)
         expected_iris = {"https://example.com/A", "https://example.com/B", OWL_THING}
-        actual_iris = {str(c.first) for c in superclasses}
+        actual_iris = {str(c.iri) for c in superclasses}
         
         assert actual_iris == expected_iris
 
@@ -195,7 +195,7 @@ class TestSuperclasses:
         superclasses = reasoner.get_superclasses(class_b)
         
         expected_iris = {"https://example.com/A"}
-        actual_iris = {str(c.first) for c in superclasses}
+        actual_iris = {str(c.iri) for c in superclasses}
         
         assert actual_iris == expected_iris
 
@@ -212,7 +212,7 @@ class TestOwlThingAndNothing:
         subclasses = reasoner.get_subclasses(owl_thing)
         
         # All classes should be subclasses of owl:Thing
-        actual_iris = {str(c.first) for c in subclasses}
+        actual_iris = {str(c.iri) for c in subclasses}
         
         # At minimum, root classes (A and C) should be included
         assert "https://example.com/A" in actual_iris
@@ -321,7 +321,7 @@ class TestWithSimpleOntology:
         subclasses = reasoner.get_subclasses(class_a)
         
         expected_iris = {"https://example.com/B", "https://example.com/D"}
-        actual_iris = {str(c.first) for c in subclasses}
+        actual_iris = {str(c.iri) for c in subclasses}
         
         assert actual_iris == expected_iris
 
@@ -333,7 +333,7 @@ class TestWithSimpleOntology:
         superclasses = reasoner.get_superclasses(class_d)
         
         expected_iris = {"https://example.com/A", "https://example.com/B", OWL_THING}
-        actual_iris = {str(c.first) for c in superclasses}
+        actual_iris = {str(c.iri) for c in superclasses}
         
         assert actual_iris == expected_iris
 
@@ -377,12 +377,12 @@ class TestMultipleInheritance:
         class_a = Class(IRI.parse("https://example.com/A"))
         subclasses = reasoner.get_subclasses(class_a)
         expected_iris = {"https://example.com/B", "https://example.com/C", "https://example.com/D"}
-        actual_iris = {str(c.first) for c in subclasses}
+        actual_iris = {str(c.iri) for c in subclasses}
         assert actual_iris == expected_iris
         
         # Test superclasses of D
         class_d = Class(IRI.parse("https://example.com/D"))
         superclasses = reasoner.get_superclasses(class_d)
         expected_iris = {"https://example.com/A", "https://example.com/B", "https://example.com/C"}
-        actual_iris = {str(c.first) for c in superclasses}
+        actual_iris = {str(c.iri) for c in superclasses}
         assert actual_iris == expected_iris

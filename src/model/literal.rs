@@ -21,7 +21,10 @@ fn literal_from_python(ob: &Bound<'_, PyAny>) -> PyResult<Option<Literal>> {
     let (literal, datatype) = if let Ok(b) = ob.cast::<PyBool>() {
         (b.is_true().to_string(), "boolean")
     } else if ob.is_instance_of::<PyInt>() {
-        (ob.str()?.to_string(), "integer")
+        (
+            ob.py().get_type::<PyInt>().call1((ob,))?.str()?.to_string(),
+            "integer",
+        )
     } else if let Ok(f) = ob.cast::<PyFloat>() {
         let v = f.value();
         let literal = if v.is_nan() {
@@ -29,7 +32,7 @@ fn literal_from_python(ob: &Bound<'_, PyAny>) -> PyResult<Option<Literal>> {
         } else if v.is_infinite() {
             if v > 0.0 { "INF" } else { "-INF" }.to_owned()
         } else {
-            ob.repr()?.to_string()
+            PyFloat::new(ob.py(), v).repr()?.to_string()
         };
         (literal, "double")
     } else {
