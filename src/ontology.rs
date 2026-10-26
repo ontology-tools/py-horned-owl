@@ -703,8 +703,11 @@ impl PyIndexedOntology {
     ) -> PyResult<()> {
         let ann = annotations.unwrap_or_default();
 
-        let annotated_component: AnnotatedComponent<ArcStr> =
-            model::AnnotatedComponent { component, ann }.into();
+        let annotated_component: AnnotatedComponent<ArcStr> = model::AnnotatedComponent {
+            component,
+            annotations: ann,
+        }
+        .into();
         self.insert(annotated_component);
 
         Ok(())
@@ -782,7 +785,9 @@ impl PyIndexedOntology {
     /// Uses the `iri` method to cache native IRI instances.
     #[pyo3(signature = (iri))]
     pub fn class_(&self, py: Python<'_>, iri: model::IRIParam) -> PyResult<model::Class> {
-        Ok(model::Class(into_iri!(self, py, iri).into()))
+        Ok(model::Class {
+            iri: into_iri!(self, py, iri).into(),
+        })
     }
 
     /// Convenience method to add a Declare(Class(iri)) axiom.
@@ -800,7 +805,9 @@ impl PyIndexedOntology {
         py: Python<'_>,
         iri: model::IRIParam,
     ) -> PyResult<model::ObjectProperty> {
-        Ok(model::ObjectProperty(into_iri!(self, py, iri).into()))
+        Ok(model::ObjectProperty {
+            iri: into_iri!(self, py, iri).into(),
+        })
     }
 
     /// Convenience method to add a Declare(ObjectProperty(iri)) axiom.
@@ -824,7 +831,9 @@ impl PyIndexedOntology {
         py: Python<'_>,
         iri: model::IRIParam,
     ) -> PyResult<model::DataProperty> {
-        Ok(model::DataProperty(into_iri!(self, py, iri).into()))
+        Ok(model::DataProperty {
+            iri: into_iri!(self, py, iri).into(),
+        })
     }
 
     /// Convenience method to add a Declare(DataProperty(iri)) axiom.
@@ -848,7 +857,9 @@ impl PyIndexedOntology {
         py: Python<'_>,
         iri: model::IRIParam,
     ) -> PyResult<model::AnnotationProperty> {
-        Ok(model::AnnotationProperty(into_iri!(self, py, iri).into()))
+        Ok(model::AnnotationProperty {
+            iri: into_iri!(self, py, iri).into(),
+        })
     }
 
     /// Convenience method to add a Declare(annotationProperty(iri)) axiom.
@@ -874,7 +885,9 @@ impl PyIndexedOntology {
         py: Python<'_>,
         iri: model::IRIParam,
     ) -> PyResult<model::NamedIndividual> {
-        Ok(model::NamedIndividual(into_iri!(self, py, iri).into()))
+        Ok(model::NamedIndividual {
+            iri: into_iri!(self, py, iri).into(),
+        })
     }
 
     /// Convenience method to add a Declare(NamedIndividual(iri)) axiom.
@@ -887,7 +900,7 @@ impl PyIndexedOntology {
 
     /// Convenience method to create an AnonymousIndividual from a string.
     pub fn anonymous_individual(&self, name: String) -> model::AnonymousIndividual {
-        model::AnonymousIndividual(name.into())
+        model::AnonymousIndividual { name: name.into() }
     }
 
     /// Gets all direct and indirect subclasses of a class.

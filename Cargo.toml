@@ -19,6 +19,7 @@ features = ["experimental-inspect", "multiple-pymethods"]
 horned-owl = "^4.0"
 horned-profile = "^4.0"
 py-horned-owl-reasoner = { path = "lib/reasoner" }
+py-horned-owl-macros = { path = "lib/macros" }
 curie = "0.1.2"
 libloading = "0.8"
 oxrdfio = "0.2.5"
