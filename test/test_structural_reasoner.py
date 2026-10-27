@@ -18,7 +18,7 @@ from pyhornedowl.model import (
 )
 from pyhornedowl.reasoning import create_structural_reasoner
 
-def property_hierarchy_ontology() -> pyhornedowl.PyIndexedOntology:
+def property_hierarchy_ontology() -> pyhornedowl.Ontology:
     """
     Creates an ontology with an object property hierarchy:
     
@@ -28,7 +28,7 @@ def property_hierarchy_ontology() -> pyhornedowl.PyIndexedOntology:
         |
         S
     """
-    onto = pyhornedowl.PyIndexedOntology()
+    onto = pyhornedowl.Ontology()
     onto.prefix_mapping.add_default_prefix_names()
     onto.prefix_mapping.add_prefix("", "https://example.com/")
     
@@ -343,7 +343,7 @@ class TestMultipleInheritance:
 
     def test_diamond_hierarchy(self):
         """Test diamond-shaped hierarchy: A -> B, A -> C, B -> D, C -> D."""
-        onto = pyhornedowl.PyIndexedOntology()
+        onto = pyhornedowl.Ontology()
         onto.prefix_mapping.add_default_prefix_names()
         onto.prefix_mapping.add_prefix("", "https://example.com/")
         

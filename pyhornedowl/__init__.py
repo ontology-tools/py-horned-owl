@@ -9,5 +9,9 @@ for _name in ("model", "reasoning", "profile"):
     sys.modules[f"{__name__}.pyhornedowl.{_name}"] = getattr(_native, _name)
 
 from .pyhornedowl import *
+
+# Compatibility alias, also visible to type checkers using the native stubs.
+PyIndexedOntology = Ontology
+
 del model, reasoning, profile
 from . import model, reasoning, profile

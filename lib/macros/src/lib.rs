@@ -391,7 +391,7 @@ fn serialize_method(name: &Ident, to_horned: TokenStream2, functional: bool) -> 
             quote! {
                 /// Renders this element on its own, in OWL functional (`"ofn"`)
                 /// syntax. The per-element counterpart to
-                /// `PyIndexedOntology.save_to_string`.
+                /// `Ontology.save_to_string`.
                 ///
                 /// horned-owl has no Manchester rendering for this class:
                 /// Manchester syntax writes it only inside the element that
@@ -405,7 +405,7 @@ fn serialize_method(name: &Ident, to_horned: TokenStream2, functional: bool) -> 
             quote! {
                 /// Renders this element on its own, in OWL functional (`"ofn"`,
                 /// the default) or OWL 2 Manchester (`"omn"`) syntax. The
-                /// per-element counterpart to `PyIndexedOntology.save_to_string`.
+                /// per-element counterpart to `Ontology.save_to_string`.
             },
             quote!(SnippetSyntaxes),
             quote!(crate::as_omn!(value, prefix_mapping)),

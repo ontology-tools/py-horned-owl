@@ -21,7 +21,7 @@ def o():
         DeclareNamedIndividual(NamedIndividual(IRI.parse("https://example.com/G"))),
     ]
 
-    onto = pyhornedowl.PyIndexedOntology()
+    onto = pyhornedowl.Ontology()
     onto.prefix_mapping.add_default_prefix_names()
     onto.prefix_mapping.add_prefix("", "https://example.com/")
 
@@ -54,3 +54,21 @@ def test_get_classes(o) -> None:
 def test_named_individuals(o) -> None:
     """Test getting named individuals."""
     assert {"https://example.com/G"} == o.get_named_individuals()
+
+
+def test_ontology_name_and_compatibility_alias():
+    from pyhornedowl import Ontology, PyIndexedOntology
+    from pyhornedowl import pyhornedowl as native
+
+    assert Ontology.__name__ == Ontology.__qualname__ == "Ontology"
+    assert Ontology.__module__ == "pyhornedowl"
+    assert PyIndexedOntology is Ontology
+    assert native.Ontology is Ontology
+    assert native.PyIndexedOntology is Ontology
+    assert type(PyIndexedOntology()) is Ontology
+
+
+def test_loaded_ontology_has_new_type():
+    ontology = pyhornedowl.open_ontology_from_string("Ontology()", "ofn")
+    assert type(ontology) is pyhornedowl.Ontology
+    assert isinstance(ontology, pyhornedowl.PyIndexedOntology)

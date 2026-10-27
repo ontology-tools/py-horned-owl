@@ -1,11 +1,11 @@
 import pytest
-from pyhornedowl import PyIndexedOntology
+from pyhornedowl import Ontology
 from pyhornedowl.model import *
 from test_base import simple_ontology, RDFS_LABEL
 
 
 def test_absolute_iri():
-    o = PyIndexedOntology()
+    o = Ontology()
     o.prefix_mapping.add_prefix("example", "https://example.com/test#")
 
     expected = "https://example.com/test#A"
@@ -14,7 +14,7 @@ def test_absolute_iri():
 
 
 def test_expand_curie():
-    o = PyIndexedOntology()
+    o = Ontology()
     o.prefix_mapping.add_prefix("example", "https://example.com/test#")
 
     assert "https://example.com/test#A" == str(o.curie("example:A"))
@@ -22,21 +22,21 @@ def test_expand_curie():
 
 
 def test_expand_curie_empty_prefix():
-    o = PyIndexedOntology()
+    o = Ontology()
     o.prefix_mapping.add_prefix("", "https://example.com/test#")
 
     assert "https://example.com/test#A" == str(o.curie(":A"))
 
 
 def test_expand_curie_unknown_prefix():
-    o = PyIndexedOntology()
+    o = Ontology()
 
     with pytest.raises(ValueError):
         o.curie("example:A")
 
 
 def test_iri_guess_curie():
-    o = PyIndexedOntology()
+    o = Ontology()
     o.prefix_mapping.add_prefix("ex", "https://example.com/test#")
 
     expected = "https://example.com/test#A"
@@ -46,7 +46,7 @@ def test_iri_guess_curie():
 
 
 def test_iri_guess_absolute():
-    o = PyIndexedOntology()
+    o = Ontology()
     o.prefix_mapping.add_prefix("ex", "https://example.com/test#")
 
     expected = "https://example.com/test#A"

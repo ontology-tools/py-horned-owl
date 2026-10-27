@@ -300,6 +300,12 @@ mod pyhornedowl {
     #[pymodule_export]
     use super::{IndexCreationStrategy, PyIndexedOntology};
 
+    #[pymodule_init]
+    fn init(module: &Bound<'_, pyo3::types::PyModule>) -> PyResult<()> {
+        // Keep the former Python name as an alias of the same class.
+        module.add("PyIndexedOntology", module.getattr("Ontology")?)
+    }
+
     #[pymodule_export]
     use crate::model::py_model;
     #[pymodule_export]
