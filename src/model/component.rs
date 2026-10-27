@@ -405,7 +405,7 @@ pub struct AnnotatedComponent {
 impl AnnotatedComponent {
     /// Renders this element on its own, in OWL functional (`"ofn"`, the
     /// default) or OWL 2 Manchester (`"omn"`) syntax. The per-element
-    /// counterpart to `PyIndexedOntology.save_to_string`.
+    /// counterpart to `Ontology.save_to_string`.
     ///
     /// Manchester syntax renders only the component, without its annotations.
     #[pyo3(signature = (serialization = None, prefix_mapping = None))]

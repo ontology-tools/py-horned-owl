@@ -22,7 +22,7 @@ def o():
         DeclareDatatype(Datatype(IRI.parse("https://example.com/H"))),
     ]
 
-    onto = pyhornedowl.PyIndexedOntology()
+    onto = pyhornedowl.Ontology()
     onto.prefix_mapping.add_default_prefix_names()
     onto.prefix_mapping.add_prefix("", "https://example.com/")
 

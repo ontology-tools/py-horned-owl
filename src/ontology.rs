@@ -79,7 +79,7 @@ pub enum IndexCreationStrategy {
 }
 
 /// Represents a loaded ontology.
-#[pyclass(from_py_object)]
+#[pyclass(name = "Ontology", module = "pyhornedowl", from_py_object)]
 pub struct PyIndexedOntology {
     //State variables private to Rust, exposed through methods to Python
     pub labels_to_iris: HashMap<String, IRI<ArcStr>>,
@@ -499,7 +499,7 @@ impl PyIndexedOntology {
     ///
     /// Note: If there are multiple annotation axioms for the queried entity and annotation property,
     /// the order is neither necessarily the same as in the ontology neither is it stable.
-    /// Get all annotation values with `PyIndexedOntology.get_annotations`.
+    /// Get all annotation values with `Ontology.get_annotations`.
     #[pyo3(signature = (entity_iri, ann_iri))]
     pub fn get_annotation(
         &mut self,
@@ -514,7 +514,7 @@ impl PyIndexedOntology {
     /// Gets all annotated value for an entity and annotation property.
     ///
     /// Note: The order is neither necessarily the same as in the ontology neither is it stable.
-    /// Get all annotation values with `PyIndexedOntology.get_annotations`.
+    /// Get all annotation values with `Ontology.get_annotations`.
     #[pyo3(signature = (entity_iri, ann_iri))]
     pub fn get_annotations(
         &mut self,
@@ -768,7 +768,7 @@ impl PyIndexedOntology {
     /// Uses the `iri` method to cache native IRI instances.
     ///
     /// .. deprecated::
-    ///     Use `PyIndexedOntology.class_` instead
+    ///     Use `Ontology.class_` instead
     #[pyo3(signature = (iri))]
     pub fn clazz(&self, py: Python<'_>, iri: model::IRIParam) -> PyResult<model::Class> {
         PyErr::warn(

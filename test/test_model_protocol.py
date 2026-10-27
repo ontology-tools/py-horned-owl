@@ -5,7 +5,7 @@ import sys
 import warnings
 
 import pytest
-from pyhornedowl import PyIndexedOntology
+from pyhornedowl import Ontology
 from pyhornedowl.model import *
 
 A_IRI = "https://example.com/A"
@@ -19,7 +19,7 @@ def test_iri_from_str():
 
 
 def test_iri_from_entity():
-    o = PyIndexedOntology()
+    o = Ontology()
     a = Class(A_IRI)
     assert AnnotationAssertion(a, Annotation(o.annotation_property(B_IRI), "x")).subject == IRI(A_IRI)
 
@@ -29,7 +29,7 @@ def test_class_expression_from_str():
 
 
 def test_curie_still_expanded_by_ontology():
-    o = PyIndexedOntology()
+    o = Ontology()
     o.add_prefix_mapping("ex", "https://example.com/")
     assert o.class_("ex:A") == Class(A_IRI)
 
@@ -45,7 +45,7 @@ def test_curie_still_expanded_by_ontology():
     ],
 )
 def test_literal_from_python(value, expected):
-    o = PyIndexedOntology()
+    o = Ontology()
     assert Annotation(o.annotation_property(A_IRI), value).value == expected
 
 
@@ -158,7 +158,7 @@ def test_iri_from_any_named_entity():
     assert isinstance(thing, NamedEntity)
     assert issubclass(Thing, NamedEntity)
     assert Class(thing) == Class(A_IRI)
-    assert PyIndexedOntology().iri(thing) == IRI(A_IRI)
+    assert Ontology().iri(thing) == IRI(A_IRI)
     assert Annotation(AnnotationProperty(B_IRI), thing).value == IRI(A_IRI)
 
 
@@ -211,7 +211,7 @@ def test_sub_object_property_expression():
 
 
 def test_annotation_values():
-    o = PyIndexedOntology()
+    o = Ontology()
     label = o.annotation_property(A_IRI)
     assert Annotation(label, "text").value == SimpleLiteral("text")
     assert Annotation(label, Class(B_IRI)).value == IRI(B_IRI)
@@ -269,7 +269,7 @@ class _Size(enum.IntEnum):
     [(_Number(1.5), "1.5"), (_Count(7), "7"), (_Size.LARGE, "3")],
 )
 def test_literal_from_number_subclass(value, expected):
-    o = PyIndexedOntology()
+    o = Ontology()
     assert Annotation(o.annotation_property(A_IRI), value).value.literal == expected
 
 
@@ -283,7 +283,7 @@ def test_property_expression_from_str_warns():
 
 
 def test_ontology_methods_take_named_entities():
-    o = PyIndexedOntology()
+    o = Ontology()
     o.add_prefix_mapping("ex", "https://example.com/")
     assert o.class_(Class(A_IRI)) == Class(A_IRI)
     assert o.iri(ObjectProperty(A_IRI)) == IRI(A_IRI)
@@ -299,12 +299,12 @@ def test_ambiguous_property_warning_can_be_an_error():
 
 @pytest.mark.parametrize("entity", [Class, ObjectProperty, DataProperty, AnnotationProperty, Datatype, NamedIndividual])
 def test_ontology_iri_accepts_all_entity_kinds(entity):
-    o = PyIndexedOntology()
+    o = Ontology()
     assert o.iri(entity(A_IRI)) == IRI(A_IRI)
 
 
 def test_ontology_iri_preserves_explicit_tuple_handling():
-    o = PyIndexedOntology()
+    o = Ontology()
     o.add_prefix_mapping("ex", "https://example.com/")
     assert o.iri(("ex:A", False)) == IRI(A_IRI)
     assert o.iri(("ex:A", True)) == IRI("ex:A")
@@ -358,7 +358,7 @@ def test_native_named_entity_hook(entity_type):
     assert isinstance(entity, NamedEntity)
     assert issubclass(entity_type, NamedEntity)
     assert Class(entity) == Class(A_IRI)
-    assert PyIndexedOntology().iri(entity) == IRI(A_IRI)
+    assert Ontology().iri(entity) == IRI(A_IRI)
 
 
 @pytest.mark.parametrize("value", [Variable(A_IRI), Import(A_IRI), OntologyID(A_IRI), DocIRI(A_IRI)])
@@ -367,7 +367,7 @@ def test_non_entity_iri_fields_do_not_opt_in(value):
     with pytest.raises(TypeError, match="named entity"):
         Class(value)
     with pytest.raises(TypeError, match="named entity"):
-        PyIndexedOntology().iri(value)
+        Ontology().iri(value)
     with pytest.raises(TypeError):
         Annotation(AnnotationProperty(B_IRI), value)
 
@@ -381,7 +381,7 @@ def test_plain_iri_attribute_is_not_a_named_entity():
     with pytest.raises(TypeError, match="named entity"):
         Class(value)
     with pytest.raises(TypeError, match="named entity"):
-        PyIndexedOntology().iri(value)
+        Ontology().iri(value)
 
 
 @pytest.mark.parametrize("result", [None, A_IRI, Class(A_IRI)])
@@ -393,7 +393,7 @@ def test_named_entity_hook_requires_an_actual_iri(result):
     with pytest.raises(TypeError, match=r"__owl_entity_iri__\(\) must return an IRI"):
         Class(BadEntity())
     with pytest.raises(TypeError, match=r"__owl_entity_iri__\(\) must return an IRI"):
-        PyIndexedOntology().iri(BadEntity())
+        Ontology().iri(BadEntity())
 
 
 def test_named_entity_hook_must_be_callable():
@@ -412,7 +412,7 @@ def test_named_entity_hook_errors_propagate():
     with pytest.raises(ValueError, match="broken entity"):
         Class(BrokenEntity())
     with pytest.raises(ValueError, match="broken entity"):
-        PyIndexedOntology().iri(BrokenEntity())
+        Ontology().iri(BrokenEntity())
 
 
 def test_named_entity_hook_lookup_errors_propagate():

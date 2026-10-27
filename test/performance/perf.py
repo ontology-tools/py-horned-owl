@@ -31,7 +31,7 @@ def perf(path: str):
     print(f"Iterated in {iter_time}s")
 
     print("Adding 100.000 axioms...")
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
     start = time.perf_counter()
     for i in range(100_000):
         o.add_axiom(SubClassOf(o.class_(f"https://example.com/entity_{i}"), o.class_(f"https://example.com/entity{i+1}")))

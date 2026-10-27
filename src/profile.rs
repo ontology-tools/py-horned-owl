@@ -419,7 +419,7 @@ fn build_report<O: horned_owl::model::Ontology<ArcStr>>(
 /// Returns every OWL 2 profile the ontology conforms to, in declaration order
 /// (OWL2DL, EL, QL, RL). The profiles overlap, so more than one may be returned.
 ///
-/// :param PyIndexedOntology ontology: the ontology to check
+/// :param Ontology ontology: the ontology to check
 #[pyfunction]
 pub fn conformant_profiles(ontology: &PyIndexedOntology) -> Vec<PyProfile> {
     horned_profile::conformant_profiles::<ArcStr, _>(ontology)
@@ -431,7 +431,7 @@ pub fn conformant_profiles(ontology: &PyIndexedOntology) -> Vec<PyProfile> {
 /// Checks `ontology` against a single profile and returns a `ProfileReport` with
 /// conformance and the violations found.
 ///
-/// :param PyIndexedOntology ontology: the ontology to check
+/// :param Ontology ontology: the ontology to check
 /// :param typing.Union[Profile, Literal["DL", "EL", "QL", "RL"]] profile: the profile to check against, either a `Profile` member or one of the strings "DL"/"OWL2DL", "EL", "QL", "RL" (case-insensitive)
 #[pyfunction]
 pub fn check_profile(

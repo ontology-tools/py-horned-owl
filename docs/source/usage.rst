@@ -1,6 +1,9 @@
 Usage
 =====
 
+.. note::
+    Version 3.0 renamed the ontology class ``PyIndexedOntology`` to just ``Ontology``. The old name is still available as an alias but will be removed in a future version
+
 
 Open an existing ontology
 -------------------------
@@ -17,7 +20,7 @@ To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It gues
 Save an ontology
 ----------------
 
-Use the :func:`PyIndexedOntology.save_to_file <pyhornedowl.PyIndexedOntology.save_to_file>` function to write the ontology to a file. Again, the serialization is guessed by the file extension and defaults to OWL/XML. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :ref:`sec_serializations` for a list of supported formats.
+Use the :func:`Ontology.save_to_file <pyhornedowl.Ontology.save_to_file>` function to write the ontology to a file. Again, the serialization is guessed by the file extension and defaults to OWL/XML. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :ref:`sec_serializations` for a list of supported formats.
 
 .. code-block:: python
 
@@ -58,9 +61,9 @@ The preferred way to create IRIs is through an ontology instance as it enables H
 
     assert i1 == i2
 
-The :func:`PyIndexedOntology.iri <pyhornedowl.PyIndexedOntology.iri>` function guesses if you passed it an absolute IRI or a CURIE based on the existence of ``://`` in the value. This is also true for all other convenience functions accepting IRIs as an argument. You can explicitly specify if the value is an absolute IRI or a CURIE by using the optional parameter ``absolute``.
+The :func:`Ontology.iri <pyhornedowl.Ontology.iri>` function guesses if you passed it an absolute IRI or a CURIE based on the existence of ``://`` in the value. This is also true for all other convenience functions accepting IRIs as an argument. You can explicitly specify if the value is an absolute IRI or a CURIE by using the optional parameter ``absolute``.
 
-An exception to this is the the function :func:`PyIndexedOntology.curie <pyhornedowl.PyIndexedOntology.curie>` which only accepts CURIEs.
+An exception to this is the the function :func:`Ontology.curie <pyhornedowl.Ontology.curie>` which only accepts CURIEs.
 
 .. note::
     To create a curie the prefix must be defined.
@@ -77,7 +80,7 @@ implement the runtime-checkable ``NamedEntity`` protocol through
 
 .. code-block:: python
 
-    from pyhornedowl import PyIndexedOntology
+    from pyhornedowl import Ontology
     from pyhornedowl.model import Class, IRI, NamedEntity
 
     class EntityReference:
@@ -86,7 +89,7 @@ implement the runtime-checkable ``NamedEntity`` protocol through
 
     entity = EntityReference()
     assert isinstance(entity, NamedEntity)
-    assert Class(entity).iri == PyIndexedOntology().iri(entity)
+    assert Class(entity).iri == Ontology().iri(entity)
 
 The method must take no arguments besides ``self`` and return an actual ``IRI``;
 strings and other wrappers are rejected as return values. Its IRI is used
@@ -161,7 +164,7 @@ Instead of writing class expressions as nested constructor calls, some expressio
     import pyhornedowl
     from pyhornedowl.model import *
 
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
     o.add_prefix_mapping("", "https://example.com/")
 
     A = o.class_(":A")

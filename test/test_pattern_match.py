@@ -1,5 +1,5 @@
 import pytest
-from pyhornedowl import PyIndexedOntology
+from pyhornedowl import Ontology
 from pyhornedowl.model import *
 from test_base import simple_ontology, RDFS_LABEL
 
