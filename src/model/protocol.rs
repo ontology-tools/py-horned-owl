@@ -2,13 +2,59 @@
 //! functions. The `#[model]` macro (`lib/macros`) generates the
 //! [`ModelFields`] impl and methods that forward here.
 
+use std::collections::BTreeSet;
+
 use horned_owl::model::Build;
+use pyo3::inspect::PyStaticExpr;
 use pyo3::prelude::*;
 use pyo3::pyclass::boolean_struct::True;
 use pyo3::types::{PyDict, PyString, PyTuple, PyType};
-use pyo3::PyClass;
+use pyo3::{Borrowed, PyClass};
+
+use crate::wrappers::{reject_str, BTreeSetWrap};
 
 use super::IRI;
+
+/// A model type whose Python value converts straight to its horned-owl
+/// counterpart: from the borrowed Python object, without extracting (and so
+/// cloning) the model value first.
+pub trait ExtractHorned {
+    type Horned;
+
+    fn extract_horned(ob: &Bound<'_, PyAny>) -> PyResult<Self::Horned>;
+}
+
+/// The horned-owl value of a Python argument of model type `P`, for
+/// arguments that are only converted to horned-owl, such as the components
+/// added to an ontology.
+pub struct Horned<P: ExtractHorned>(pub P::Horned);
+
+impl<'py, P> FromPyObject<'_, 'py> for Horned<P>
+where
+    P: ExtractHorned + FromPyObject<'static, 'static>,
+{
+    const INPUT_TYPE: PyStaticExpr = <P as FromPyObject<'static, 'static>>::INPUT_TYPE;
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<'_, 'py, PyAny>) -> PyResult<Self> {
+        P::extract_horned(&ob).map(Horned)
+    }
+}
+
+impl<P> ExtractHorned for BTreeSetWrap<P>
+where
+    P: ExtractHorned,
+    P::Horned: Ord,
+{
+    type Horned = BTreeSet<P::Horned>;
+
+    fn extract_horned(ob: &Bound<'_, PyAny>) -> PyResult<Self::Horned> {
+        reject_str(ob)?;
+        ob.try_iter()?
+            .map(|item| P::extract_horned(&item?))
+            .collect()
+    }
+}
 
 /// A model class's fields, in constructor order.
 pub trait ModelFields: PyClass<Frozen = True> + Sync + Clone {

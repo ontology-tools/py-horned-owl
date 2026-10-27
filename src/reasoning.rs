@@ -1,3 +1,4 @@
+use crate::model::protocol::Horned;
 use crate::model::{Class, ClassExpression, Component};
 use crate::PyIndexedOntology;
 use horned_owl::model::{ArcAnnotatedComponent, ArcStr};
@@ -71,24 +72,22 @@ impl PyReasoner {
     }
 
     /// Checks if the ontology entails the given component.
-    fn is_entailed(&self, cmp: Component) -> PyResult<bool> {
+    fn is_entailed(&self, cmp: Horned<Component>) -> PyResult<bool> {
         self.0
             .lock()
             .unwrap()
             .0
-            .is_entailed(&horned_owl::model::Component::<ArcStr>::from(cmp.clone()))
+            .is_entailed(&cmp.0)
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
     /// Checks if the given class expression is satisfiable.
-    fn is_satifisable(&self, cmp: ClassExpression) -> PyResult<bool> {
+    fn is_satifisable(&self, cmp: Horned<ClassExpression>) -> PyResult<bool> {
         self.0
             .lock()
             .unwrap()
             .0
-            .is_satifisable(&horned_owl::model::ClassExpression::<ArcStr>::from(
-                cmp.clone(),
-            ))
+            .is_satifisable(&cmp.0)
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
@@ -104,53 +103,45 @@ impl PyReasoner {
     }
 
     /// Returns the set of asserted and inferred subclasses for the given class expression.
-    fn get_subclasses(&self, cmp: ClassExpression) -> PyResult<HashSet<Class>> {
+    fn get_subclasses(&self, cmp: Horned<ClassExpression>) -> PyResult<HashSet<Class>> {
         self.0
             .lock()
             .unwrap()
             .0
-            .get_subclasses(&horned_owl::model::ClassExpression::<ArcStr>::from(
-                cmp.clone(),
-            ))
+            .get_subclasses(&cmp.0)
             .map(|s| s.into_iter().map(|c| c.into()).collect())
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
     /// Returns the set of asserted and inferred superclasses for the given class expression.
-    fn get_superclasses(&self, cmp: ClassExpression) -> PyResult<HashSet<Class>> {
+    fn get_superclasses(&self, cmp: Horned<ClassExpression>) -> PyResult<HashSet<Class>> {
         self.0
             .lock()
             .unwrap()
             .0
-            .get_superclasses(&horned_owl::model::ClassExpression::<ArcStr>::from(
-                cmp.clone(),
-            ))
+            .get_superclasses(&cmp.0)
             .map(|s| s.into_iter().map(|c| c.into()).collect())
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
     /// Returns the set of classes asserted or inferred to be equivalent to given the class expression.
-    fn get_equivalent_classes(&self, cmp: ClassExpression) -> PyResult<HashSet<Class>> {
+    fn get_equivalent_classes(&self, cmp: Horned<ClassExpression>) -> PyResult<HashSet<Class>> {
         self.0
             .lock()
             .unwrap()
             .0
-            .get_equivalent_classes(&horned_owl::model::ClassExpression::<ArcStr>::from(
-                cmp.clone(),
-            ))
+            .get_equivalent_classes(&cmp.0)
             .map(|s| s.into_iter().map(|c| c.into()).collect())
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }
 
     /// Returns the set of classes asserted or inferred to be disjoint with the given class expression.
-    fn get_disjoint_classes(&self, cmp: ClassExpression) -> PyResult<HashSet<Class>> {
+    fn get_disjoint_classes(&self, cmp: Horned<ClassExpression>) -> PyResult<HashSet<Class>> {
         self.0
             .lock()
             .unwrap()
             .0
-            .get_disjoint_classes(&horned_owl::model::ClassExpression::<ArcStr>::from(
-                cmp.clone(),
-            ))
+            .get_disjoint_classes(&cmp.0)
             .map(|s| s.into_iter().map(|c| c.into()).collect())
             .map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))
     }

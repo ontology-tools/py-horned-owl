@@ -1,3 +1,4 @@
+use crate::model::protocol::Horned;
 use crate::prefix_mapping::PrefixMapping;
 use crate::reasoning::DynamicLoadedReasoner;
 use crate::structural_reasoner::StructuralReasoner;
@@ -674,7 +675,7 @@ impl PyIndexedOntology {
             .into_iter()
             .filter_map(|a| {
                 if a.is_axiom() {
-                    Some(model::AnnotatedComponent::from(a.clone()))
+                    Some(model::AnnotatedComponent::from(a))
                 } else {
                     None
                 }
@@ -698,17 +699,13 @@ impl PyIndexedOntology {
     #[pyo3(signature = (component, annotations = None))]
     pub fn add_component(
         &mut self,
-        component: model::Component,
-        annotations: Option<BTreeSetWrap<model::Annotation>>,
+        component: Horned<model::Component>,
+        annotations: Option<Horned<BTreeSetWrap<model::Annotation>>>,
     ) -> PyResult<()> {
-        let ann = annotations.unwrap_or_default();
-
-        let annotated_component: AnnotatedComponent<ArcStr> = model::AnnotatedComponent {
-            component,
-            annotations: ann,
-        }
-        .into();
-        self.insert(annotated_component);
+        self.insert(AnnotatedComponent {
+            component: component.0,
+            ann: annotations.map(|a| a.0).unwrap_or_default(),
+        });
 
         Ok(())
     }
@@ -717,15 +714,15 @@ impl PyIndexedOntology {
     #[pyo3(signature = (ax, annotations = None))]
     pub fn add_axiom(
         &mut self,
-        ax: model::Component,
-        annotations: Option<BTreeSetWrap<model::Annotation>>,
+        ax: Horned<model::Component>,
+        annotations: Option<Horned<BTreeSetWrap<model::Annotation>>>,
     ) -> PyResult<()> {
         self.add_component(ax, annotations)
     }
 
     /// Removes a component from the ontology.
-    pub fn remove_component(&mut self, component: model::Component) -> PyResult<bool> {
-        let ax: Component<Arc<str>> = component.into();
+    pub fn remove_component(&mut self, component: Horned<model::Component>) -> PyResult<bool> {
+        let ax = component.0;
         let annotated = (&self.set_index)
             .into_iter()
             .find(|a| a.component == ax)
@@ -735,7 +732,7 @@ impl PyIndexedOntology {
     }
 
     /// Synonym for `remove_component`
-    pub fn remove_axiom(&mut self, ax: model::Component) -> PyResult<bool> {
+    pub fn remove_axiom(&mut self, ax: Horned<model::Component>) -> PyResult<bool> {
         self.remove_component(ax)
     }
 

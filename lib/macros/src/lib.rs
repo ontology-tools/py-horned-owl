@@ -442,6 +442,68 @@ fn str_as_functional(name: &Ident) -> TokenStream2 {
     }
 }
 
+/// `variant_index` for the enum `name`: the variant whose class `ob` is an
+/// instance of, the first in declaration order, as `cast`ing to each in turn
+/// would find. Exact types are looked up in a table instead of trying every
+/// variant; only subclasses defined in Python and non-members fall back to
+/// the casts.
+fn variant_index(name: &Ident, variant_types: &[&Type]) -> TokenStream2 {
+    let indices = 0..variant_types.len();
+    quote! {
+        impl #name {
+            fn variant_index(ob: &::pyo3::Bound<'_, ::pyo3::PyAny>) -> Option<usize> {
+                use ::pyo3::types::{PyAnyMethods, PyTypeMethods};
+                static TABLE: ::pyo3::sync::PyOnceLock<Vec<(usize, usize)>> =
+                    ::pyo3::sync::PyOnceLock::new();
+                let table = TABLE.get_or_init(ob.py(), || {
+                    let types = [#(<#variant_types as ::pyo3::PyTypeInfo>::type_object(ob.py())),*];
+                    // Sorted by type object address, each mapping to the
+                    // first variant it is a subclass of.
+                    let mut table: Vec<(usize, usize)> = types
+                        .iter()
+                        .map(|ty| {
+                            let first = types
+                                .iter()
+                                .position(|base| ty.is_subclass(base).unwrap_or(false))
+                                .unwrap();
+                            (ty.as_type_ptr() as usize, first)
+                        })
+                        .collect();
+                    table.sort_unstable();
+                    table
+                });
+                let ty = ob.get_type_ptr() as usize;
+                if let Ok(i) = table.binary_search_by_key(&ty, |&(t, _)| t) {
+                    return Some(table[i].1);
+                }
+                #(
+                    if ob.is_instance_of::<#variant_types>() {
+                        return Some(#indices);
+                    }
+                )*
+                None
+            }
+        }
+    }
+}
+
+/// `ExtractHorned` for `name`, converting to `horned`: `casts` returns for
+/// the borrowed classes it converts directly; anything else (a coerced
+/// value, or an error) goes through extracting `name`.
+fn extract_horned(name: &Ident, horned: &TokenStream2, casts: TokenStream2) -> TokenStream2 {
+    quote! {
+        impl crate::model::protocol::ExtractHorned for #name {
+            type Horned = #horned;
+
+            fn extract_horned(ob: &::pyo3::Bound<'_, ::pyo3::PyAny>) -> ::pyo3::PyResult<#horned> {
+                use ::pyo3::types::PyAnyMethods;
+                #casts
+                Ok((&ob.extract::<Self>()?).into())
+            }
+        }
+    }
+}
+
 fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenStream2> {
     let mut options = parse_struct_options(attr)?;
     if options.render.is_some() && (options.variant_of.is_some() || options.extends.is_some()) {
@@ -729,6 +791,21 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
         quote!(from_py_object)
     };
 
+    // The horned-owl type the class converts to: its enum for a variant.
+    let horned_target = match &variant {
+        Some((e, _)) => horned(e),
+        None => horned_type.clone(),
+    };
+    let extract_horned = extract_horned(
+        &name,
+        &horned_target,
+        quote! {
+            if let Ok(value) = ob.cast::<Self>() {
+                return Ok(value.get().into());
+            }
+        },
+    );
+
     Ok(quote! {
         #doc
         #[::pyo3::pyclass(module = "pyhornedowl.model", #pyclass_extends frozen, #pyclass_comparison #pyclass_from_py)]
@@ -751,6 +828,7 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
 
         #comparison_methods
         #conversions
+        #extract_horned
         #from_iri
         #into_py_object
         #from_py
@@ -832,6 +910,24 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
         }
     });
 
+    let variant_indices: Vec<usize> = (0..variants.len()).collect();
+    let variant_index = variant_index(&name, &variant_types);
+
+    let extract_horned = extract_horned(
+        &name,
+        &horned_enum,
+        quote! {
+            match #name::variant_index(&ob) {
+                #(
+                    Some(#variant_indices) => if let Ok(value) = ob.cast::<#variant_types>() {
+                        return Ok(value.get().into());
+                    },
+                )*
+                _ => {}
+            }
+        },
+    );
+
     let serialize = serialize_method(
         &base,
         quote!(<#horned_enum>::from(&::pyo3::types::PyAnyMethods::extract::<#name>(slf.as_any())?)),
@@ -843,11 +939,14 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
         &name,
         quote!(<#base as ::pyo3::PyTypeInfo>::TYPE_HINT),
         quote! {
-            #(
-                if let Ok(value) = ob.cast::<#variant_types>() {
-                    return Ok(#name::#variant_idents(value.get().clone()));
-                }
-            )*
+            match #name::variant_index(&ob) {
+                #(
+                    Some(#variant_indices) => if let Ok(value) = ob.cast::<#variant_types>() {
+                        return Ok(#name::#variant_idents(value.get().clone()));
+                    },
+                )*
+                _ => {}
+            }
         },
         &coercion,
     );
@@ -913,6 +1012,9 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
         }
 
         conversions!(#name => #horned_enum);
+
+        #variant_index
+        #extract_horned
 
         impl<'py> ::pyo3::IntoPyObject<'py> for #name {
             const OUTPUT_TYPE: ::pyo3::inspect::PyStaticExpr = <#base as ::pyo3::PyTypeInfo>::TYPE_HINT;

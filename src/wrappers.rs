@@ -111,7 +111,7 @@ impl<P, H: FromCounterpart<P> + Ord> FromCounterpart<BTreeSetWrap<P>> for BTreeS
 
 /// A `str` is iterable, but never meant as a collection of its characters: a
 /// collection of classes, say, would take every character as a class name.
-fn reject_str(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<()> {
+pub(crate) fn reject_str(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<()> {
     if ob.is_instance_of::<pyo3::types::PyString>() {
         return Err(pyo3::exceptions::PyTypeError::new_err(
             "expected a collection, got a str",
