@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin[patchelf]>=1.2,<2.0"]
+requires = ["maturin[patchelf]>=1.15,<2.0"]
 build-backend = "maturin"
 
 [project]
@@ -19,6 +19,7 @@ trusted-publishing = true
 [dependency-groups]
 dev = [
     "patchelf>=0.19.1.0",
+    "maturin>=1.15,<2.0",
     "pytest>=8.0.0",
     "sphinx>=5.3.0",
     "sphinx-autobuild>=2021.3.14",
