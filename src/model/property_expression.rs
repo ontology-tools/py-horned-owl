@@ -1,4 +1,5 @@
 use py_horned_owl_macros::{model, model_enum, model_union};
+use pyo3::exceptions::PyUserWarning;
 use pyo3::prelude::*;
 
 use crate::model::protocol::entity_from_str;
@@ -116,9 +117,24 @@ pub enum SubObjectPropertyExpression {
     ObjectPropertyChain(VecWrap<ObjectPropertyExpression>),
 }
 
-#[model_union]
+#[model_union(coerce = property_expression_from_str, accepts = [String])]
 pub enum PropertyExpression {
     ObjectPropertyExpression(ObjectPropertyExpression),
     DataProperty(DataProperty),
     AnnotationProperty(AnnotationProperty),
+}
+
+fn property_expression_from_str(ob: &Bound<'_, PyAny>) -> PyResult<Option<PropertyExpression>> {
+    let Some(property) = entity_from_str::<ObjectProperty>(ob)? else {
+        return Ok(None);
+    };
+    PyErr::warn(
+        ob.py(),
+        &ob.py().get_type::<PyUserWarning>(),
+        c"Ambiguous property string interpreted as ObjectProperty; use an explicit ObjectProperty, DataProperty, or AnnotationProperty.",
+        1,
+    )?;
+    Ok(Some(PropertyExpression::ObjectPropertyExpression(
+        property.into(),
+    )))
 }
