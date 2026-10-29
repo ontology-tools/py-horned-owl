@@ -1,10 +1,10 @@
 import pytest
-from pyhornedowl import PyIndexedOntology
+from pyhornedowl import Ontology
 from pyhornedowl.model import *
 
 
 def test_ce_not():
-    o = PyIndexedOntology()
+    o = Ontology()
     c = o.class_("https://example.com/A")
 
     expected = ObjectComplementOf(c)
@@ -14,7 +14,7 @@ def test_ce_not():
 
 
 def test_ce_not_complex():
-    o = PyIndexedOntology()
+    o = Ontology()
     c = ObjectUnionOf([o.class_("https://example.com/A"), o.class_("https://example.com/B")])
 
     expected = ObjectComplementOf(c)
@@ -24,7 +24,7 @@ def test_ce_not_complex():
 
 
 def test_ce_and():
-    o = PyIndexedOntology()
+    o = Ontology()
     c1 = o.class_("https://example.com/A")
     c2 = o.class_("https://example.com/B")
 
@@ -35,7 +35,7 @@ def test_ce_and():
 
 
 def test_ce_or():
-    o = PyIndexedOntology()
+    o = Ontology()
     c1 = o.class_("https://example.com/A")
     c2 = o.class_("https://example.com/B")
 
@@ -46,7 +46,7 @@ def test_ce_or():
 
 
 def test_op_not():
-    o = PyIndexedOntology()
+    o = Ontology()
     op = o.object_property("https://example.com/op")
 
     expected = InverseObjectProperty(op)
@@ -56,7 +56,7 @@ def test_op_not():
 
 
 def test_ce_some():
-    o = PyIndexedOntology()
+    o = Ontology()
     c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
@@ -67,7 +67,7 @@ def test_ce_some():
 
 
 def test_ce_only():
-    o = PyIndexedOntology()
+    o = Ontology()
     c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
@@ -78,7 +78,7 @@ def test_ce_only():
 
 
 def test_ce_min():
-    o = PyIndexedOntology()
+    o = Ontology()
     c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
@@ -89,7 +89,7 @@ def test_ce_min():
 
 
 def test_ce_max():
-    o = PyIndexedOntology()
+    o = Ontology()
     c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
@@ -100,7 +100,7 @@ def test_ce_max():
 
 
 def test_ce_exact():
-    o = PyIndexedOntology()
+    o = Ontology()
     c = o.class_("https://example.com/A")
     op = o.object_property("https://example.com/op")
 
@@ -111,7 +111,7 @@ def test_ce_exact():
 
 
 def test_ce_has_value():
-    o = PyIndexedOntology()
+    o = Ontology()
     op = o.object_property("https://example.com/op")
     i = o.named_individual("https://example.com/I")
 
@@ -122,7 +122,7 @@ def test_ce_has_value():
 
 
 def test_ce_has_self():
-    o = PyIndexedOntology()
+    o = Ontology()
     op = o.object_property("https://example.com/op")
 
     expected = ObjectHasSelf(op)

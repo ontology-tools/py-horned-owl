@@ -23,7 +23,6 @@ type ParserConfiguration = HornedParserConfiguration<ArcStr>;
 #[macro_use]
 mod doc;
 pub mod model;
-pub mod model_generated;
 pub mod ontology;
 pub mod prefix_mapping;
 pub mod profile;
@@ -300,6 +299,12 @@ mod pyhornedowl {
     use super::{open_ontology, open_ontology_from_file, open_ontology_from_string};
     #[pymodule_export]
     use super::{IndexCreationStrategy, PyIndexedOntology};
+
+    #[pymodule_init]
+    fn init(module: &Bound<'_, pyo3::types::PyModule>) -> PyResult<()> {
+        // Keep the former Python name as an alias of the same class.
+        module.add("PyIndexedOntology", module.getattr("Ontology")?)
+    }
 
     #[pymodule_export]
     use crate::model::py_model;

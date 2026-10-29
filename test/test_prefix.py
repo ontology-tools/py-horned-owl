@@ -3,7 +3,7 @@ import pyhornedowl
 
 
 def test_missing_prefix():
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
 
     with pytest.raises(ValueError) as context:
         c = o.class_("ex:A")
@@ -12,7 +12,7 @@ def test_missing_prefix():
 
 
 def test_prefix():
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
     o.prefix_mapping.add_prefix("ex", "https://example.com/")
 
     c = o.class_("ex:A")
@@ -21,7 +21,7 @@ def test_prefix():
 
 
 def test_default_prefix_fail():
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
 
     with pytest.raises(ValueError) as context:
         c = o.class_("A")
@@ -30,7 +30,7 @@ def test_default_prefix_fail():
 
 
 def test_default_prefix():
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
     o.prefix_mapping.add_prefix("", "https://example.com/")
 
     c = o.class_("A")

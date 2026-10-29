@@ -9,79 +9,115 @@ use std::hash::Hash;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-pub trait FromCompatible<T> {
-    fn from_c(value: T) -> Self;
+/// Conversion from a value's counterpart in the other model: between a
+/// Python class and its horned-owl type, field by field and element by
+/// element. A trait of its own because the orphan rules forbid `From` impls
+/// such as `From<&Option<H>> for Option<P>` or `From<&u32> for u32`.
+pub trait FromCounterpart<T> {
+    fn from_counterpart(value: &T) -> Self;
 }
 
-pub trait IntoCompatible<T> {
-    fn into_c(self) -> T;
+/// The counterpart of a value in the other model; see [`FromCounterpart`].
+pub trait ToCounterpart<T> {
+    fn to_counterpart(&self) -> T;
 }
 
-impl<T, U> IntoCompatible<U> for T
-where
-    U: FromCompatible<T>,
-{
-    fn into_c(self) -> U {
-        U::from_c(self)
+impl<T, U: FromCounterpart<T>> ToCounterpart<U> for T {
+    fn to_counterpart(&self) -> U {
+        U::from_counterpart(self)
     }
 }
 
-impl FromCompatible<&Arc<str>> for StringWrapper {
-    fn from_c(value: &Arc<str>) -> Self {
+impl FromCounterpart<Arc<str>> for StringWrapper {
+    fn from_counterpart(value: &Arc<str>) -> Self {
         StringWrapper::from(value)
     }
 }
 
-impl FromCompatible<&StringWrapper> for Arc<str> {
-    fn from_c(value: &StringWrapper) -> Self {
+impl FromCounterpart<StringWrapper> for Arc<str> {
+    fn from_counterpart(value: &StringWrapper) -> Self {
         Arc::<str>::from(value)
     }
 }
 
-impl FromCompatible<&String> for String {
-    fn from_c(value: &String) -> Self {
-        String::from(value)
+impl FromCounterpart<String> for String {
+    fn from_counterpart(value: &String) -> Self {
+        value.clone()
     }
 }
 
-impl FromCompatible<&u32> for u32 {
-    fn from_c(value: &u32) -> Self {
+impl FromCounterpart<u32> for u32 {
+    fn from_counterpart(value: &u32) -> Self {
         *value
     }
 }
 
-impl<'a, T: 'a, U> FromCompatible<&'a Option<T>> for Option<U>
-where
-    U: FromCompatible<&'a T>,
-{
-    fn from_c(value: &'a Option<T>) -> Self {
-        match value {
-            None => None,
-            Some(x) => Some(U::from_c(x)),
-        }
+impl<T, U: FromCounterpart<T>> FromCounterpart<Option<T>> for Option<U> {
+    fn from_counterpart(value: &Option<T>) -> Self {
+        value.as_ref().map(U::from_counterpart)
     }
 }
 
-impl<U, V, S, T> FromCompatible<(S, T)> for (U, V)
+impl<U, V, S, T> FromCounterpart<(S, T)> for (U, V)
 where
-    U: FromCompatible<S>,
-    V: FromCompatible<T>,
+    U: FromCounterpart<S>,
+    V: FromCounterpart<T>,
 {
-    fn from_c(value: (S, T)) -> Self {
+    fn from_counterpart(value: &(S, T)) -> Self {
         let (s, t) = value;
-        (U::from_c(s), V::from_c(t))
+        (U::from_counterpart(s), V::from_counterpart(t))
     }
 }
 
-impl<'a, U, V, S, T> FromCompatible<&'a (S, T)> for (U, V)
-where
-    U: FromCompatible<&'a S>,
-    V: FromCompatible<&'a T>,
-{
-    fn from_c(value: &'a (S, T)) -> Self {
-        let (s, t) = value;
-        (U::from_c(s), V::from_c(t))
+// The containers convert element-wise, generically: `FromCounterpart` is
+// local, so unlike `From` (`From<BoxWrap<P>> for Box<H>` would overlap std's
+// `From<T> for Box<T>`) it allows these impls.
+
+impl<H, P: FromCounterpart<H>> FromCounterpart<Box<H>> for BoxWrap<P> {
+    fn from_counterpart(value: &Box<H>) -> Self {
+        BoxWrap(Box::new(P::from_counterpart(value)))
     }
+}
+
+impl<P, H: FromCounterpart<P>> FromCounterpart<BoxWrap<P>> for Box<H> {
+    fn from_counterpart(value: &BoxWrap<P>) -> Self {
+        Box::new(H::from_counterpart(&value.0))
+    }
+}
+
+impl<H, P: FromCounterpart<H>> FromCounterpart<Vec<H>> for VecWrap<P> {
+    fn from_counterpart(value: &Vec<H>) -> Self {
+        VecWrap(value.iter().map(P::from_counterpart).collect())
+    }
+}
+
+impl<P, H: FromCounterpart<P>> FromCounterpart<VecWrap<P>> for Vec<H> {
+    fn from_counterpart(value: &VecWrap<P>) -> Self {
+        value.0.iter().map(H::from_counterpart).collect()
+    }
+}
+
+impl<H, P: FromCounterpart<H> + Ord> FromCounterpart<BTreeSet<H>> for BTreeSetWrap<P> {
+    fn from_counterpart(value: &BTreeSet<H>) -> Self {
+        BTreeSetWrap(value.iter().map(P::from_counterpart).collect())
+    }
+}
+
+impl<P, H: FromCounterpart<P> + Ord> FromCounterpart<BTreeSetWrap<P>> for BTreeSet<H> {
+    fn from_counterpart(value: &BTreeSetWrap<P>) -> Self {
+        value.0.iter().map(H::from_counterpart).collect()
+    }
+}
+
+/// A `str` is iterable, but never meant as a collection of its characters: a
+/// collection of classes, say, would take every character as a class name.
+fn reject_str(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<()> {
+    if ob.is_instance_of::<pyo3::types::PyString>() {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected a collection, got a str",
+        ));
+    }
+    Ok(())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -113,6 +149,7 @@ impl<'py, T: FromPyObjectOwned<'py>> FromPyObject<'_, 'py> for VecWrap<T> {
     type Error = pyo3::PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
+        reject_str(&ob)?;
         let mut v = VecWrap(Vec::new());
         for item in ob.try_iter()? {
             v.0.push(item?.extract::<T>().map_err(Into::into)?);
@@ -188,6 +225,12 @@ impl From<&StringWrapper> for Arc<str> {
     }
 }
 
+impl std::fmt::Display for StringWrapper {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
 impl<'py> IntoPyObject<'py> for StringWrapper {
     const OUTPUT_TYPE: PyStaticExpr = String::OUTPUT_TYPE;
     type Target = pyo3::types::PyString;
@@ -248,6 +291,7 @@ impl<'py, T: FromPyObjectOwned<'py> + Ord> FromPyObject<'_, 'py> for BTreeSetWra
     type Error = pyo3::PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
+        reject_str(&ob)?;
         let mut v = BTreeSetWrap(BTreeSet::new());
         for item in ob.try_iter()? {
             v.0.insert(item?.extract::<T>().map_err(Into::into)?);

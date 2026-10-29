@@ -1,6 +1,6 @@
 [package]
 name = "py-horned-owl"
-version = "2.0.0"
+version = "3.0.0"
 authors = ["Janna Hastings <j.hastings@ucl.ac.uk>", "Björn Gehrke <bjoern.gehrke+pyhornedowl@idiap.ch>"]
 edition = "2021"
 license = "LGPL-3.0-or-later"
@@ -19,6 +19,7 @@ features = ["experimental-inspect", "multiple-pymethods"]
 horned-owl = "^4.0"
 horned-profile = "^4.0"
 py-horned-owl-reasoner = { path = "lib/reasoner" }
+py-horned-owl-macros = { path = "lib/macros" }
 curie = "0.1.2"
 libloading = "0.8"
 oxrdfio = "0.2.5"

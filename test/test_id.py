@@ -15,7 +15,7 @@ def test_id_from_iri_empty():
 
 
 def test_id_from_absolute():
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
     o.prefix_mapping.add_prefix("EX", "https://example.com/")
 
     expected = "EX:A"
@@ -25,7 +25,7 @@ def test_id_from_absolute():
 
 
 def test_id_from_curie_empty_prefix():
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
     o.prefix_mapping.add_prefix("", "https://example.com/")
 
     expected = "A"
@@ -35,7 +35,7 @@ def test_id_from_curie_empty_prefix():
 
 
 def test_id_from_curie_defined_prefix():
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
     o.prefix_mapping.add_prefix("EX", "https://example.com/")
 
     expected = "EX:A"

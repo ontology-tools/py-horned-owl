@@ -13,7 +13,7 @@ def setup(namespace):
     workdir = tempfile.mkdtemp()
     namespace["workdir"] = workdir
     os.chdir(workdir)
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
 
     o.prefix_mapping.add_prefix("", "https://example.com/test#")
     axiom = SubClassOf(

@@ -1,24 +1,36 @@
-use std::collections::BTreeSet;
-
 use curie::Curie;
 use horned_owl::model::{ArcStr, Build};
 use pyo3::{inspect::PyStaticExpr, prelude::*, type_hint_union};
 
-pub use crate::model_generated::*;
-use crate::wrappers::BTreeSetWrap;
+#[macro_use]
+mod macros;
+pub mod protocol;
 
-impl From<&BTreeSet<horned_owl::model::Annotation<ArcStr>>> for BTreeSetWrap<Annotation> {
-    fn from(value: &BTreeSet<horned_owl::model::Annotation<ArcStr>>) -> Self {
-        BTreeSetWrap(value.iter().map(From::from).collect())
-    }
-}
+mod annotation;
+mod class_expression;
+mod component;
+mod data_range;
+mod entity;
+mod facet;
+mod iri;
+mod literal;
+mod property_expression;
+mod swrl;
 
-impl From<&BTreeSetWrap<Annotation>> for BTreeSet<horned_owl::model::Annotation<ArcStr>> {
-    fn from(value: &BTreeSetWrap<Annotation>) -> Self {
-        value.0.iter().map(From::from).collect()
-    }
-}
+pub use annotation::*;
+pub use class_expression::*;
+pub use component::*;
+pub use data_range::*;
+pub use entity::*;
+pub use facet::*;
+pub use iri::*;
+pub use literal::*;
+pub use property_expression::*;
+pub use swrl::*;
 
+/// Ontology input with prefix-aware string resolution and explicit
+/// `(value, is_absolute)` tuples. Model `IRI` extraction intentionally does
+/// not resolve prefixes, so it cannot replace this type.
 #[derive(Debug, Clone)]
 pub enum IRIParam {
     IRI(IRI),
@@ -53,16 +65,13 @@ impl IRIParam {
 }
 
 impl<'py> FromPyObject<'_, 'py> for IRIParam {
-    const INPUT_TYPE: PyStaticExpr = type_hint_union!(
-        <IRI as pyo3::PyTypeInfo>::TYPE_HINT,
-        <(String, bool)>::INPUT_TYPE,
-        String::INPUT_TYPE
-    );
+    const INPUT_TYPE: PyStaticExpr =
+        type_hint_union!(IRI::INPUT_TYPE, <(String, bool)>::INPUT_TYPE);
     type Error = PyErr;
 
     fn extract(ob: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
-        if let Ok(a) = ob.extract::<IRI>() {
-            return Ok(IRIParam::IRI(a));
+        if let Ok(a) = ob.cast::<IRI>() {
+            return Ok(IRIParam::IRI(a.get().clone()));
         }
 
         if let Ok((str, is_absolute)) = ob.extract::<(String, bool)>() {
@@ -90,10 +99,9 @@ impl<'py> FromPyObject<'_, 'py> for IRIParam {
             }
         }
 
-        // Fallback: wrong type
-        Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
-            "expected IRI instance or IRI string",
-        ))
+        // Strings above retain ontology-specific CURIE handling; entities use
+        // the same IRI conversion as model constructors.
+        ob.extract::<IRI>().map(IRIParam::IRI)
     }
 }
 
@@ -103,26 +111,27 @@ pub mod py_model {
     use super::{
         AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationProperty,
         AnnotationPropertyDomain, AnnotationPropertyRange, AnonymousIndividual,
-        AsymmetricObjectProperty, BuiltInAtom, Class, ClassAssertion, ClassAtom, DataAllValuesFrom,
-        DataComplementOf, DataExactCardinality, DataHasValue, DataIntersectionOf,
-        DataMaxCardinality, DataMinCardinality, DataOneOf, DataProperty, DataPropertyAssertion,
-        DataPropertyAtom, DataPropertyDomain, DataPropertyRange, DataRangeAtom, DataSomeValuesFrom,
+        AsymmetricObjectProperty, AtomBase, BuiltInAtom, Class, ClassAssertion, ClassAtom,
+        ClassExpressionBase, ComponentBase, DataAllValuesFrom, DataComplementOf,
+        DataExactCardinality, DataHasValue, DataIntersectionOf, DataMaxCardinality,
+        DataMinCardinality, DataOneOf, DataProperty, DataPropertyAssertion, DataPropertyAtom,
+        DataPropertyDomain, DataPropertyRange, DataRangeAtom, DataRangeBase, DataSomeValuesFrom,
         DataUnionOf, Datatype, DatatypeDefinition, DatatypeLiteral, DatatypeRestriction,
         DeclareAnnotationProperty, DeclareClass, DeclareDataProperty, DeclareDatatype,
         DeclareNamedIndividual, DeclareObjectProperty, DifferentIndividuals,
         DifferentIndividualsAtom, DisjointClasses, DisjointDataProperties,
         DisjointObjectProperties, DisjointUnion, DocIRI, EquivalentClasses,
         EquivalentDataProperties, EquivalentObjectProperties, Facet, FacetRestriction,
-        FunctionalDataProperty, FunctionalObjectProperty, HasKey, Import,
+        FunctionalDataProperty, FunctionalObjectProperty, HasKey, Import, IndividualBase,
         InverseFunctionalObjectProperty, InverseObjectProperties, InverseObjectProperty,
-        IrreflexiveObjectProperty, LanguageLiteral, NamedIndividual, NegativeDataPropertyAssertion,
-        NegativeObjectPropertyAssertion, ObjectAllValuesFrom, ObjectComplementOf,
-        ObjectExactCardinality, ObjectHasSelf, ObjectHasValue, ObjectIntersectionOf,
-        ObjectMaxCardinality, ObjectMinCardinality, ObjectOneOf, ObjectProperty,
-        ObjectPropertyAssertion, ObjectPropertyAtom, ObjectPropertyDomain, ObjectPropertyRange,
-        ObjectSomeValuesFrom, ObjectUnionOf, OntologyAnnotation, OntologyID,
-        ReflexiveObjectProperty, Rule, SameIndividual, SameIndividualAtom, SimpleLiteral,
-        SubAnnotationPropertyOf, SubClassOf, SubDataPropertyOf, SubObjectPropertyOf,
-        SymmetricObjectProperty, TransitiveObjectProperty, Variable, IRI,
+        IrreflexiveObjectProperty, LanguageLiteral, LiteralBase, NamedIndividual,
+        NegativeDataPropertyAssertion, NegativeObjectPropertyAssertion, ObjectAllValuesFrom,
+        ObjectComplementOf, ObjectExactCardinality, ObjectHasSelf, ObjectHasValue,
+        ObjectIntersectionOf, ObjectMaxCardinality, ObjectMinCardinality, ObjectOneOf,
+        ObjectProperty, ObjectPropertyAssertion, ObjectPropertyAtom, ObjectPropertyDomain,
+        ObjectPropertyExpressionBase, ObjectPropertyRange, ObjectSomeValuesFrom, ObjectUnionOf,
+        OntologyAnnotation, OntologyID, ReflexiveObjectProperty, Rule, SameIndividual,
+        SameIndividualAtom, SimpleLiteral, SubAnnotationPropertyOf, SubClassOf, SubDataPropertyOf,
+        SubObjectPropertyOf, SymmetricObjectProperty, TransitiveObjectProperty, Variable, IRI,
     };
 }
