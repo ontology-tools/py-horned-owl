@@ -13,6 +13,10 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
+[tool.maturin]
+python-source = "python"
+module-name = "pyhornedowl.pyhornedowl"
+
 [tool.maturin.generate-ci.github]
 trusted-publishing = true
 
