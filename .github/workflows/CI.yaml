@@ -192,7 +192,7 @@ jobs:
       - name: Check formatting
         run: |
           rustup component add rustfmt
-          cargo fmt --check
+          cargo fmt --all --check
 
   build-docs:
     needs: linux
