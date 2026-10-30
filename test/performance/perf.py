@@ -23,7 +23,7 @@ def perf(path: str):
     for _ in range(3):
         start = time.perf_counter()
         for a in o.get_components():
-            if len(a.ann) > 0:
+            if len(a.annotations) > 0:
                 amount += 1
         iter_time += time.perf_counter() - start
 

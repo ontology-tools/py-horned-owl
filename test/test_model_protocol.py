@@ -423,3 +423,32 @@ def test_named_entity_hook_lookup_errors_propagate():
 
     with pytest.raises(ValueError, match="broken lookup"):
         Class(BrokenEntity())
+
+
+def test_named_entity_hook_errors_propagate_through_unions():
+    class Broken:
+        def __owl_entity_iri__(self):
+            raise ValueError("broken")
+
+    with pytest.raises(ValueError, match="broken"):
+        Annotation(AnnotationProperty(B_IRI), Broken())
+    with pytest.raises(ValueError, match="broken"):
+        AnnotationAssertion(Broken(), Annotation(AnnotationProperty(B_IRI), "x"))
+
+
+def test_union_type_error_names_each_variant():
+    class BadEntity:
+        def __owl_entity_iri__(self):
+            return A_IRI
+
+    with pytest.raises(TypeError, match=r"(?s)expected AnnotationValue, got BadEntity.*- IRI: __owl_entity_iri__\(\) must return an IRI"):
+        Annotation(AnnotationProperty(B_IRI), BadEntity())
+    with pytest.raises(TypeError, match=r"(?s)got list.*- ObjectPropertyChain: .*got int"):
+        SubObjectPropertyOf([ObjectProperty(A_IRI), 1], ObjectProperty(B_IRI))
+
+
+@pytest.mark.parametrize("module", ["pyhornedowl", "pyhornedowl.model"])
+def test_star_import_exports_only_the_api(module):
+    namespace = {}
+    exec(f"from {module} import *", namespace)
+    assert not {"sys", "typing"} & namespace.keys()
