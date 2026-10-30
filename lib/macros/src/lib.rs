@@ -580,7 +580,7 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
             fn __replace__<'py>(
                 slf: &::pyo3::Bound<'py, Self>,
                 changes: Option<&::pyo3::Bound<'py, ::pyo3::types::PyDict>>,
-            ) -> ::pyo3::PyResult<Self> {
+            ) -> ::pyo3::PyResult<::pyo3::Bound<'py, Self>> {
                 #protocol::replace(slf, changes)
             }
         });

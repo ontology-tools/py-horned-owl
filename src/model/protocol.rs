@@ -48,7 +48,7 @@ pub fn reduce<'py, T: ModelFields>(
 pub fn replace<'py, T: ModelFields>(
     slf: &Bound<'py, T>,
     changes: Option<&Bound<'py, PyDict>>,
-) -> PyResult<T> {
+) -> PyResult<Bound<'py, T>> {
     let kwargs = PyDict::new(slf.py());
     for (name, value) in T::FIELDS.iter().zip(slf.get().field_values(slf.py())?) {
         kwargs.set_item(name, value)?;
@@ -60,9 +60,7 @@ pub fn replace<'py, T: ModelFields>(
         .as_any()
         .get_type()
         .call((), Some(&kwargs))?
-        .cast_into::<T>()?
-        .get()
-        .clone())
+        .cast_into::<T>()?)
 }
 
 /// A `str` where an entity is expected is its IRI, used as is: CURIEs are
