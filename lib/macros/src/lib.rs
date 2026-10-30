@@ -1026,15 +1026,21 @@ fn model_union_impl(attr: TokenStream2, item: ItemEnum) -> syn::Result<TokenStre
             fn extract(ob: ::pyo3::Borrowed<'_, 'py, ::pyo3::PyAny>) -> ::pyo3::PyResult<Self> {
                 use ::pyo3::types::{PyAnyMethods, PyTypeMethods};
                 #coerce
+                let mut errors = Vec::new();
                 #(
-                    if let Ok(x) = ob.extract::<#types>() {
-                        return Ok(#name::#idents(x));
+                    match ob.extract::<#types>().map_err(::pyo3::PyErr::from) {
+                        Ok(x) => return Ok(#name::#idents(x)),
+                        Err(err) if err.is_instance_of::<::pyo3::exceptions::PyTypeError>(ob.py()) => {
+                            errors.push(format!("\n- {}: {}", stringify!(#idents), err.value(ob.py())));
+                        }
+                        Err(err) => return Err(err),
                     }
                 )*
                 Err(::pyo3::exceptions::PyTypeError::new_err(format!(
-                    "expected {}, got {}",
+                    "expected {}, got {}{}",
                     stringify!(#name),
-                    ob.get_type().name()?
+                    ob.get_type().name()?,
+                    errors.concat()
                 )))
             }
         }
