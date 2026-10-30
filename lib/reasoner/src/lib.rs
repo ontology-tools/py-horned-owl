@@ -3,7 +3,8 @@
 /// 2. The crate must expose a function `#[no_mangle] pub fn create_reasoner() -> Box<dyn Reasoner>` which creates an instance of the reasoner.
 /// 3. The reasoner must implement the `Reasoner` trait. All methods are optional so the implementation can be based on the reasoners capabilities.
 use horned_owl::model::{
-    ArcAnnotatedComponent, ArcStr, Class, ClassExpression, Component, ForIRI, ObjectProperty, ObjectPropertyExpression
+    ArcAnnotatedComponent, ArcStr, Class, ClassExpression, Component, ForIRI, ObjectProperty,
+    ObjectPropertyExpression,
 };
 use horned_owl::ontology::indexed::{ForIndex, OntologyIndex};
 use horned_owl::ontology::set::SetOntology;
@@ -33,7 +34,9 @@ pub enum ReasonerError {
 impl Display for ReasonerError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ReasonerError::NotImplemented => write!(f, "This method is not implemented for this reasoner"),
+            ReasonerError::NotImplemented => {
+                write!(f, "This method is not implemented for this reasoner")
+            }
             ReasonerError::Horned(e) => write!(f, "Reasoner error: {}", e),
             ReasonerError::Other(s) => write!(f, "Reasoner error: {}", s),
         }

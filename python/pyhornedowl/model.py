@@ -1,10 +1,11 @@
-import typing
+# Private names only besides the model, which `import *` exports.
+import typing as _typing
 
 from .pyhornedowl.model import *
 
 
-@typing.runtime_checkable
-class NamedEntity(typing.Protocol):
+@_typing.runtime_checkable
+class NamedEntity(_typing.Protocol):
     def __owl_entity_iri__(self) -> IRI: ...
 
 
