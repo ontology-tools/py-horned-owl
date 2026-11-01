@@ -32,10 +32,11 @@
 //! * `str = field`: `__str__` is that field's `str()`.
 //! * `entity`: a named entity, holding one field `iri: IRI`. `str()` is the
 //!   IRI, `__owl_entity_iri__()` exposes it for the named-entity protocol,
-//!   and a `str` converts to the entity (see `entity_from_str`).
-//! * `coerce = function`, `accepts = [Type, ...]`: other Python values the
+//!   and an `IRI` or a `str` converts to the entity (see `entity_from_iri`).
+//! * `coerce = function`, `accepts = [hint, ...]`: other Python values the
 //!   class is extracted from. `function(&Bound<PyAny>) -> PyResult<Option<T>>`
-//!   with `T: Into<Self>`; `accepts` lists their types for the stubs.
+//!   with `T: Into<Self>`; `accepts` lists their stub types, as
+//!   `PyStaticExpr` constants (`String::INPUT_TYPE`, `IRI_OR_STR`).
 //! * `skip(new, repr, reduce, replace, match_args)`: leave out generated
 //!   methods, to write them by hand.
 //!
@@ -100,7 +101,7 @@ pub fn model_union(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[derive(Default)]
 struct Coercion {
     function: Option<Path>,
-    accepts: Vec<Type>,
+    accepts: Vec<Expr>,
 }
 
 /// The generated methods `skip(...)` can leave out.
@@ -132,7 +133,7 @@ fn parse_coercion(coercion: &mut Coercion, meta: &syn::meta::ParseNestedMeta) ->
         let value = meta.value()?;
         let content;
         syn::bracketed!(content in value);
-        coercion.accepts = Punctuated::<Type, Token![,]>::parse_terminated(&content)?
+        coercion.accepts = Punctuated::<Expr, Token![,]>::parse_terminated(&content)?
             .into_iter()
             .collect();
     } else {
@@ -350,12 +351,7 @@ fn from_py_object(
     coercion: &Coercion,
 ) -> TokenStream2 {
     let mut hints = vec![hint];
-    hints.extend(
-        coercion
-            .accepts
-            .iter()
-            .map(|ty| quote!(<#ty as ::pyo3::FromPyObject<'static, 'static>>::INPUT_TYPE)),
-    );
+    hints.extend(coercion.accepts.iter().map(ToTokens::to_token_stream));
     let hint = hint_union(hints);
     let coerce = coercion.function.as_ref().map(|f| {
         quote! {
@@ -471,12 +467,15 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
         if options.coercion.function.is_some() {
             return Err(syn::Error::new_spanned(
                 &name,
-                "an `entity` converts from `str`, it takes no `coerce`",
+                "an `entity` converts from `IRI` and `str`, it takes no `coerce`",
             ));
         }
         options.coercion.function =
-            Some(syn::parse_quote!(crate::model::protocol::entity_from_str::<#name>));
-        options.coercion.accepts.push(syn::parse_quote!(String));
+            Some(syn::parse_quote!(crate::model::protocol::entity_from_iri::<#name>));
+        options
+            .coercion
+            .accepts
+            .push(syn::parse_quote!(crate::model::protocol::IRI_OR_STR));
         options
             .str_field
             .get_or_insert_with(|| format_ident!("iri"));
@@ -977,9 +976,8 @@ fn model_union_impl(attr: TokenStream2, item: ItemEnum) -> syn::Result<TokenStre
     let input_type = hint_union(
         types
             .iter()
-            .copied()
-            .chain(coercion.accepts.iter())
             .map(|ty| quote!(<#ty as ::pyo3::FromPyObject<'static, 'static>>::INPUT_TYPE))
+            .chain(coercion.accepts.iter().map(ToTokens::to_token_stream))
             .collect(),
     );
 

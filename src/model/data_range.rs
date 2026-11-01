@@ -1,12 +1,12 @@
 use py_horned_owl_macros::{model, model_enum};
 
-use crate::model::protocol::entity_from_str;
+use crate::model::protocol::{entity_from_iri, IRI_OR_STR};
 use crate::wrappers::{BoxWrap, VecWrap};
 
 use super::{Datatype, Facet, Literal};
 
-// A `str` names a datatype.
-#[model_enum(coerce = entity_from_str::<Datatype>, accepts = [String])]
+// An `IRI` or a `str` names a datatype.
+#[model_enum(coerce = entity_from_iri::<Datatype>, accepts = [IRI_OR_STR])]
 pub enum DataRange {
     #[model(wraps)]
     Datatype(Datatype),

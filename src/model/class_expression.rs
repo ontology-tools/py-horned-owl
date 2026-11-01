@@ -1,13 +1,13 @@
 use py_horned_owl_macros::{model, model_enum};
 use pyo3::prelude::*;
 
-use crate::model::protocol::entity_from_str;
+use crate::model::protocol::{entity_from_iri, IRI_OR_STR};
 use crate::wrappers::{BoxWrap, VecWrap};
 
 use super::{Class, DataProperty, DataRange, Individual, Literal, ObjectPropertyExpression};
 
-// A `str` names a class.
-#[model_enum(coerce = entity_from_str::<Class>, accepts = [String])]
+// An `IRI` or a `str` names a class.
+#[model_enum(coerce = entity_from_iri::<Class>, accepts = [IRI_OR_STR])]
 pub enum ClassExpression {
     #[model(wraps)]
     Class(Class),
@@ -34,69 +34,119 @@ pub enum ClassExpression {
 #[pymethods]
 impl ClassExpressionBase {
     fn __and__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
-        Ok(ObjectIntersectionOf {
-            operands: intersection_operands(slf.extract()?, other).into(),
-        })
+        Ok(slf.extract::<ClassExpression>()?.intersection(other))
     }
 
     fn __or__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
-        Ok(ObjectUnionOf {
-            operands: union_operands(slf.extract()?, other).into(),
-        })
+        Ok(slf.extract::<ClassExpression>()?.union(other))
     }
 
     fn __rand__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
-        Ok(ObjectIntersectionOf {
-            operands: intersection_operands(other, slf.extract()?).into(),
-        })
+        Ok(other.intersection(slf.extract()?))
     }
 
     fn __ror__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
-        Ok(ObjectUnionOf {
-            operands: union_operands(other, slf.extract()?).into(),
-        })
+        Ok(other.union(slf.extract()?))
     }
 
-    fn __invert__(slf: &Bound<'_, Self>) -> PyResult<ObjectComplementOf> {
-        Ok(ObjectComplementOf {
-            operand: Box::new(slf.extract::<ClassExpression>()?).into(),
-        })
+    fn __invert__(slf: &Bound<'_, Self>) -> PyResult<ClassExpression> {
+        Ok(slf.extract::<ClassExpression>()?.complement())
+    }
+
+    /// Returns an equivalent, flatter class expression
+    fn flatten(slf: &Bound<'_, Self>) -> PyResult<ClassExpression> {
+        Ok(slf.extract::<ClassExpression>()?.flatten())
     }
 }
 
-// Flatten only the matching connective, preserving operand order and duplicates.
-fn intersection_operands(left: ClassExpression, right: ClassExpression) -> Vec<ClassExpression> {
-    fn append(value: ClassExpression, result: &mut Vec<ClassExpression>) {
-        match value {
-            ClassExpression::ObjectIntersectionOf(value) => {
-                for operand in value.operands.0 {
-                    append(operand, result);
-                }
-            }
-            value => result.push(value),
+macro_rules! flatten {
+    ($variant:ident, $field:ident) => {{
+        let mut flat = $field.into_iter().map(Self::flatten).collect::<Vec<_>>();
+
+        if flat.len() == 1 {
+            flat.pop().unwrap()
+        } else {
+            $variant {
+                $field: flat.into(),
+            }.into()
         }
-    }
-    let mut result = Vec::new();
-    append(left, &mut result);
-    append(right, &mut result);
-    result
+    }};
 }
 
-fn union_operands(left: ClassExpression, right: ClassExpression) -> Vec<ClassExpression> {
-    fn append(value: ClassExpression, result: &mut Vec<ClassExpression>) {
-        match value {
-            ClassExpression::ObjectUnionOf(value) => {
-                for operand in value.operands.0 {
-                    append(operand, result);
-                }
-            }
-            value => result.push(value),
+impl ClassExpression {
+    pub fn intersection(self, other: Self) -> ObjectIntersectionOf {
+        ObjectIntersectionOf {
+            operands: vec![self, other]
+                .into_iter()
+                .map(Self::flatten)
+                .collect::<Vec<_>>()
+                .into(),
         }
     }
-    let mut result = Vec::new();
-    append(left, &mut result);
-    append(right, &mut result);
-    result
+
+    pub fn union(self, other: Self) -> ObjectUnionOf {
+        ObjectUnionOf {
+            operands: vec![self, other]
+                .into_iter()
+                .map(Self::flatten)
+                .collect::<Vec<_>>()
+                .into(),
+        }
+    }
+
+    pub fn complement(self) -> Self {
+        match self {
+            Self::ObjectComplementOf(complement) => *complement.operand.0,
+            operand => ObjectComplementOf {
+                operand: Box::new(operand).into(),
+            }
+            .into(),
+        }
+    }
+
+    pub fn flatten(self) -> Self {
+        match self {
+            Self::ObjectIntersectionOf(ObjectIntersectionOf {
+                operands: VecWrap(operands),
+            }) => flatten!(ObjectIntersectionOf, operands),
+            Self::ObjectUnionOf(ObjectUnionOf {
+                operands: VecWrap(operands),
+            }) => flatten!(ObjectUnionOf, operands),
+            Self::ObjectComplementOf(x) => x.operand.0.flatten().complement(),
+            Self::ObjectSomeValuesFrom(x) => ObjectSomeValuesFrom {
+                class_expression: x.class_expression.flatten(),
+                ..x
+            }
+            .into(),
+            Self::ObjectAllValuesFrom(x) => ObjectAllValuesFrom {
+                class_expression: x.class_expression.flatten(),
+                ..x
+            }
+            .into(),
+            Self::ObjectMinCardinality(x) => ObjectMinCardinality {
+                class_expression: x.class_expression.flatten(),
+                ..x
+            }
+            .into(),
+            Self::ObjectMaxCardinality(x) => ObjectMaxCardinality {
+                class_expression: x.class_expression.flatten(),
+                ..x
+            }
+            .into(),
+            Self::ObjectExactCardinality(x) => ObjectExactCardinality {
+                class_expression: x.class_expression.flatten(),
+                ..x
+            }
+            .into(),
+            other => other,
+        }
+    }
+}
+
+impl BoxWrap<ClassExpression> {
+    fn flatten(self) -> Self {
+        Box::new(self.0.flatten()).into()
+    }
 }
 
 #[model(variant_of = ClassExpression)]

@@ -2,7 +2,7 @@
 
 use py_horned_owl_macros::{model, model_enum};
 
-use crate::model::protocol::entity_from_str;
+use crate::model::protocol::{entity_from_iri, IRI_OR_STR};
 use crate::wrappers::StringWrapper;
 
 use super::{ClassExpressionBase, DataRangeBase, ObjectPropertyExpressionBase, IRI};
@@ -49,8 +49,8 @@ pub struct AnonymousIndividual {
     pub name: StringWrapper,
 }
 
-// A `str` names an individual.
-#[model_enum(wraps, coerce = entity_from_str::<NamedIndividual>, accepts = [String])]
+// An `IRI` or a `str` names an individual.
+#[model_enum(wraps, coerce = entity_from_iri::<NamedIndividual>, accepts = [IRI_OR_STR])]
 pub enum Individual {
     Anonymous(AnonymousIndividual),
     Named(NamedIndividual),

@@ -452,3 +452,55 @@ def test_star_import_exports_only_the_api(module):
     namespace = {}
     exec(f"from {module} import *", namespace)
     assert not {"sys", "typing"} & namespace.keys()
+
+
+def test_entity_positions_take_an_iri():
+    a, b = IRI(A_IRI), IRI(B_IRI)
+    assert DeclareClass(a) == DeclareClass(A_IRI) == DeclareClass(Class(A_IRI))
+    assert SubClassOf(a, b) == SubClassOf(Class(A_IRI), Class(B_IRI))
+    assert ClassAssertion(a, b) == ClassAssertion(Class(A_IRI), NamedIndividual(B_IRI))
+    assert HasKey(a, [ObjectProperty(b)]) == HasKey(Class(A_IRI), [ObjectProperty(B_IRI)])
+    assert DataPropertyRange(DataProperty(a), b) == DataPropertyRange(DataProperty(A_IRI), Datatype(B_IRI))
+    assert ObjectSomeValuesFrom(a, b) == ObjectSomeValuesFrom(ObjectProperty(A_IRI), Class(B_IRI))
+
+
+def test_entity_positions_do_not_pun_other_entities():
+    with pytest.raises(TypeError):
+        DeclareClass(ObjectProperty(A_IRI))
+    with pytest.raises(TypeError):
+        SubClassOf(Datatype(A_IRI), B_IRI)
+
+
+def test_property_expression_from_iri_warns():
+    with pytest.warns(UserWarning, match="explicit ObjectProperty"):
+        assert HasKey(IRI(A_IRI), [IRI(B_IRI)]).property_expressions == [ObjectProperty(B_IRI)]
+
+
+A, B, C = Class(A_IRI), Class(B_IRI), Class("https://example.com/C")
+R = ObjectProperty("https://example.com/r")
+
+
+def test_double_complement_cancels():
+    assert ~~A == A
+    assert ~~~A == ObjectComplementOf(A)
+
+
+@pytest.mark.parametrize("expression, expected", [
+    (ObjectIntersectionOf([A, ObjectIntersectionOf([B, ObjectIntersectionOf([C])])]), ObjectIntersectionOf([A, B, C])),
+    (ObjectUnionOf([ObjectUnionOf([A, B]), A]), ObjectUnionOf([A, B, A])),
+    (ObjectIntersectionOf([A, ObjectUnionOf([B, ObjectUnionOf([C])])]), ObjectIntersectionOf([A, ObjectUnionOf([B, C])])),
+    (ObjectComplementOf(ObjectComplementOf(A)), A),
+    (ObjectComplementOf(ObjectComplementOf(ObjectComplementOf(A))), ObjectComplementOf(A)),
+    (ObjectIntersectionOf([ObjectComplementOf(ObjectComplementOf(ObjectIntersectionOf([A, B]))), C]), ObjectIntersectionOf([A, B, C])),
+    (ObjectUnionOf([A]), A),
+    (ObjectIntersectionOf([]), ObjectIntersectionOf([])),
+    (ObjectSomeValuesFrom(R, ObjectComplementOf(ObjectComplementOf(A))), ObjectSomeValuesFrom(R, A)),
+    (ObjectAllValuesFrom(R, ObjectUnionOf([A])), ObjectAllValuesFrom(R, A)),
+    (ObjectMinCardinality(1, R, ObjectUnionOf([A])), ObjectMinCardinality(1, R, A)),
+    (ObjectMaxCardinality(1, R, ObjectUnionOf([A])), ObjectMaxCardinality(1, R, A)),
+    (ObjectExactCardinality(1, R, ObjectUnionOf([A])), ObjectExactCardinality(1, R, A)),
+    (A, A),
+])
+def test_flatten(expression, expected):
+    assert expression.flatten() == expected
+    assert expected.flatten() == expected

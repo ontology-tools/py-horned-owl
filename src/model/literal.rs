@@ -50,7 +50,12 @@ fn literal_from_python(ob: &Bound<'_, PyAny>) -> PyResult<Option<Literal>> {
     ))
 }
 
-#[model_enum(coerce = literal_from_python, accepts = [String, bool, i64, f64])]
+#[model_enum(coerce = literal_from_python, accepts = [
+    String::INPUT_TYPE,
+    bool::INPUT_TYPE,
+    i64::INPUT_TYPE,
+    f64::INPUT_TYPE
+])]
 pub enum Literal {
     Simple(SimpleLiteral),
     Language(LanguageLiteral),

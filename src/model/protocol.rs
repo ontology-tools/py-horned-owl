@@ -3,10 +3,11 @@
 //! [`ModelFields`] impl and methods that forward here.
 
 use horned_owl::model::Build;
+use pyo3::inspect::PyStaticExpr;
 use pyo3::prelude::*;
 use pyo3::pyclass::boolean_struct::True;
 use pyo3::types::{PyDict, PyString, PyTuple, PyType};
-use pyo3::PyClass;
+use pyo3::{type_hint_union, PyClass, PyTypeInfo};
 
 use super::IRI;
 
@@ -63,11 +64,19 @@ pub fn replace<'py, T: ModelFields>(
         .cast_into::<T>()?)
 }
 
-/// A `str` where an entity is expected is its IRI, used as is: CURIEs are
-/// only expanded by the ontology's methods, which know its prefixes.
-pub fn entity_from_str<T: From<IRI>>(ob: &Bound<'_, PyAny>) -> PyResult<Option<T>> {
-    Ok(match ob.cast::<PyString>() {
-        Ok(s) => Some(IRI::new(s.to_str()?, &Build::new_arc()).into()),
-        Err(_) => None,
-    })
+/// Convert an IRI or a string to a model entity.
+/// Returns `None` if the argument is neither an IRI nor a string.
+pub fn entity_from_iri<T: From<IRI>>(ob: &Bound<'_, PyAny>) -> PyResult<Option<T>> {
+    if let Ok(iri) = ob.cast::<IRI>() {
+        return Ok(Some(iri.get().clone().into()));
+    }
+
+    if let Ok(s) = ob.cast::<PyString>() {
+        return Ok(Some(IRI::new(s.to_str()?, &Build::new_arc()).into()));
+    }
+
+    Ok(None)
 }
+
+/// The stub type of what [`entity_from_iri`] accepts, for `accepts = [...]`.
+pub const IRI_OR_STR: PyStaticExpr = type_hint_union!(IRI::TYPE_HINT, String::INPUT_TYPE);

@@ -2,7 +2,7 @@ use py_horned_owl_macros::{model, model_enum, model_union};
 use pyo3::exceptions::PyUserWarning;
 use pyo3::prelude::*;
 
-use crate::model::protocol::entity_from_str;
+use crate::model::protocol::{entity_from_iri, IRI_OR_STR};
 use crate::wrappers::VecWrap;
 
 use super::{
@@ -11,8 +11,8 @@ use super::{
     ObjectMinCardinality, ObjectProperty, ObjectSomeValuesFrom,
 };
 
-// A `str` names an object property.
-#[model_enum(coerce = entity_from_str::<ObjectProperty>, accepts = [String])]
+// An `IRI` or a `str` names an object property.
+#[model_enum(coerce = entity_from_iri::<ObjectProperty>, accepts = [IRI_OR_STR])]
 pub enum ObjectPropertyExpression {
     #[model(wraps)]
     ObjectProperty(ObjectProperty),
@@ -117,21 +117,21 @@ pub enum SubObjectPropertyExpression {
     ObjectPropertyChain(VecWrap<ObjectPropertyExpression>),
 }
 
-#[model_union(coerce = property_expression_from_str, accepts = [String])]
+#[model_union(coerce = property_expression_from_iri, accepts = [IRI_OR_STR])]
 pub enum PropertyExpression {
     ObjectPropertyExpression(ObjectPropertyExpression),
     DataProperty(DataProperty),
     AnnotationProperty(AnnotationProperty),
 }
 
-fn property_expression_from_str(ob: &Bound<'_, PyAny>) -> PyResult<Option<PropertyExpression>> {
-    let Some(property) = entity_from_str::<ObjectProperty>(ob)? else {
+fn property_expression_from_iri(ob: &Bound<'_, PyAny>) -> PyResult<Option<PropertyExpression>> {
+    let Some(property) = entity_from_iri::<ObjectProperty>(ob)? else {
         return Ok(None);
     };
     PyErr::warn(
         ob.py(),
         &ob.py().get_type::<PyUserWarning>(),
-        c"Ambiguous property string interpreted as ObjectProperty; use an explicit ObjectProperty, DataProperty, or AnnotationProperty.",
+        c"Ambiguous property IRI or string interpreted as ObjectProperty; use an explicit ObjectProperty, DataProperty, or AnnotationProperty.",
         1,
     )?;
     Ok(Some(PropertyExpression::ObjectPropertyExpression(
