@@ -1,5 +1,6 @@
 use py_horned_owl_macros::{model, model_enum};
 use pyo3::prelude::*;
+use std::collections::VecDeque;
 
 use crate::model::protocol::{entity_from_iri, IRI_OR_STR};
 use crate::wrappers::{BoxWrap, VecWrap};
@@ -34,23 +35,33 @@ pub enum ClassExpression {
 #[pymethods]
 impl ClassExpressionBase {
     fn __and__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
-        Ok(slf.extract::<ClassExpression>()?.intersection(other))
+        Ok(ObjectIntersectionOf {
+            operands: VecWrap(vec![slf.extract()?, other]),
+        })
     }
 
     fn __or__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
-        Ok(slf.extract::<ClassExpression>()?.union(other))
+        Ok(ObjectUnionOf {
+            operands: VecWrap(vec![slf.extract()?, other]),
+        })
     }
 
     fn __rand__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
-        Ok(other.intersection(slf.extract()?))
+        Ok(ObjectIntersectionOf {
+            operands: VecWrap(vec![other, slf.extract()?]),
+        })
     }
 
     fn __ror__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
-        Ok(other.union(slf.extract()?))
+        Ok(ObjectUnionOf {
+            operands: VecWrap(vec![other, slf.extract()?]),
+        })
     }
 
-    fn __invert__(slf: &Bound<'_, Self>) -> PyResult<ClassExpression> {
-        Ok(slf.extract::<ClassExpression>()?.complement())
+    fn __invert__(slf: &Bound<'_, Self>) -> PyResult<ObjectComplementOf> {
+        Ok(ObjectComplementOf {
+            operand: Box::new(slf.extract::<ClassExpression>()?).into(),
+        })
     }
 
     /// Returns an equivalent, flatter class expression
@@ -61,49 +72,34 @@ impl ClassExpressionBase {
 
 macro_rules! flatten {
     ($variant:ident, $field:ident) => {{
-        let mut flat = $field.into_iter().map(Self::flatten).collect::<Vec<_>>();
+        let mut original = $field.into_iter().collect::<VecDeque<_>>();
+        let mut result = vec![];
 
-        if flat.len() == 1 {
-            flat.pop().unwrap()
-        } else {
-            $variant {
-                $field: flat.into(),
-            }.into()
+        while let Some(item) = original.pop_front() {
+            let item = item.flatten();
+            if let Self::$variant(inner) = item {
+                for x in inner.$field.0.into_iter().rev() {
+                    original.push_front(x);
+                }
+            } else {
+                if !result.contains(&item) {
+                    result.push(item);
+                }
+            }
         }
+
+        if result.len() == 1 {
+            return result.pop().unwrap();
+        }
+
+        $variant {
+            $field: result.into(),
+        }
+        .into()
     }};
 }
 
 impl ClassExpression {
-    pub fn intersection(self, other: Self) -> ObjectIntersectionOf {
-        ObjectIntersectionOf {
-            operands: vec![self, other]
-                .into_iter()
-                .map(Self::flatten)
-                .collect::<Vec<_>>()
-                .into(),
-        }
-    }
-
-    pub fn union(self, other: Self) -> ObjectUnionOf {
-        ObjectUnionOf {
-            operands: vec![self, other]
-                .into_iter()
-                .map(Self::flatten)
-                .collect::<Vec<_>>()
-                .into(),
-        }
-    }
-
-    pub fn complement(self) -> Self {
-        match self {
-            Self::ObjectComplementOf(complement) => *complement.operand.0,
-            operand => ObjectComplementOf {
-                operand: Box::new(operand).into(),
-            }
-            .into(),
-        }
-    }
-
     pub fn flatten(self) -> Self {
         match self {
             Self::ObjectIntersectionOf(ObjectIntersectionOf {
@@ -112,7 +108,16 @@ impl ClassExpression {
             Self::ObjectUnionOf(ObjectUnionOf {
                 operands: VecWrap(operands),
             }) => flatten!(ObjectUnionOf, operands),
-            Self::ObjectComplementOf(x) => x.operand.0.flatten().complement(),
+            Self::ObjectComplementOf(x) => {
+                if let Self::ObjectComplementOf(inner) = *x.operand.0 {
+                    (*inner.operand.0).flatten()
+                } else {
+                    ObjectComplementOf {
+                        operand: Box::new((x.operand.0).flatten()).into(),
+                    }
+                    .into()
+                }
+            }
             Self::ObjectSomeValuesFrom(x) => ObjectSomeValuesFrom {
                 class_expression: x.class_expression.flatten(),
                 ..x
