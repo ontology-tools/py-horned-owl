@@ -35,7 +35,7 @@ impl ObjectPropertyExpressionBase {
     ) -> PyResult<ObjectSomeValuesFrom> {
         Ok(ObjectSomeValuesFrom {
             object_property_expression: slf.extract()?,
-            class_expression: Box::new(class_expression).into(),
+            class_expression: class_expression.into(),
         })
     }
 
@@ -45,7 +45,7 @@ impl ObjectPropertyExpressionBase {
     ) -> PyResult<ObjectAllValuesFrom> {
         Ok(ObjectAllValuesFrom {
             object_property_expression: slf.extract()?,
-            class_expression: Box::new(class_expression).into(),
+            class_expression: class_expression.into(),
         })
     }
 
@@ -70,7 +70,7 @@ impl ObjectPropertyExpressionBase {
         Ok(ObjectMinCardinality {
             cardinality,
             object_property_expression: slf.extract()?,
-            class_expression: Box::new(class_expression).into(),
+            class_expression: class_expression.into(),
         })
     }
 
@@ -82,7 +82,7 @@ impl ObjectPropertyExpressionBase {
         Ok(ObjectMaxCardinality {
             cardinality,
             object_property_expression: slf.extract()?,
-            class_expression: Box::new(class_expression).into(),
+            class_expression: class_expression.into(),
         })
     }
 
@@ -94,7 +94,7 @@ impl ObjectPropertyExpressionBase {
         Ok(ObjectExactCardinality {
             cardinality,
             object_property_expression: slf.extract()?,
-            class_expression: Box::new(class_expression).into(),
+            class_expression: class_expression.into(),
         })
     }
 

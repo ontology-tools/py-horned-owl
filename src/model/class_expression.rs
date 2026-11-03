@@ -1,6 +1,6 @@
 use py_horned_owl_macros::{model, model_enum};
 use pyo3::prelude::*;
-use std::collections::VecDeque;
+use std::collections::HashSet;
 
 use crate::model::protocol::{entity_from_iri, IRI_OR_STR};
 use crate::wrappers::{BoxWrap, VecWrap};
@@ -36,31 +36,31 @@ pub enum ClassExpression {
 impl ClassExpressionBase {
     fn __and__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
         Ok(ObjectIntersectionOf {
-            operands: VecWrap(vec![slf.extract()?, other]),
+            operands: vec![slf.extract()?, other].into(),
         })
     }
 
     fn __or__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
         Ok(ObjectUnionOf {
-            operands: VecWrap(vec![slf.extract()?, other]),
+            operands: vec![slf.extract()?, other].into(),
         })
     }
 
     fn __rand__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
         Ok(ObjectIntersectionOf {
-            operands: VecWrap(vec![other, slf.extract()?]),
+            operands: vec![other, slf.extract()?].into(),
         })
     }
 
     fn __ror__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
         Ok(ObjectUnionOf {
-            operands: VecWrap(vec![other, slf.extract()?]),
+            operands: vec![other, slf.extract()?].into(),
         })
     }
 
     fn __invert__(slf: &Bound<'_, Self>) -> PyResult<ObjectComplementOf> {
         Ok(ObjectComplementOf {
-            operand: Box::new(slf.extract::<ClassExpression>()?).into(),
+            operand: slf.extract::<ClassExpression>()?.into(),
         })
     }
 
@@ -72,17 +72,24 @@ impl ClassExpressionBase {
 
 macro_rules! flatten {
     ($variant:ident, $field:ident) => {{
-        let mut original = $field.into_iter().collect::<VecDeque<_>>();
+        let mut original = $field.into_inner();
+        original.reverse();
         let mut result = vec![];
+        let mut seen = HashSet::new();
 
-        while let Some(item) = original.pop_front() {
-            let item = item.flatten();
+        while let Some(item) = original.pop() {
             if let Self::$variant(inner) = item {
-                for x in inner.$field.0.into_iter().rev() {
-                    original.push_front(x);
-                }
+                original.extend(inner.$field.into_inner().into_iter().rev());
+                continue;
+            }
+            let item = item.flatten();
+            let items = if let Self::$variant(inner) = item {
+                inner.$field.into_inner()
             } else {
-                if !result.contains(&item) {
+                vec![item]
+            };
+            for item in items {
+                if seen.insert(item.clone()) {
                     result.push(item);
                 }
             }
@@ -102,18 +109,17 @@ macro_rules! flatten {
 impl ClassExpression {
     pub fn flatten(self) -> Self {
         match self {
-            Self::ObjectIntersectionOf(ObjectIntersectionOf {
-                operands: VecWrap(operands),
-            }) => flatten!(ObjectIntersectionOf, operands),
-            Self::ObjectUnionOf(ObjectUnionOf {
-                operands: VecWrap(operands),
-            }) => flatten!(ObjectUnionOf, operands),
+            Self::ObjectIntersectionOf(ObjectIntersectionOf { operands }) => {
+                flatten!(ObjectIntersectionOf, operands)
+            }
+            Self::ObjectUnionOf(ObjectUnionOf { operands }) => flatten!(ObjectUnionOf, operands),
             Self::ObjectComplementOf(x) => {
-                if let Self::ObjectComplementOf(inner) = *x.operand.0 {
-                    (*inner.operand.0).flatten()
+                let operand = x.operand.into_inner().flatten();
+                if let Self::ObjectComplementOf(inner) = operand {
+                    inner.operand.into_inner()
                 } else {
                     ObjectComplementOf {
-                        operand: Box::new((x.operand.0).flatten()).into(),
+                        operand: operand.into(),
                     }
                     .into()
                 }
@@ -150,7 +156,7 @@ impl ClassExpression {
 
 impl BoxWrap<ClassExpression> {
     fn flatten(self) -> Self {
-        Box::new(self.0.flatten()).into()
+        self.into_inner().flatten().into()
     }
 }
 
