@@ -29,6 +29,7 @@ pub mod profile;
 pub mod reasoning;
 pub mod snippet;
 pub mod structural_reasoner;
+pub mod vocab;
 mod wrappers;
 
 pub use reasoning::create_reasoner;
@@ -304,6 +305,8 @@ mod pyhornedowl {
     use crate::model::py_model;
     #[pymodule_export]
     use crate::profile::py_profile;
+    #[pymodule_export]
+    use crate::vocab::py_vocab;
 
     #[pymodule]
     mod reasoning {

@@ -1,9 +1,9 @@
-use horned_owl::model::Build;
 use py_horned_owl_macros::{model, model_enum};
 use pyo3::prelude::*;
 use pyo3::types::{PyBool, PyFloat, PyInt, PyString};
 
 use super::IRI;
+use crate::vocab::XSD;
 
 /// Besides the literal classes, a literal can be given as a `str` (a simple
 /// literal), or a `bool`, `int` or `float` (typed as `xsd:boolean`,
@@ -18,12 +18,12 @@ fn literal_from_python(ob: &Bound<'_, PyAny>) -> PyResult<Option<Literal>> {
         ));
     }
     // bool before int: Python's bool is a subclass of int.
-    let (literal, datatype) = if let Ok(b) = ob.cast::<PyBool>() {
-        (b.is_true().to_string(), "boolean")
+    let (literal, datatype_iri) = if let Ok(b) = ob.cast::<PyBool>() {
+        (b.is_true().to_string(), XSD::boolean())
     } else if ob.is_instance_of::<PyInt>() {
         (
             ob.py().get_type::<PyInt>().call1((ob,))?.str()?.to_string(),
-            "integer",
+            XSD::integer(),
         )
     } else if let Ok(f) = ob.cast::<PyFloat>() {
         let v = f.value();
@@ -34,17 +34,14 @@ fn literal_from_python(ob: &Bound<'_, PyAny>) -> PyResult<Option<Literal>> {
         } else {
             PyFloat::new(ob.py(), v).repr()?.to_string()
         };
-        (literal, "double")
+        (literal, XSD::double())
     } else {
         return Ok(None);
     };
     Ok(Some(
         DatatypeLiteral {
             literal,
-            datatype_iri: IRI::new(
-                format!("http://www.w3.org/2001/XMLSchema#{}", datatype),
-                &Build::new_arc(),
-            ),
+            datatype_iri,
         }
         .into(),
     ))

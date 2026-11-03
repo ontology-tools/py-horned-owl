@@ -5,7 +5,7 @@ import warnings as _warnings
 
 from . import pyhornedowl as _native
 
-for _name in ("model", "reasoning", "profile"):
+for _name in ("model", "reasoning", "profile", "vocab"):
     _sys.modules[f"{__name__}.pyhornedowl.{_name}"] = getattr(_native, _name)
 
 from .pyhornedowl import *
@@ -23,5 +23,5 @@ else:
             return Ontology
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
-del model, reasoning, profile
-from . import model as model, reasoning as reasoning, profile as profile
+del model, reasoning, profile, vocab
+from . import model as model, reasoning as reasoning, profile as profile, vocab as vocab
