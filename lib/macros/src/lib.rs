@@ -774,6 +774,7 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
 
     let name = item.ident.clone();
     let base = format_ident!("{}Base", name);
+    let borrowed = format_ident!("{}Ref", name);
     let python_name = LitStr::new(&name.to_string(), name.span());
     let horned_enum = horned(&name);
     let doc = default_doc(&item.attrs, &name);
@@ -833,7 +834,11 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
 
     let serialize = serialize_method(
         &base,
-        quote!(<#horned_enum>::from(&::pyo3::types::PyAnyMethods::extract::<#name>(slf.as_any())?)),
+        quote!({
+            match #borrowed::extract(slf.as_any())? {
+                #(#borrowed::#variant_idents(value) => <#horned_enum>::from(value),)*
+            }
+        }),
         false,
     );
     let str = str_as_functional(&base);
@@ -856,6 +861,23 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
         #[::pyo3::pyclass(name = #python_name, module = "pyhornedowl.model", subclass, frozen)]
         pub struct #base;
 
+        // Borrow concrete Python subclasses without constructing owned trees.
+        #[derive(PartialEq, Eq, PartialOrd, Ord)]
+        enum #borrowed<'a> {
+            #(#variant_idents(&'a #variant_types),)*
+        }
+
+        impl<'a> #borrowed<'a> {
+            fn extract(value: &'a ::pyo3::Bound<'_, ::pyo3::PyAny>) -> ::pyo3::PyResult<Self> {
+                #(
+                    if let Ok(value) = value.cast::<#variant_types>() {
+                        return Ok(Self::#variant_idents(value.get()));
+                    }
+                )*
+                Err(::pyo3::exceptions::PyTypeError::new_err(concat!("expected a concrete ", stringify!(#name))))
+            }
+        }
+
         #serialize
         #str
 
@@ -872,8 +894,8 @@ fn model_enum_impl(attr: TokenStream2, mut item: ItemEnum) -> syn::Result<TokenS
                 if !other.is_instance_of::<#base>() {
                     return Ok(slf.py().NotImplemented().into_bound(slf.py()));
                 }
-                let left = slf.extract::<#name>()?;
-                let right = other.extract::<#name>()?;
+                let left = #borrowed::extract(slf.as_any())?;
+                let right = #borrowed::extract(other)?;
                 op.matches(left.cmp(&right)).into_bound_py_any(slf.py())
             }
         }
