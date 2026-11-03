@@ -31,33 +31,37 @@ pub enum ClassExpression {
     DataExactCardinality(DataExactCardinality),
 }
 
-/// `&`, `|` and `~` build intersections, unions and complements.
 #[pymethods]
 impl ClassExpressionBase {
+    /// `self & other`: the intersection of both class expressions.
     fn __and__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
         Ok(ObjectIntersectionOf {
             operands: vec![slf.extract()?, other].into(),
         })
     }
 
+    /// `self | other`: the union of both class expressions.
     fn __or__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
         Ok(ObjectUnionOf {
             operands: vec![slf.extract()?, other].into(),
         })
     }
 
+    /// `other & self`: the intersection of both class expressions.
     fn __rand__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectIntersectionOf> {
         Ok(ObjectIntersectionOf {
             operands: vec![other, slf.extract()?].into(),
         })
     }
 
+    /// `other | self`: the union of both class expressions.
     fn __ror__(slf: &Bound<'_, Self>, other: ClassExpression) -> PyResult<ObjectUnionOf> {
         Ok(ObjectUnionOf {
             operands: vec![other, slf.extract()?].into(),
         })
     }
 
+    /// `~self`: the complement of this class expression.
     fn __invert__(slf: &Bound<'_, Self>) -> PyResult<ObjectComplementOf> {
         Ok(ObjectComplementOf {
             operand: slf.extract::<ClassExpression>()?.into(),

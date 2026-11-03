@@ -98,6 +98,7 @@ impl ObjectPropertyExpressionBase {
         })
     }
 
+    /// `~self`: the inverse of this object property expression.
     fn __invert__(slf: &Bound<'_, Self>) -> PyResult<ObjectPropertyExpression> {
         Ok(match slf.extract()? {
             ObjectPropertyExpression::ObjectProperty(object_property) => {
