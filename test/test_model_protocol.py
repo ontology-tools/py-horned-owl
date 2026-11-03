@@ -114,7 +114,7 @@ def test_operators_are_inherited_from_class_expression():
     assert (a & b) | ~a == ObjectUnionOf([ObjectIntersectionOf([a, b]), ObjectComplementOf(a)])
 
 
-def test_operators_flatten():
+def test_operators_preserve_nesting():
     a, b, c, d = (Class(f"https://example.com/{n}") for n in "abcd")
     assert a & b & c == ObjectIntersectionOf([ObjectIntersectionOf([a, b]), c])
     assert (a & b) & (c & d) == ObjectIntersectionOf([ObjectIntersectionOf([a, b]), ObjectIntersectionOf([c, d])])
@@ -478,6 +478,8 @@ R = ObjectProperty("https://example.com/r")
     (A & (B & ObjectIntersectionOf([C])), ObjectIntersectionOf([A, B, C])),
     ((A | B) | A, A | B),
     ((A & (B | ObjectUnionOf([C]))), (A & (B | C))),
+    (~ObjectIntersectionOf([~A]), A),
+    (~ObjectUnionOf([~A]), A),
     (~~A, A),
     (~~~A, ~A),
     ((~~(A & B)) & C, ObjectIntersectionOf([A, B, C])),
@@ -492,4 +494,44 @@ R = ObjectProperty("https://example.com/r")
 ])
 def test_flatten(expression, expected):
     assert expression.flatten() == expected
-    # assert expected.flatten() == expected
+    assert expected.flatten() == expected
+
+
+@pytest.mark.parametrize("label", ["_:b0", "_:other"])
+def test_blank_node_strings(label):
+    anonymous = AnonymousIndividual(label)
+    assert ClassAssertion(A, label).individual == anonymous
+    assert ObjectOneOf([label]).individuals == [anonymous]
+    assert R.has_value(label).individual == anonymous
+    annotation = Annotation(AnnotationProperty(B_IRI), label)
+    assert annotation.value == anonymous
+    assertion = AnnotationAssertion(label, annotation)
+    assert assertion.subject == anonymous
+    ontology = Ontology()
+    ontology.add_axiom(assertion)
+    serialized = ontology.save_to_string("ofn")
+    assert label in serialized
+    assert f"<{label}>" not in serialized
+    # Explicit objects retain their explicit interpretation.
+    assert Annotation(AnnotationProperty(B_IRI), SimpleLiteral(label)).value == SimpleLiteral(label)
+    assert AnnotationAssertion(IRI(label), annotation).subject == IRI(label)
+
+
+def test_nested_field_snapshots_and_protocols():
+    expression = R.some(A & (B | C))
+    operands = expression.class_expression.operands
+    operands.clear()
+    assert expression.class_expression == A & (B | C)
+    assert eval(repr(expression)) == expression
+    assert pickle.loads(pickle.dumps(expression)) == expression
+
+
+@pytest.mark.parametrize("operator", ["and", "or"])
+def test_flatten_long_chain_preserves_order(operator):
+    values = [Class(f"https://example.com/C{i}") for i in range(1000)]
+    expression = values[0]
+    for value in values[1:] + values[:20]:
+        expression = expression & value if operator == "and" else expression | value
+    result = expression.flatten()
+    assert result.operands == values
+    assert result.flatten() == result

@@ -2,6 +2,7 @@ use py_horned_owl_macros::{model, model_union};
 
 use crate::wrappers::BTreeSetWrap;
 
+use super::entity::anonymous_from_python;
 use super::{AnnotationProperty, AnonymousIndividual, Literal, IRI};
 
 #[model(render = functional)]
@@ -14,17 +15,28 @@ pub struct Annotation {
     pub annotations: BTreeSetWrap<Annotation>,
 }
 
-// A `str` is a literal, not an IRI: annotations are mostly labels and
-// comments.
-#[model_union]
+// Ordinary strings are literals; `_:` labels identify anonymous individuals.
+#[model_union(coerce = anonymous_from_python)]
 pub enum AnnotationValue {
     Literal(Literal),
     IRI(IRI),
     AnonymousIndividual(AnonymousIndividual),
 }
 
-#[model_union]
+#[model_union(coerce = anonymous_from_python)]
 pub enum AnnotationSubject {
     IRI(IRI),
     AnonymousIndividual(AnonymousIndividual),
+}
+
+impl From<AnonymousIndividual> for AnnotationValue {
+    fn from(value: AnonymousIndividual) -> Self {
+        Self::AnonymousIndividual(value)
+    }
+}
+
+impl From<AnonymousIndividual> for AnnotationSubject {
+    fn from(value: AnonymousIndividual) -> Self {
+        Self::AnonymousIndividual(value)
+    }
 }

@@ -1,6 +1,8 @@
 //! The named entities, which an IRI identifies, and individuals.
 
 use py_horned_owl_macros::{model, model_enum};
+use pyo3::prelude::*;
+use pyo3::types::PyString;
 
 use crate::model::protocol::{entity_from_iri, IRI_OR_STR};
 use crate::wrappers::StringWrapper;
@@ -49,8 +51,28 @@ pub struct AnonymousIndividual {
     pub name: StringWrapper,
 }
 
-// An `IRI` or a `str` names an individual.
-#[model_enum(wraps, coerce = entity_from_iri::<NamedIndividual>, accepts = [IRI_OR_STR])]
+pub(crate) fn anonymous_from_python(
+    ob: &Bound<'_, PyAny>,
+) -> PyResult<Option<AnonymousIndividual>> {
+    if let Ok(s) = ob.cast::<PyString>() {
+        let name = s.to_str()?;
+        if name.starts_with("_:") {
+            return Ok(Some(AnonymousIndividual {
+                name: name.to_owned().into(),
+            }));
+        }
+    }
+    Ok(None)
+}
+
+fn individual_from_python(ob: &Bound<'_, PyAny>) -> PyResult<Option<Individual>> {
+    if let Some(value) = anonymous_from_python(ob)? {
+        return Ok(Some(value.into()));
+    }
+    Ok(entity_from_iri::<NamedIndividual>(ob)?.map(Into::into))
+}
+
+#[model_enum(wraps, coerce = individual_from_python, accepts = [IRI_OR_STR])]
 pub enum Individual {
     Anonymous(AnonymousIndividual),
     Named(NamedIndividual),
