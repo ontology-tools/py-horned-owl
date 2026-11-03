@@ -6,6 +6,7 @@ import types
 import typing
 from pathlib import Path
 
+from sphinx.util import logging
 from sphinx.util.typing import stringify_annotation
 
 _UNION_ORIGINS = (typing.Union, types.UnionType)
@@ -74,9 +75,12 @@ def _stub_signatures() -> dict[str, tuple[str, str | None]]:
     native = importlib.import_module("pyhornedowl.pyhornedowl")
     stub_dir = Path(native.__file__).parent / "pyhornedowl"
     if not stub_dir.is_dir():
-        raise RuntimeError(
-            f"No type stubs in {stub_dir}; build with `maturin develop --generate-stubs`."
+        logging.getLogger(__name__).warning(
+            "No type stubs in %s; using runtime signatures. "
+            "Build with `maturin develop --generate-stubs` for typed signatures.",
+            stub_dir,
         )
+        return {}
 
     aliases = {
         frozenset(a.__name__ for a in typing.get_args(v)): name

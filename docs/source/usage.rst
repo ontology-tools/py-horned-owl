@@ -180,7 +180,7 @@ Instead of writing class expressions as nested constructor calls, some expressio
     assert r.only(A) == ObjectAllValuesFrom(r, A)
     assert r.some(A & B | (~r).only(C)) == ObjectSomeValuesFrom(r, ObjectUnionOf([ObjectIntersectionOf([A, B]), ObjectAllValuesFrom(InverseObjectProperty(r), C)]))
 
-The operators do not flatten what they build. For example, ``A & B & C`` is  ``ObjectIntersectionOf(ObjectIntersectionOf(A, B), C))``. To create an equal but flattened expression, use the :func:`ClassExpression.flatten <pyhornedowl.model.ClassExpression.flatten>` method.
+The operators do not flatten what they build. For example, ``A & B & C`` is  ``ObjectIntersectionOf([ObjectIntersectionOf([A, B]), C])``. To create an equal but flattened expression, use the :func:`ClassExpression.flatten <pyhornedowl.model.ClassExpression.flatten>` method.
 
 
 Render a single axiom
