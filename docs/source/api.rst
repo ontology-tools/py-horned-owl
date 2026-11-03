@@ -8,3 +8,4 @@ API
    pyhornedowl.model
    pyhornedowl.reasoning
    pyhornedowl.profile
+   pyhornedowl.vocab

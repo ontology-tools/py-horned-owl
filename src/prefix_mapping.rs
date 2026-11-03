@@ -80,16 +80,16 @@ impl PrefixMapping {
     /// Adds the prefix for rdf, rdfs, xsd, and owl
     pub fn add_default_prefix_names(&mut self) -> PyResult<()> {
         self.0
-            .add_prefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+            .add_prefix("rdf", crate::vocab::RDF::NAMESPACE)
             .map_err(to_py_err!("Error while adding predefined prefix 'rdf'"))?;
         self.0
-            .add_prefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#")
+            .add_prefix("rdfs", crate::vocab::RDFS::NAMESPACE)
             .map_err(to_py_err!("Error while adding predefined prefix 'rdfs'"))?;
         self.0
-            .add_prefix("xsd", "http://www.w3.org/2001/XMLSchema#")
+            .add_prefix("xsd", crate::vocab::XSD::NAMESPACE)
             .map_err(to_py_err!("Error while adding predefined prefix 'xsd'"))?;
         self.0
-            .add_prefix("owl", "http://www.w3.org/2002/07/owl#")
+            .add_prefix("owl", crate::vocab::OWL::NAMESPACE)
             .map_err(to_py_err!("Error while adding predefined prefix 'owl'"))?;
 
         Ok(())

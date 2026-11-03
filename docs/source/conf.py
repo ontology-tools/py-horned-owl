@@ -44,7 +44,8 @@ import custom_doc
 autosummary_imported_members = True
 autodoc_default_options = {
     'members': True,
-    'special-members': '__init__',
+    'special-members': '__init__, __and__, __rand__, __or__, __ror__, __invert__',
+    'show-inheritance': True,
 }
 autodoc_typehints = "both"
 

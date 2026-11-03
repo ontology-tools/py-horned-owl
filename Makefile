@@ -1,10 +1,10 @@
-.PHONY: all dev mdev model docs tests
+.PHONY: all dev mdev docs tests
 
 all: lib
 
 dev: mdev
 
-mdev: model docs
+mdev: docs
 	uv run --with 'maturin>=1.15' maturin develop --generate-stubs
 
 docs: src/doc.rs
@@ -12,10 +12,7 @@ docs: src/doc.rs
 src/doc.rs: .venv
 	.venv/bin/python scripts/build_doc.py
 
-model: .venv
-	.venv/bin/python scripts/build_model.py
-
-lib: model docs
+lib: docs
 	uvx --from 'maturin>=1.15' maturin build --release --generate-stubs
 
 .venv:

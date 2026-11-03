@@ -6,7 +6,10 @@ import types
 import typing
 from pathlib import Path
 
+from sphinx.util import logging
 from sphinx.util.typing import stringify_annotation
+
+_UNION_ORIGINS = (typing.Union, types.UnionType)
 
 
 def _unions(module_name: str):
@@ -15,7 +18,7 @@ def _unions(module_name: str):
     return {
         name: value
         for name, value in vars(module).items()
-        if not name.startswith("_") and typing.get_origin(value) is typing.Union
+        if not name.startswith("_") and typing.get_origin(value) in _UNION_ORIGINS
     }
 
 
@@ -72,9 +75,12 @@ def _stub_signatures() -> dict[str, tuple[str, str | None]]:
     native = importlib.import_module("pyhornedowl.pyhornedowl")
     stub_dir = Path(native.__file__).parent / "pyhornedowl"
     if not stub_dir.is_dir():
-        raise RuntimeError(
-            f"No type stubs in {stub_dir}; build with `maturin develop --generate-stubs`."
+        logging.getLogger(__name__).warning(
+            "No type stubs in %s; using runtime signatures. "
+            "Build with `maturin develop --generate-stubs` for typed signatures.",
+            stub_dir,
         )
+        return {}
 
     aliases = {
         frozenset(a.__name__ for a in typing.get_args(v)): name
@@ -95,18 +101,26 @@ def _stub_signatures() -> dict[str, tuple[str, str | None]]:
 
     signatures = {}
     for stub in stub_dir.glob("*.pyi"):
-        module = "pyhornedowl" if stub.stem == "__init__" else f"pyhornedowl.{stub.stem}"
+        module = (
+            "pyhornedowl" if stub.stem == "__init__" else f"pyhornedowl.{stub.stem}"
+        )
         for node in ast.parse(stub.read_text()).body:
             if isinstance(node, ast.FunctionDef):
-                signatures.setdefault(f"{module}.{node.name}", render(node, method=False))
+                signatures.setdefault(
+                    f"{module}.{node.name}", render(node, method=False)
+                )
             elif isinstance(node, ast.ClassDef):
                 for item in node.body:
                     if not isinstance(item, ast.FunctionDef):
                         continue
+                    # Once: render() changes `item` in place.
+                    signature = render(item, method=True)
                     if item.name == "__new__":
-                        signatures[f"{module}.{node.name}"] = (render(item, method=True)[0], None)
+                        signatures[f"{module}.{node.name}"] = (signature[0], None)
                     # setdefault: a property's setter follows its getter
-                    signatures.setdefault(f"{module}.{node.name}.{item.name}", render(item, method=True))
+                    signatures.setdefault(
+                        f"{module}.{node.name}.{item.name}", signature
+                    )
     return signatures
 
 
@@ -129,7 +143,6 @@ def process_docstring(app, what, name, obj, options, lines: list[str]):
 
 
 def setup(app):
-    pass
     app.connect("autodoc-skip-member", skip_member)
     app.connect("autodoc-process-signature", process_signature)
     app.connect("autodoc-process-docstring", process_docstring)

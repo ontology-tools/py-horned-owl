@@ -16,8 +16,8 @@ from pyhornedowl.profile import (
 EX = "https://example.com/"
 
 
-def _ontology(*names: str) -> pyhornedowl.PyIndexedOntology:
-    onto = pyhornedowl.PyIndexedOntology()
+def _ontology(*names: str) -> pyhornedowl.Ontology:
+    onto = pyhornedowl.Ontology()
     onto.prefix_mapping.add_default_prefix_names()
     onto.prefix_mapping.add_prefix("", EX)
     for n in names:
@@ -25,14 +25,14 @@ def _ontology(*names: str) -> pyhornedowl.PyIndexedOntology:
     return onto
 
 
-def simple_ontology() -> pyhornedowl.PyIndexedOntology:
+def simple_ontology() -> pyhornedowl.Ontology:
     """Two named classes with a single SubClassOf — conformant to every profile."""
     onto = _ontology("A", "B")
     onto.add_component(SubClassOf(Class(IRI.parse(EX + "A")), Class(IRI.parse(EX + "B"))))
     return onto
 
 
-def union_ontology() -> pyhornedowl.PyIndexedOntology:
+def union_ontology() -> pyhornedowl.Ontology:
     """`A or B SubClassOf C` — legal in OWL 2 DL and RL, but not in EL or QL."""
     onto = _ontology("A", "B", "C")
     union = ObjectUnionOf([Class(IRI.parse(EX + "A")), Class(IRI.parse(EX + "B"))])
@@ -93,7 +93,7 @@ def test_violations_are_typed_subclasses():
 def test_violation_exposes_only_the_fields_it_has():
     # An undeclared class is not attributable to a single axiom, so
     # UseOfUndeclaredClass carries an `iri` and no `axiom` at all.
-    onto = pyhornedowl.PyIndexedOntology()
+    onto = pyhornedowl.Ontology()
     onto.prefix_mapping.add_default_prefix_names()
     onto.add_component(
         SubClassOf(Class(IRI.parse(EX + "A")), Class(IRI.parse(EX + "B")))

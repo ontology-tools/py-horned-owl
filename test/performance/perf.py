@@ -23,7 +23,7 @@ def perf(path: str):
     for _ in range(3):
         start = time.perf_counter()
         for a in o.get_components():
-            if len(a.ann) > 0:
+            if len(a.annotations) > 0:
                 amount += 1
         iter_time += time.perf_counter() - start
 
@@ -31,7 +31,7 @@ def perf(path: str):
     print(f"Iterated in {iter_time}s")
 
     print("Adding 100.000 axioms...")
-    o = pyhornedowl.PyIndexedOntology()
+    o = pyhornedowl.Ontology()
     start = time.perf_counter()
     for i in range(100_000):
         o.add_axiom(SubClassOf(o.class_(f"https://example.com/entity_{i}"), o.class_(f"https://example.com/entity{i+1}")))

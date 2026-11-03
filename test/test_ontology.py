@@ -21,7 +21,7 @@ def o():
         DeclareNamedIndividual(NamedIndividual(IRI.parse("https://example.com/G"))),
     ]
 
-    onto = pyhornedowl.PyIndexedOntology()
+    onto = pyhornedowl.Ontology()
     onto.prefix_mapping.add_default_prefix_names()
     onto.prefix_mapping.add_prefix("", "https://example.com/")
 
@@ -54,3 +54,33 @@ def test_get_classes(o) -> None:
 def test_named_individuals(o) -> None:
     """Test getting named individuals."""
     assert {"https://example.com/G"} == o.get_named_individuals()
+
+
+def test_ontology_name_and_compatibility_alias():
+    from pyhornedowl import Ontology
+    from pyhornedowl import pyhornedowl as native
+
+    assert Ontology.__name__ == Ontology.__qualname__ == "Ontology"
+    assert Ontology.__module__ == "pyhornedowl"
+    assert native.Ontology is Ontology
+    with pytest.deprecated_call(match="renamed to Ontology"):
+        from pyhornedowl import PyIndexedOntology
+    assert PyIndexedOntology is Ontology
+    assert type(PyIndexedOntology()) is Ontology
+    assert not hasattr(native, "PyIndexedOntology")
+
+
+def test_deprecated_alias_is_not_star_exported():
+    namespace = {}
+    exec("from pyhornedowl import *", namespace)
+    assert "Ontology" in namespace and "PyIndexedOntology" not in namespace
+
+
+def test_unknown_attribute_still_raises():
+    with pytest.raises(AttributeError, match="no attribute 'Ontolgy'"):
+        pyhornedowl.Ontolgy
+
+
+def test_loaded_ontology_has_new_type():
+    ontology = pyhornedowl.open_ontology_from_string("Ontology()", "ofn")
+    assert type(ontology) is pyhornedowl.Ontology

@@ -1,0 +1,2 @@
+# `Shared` only caches a hash derived from its immutable value.
+ignore-interior-mutability = ["pyhornedowl::wrappers::Shared"]
