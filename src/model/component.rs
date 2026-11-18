@@ -394,7 +394,20 @@ pub struct Rule {
     pub body: VecWrap<Atom>,
 }
 
-#[model]
+/// Coerce a bare component without changing its annotation-free meaning.
+fn annotated_from_component(ob: &Bound<'_, PyAny>) -> PyResult<Option<AnnotatedComponent>> {
+    if ob.is_instance_of::<ComponentBase>() {
+        return Ok(Some(AnnotatedComponent {
+            component: ob.extract()?,
+            annotations: BTreeSetWrap::default(),
+        }));
+    }
+    Ok(None)
+}
+
+/// An annotated component. Bare components convert to this type with empty
+/// annotations wherever an annotated component is expected.
+#[model(coerce = annotated_from_component, accepts = [Component::INPUT_TYPE])]
 pub struct AnnotatedComponent {
     pub component: Component,
     #[model(horned = ann, default = BTreeSetWrap::default())]
