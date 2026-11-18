@@ -120,7 +120,7 @@ pub mod py_model {
         DeclareAnnotationProperty, DeclareClass, DeclareDataProperty, DeclareDatatype,
         DeclareNamedIndividual, DeclareObjectProperty, DifferentIndividuals,
         DifferentIndividualsAtom, DisjointClasses, DisjointDataProperties,
-        DisjointObjectProperties, DisjointUnion, DocIRI, EquivalentClasses,
+        DisjointObjectProperties, DisjointUnion, DocIRI, EntityKind, EquivalentClasses,
         EquivalentDataProperties, EquivalentObjectProperties, Facet, FacetRestriction,
         FunctionalDataProperty, FunctionalObjectProperty, HasKey, Import, IndividualBase,
         InverseFunctionalObjectProperty, InverseObjectProperties, InverseObjectProperty,

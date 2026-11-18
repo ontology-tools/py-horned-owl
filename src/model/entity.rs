@@ -45,6 +45,33 @@ pub struct NamedIndividual {
     pub iri: IRI,
 }
 
+/// The kind of a named OWL entity, independent of its IRI.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[pyclass(module = "pyhornedowl.model", frozen, eq, hash, from_py_object)]
+pub enum EntityKind {
+    Class,
+    NamedIndividual,
+    ObjectProperty,
+    DataProperty,
+    AnnotationProperty,
+    Datatype,
+}
+
+impl EntityKind {
+    pub fn index(self) -> usize {
+        self as usize
+    }
+
+    pub const ALL: [Self; 6] = [
+        Self::Class,
+        Self::NamedIndividual,
+        Self::ObjectProperty,
+        Self::DataProperty,
+        Self::AnnotationProperty,
+        Self::Datatype,
+    ];
+}
+
 #[model(extends = IndividualBase, str = name)]
 pub struct AnonymousIndividual {
     #[model(horned = 0)]
