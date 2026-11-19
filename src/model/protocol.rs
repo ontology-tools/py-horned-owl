@@ -9,7 +9,50 @@ use pyo3::pyclass::boolean_struct::True;
 use pyo3::types::{PyDict, PyString, PyTuple, PyType};
 use pyo3::{type_hint_union, PyClass, PyTypeInfo};
 
-use super::IRI;
+use super::{EntityKind, IRI};
+
+/// Read the IRI hook without requiring a kind, preserving IRI-only wrappers.
+pub fn named_entity_iri(value: &Bound<'_, PyAny>) -> PyResult<IRI> {
+    let method = match value.getattr("__owl_entity_iri__") {
+        Ok(method) => method,
+        Err(err) if err.is_instance_of::<pyo3::exceptions::PyAttributeError>(value.py()) => {
+            return Err(pyo3::exceptions::PyTypeError::new_err(format!(
+                "expected an IRI, a str or a named entity implementing __owl_entity_iri__(), got {}",
+                value.get_type().name()?
+            )));
+        }
+        Err(err) => return Err(err),
+    };
+    let iri = method.call0()?;
+    Ok(iri
+        .cast::<IRI>()
+        .map_err(|_| {
+            pyo3::exceptions::PyTypeError::new_err("__owl_entity_iri__() must return an IRI")
+        })?
+        .get()
+        .clone())
+}
+
+/// Resolve the existing NamedEntity protocol without an argument wrapper type.
+pub fn named_entity(value: &Bound<'_, PyAny>) -> PyResult<(EntityKind, IRI)> {
+    let method = value.getattr("entity_kind").map_err(|err| {
+        if err.is_instance_of::<pyo3::exceptions::PyAttributeError>(value.py()) {
+            pyo3::exceptions::PyTypeError::new_err(
+                "expected a NamedEntity with entity_kind() and __owl_entity_iri__()",
+            )
+        } else {
+            err
+        }
+    })?;
+    let kind = method.call0()?;
+    let kind = *kind
+        .cast::<EntityKind>()
+        .map_err(|_| {
+            pyo3::exceptions::PyTypeError::new_err("entity_kind() must return an EntityKind")
+        })?
+        .get();
+    Ok((kind, named_entity_iri(value)?))
+}
 
 /// A model class's fields, in constructor order.
 pub trait ModelFields: PyClass<Frozen = True> + Sync + Clone {

@@ -3,6 +3,7 @@ use crate::reasoning::DynamicLoadedReasoner;
 use crate::structural_reasoner::StructuralReasoner;
 use crate::wrappers::{BTreeSetWrap, LiteralStr, Serializations};
 use crate::{model, parse_serialization, to_py_err};
+use crate::signature::{Signature};
 use curie::Curie;
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::InputFormat;
@@ -92,6 +93,7 @@ pub struct PyIndexedOntology {
     pub iri_index: Option<IRIMappedIndex<ArcStr, ArcAnnotatedComponent>>,
     pub component_index: Option<ComponentMappedIndex<ArcStr, ArcAnnotatedComponent>>,
     pub set_index: SetIndex<ArcStr, ArcAnnotatedComponent>,
+
     //Need this for converting IRIs to IDs and for saving again afterwards
     pub mapping: Py<PrefixMapping>,
     pub build: RwLock<Build<ArcStr>>,
@@ -493,6 +495,11 @@ impl PyIndexedOntology {
     /// Returns the IRIs of all declared named individuals in the ontology.
     pub fn get_named_individuals(&mut self) -> PyResult<HashSet<String>> {
         entity_query!(self, ComponentKind::DeclareNamedIndividual, Component::DeclareNamedIndividual(x) => x)
+    }
+
+    /// Calcuates the signature of the ontology.
+    pub fn signature(&self) -> Signature {
+        Signature::collect(self.iter())
     }
 
     /// Gets the first annotated value for an entity and annotation property.

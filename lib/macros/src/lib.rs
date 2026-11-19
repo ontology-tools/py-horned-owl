@@ -520,7 +520,7 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
                 self.iri.clone()
             }
 
-            /// Returns this entity's kind for the `TypedNamedEntity` protocol.
+            /// Returns this entity's kind for the `NamedEntity` protocol.
             fn entity_kind(&self) -> crate::model::EntityKind {
                 crate::model::EntityKind::#name
             }

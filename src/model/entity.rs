@@ -1,5 +1,6 @@
 //! The named entities, which an IRI identifies, and individuals.
 
+use horned_owl::model::ArcStr;
 use py_horned_owl_macros::{model, model_enum};
 use pyo3::prelude::*;
 use pyo3::types::PyString;
@@ -104,3 +105,20 @@ pub enum Individual {
     Anonymous(AnonymousIndividual),
     Named(NamedIndividual),
 }
+
+macro_rules! impl_entity_from_iri {
+    ($entity:ty) => {
+        impl From<horned_owl::model::IRI<ArcStr>> for $entity {
+            fn from(iri: horned_owl::model::IRI<ArcStr>) -> Self {
+                Self { iri: iri.into() }
+            }
+        }
+    };
+}
+
+impl_entity_from_iri!(Class);
+impl_entity_from_iri!(ObjectProperty);
+impl_entity_from_iri!(DataProperty);
+impl_entity_from_iri!(AnnotationProperty);
+impl_entity_from_iri!(Datatype);
+impl_entity_from_iri!(NamedIndividual);
