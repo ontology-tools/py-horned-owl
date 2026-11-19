@@ -1,54 +1,93 @@
-use crate::{PyIndexedOntology, model, wrappers::BTreeSetWrap};
-use horned_owl::model::{AnnotatedComponent, ArcStr, Component, MutableOntology};
-use pyo3::{exceptions::PyValueError, prelude::*};
+use crate::{model, PyIndexedOntology};
+use horned_owl::model::{AnnotatedComponent, ArcStr, MutableOntology};
+use pyo3::prelude::*;
 
 #[pymethods]
 impl PyIndexedOntology {
-
-
-    /// Adds an axiom to the ontology with optional annotations.
-    #[pyo3(signature = (component, annotations = None))]
+    /// Adds a component. Returns whether it was new.
+    ///
+    /// With ignore_annotations=True, skips insertion if the body exists, regardless of its annotations.
+    #[pyo3(signature = (component, *, ignore_annotations = false))]
     pub fn add_component(
         &mut self,
-        component: model::Component,
-        annotations: Option<BTreeSetWrap<model::Annotation>>,
-    ) -> PyResult<()> {
-        let ann = annotations.unwrap_or_default();
-
-        let annotated_component: AnnotatedComponent<ArcStr> = model::AnnotatedComponent {
-            component,
-            annotations: ann,
+        component: model::AnnotatedComponent,
+        ignore_annotations: bool,
+    ) -> bool {
+        let component: AnnotatedComponent<ArcStr> = component.into();
+        if ignore_annotations && self.iter().any(|a| a.component == component.component) {
+            return false;
         }
-        .into();
-        self.insert(annotated_component);
-
-        Ok(())
+        self.insert(component)
     }
 
-    /// Synonym for `add_component`
-    #[pyo3(signature = (ax, annotations = None))]
-    pub fn add_axiom(
+    /// Synonym for add_component.
+    #[pyo3(signature = (ax, *, ignore_annotations = false))]
+    pub fn add_axiom(&mut self, ax: model::AnnotatedComponent, ignore_annotations: bool) -> bool {
+        self.add_component(ax, ignore_annotations)
+    }
+
+    /// synonym for add_components.
+    #[pyo3(signature = (axioms, *, ignore_annotations = false))]
+    pub fn add_axioms(
         &mut self,
-        ax: model::Component,
-        annotations: Option<BTreeSetWrap<model::Annotation>>,
-    ) -> PyResult<()> {
-        self.add_component(ax, annotations)
+        axioms: Vec<model::AnnotatedComponent>,
+        ignore_annotations: bool,
+    ) -> usize {
+        self.add_components(axioms, ignore_annotations)
     }
 
-    /// Removes a component from the ontology.
-    pub fn remove_component(&mut self, component: model::Component) -> PyResult<bool> {
-        let ax: Component<ArcStr> = component.into();
-        let annotated = (&self.set_index)
+    /// Adds components and returns the number newly inserted.
+    ///
+    /// With ignore_annotations=True, component which are already present
+    /// are skipped.
+    #[pyo3(signature = (components, *, ignore_annotations = false))]
+    pub fn add_components(
+        &mut self,
+        components: Vec<model::AnnotatedComponent>,
+        ignore_annotations: bool,
+    ) -> usize {
+        components
             .into_iter()
-            .find(|a| a.component == ax)
-            .ok_or(PyValueError::new_err("args"))?
-            .to_owned();
-        Ok(self.remove(&annotated))
+            .map(|a| usize::from(self.add_component(a, ignore_annotations)))
+            .sum()
     }
 
-    /// Synonym for `remove_component`
-    pub fn remove_axiom(&mut self, ax: model::Component) -> PyResult<bool> {
-        self.remove_component(ax)
+    /// Removes a component from the ontology and returns whether it was present.
+    ///
+    /// With ignore_annotations=True, all components with the same unannotated body 
+    /// are removed, regardless of the annotations
+    #[pyo3(signature = (component, *, ignore_annotations = false))]
+    pub fn remove_component(
+        &mut self,
+        component: model::AnnotatedComponent,
+        ignore_annotations: bool,
+    ) -> bool {
+        self.remove_matching(component, ignore_annotations) > 0
+    }
+
+    /// Synonym for remove_component.
+    #[pyo3(signature = (ax, *, ignore_annotations = false))]
+    pub fn remove_axiom(
+        &mut self,
+        ax: model::AnnotatedComponent,
+        ignore_annotations: bool,
+    ) -> bool {
+        self.remove_component(ax, ignore_annotations)
+    }
+
+    /// Removes components from the ontology and returns the number of components removed.
+    ///
+    /// With ignore_annotations=True, components are removed if their unannotated body matches.
+    #[pyo3(signature = (components, *, ignore_annotations = false))]
+    pub fn remove_components(
+        &mut self,
+        components: Vec<model::AnnotatedComponent>,
+        ignore_annotations: bool,
+    ) -> usize {
+        components
+            .into_iter()
+            .map(|a| self.remove_matching(a, ignore_annotations))
+            .sum()
     }
 
     /// Convenience method to add a Declare(Class(iri)) axiom.
@@ -101,5 +140,25 @@ impl PyIndexedOntology {
         Ok(self.declare::<horned_owl::model::NamedIndividual<ArcStr>>(
             self.named_individual(py, iri)?.into(),
         ))
+    }
+
+}
+
+impl PyIndexedOntology {
+    pub(super) fn remove_matching(
+        &mut self,
+        axiom: model::AnnotatedComponent,
+        ignore_annotations: bool,
+    ) -> usize {
+        let axiom: AnnotatedComponent<ArcStr> = axiom.into();
+        if !ignore_annotations {
+            return usize::from(self.remove(&axiom));
+        }
+        let matches: Vec<_> = self
+            .iter()
+            .filter(|a| a.component == axiom.component)
+            .cloned()
+            .collect();
+        matches.iter().filter(|a| self.remove(a)).count()
     }
 }
