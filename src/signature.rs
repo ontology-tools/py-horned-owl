@@ -2,21 +2,15 @@
 
 use crate::model::protocol::named_entity;
 use crate::model::{
-    self, AnnotationProperty, Class, DataProperty, Datatype, EntityKind, NamedIndividual,
+    AnnotationProperty, Class, DataProperty, Datatype, EntityKind, NamedIndividual,
     ObjectProperty,
 };
-use crate::wrappers::{BTreeSetWrap, ToCounterpart};
 use horned_owl::model::{ArcStr, IRI};
 use horned_owl::visitor::immutable::{Visit, Walk};
-use pyo3::basic::CompareOp;
 use pyo3::exceptions::{PyStopIteration, PyTypeError};
-use pyo3::inspect::PyStaticExpr;
 use pyo3::prelude::*;
-use pyo3::types::PyFrozenSet;
-use pyo3::{type_hint_identifier, IntoPyObjectExt};
-use std::collections::{BTreeSet, HashMap, HashSet};
-use std::convert::Infallible;
-use std::sync::Arc;
+use pyo3::IntoPyObjectExt;
+use std::collections::{HashMap, HashSet};
 
 /// An immutable snapshot of an ontology's signature.
 ///
