@@ -2,15 +2,11 @@ use std::collections::HashSet;
 
 use horned_owl::{
     model::{
-        AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
-        ArcStr, Class, ClassExpression, Component, ComponentKind, HigherKinded, Kinded, Literal,
-        SubClassOf, IRI,
-    },
-    visitor::immutable::Walk,
-    vocab::{AnnotationBuiltIn, OWL},
+        AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue, ArcStr, Class, ClassExpression, Component, ComponentKind, HigherKinded, IRI, Kinded, Literal, SubClassOf,
+    }, visitor::immutable::{Walk, entity::IRIExtract}, vocab::{AnnotationBuiltIn, OWL},
 };
 use pyhornedowlreasoner::{PyReasoner, Reasoner};
-use pyo3::{exceptions::PyValueError, prelude::*};
+use pyo3::{exceptions::{PyTypeError, PyValueError}, prelude::*, types::PyType};
 
 use crate::{
     model::{self, protocol::named_entity},
@@ -20,10 +16,10 @@ use crate::{
 };
 
 macro_rules! entity_query {
-    ($s:ident, $kind:expr, $comp:pat => $comp_var:expr) => {{
+    ($s:ident, $kind:ident) => {{
         //Get the declaration axioms
         let entities = if let Some(ref mut component_index) = &mut $s.component_index {
-            Box::new(component_index.component_for_kind($kind))
+            Box::new(component_index.component_for_kind(ComponentKind::$kind))
                 as Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>>
         } else {
             Box::new((&$s.set_index).into_iter())
@@ -31,13 +27,79 @@ macro_rules! entity_query {
 
         let entities = entities
             .filter_map(|aax| match &aax.component {
-                $comp => Some($comp_var.0 .0.to_string()),
+                Component::$kind(x) => Some(&x.0),
                 _ => None,
             })
+            .map(|entity| entity.into())
             .collect();
 
         Ok(entities)
     }};
+}
+
+fn component_kind(py: Python<'_>, ty: &Bound<'_, PyType>) -> PyResult<Option<ComponentKind>> {
+    if ty.is(&py.get_type::<model::ComponentBase>()) {
+        return Ok(None);
+    }
+    macro_rules! kinds {
+        ($($name:ident),* $(,)?) => {
+            $(if ty.is(&py.get_type::<model::$name>()) {
+                return Ok(Some(ComponentKind::$name));
+            })*
+        };
+    }
+    kinds!(
+        OntologyID,
+        DocIRI,
+        OntologyAnnotation,
+        Import,
+        DeclareClass,
+        DeclareObjectProperty,
+        DeclareAnnotationProperty,
+        DeclareDataProperty,
+        DeclareNamedIndividual,
+        DeclareDatatype,
+        SubClassOf,
+        EquivalentClasses,
+        DisjointClasses,
+        DisjointUnion,
+        SubObjectPropertyOf,
+        EquivalentObjectProperties,
+        DisjointObjectProperties,
+        InverseObjectProperties,
+        ObjectPropertyDomain,
+        ObjectPropertyRange,
+        FunctionalObjectProperty,
+        InverseFunctionalObjectProperty,
+        ReflexiveObjectProperty,
+        IrreflexiveObjectProperty,
+        SymmetricObjectProperty,
+        AsymmetricObjectProperty,
+        TransitiveObjectProperty,
+        SubDataPropertyOf,
+        EquivalentDataProperties,
+        DisjointDataProperties,
+        DataPropertyDomain,
+        DataPropertyRange,
+        FunctionalDataProperty,
+        DatatypeDefinition,
+        HasKey,
+        SameIndividual,
+        DifferentIndividuals,
+        ClassAssertion,
+        ObjectPropertyAssertion,
+        NegativeObjectPropertyAssertion,
+        DataPropertyAssertion,
+        NegativeDataPropertyAssertion,
+        AnnotationAssertion,
+        SubAnnotationPropertyOf,
+        AnnotationPropertyDomain,
+        AnnotationPropertyRange,
+        Rule,
+    );
+    Err(PyTypeError::new_err(
+        "axiom_type must be a model Component class",
+    ))
 }
 
 #[pymethods]
@@ -150,33 +212,33 @@ impl PyIndexedOntology {
     }
 
     /// Returns the IRIs of all declared classes in the ontology.
-    pub fn get_classes(&mut self) -> PyResult<HashSet<String>> {
-        entity_query!(self, ComponentKind::DeclareClass, Component::DeclareClass(x) => x)
+    pub fn get_classes(&mut self) -> PyResult<HashSet<model::Class>> {
+        entity_query!(self, DeclareClass)
     }
 
     /// Returns the IRIs of all declared datatypes in the ontology.
-    pub fn get_datatypes(&mut self) -> PyResult<HashSet<String>> {
-        entity_query!(self, ComponentKind::DeclareDatatype, Component::DeclareDatatype(x) => x)
+    pub fn get_datatypes(&mut self) -> PyResult<HashSet<model::Datatype>> {
+        entity_query!(self, DeclareDatatype)
     }
 
     /// Returns the IRIs of all declared object properties in the ontology.
-    pub fn get_object_properties(&mut self) -> PyResult<HashSet<String>> {
-        entity_query!(self, ComponentKind::DeclareObjectProperty, Component::DeclareObjectProperty(x) => x)
+    pub fn get_object_properties(&mut self) -> PyResult<HashSet<model::ObjectProperty>> {
+        entity_query!(self, DeclareObjectProperty)
     }
 
     /// Returns the IRIs of all declared annotation properties in the ontology.
-    pub fn get_annotation_properties(&mut self) -> PyResult<HashSet<String>> {
-        entity_query!(self, ComponentKind::DeclareAnnotationProperty, Component::DeclareAnnotationProperty(x) => x)
+    pub fn get_annotation_properties(&mut self) -> PyResult<HashSet<model::AnnotationProperty>> {
+        entity_query!(self, DeclareAnnotationProperty)
     }
 
     /// Returns the IRIs of all declared data properties in the ontology.
-    pub fn get_data_properties(&mut self) -> PyResult<HashSet<String>> {
-        entity_query!(self, ComponentKind::DeclareDataProperty, Component::DeclareDataProperty(x) => x)
+    pub fn get_data_properties(&mut self) -> PyResult<HashSet<model::DataProperty>> {
+        entity_query!(self, DeclareDataProperty)
     }
 
     /// Returns the IRIs of all declared named individuals in the ontology.
-    pub fn get_named_individuals(&mut self) -> PyResult<HashSet<String>> {
-        entity_query!(self, ComponentKind::DeclareNamedIndividual, Component::DeclareNamedIndividual(x) => x)
+    pub fn get_named_individuals(&mut self) -> PyResult<HashSet<model::NamedIndividual>> {
+        entity_query!(self, DeclareNamedIndividual)
     }
 
     /// Calcuates the signature of the ontology.
@@ -414,6 +476,24 @@ impl PyIndexedOntology {
             )
         }))
     }
+
+    #[pyo3(name="query_components", signature = (kind = None, including = None))]
+    pub fn py_query_components(
+        &mut self,
+        py: Python<'_>,
+        kind: Option<Bound<'_, PyType>>,
+        including: Option<model::IRIParam>,
+    ) -> PyResult<Vec<model::AnnotatedComponent>> {
+        let kind = kind
+            .map(|ty| component_kind(py, &ty))
+            .transpose()?
+            .flatten();
+        let iri = including
+            .map(|iri| iri.into_iri(&self.mapping.borrow(py).0, &self.build.read().unwrap()))
+            .transpose()?;
+
+        self.query_components(kind, iri)
+    }
 }
 
 impl PyIndexedOntology {
@@ -471,5 +551,50 @@ impl PyIndexedOntology {
                 _ => None,
             })
             .collect()
+    }
+
+    pub fn query_components(
+        &mut self,
+        kind: Option<ComponentKind>,
+        including: Option<IRI<ArcStr>>,
+    ) -> PyResult<Vec<model::AnnotatedComponent>> {
+        // let kind = axiom_type
+        //     .map(|ty| component_kind(py, ty))
+        //     .transpose()?
+        //     .flatten();
+        // let iri = including
+        //     .map(|iri| iri.into_iri(&self.mapping.borrow(py).0, &self.build.read().unwrap()))
+        //     .transpose()?;
+        let iri = including;
+        if self.index_strategy == IndexCreationStrategy::OnQuery {
+            if iri.is_some() {
+                self.build_iri_index();
+            } else if kind.is_some() {
+                self.build_component_index();
+            }
+        }
+        let candidates: Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>> =
+            if let (Some(iri), Some(index)) = (&iri, &self.iri_index) {
+                Box::new(index.component_for_iri(iri))
+            } else if let (Some(kind), Some(index)) = (kind, &self.component_index) {
+                Box::new(index.component_for_kind(kind))
+            } else {
+                Box::new(self.iter())
+            };
+        Ok(candidates
+            .filter(|a| kind.is_none_or(|k| a.kind() == k))
+            .filter(|a| {
+                iri.as_ref().is_none_or(|iri| {
+                    // An existing IRI index already applied this filter.
+                    if self.iri_index.is_some() {
+                        return true;
+                    }
+                    let mut walk = Walk::new(IRIExtract::default());
+                    walk.annotated_component(a);
+                    walk.into_visit().into_set().contains(iri)
+                })
+            })
+            .map(model::AnnotatedComponent::from)
+            .collect())
     }
 }
