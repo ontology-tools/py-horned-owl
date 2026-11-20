@@ -1,5 +1,5 @@
-use crate::{model, PyIndexedOntology};
-use horned_owl::model::{AnnotatedComponent, ArcStr, MutableOntology};
+use crate::{PyIndexedOntology, model::{self, protocol::named_entity}};
+use horned_owl::model::{AnnotatedComponent, AnnotationProperty, ArcStr, Class, DataProperty, Datatype, MutableOntology, NamedIndividual, ObjectProperty};
 use pyo3::prelude::*;
 
 #[pymethods]
@@ -54,7 +54,7 @@ impl PyIndexedOntology {
 
     /// Removes a component from the ontology and returns whether it was present.
     ///
-    /// With ignore_annotations=True, all components with the same unannotated body 
+    /// With ignore_annotations=True, all components with the same unannotated body
     /// are removed, regardless of the annotations
     #[pyo3(signature = (component, *, ignore_annotations = false))]
     pub fn remove_component(
@@ -91,12 +91,16 @@ impl PyIndexedOntology {
     }
 
     /// Convenience method to add a Declare(Class(iri)) axiom.
+    ///
+    /// Returns whether the class as newly declared.
     #[pyo3(signature = (iri))]
     pub fn declare_class(&mut self, py: Python<'_>, iri: model::IRIParam) -> PyResult<bool> {
         Ok(self.declare::<horned_owl::model::Class<ArcStr>>(self.class_(py, iri)?.into()))
     }
 
     /// Convenience method to add a Declare(ObjectProperty(iri)) axiom.
+    ///
+    /// Returns whether the object property as newly declared.
     #[pyo3(signature = (iri))]
     pub fn declare_object_property(
         &mut self,
@@ -109,6 +113,8 @@ impl PyIndexedOntology {
     }
 
     /// Convenience method to add a Declare(DataProperty(iri)) axiom.
+    ///
+    /// Returns whether the data property as newly declared.
     #[pyo3(signature = (iri))]
     pub fn declare_data_property(
         &mut self,
@@ -121,6 +127,8 @@ impl PyIndexedOntology {
     }
 
     /// Convenience method to add a Declare(annotationProperty(iri)) axiom.
+    ///
+    /// Returns whether the annotation property as newly declared.
     #[pyo3(signature = (iri))]
     pub fn declare_annotation_property(
         &mut self,
@@ -135,11 +143,40 @@ impl PyIndexedOntology {
     }
 
     /// Convenience method to add a Declare(NamedIndividual(iri)) axiom.
+    ///
+    /// Returns whether the individual as newly declared.
     #[pyo3(signature = (iri))]
     pub fn declare_individual(&mut self, py: Python<'_>, iri: model::IRIParam) -> PyResult<bool> {
         Ok(self.declare::<horned_owl::model::NamedIndividual<ArcStr>>(
             self.named_individual(py, iri)?.into(),
         ))
+    }
+
+    /// Convenience method to add a Declare(Datatype(iri)) axiom.
+    ///
+    /// Returns whether the datatype as newly declared.
+    #[pyo3(signature = (iri))]
+    pub fn declare_datatype(&mut self, py: Python<'_>, iri: model::IRIParam) -> PyResult<bool> {
+        Ok(self.declare::<horned_owl::model::Datatype<ArcStr>>(self.datatype(py, iri)?.into()))
+    }
+
+
+
+    /// Convenience method to add a Declare(entity) axiom.
+    ///
+    /// Returns whether the entity as newly declared.
+    #[pyo3(name = "declare", signature = (entity: "NamedEntity"))]
+    pub fn py_declare(&mut self, entity: &Bound<'_, PyAny>) -> PyResult<bool> {
+        let (kind, iri) = named_entity(entity)?;
+
+        Ok(match kind {
+            model::EntityKind::Class => self.declare(Class::from(iri)),
+            model::EntityKind::ObjectProperty => self.declare(ObjectProperty::from(iri)),
+            model::EntityKind::DataProperty => self.declare(DataProperty::from(iri)),
+            model::EntityKind::AnnotationProperty => self.declare(AnnotationProperty::from(iri)),
+            model::EntityKind::NamedIndividual => self.declare(NamedIndividual::from(iri)),
+            model::EntityKind::Datatype => self.declare(Datatype::from(iri)),
+        })
     }
 
 }

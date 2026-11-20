@@ -51,7 +51,7 @@ for ac in onto.get_axioms():
     print(ac.serialize("omn"))         # Manchester
 ```
 
-Every model class has it.
+Every OWL construct in the model has it.
 
 It accepts `"ofn"` and `"omn"`, the serializations for which horned-owl provides a per-element writer; its OWL/XML, RDF and OBO writers operate on whole ontologies only. This is the per-element counterpart to `save_to_string`, and for Manchester it is the only option: `save_to_string("omn")` groups axioms into entity frames, which cannot be sliced back into individual axioms.
 

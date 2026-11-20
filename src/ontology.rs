@@ -5,8 +5,8 @@ use crate::{model, parse_serialization, to_py_err};
 use horned_owl::io::rdf::reader::ConcreteRDFOntology;
 use horned_owl::io::InputFormat;
 use horned_owl::model::{
-    AnnotatedComponent,
-    ArcAnnotatedComponent, ArcStr, Build, Component, ComponentKind, ForIRI, MutableOntology, Ontology, OntologyID, IRI,
+    AnnotatedComponent, ArcAnnotatedComponent, ArcStr, Build, Component, ComponentKind, ForIRI,
+    MutableOntology, Ontology, OntologyID, IRI,
 };
 use horned_owl::ontology::component_mapped::{
     ArcComponentMappedOntology, ComponentMappedIndex, ComponentMappedOntology,
@@ -32,10 +32,10 @@ macro_rules! into_iri {
     };
 }
 
-mod iri;
-mod query;
 mod annotations;
+mod iri;
 mod modify;
+mod query;
 
 #[pyclass(from_py_object)]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -339,6 +339,15 @@ impl PyIndexedOntology {
         })
     }
 
+    /// Convenience method to create a datatype from an IRI.
+    ///
+    /// Uses the `iri` method to cache native IRI instances.
+    pub fn datatype(&self, py: Python<'_>, iri: model::IRIParam) -> PyResult<model::Datatype> {
+        Ok(model::Datatype {
+            iri: into_iri!(self, py, iri).into(),
+        })
+    }
+
     /// Convenience method to create an annotationProperty from an IRI.
     ///
     /// Uses the `iri` method to cache native IRI instances.
@@ -425,7 +434,6 @@ impl PyIndexedOntology {
 }
 
 impl PyIndexedOntology {
-
     fn get_component_index(
         &mut self,
     ) -> Option<&ComponentMappedIndex<ArcStr, ArcAnnotatedComponent>> {
@@ -443,7 +451,6 @@ impl PyIndexedOntology {
 
         self.iri_index.as_ref()
     }
-
 
     fn get_id(&mut self) -> Option<&OntologyID<ArcStr>> {
         let components = if let Some(component_index) = &self.component_index {

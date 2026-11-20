@@ -1,13 +1,22 @@
 use std::collections::HashSet;
 
-use horned_owl::{model::{
-    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue, ArcStr, Class, ClassExpression, Component, ComponentKind, HigherKinded, IRI, Kinded, Literal, SubClassOf,
-}, vocab::{AnnotationBuiltIn, OWL}};
+use horned_owl::{
+    model::{
+        AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
+        ArcStr, Class, ClassExpression, Component, ComponentKind, HigherKinded, Kinded, Literal,
+        SubClassOf, IRI,
+    },
+    visitor::immutable::Walk,
+    vocab::{AnnotationBuiltIn, OWL},
+};
 use pyhornedowlreasoner::{PyReasoner, Reasoner};
 use pyo3::{exceptions::PyValueError, prelude::*};
 
 use crate::{
-    IndexCreationStrategy, PyIndexedOntology, model, signature::Signature, structural_reasoner::StructuralReasoner, to_py_err,
+    model::{self, protocol::named_entity},
+    signature::{Signature, SignatureCollector},
+    structural_reasoner::StructuralReasoner,
+    to_py_err, IndexCreationStrategy, PyIndexedOntology,
 };
 
 macro_rules! entity_query {
@@ -325,6 +334,85 @@ impl PyIndexedOntology {
             .map_err(|e| PyValueError::new_err(e.to_string()))?;
 
         Ok(ancestors.into_iter().map(|c| c.to_string()).collect())
+    }
+
+    /// Checks exact membership by default. A bare axiom means no annotations.
+    /// With ignore_annotations=True, compares only the axiom body.
+    #[pyo3(signature = (axiom, *, ignore_annotations = false))]
+    pub fn contains_axiom(
+        &self,
+        axiom: model::AnnotatedComponent,
+        ignore_annotations: bool,
+    ) -> bool {
+        let axiom: AnnotatedComponent<ArcStr> = axiom.into();
+        if ignore_annotations {
+            self.iter().any(|a| a.component == axiom.component)
+        } else {
+            self.set_index.contains(&axiom)
+        }
+    }
+
+    /// Checks whether an entity occurs in the ontology.
+    #[pyo3(signature = (entity: "NamedEntity"))]
+    pub fn contains_entity(&self, entity: &Bound<'_, PyAny>) -> PyResult<bool> {
+        let (kind, iri) = named_entity(entity)?;
+        let iri: IRI<ArcStr> = iri.into();
+        let candidates: Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>> =
+            if kind != model::EntityKind::Datatype {
+                if let Some(index) = &self.iri_index {
+                    Box::new(index.component_for_iri(&iri))
+                } else {
+                    Box::new(self.iter())
+                }
+            } else {
+                // Simple and language literals imply datatypes whose IRIs are
+                // not explicitly present in the IRI index.
+                Box::new(self.iter())
+            };
+        let mut walk = Walk::new(SignatureCollector::looking_for(kind, iri));
+        for component in candidates {
+            walk.annotated_component(component);
+            if walk.as_mut_visit().found {
+                return Ok(true);
+            }
+        }
+        Ok(false)
+    }
+
+    /// Checks whether an entity has an explicit declaration axiom.
+    #[pyo3(signature = (entity: "NamedEntity"))]
+    pub fn is_declared(&self, entity: &Bound<'_, PyAny>) -> PyResult<bool> {
+        let (kind, iri) = named_entity(entity)?;
+
+        let iri: IRI<ArcStr> = iri.into();
+
+        let mut candidates: Box<dyn Iterator<Item = &AnnotatedComponent<ArcStr>>> =
+            if let Some(index) = &self.component_index {
+                Box::new(index.component_for_kind(kind.into()))
+            } else {
+                Box::new(self.iter())
+            };
+
+        macro_rules! match_axioms {
+            ($matching:expr, $(($declare:ident, $entity:ident)),*) => (
+                match $matching {
+                    $((Component::$declare(decl), model::EntityKind::$entity) => decl.0.is(&iri),)*
+                    _ => false
+                }
+            );
+        }
+
+        Ok(candidates.any(|component| {
+            match_axioms!(
+                (&component.component, kind),
+                (DeclareClass, Class),
+                (DeclareObjectProperty, ObjectProperty),
+                (DeclareDataProperty, DataProperty),
+                (DeclareAnnotationProperty, AnnotationProperty),
+                (DeclareNamedIndividual, NamedIndividual),
+                (DeclareDatatype, Datatype)
+            )
+        }))
     }
 }
 
