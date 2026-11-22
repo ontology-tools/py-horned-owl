@@ -20,7 +20,7 @@ To open an ontology use the :func:`~pyhornedowl.open_ontology` function. It gues
 Save an ontology
 ----------------
 
-Use the :func:`Ontology.save_to_file <pyhornedowl.Ontology.save_to_file>` function to write the ontology to a file. Again, the serialization is guessed by the file extension and defaults to OWL/XML. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :ref:`sec_serializations` for a list of supported formats.
+Use the :func:`Ontology.save_to_file <pyhornedowl.Ontology.save_to_file>` function to write the ontology to a file. Again, the serialization is guessed from the file extension and defaults to RDF/XML. Alternatively, specify the serialization format explicitly with the ``serialization`` option. See :ref:`sec_serializations` for a list of supported formats.
 
 .. code-block:: python
 
@@ -61,7 +61,7 @@ The preferred way to create IRIs is through an ontology instance as it enables H
 
     assert i1 == i2
 
-The :func:`Ontology.iri <pyhornedowl.Ontology.iri>` function guesses if you passed it an absolute IRI or a CURIE based on the existence of ``://`` in the value. This is also true for all other convenience functions accepting IRIs as an argument. You can explicitly specify if the value is an absolute IRI or a CURIE by using the optional parameter ``absolute``.
+The :func:`Ontology.iri <pyhornedowl.Ontology.iri>` function guesses if you passed it an absolute IRI or a CURIE based on the existence of ``://`` in the value. This is also true for all other convenience functions accepting IRIs as an argument. You can explicitly specify if the value is an absolute IRI or a CURIE by passing ``(value, is_absolute)``; for example, ``ontology.iri(("urn:example:A", True))``.
 
 An exception to this is the the function :func:`Ontology.curie <pyhornedowl.Ontology.curie>` which only accepts CURIEs.
 
@@ -75,27 +75,6 @@ Named entity wrappers
 Model arguments expecting an IRI and ontology convenience methods also accept
 named entities. The six native entity classes (``Class``, ``ObjectProperty``,
 ``DataProperty``, ``AnnotationProperty``, ``Datatype`` and ``NamedIndividual``)
-implement the runtime-checkable ``NamedEntity`` protocol through
-``__owl_entity_iri__()``. External wrappers can opt in with the same method:
-
-.. code-block:: python
-
-    from pyhornedowl import Ontology
-    from pyhornedowl.model import Class, IRI, NamedEntity
-
-    class EntityReference:
-        def __owl_entity_iri__(self) -> IRI:
-            return IRI("https://example.com/A")
-
-    entity = EntityReference()
-    assert isinstance(entity, NamedEntity)
-    assert Class(entity).iri == Ontology().iri(entity)
-
-The method must take no arguments besides ``self`` and return an actual ``IRI``;
-strings and other wrappers are rejected as return values. Its IRI is used
-without CURIE expansion. Runtime protocol checks test method presence;
-conversion checks the returned value. Exceptions from the method propagate
-when converting an IRI argument.
 
 
 Prefixes
@@ -129,6 +108,77 @@ Classes, Individuals, Data-, Annotation- and Objectproperties can be created usi
     ap = o.annotation_property(":ap")
     i = o.named_individual(":I")
     n = o.anonymous_individual("_:n")
+
+
+Query and edit components
+-------------------------
+
+``get_classes()`` and the other entity-listing methods return typed
+entities that are explicitely declared. IN contrast, ``signature()`` includes all entities used in the ontology (declared and undeclared).
+``signature()`` returns a snapshot of the current signature which will not update when the ontology is modified. 
+
+``query_components(kind=None, including=None)`` combines a model-class filter
+with any occurrence of an IRI, including nested expressions and annotations.
+It includes metadata and SWRL rules. ``get_axioms()`` is unfiltered and excludes
+ontology/document IDs and SWRL rules; ``get_components()`` includes everything.
+Queries inspect the current ontology without loading imports or inferring facts.
+
+
+Add, remove and membership methods accept ``AnnotatedComponent`` as well as bare
+``Component`` objects. The latter are converted with empty annotations. A component is not added if already exists in the ontology. Matching is done by body and annotations by default. Use ``ignore_annotations=True`` to ignore annotations during matching.
+``add_components`` (also ``add_axioms``) and ``remove_components`` accept
+sequences and return how many components were added or removed.
+
+
+.. code-block:: python
+
+    from pyhornedowl import Ontology
+    from pyhornedowl.model import AnnotatedComponent, SubClassOf
+
+    o = Ontology()
+    o.add_prefix_mapping("ex", "https://example.org/")
+    A, B = o.class_("ex:A"), o.class_("ex:B")
+    axiom = SubClassOf(A, B)
+    o.add_axiom(axiom)
+    assert o.signature().classes() == {A, B}
+    assert o.get_classes() == set()
+    o.declare(A)
+    assert o.is_declared(A) and o.contains_entity(B)
+
+    matches = o.query_components(SubClassOf, including="ex:B")
+    assert matches == [AnnotatedComponent(axiom)]
+    target = Ontology()
+    assert target.add_components(matches) == 1
+    assert target.contains_axiom(axiom)
+    assert target.remove_components(matches) == 1
+
+
+Annotations and labels
+-----------------------
+
+``get_annotations(subject, property=None)`` returns annotation values, in no stable order. Use ``query_components`` when you need full assertion wrappers.
+
+``get_label`` returns the label of an entity, defaulting to untagged strings. Supplying a language preference list, the function returns the first matching label:
+``""`` selects untagged strings, and ``default`` handles missing matches.
+Language matching is exact and case-insensitive.
+``set_label`` replaces literal labels only in the selected language scope.
+
+
+.. code-block:: python
+
+    from pyhornedowl.model import LanguageLiteral, SimpleLiteral
+    from pyhornedowl.vocab import RDFS
+
+    o.set_label(A, "Heart")
+    o.set_label(A, "Herz", language="de")
+    assert o.get_label(A) == "Heart"
+    assert o.get_label(A, ["de", "en", ""]) == "Herz"
+    assert set(o.get_annotations(A, RDFS.label)) == {
+        SimpleLiteral("Heart"), LanguageLiteral("Herz", "de"),
+    }
+    o.add_annotation(A, "ex:seeAlso", B)
+    assert o.get_annotations(A, "ex:seeAlso") == [B.iri]
+    assert o.remove_annotation(A, "ex:seeAlso", B) == 1
 
 
 Pattern match
@@ -186,7 +236,7 @@ The operators do not flatten what they build. For example, ``A & B & C`` is  ``O
 Render a single axiom
 ---------------------
 
-``serialize`` renders a single axiom, component, or class expression as a string. Every model class has it. It is the per-element counterpart to ``save_to_string``, and for Manchester it is the only option: ``save_to_string("omn")`` groups axioms into entity frames, which cannot be sliced back into individual axioms.
+``serialize`` renders a single axiom, component, or class expression as a string. Every OWL construct in the model has it. It is the per-element counterpart to ``save_to_string``, and for Manchester it is the only option: ``save_to_string("omn")`` groups axioms into entity frames, which cannot be sliced back into individual axioms.
 
 .. code-block:: python
 
