@@ -1,5 +1,6 @@
 import pytest
 from test_base import simple_ontology
+from pyhornedowl.model import SimpleLiteral
 
 
 def test_label_for_iri_existing():
@@ -26,12 +27,12 @@ def test_update_label():
     expected = "NewClassA"
     o.set_label(":A", expected)
 
-    actual = o.get_annotation(":A", "rdfs:label")
+    actual = o.get_label(o.class_(":A"))
 
     assert expected == actual
 
-    all_labels = o.get_annotations(":A", "rdfs:label")
-    assert [expected] == all_labels
+    all_labels = o.get_annotations(o.class_(":A"), "rdfs:label")
+    assert [SimpleLiteral(expected)] == all_labels
 
 
 def test_add_label():
@@ -40,6 +41,6 @@ def test_add_label():
     expected = "ClassC"
     o.set_label(":C", expected)
 
-    actual = o.get_annotation(":C", "rdfs:label")
+    actual = o.get_label(o.class_(":C"))
 
     assert expected == actual

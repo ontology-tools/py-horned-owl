@@ -154,6 +154,9 @@ def test_iri_from_any_named_entity():
         def __owl_entity_iri__(self) -> IRI:
             return IRI(A_IRI)
 
+        def entity_kind(self) -> EntityKind:
+            return EntityKind.Class
+
     thing = Thing()
     assert isinstance(thing, NamedEntity)
     assert issubclass(Thing, NamedEntity)
@@ -348,6 +351,7 @@ def test_pickle_axiom_containing_datatype_restriction():
 def test_native_named_entity_hook(entity_type):
     entity = entity_type(A_IRI)
     assert entity.__owl_entity_iri__() == entity.iri == IRI(A_IRI)
+    assert entity.entity_kind() == getattr(EntityKind, entity_type.__name__)
     assert isinstance(entity, NamedEntity)
     assert issubclass(entity_type, NamedEntity)
     assert Class(entity) == Class(A_IRI)
