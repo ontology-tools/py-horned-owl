@@ -519,6 +519,11 @@ fn model_struct(attr: TokenStream2, mut item: ItemStruct) -> syn::Result<TokenSt
             fn __owl_entity_iri__(&self) -> crate::model::IRI {
                 self.iri.clone()
             }
+
+            /// Returns this entity's kind for the `NamedEntity` protocol.
+            fn entity_kind(&self) -> crate::model::EntityKind {
+                crate::model::EntityKind::#name
+            }
         });
     }
     if !options.skips("new") {

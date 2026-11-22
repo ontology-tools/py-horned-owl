@@ -7,6 +7,7 @@ from .pyhornedowl.model import *
 @_typing.runtime_checkable
 class NamedEntity(_typing.Protocol):
     def __owl_entity_iri__(self) -> IRI: ...
+    def entity_kind(self) -> EntityKind: ...
 
 
 IRIParam = IRI | NamedEntity | str | tuple[str, bool]

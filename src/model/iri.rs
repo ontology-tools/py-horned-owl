@@ -5,7 +5,7 @@ use horned_owl::model::{ArcStr, Build};
 use pyo3::inspect::PyStaticExpr;
 use pyo3::prelude::*;
 use pyo3::types::{PyString, PyType};
-use pyo3::{intern, type_hint_union, PyTypeInfo};
+use pyo3::{type_hint_union, PyTypeInfo};
 
 use crate::wrappers::*;
 
@@ -103,25 +103,7 @@ impl<'py> FromPyObject<'_, 'py> for IRI {
         if let Ok(s) = ob.cast::<PyString>() {
             return Ok(IRI::new(s.to_str()?, &Build::new_arc()));
         }
-        // Explicit opt-in: an ordinary `iri` field also occurs on variables,
-        // imports and ontology identifiers, none of which are named entities.
-        match ob.getattr(intern!(ob.py(), "__owl_entity_iri__")) {
-            Ok(method) => {
-                let value = method.call0()?;
-                let iri = value.cast::<IRI>().map_err(|_| {
-                    pyo3::exceptions::PyTypeError::new_err(
-                        "__owl_entity_iri__() must return an IRI",
-                    )
-                })?;
-                return Ok(iri.get().clone());
-            }
-            Err(err) if err.is_instance_of::<pyo3::exceptions::PyAttributeError>(ob.py()) => {}
-            Err(err) => return Err(err),
-        }
-        Err(pyo3::exceptions::PyTypeError::new_err(format!(
-            "expected an IRI, a str or a named entity, got {}",
-            ob.get_type().name()?
-        )))
+        super::protocol::named_entity_iri(&ob)
     }
 }
 

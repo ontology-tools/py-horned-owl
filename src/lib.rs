@@ -27,6 +27,7 @@ pub mod ontology;
 pub mod prefix_mapping;
 pub mod profile;
 pub mod reasoning;
+pub mod signature;
 pub mod snippet;
 pub mod structural_reasoner;
 pub mod vocab;
@@ -300,6 +301,9 @@ mod pyhornedowl {
     use super::{open_ontology, open_ontology_from_file, open_ontology_from_string};
     #[pymodule_export]
     use super::{IndexCreationStrategy, PyIndexedOntology};
+
+    #[pymodule_export]
+    use crate::signature::{Signature, SignatureIterator};
 
     #[pymodule_export]
     use crate::model::py_model;

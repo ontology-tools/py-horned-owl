@@ -34,29 +34,29 @@ def o():
 
 def test_get_object_properties(o) -> None:
     """Test getting object properties."""
-    assert {"https://example.com/E"} == o.get_object_properties()
+    assert {ObjectProperty("https://example.com/E")} == o.get_object_properties()
 
 
 def test_get_data_properties(o) -> None:
     """Test getting data properties."""
-    assert {"https://example.com/F"} == o.get_data_properties()
+    assert {DataProperty("https://example.com/F")} == o.get_data_properties()
 
 
 def test_get_annotation_properties(o) -> None:
     """Test getting annotation properties."""
-    assert {RDFS_LABEL} == o.get_annotation_properties()
+    assert {AnnotationProperty(RDFS_LABEL)} == o.get_annotation_properties()
 
 
 def test_get_classes(o) -> None:
     """Test getting classes."""
-    assert {f"https://example.com/{x}" for x in "ABCD"} == o.get_classes()
+    assert {Class(f"https://example.com/{x}") for x in "ABCD"} == o.get_classes()
 
 
 def test_named_individuals(o) -> None:
     """Test getting named individuals."""
-    assert {"https://example.com/G"} == o.get_named_individuals()
+    assert {NamedIndividual("https://example.com/G")} == o.get_named_individuals()
 
 
 def test_datatypes(o) -> None:
     """Test getting datatypes."""
-    assert {"https://example.com/H"} == o.get_datatypes()
+    assert {Datatype("https://example.com/H")} == o.get_datatypes()

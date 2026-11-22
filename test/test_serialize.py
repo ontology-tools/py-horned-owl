@@ -120,11 +120,12 @@ def test_elements_without_a_manchester_rendering_say_so(element):
     assert element.serialize("ofn")
 
 
-def test_every_model_class_has_serialize():
+def test_every_owl_model_class_has_serialize():
     without = [
         name
         for name, obj in vars(pyhornedowl.model).items()
         if isinstance(obj, type)
+        and obj is not pyhornedowl.model.EntityKind  # Protocol metadata, not an OWL construct.
         and not name.startswith("_")
         and not getattr(obj, "_is_protocol", False)
         and not hasattr(obj, "serialize")

@@ -40,38 +40,28 @@ The library parses every OWL serialization that horned-owl supports. The seriali
 
 Other RDF serializations recognised by [oxrdfio](https://docs.rs/oxrdfio/) (Turtle, N-Triples, and so on) are accepted by their extension. The same values work for `save_to_string` and `save_to_file`. For anything not listed here, [ROBOT](http://robot.obolibrary.org/)'s `robot convert` can transform an ontology into one of the above.
 
-To render a *single* axiom or class expression rather than a whole ontology, call `serialize` on it:
-
 ```python
-import pyhornedowl
+from pyhornedowl import Ontology
+from pyhornedowl.model import SubClassOf
 
-onto = pyhornedowl.open_ontology(text)
-for ac in onto.get_axioms():
-    print(ac.serialize())              # functional syntax (default)
-    print(ac.serialize("omn"))         # Manchester
+onto = Ontology()  # Or open_ontology("family.owl").
+onto.add_prefix_mapping("ex", "https://example.org/")
+child, person = onto.class_("ex:Child"), onto.class_("ex:Person")
+onto.add_axiom(SubClassOf(child, person))
+onto.declare(child)
+onto.set_label(child, "Child")
+
+print(onto.signature().classes())  # All used classes, including undeclared ones.
+print(onto.get_classes())         # Declared Class objects.
+for axiom in onto.query_components(SubClassOf, including=child):
+    print(axiom.serialize())      # Functional syntax; also accepts "omn".
+
+onto.save_to_file("family.ofn")
 ```
 
-Every model class has it.
-
-It accepts `"ofn"` and `"omn"`, the serializations for which horned-owl provides a per-element writer; its OWL/XML, RDF and OBO writers operate on whole ontologies only. This is the per-element counterpart to `save_to_string`, and for Manchester it is the only option: `save_to_string("omn")` groups axioms into entity frames, which cannot be sliced back into individual axioms.
-
-Example of simple usage:
-
-```
-import pyhornedowl
-
-ontoname = "family.owx"
-
-onto = pyhornedowl.open_ontology(ontoname)
-
-print (f"Loaded ontology has {len(onto.get_classes())} classes.")
-print (f"Loaded ontology has {len(onto.get_axioms())} axioms.")
-
-for c in onto.get_classes():
-    print(onto.get_axioms_for_iri(c))
-
-
-```
+`get_annotations(entity, property=None)` returns model values, retaining
+language tags and datatypes. `get_label(entity, ["en", ""])` chooses a label
+by language preference; its default is untagged labels only.
 
 For more information please visit the [documentation](https://ontology-tools.github.io/py-horned-owl/). 
 
