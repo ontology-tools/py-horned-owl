@@ -1,5 +1,6 @@
 use horned_owl::model::{
-    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue, ArcStr, Build, Component, ComponentKind, IRI, Literal, MutableOntology,
+    AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
+    ArcStr, Build, Component, ComponentKind, Literal, MutableOntology, IRI,
 };
 use horned_owl::vocab::AnnotationBuiltIn;
 use pyo3::prelude::*;
@@ -149,7 +150,6 @@ impl PyIndexedOntology {
         Ok(matches.iter().filter(|a| self.remove(a)).count())
     }
 
-
     /// Chooses the first matching preferred language, breaking ties lexically.
     /// An empty language selects untagged strings. No implicit fallback.
     #[pyo3(signature = (entity, languages = None, *, default = None))]
@@ -174,29 +174,25 @@ impl PyIndexedOntology {
     }
 }
 
-
 impl PyIndexedOntology {
-    
     fn labels(&self, subject: &AnnotationSubject<ArcStr>) -> HashSet<(String, String)> {
         let label = Build::new_arc().iri(AnnotationBuiltIn::Label);
         self.annotation_assertions(subject, Some(&label))
             .into_iter()
-            .filter_map(|ax| {
-                match &ax.ann.av {
-                    AnnotationValue::Literal(Literal::Simple { literal }) => {
-                        Some((literal.clone(), String::new()))
-                    }
-                    AnnotationValue::Literal(Literal::Language { literal, lang }) => {
-                        Some((literal.clone(), lang.to_ascii_lowercase()))
-                    }
-                    AnnotationValue::Literal(Literal::Datatype {
-                        literal,
-                        datatype_iri,
-                    }) if datatype_iri.as_ref() == "http://www.w3.org/2001/XMLSchema#string" => {
-                        Some((literal.clone(), String::new()))
-                    }
-                    _ => None,
+            .filter_map(|ax| match &ax.ann.av {
+                AnnotationValue::Literal(Literal::Simple { literal }) => {
+                    Some((literal.clone(), String::new()))
                 }
+                AnnotationValue::Literal(Literal::Language { literal, lang }) => {
+                    Some((literal.clone(), lang.to_ascii_lowercase()))
+                }
+                AnnotationValue::Literal(Literal::Datatype {
+                    literal,
+                    datatype_iri,
+                }) if datatype_iri.as_ref() == "http://www.w3.org/2001/XMLSchema#string" => {
+                    Some((literal.clone(), String::new()))
+                }
+                _ => None,
             })
             .collect()
     }

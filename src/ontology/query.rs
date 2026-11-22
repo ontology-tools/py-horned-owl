@@ -2,11 +2,19 @@ use std::collections::HashSet;
 
 use horned_owl::{
     model::{
-        AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue, ArcStr, Class, ClassExpression, Component, ComponentKind, HigherKinded, IRI, Kinded, Literal, SubClassOf,
-    }, visitor::immutable::{Walk, entity::IRIExtract}, vocab::{AnnotationBuiltIn, OWL},
+        AnnotatedComponent, Annotation, AnnotationAssertion, AnnotationSubject, AnnotationValue,
+        ArcStr, Class, ClassExpression, Component, ComponentKind, HigherKinded, Kinded, Literal,
+        SubClassOf, IRI,
+    },
+    visitor::immutable::{entity::IRIExtract, Walk},
+    vocab::{AnnotationBuiltIn, OWL},
 };
 use pyhornedowlreasoner::{PyReasoner, Reasoner};
-use pyo3::{exceptions::{PyTypeError, PyValueError}, prelude::*, types::PyType};
+use pyo3::{
+    exceptions::{PyTypeError, PyValueError},
+    prelude::*,
+    types::PyType,
+};
 
 use crate::{
     model::{self, protocol::named_entity},

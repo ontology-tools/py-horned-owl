@@ -1,5 +1,11 @@
-use crate::{PyIndexedOntology, model::{self, protocol::named_entity}};
-use horned_owl::model::{AnnotatedComponent, AnnotationProperty, ArcStr, Class, DataProperty, Datatype, MutableOntology, NamedIndividual, ObjectProperty};
+use crate::{
+    model::{self, protocol::named_entity},
+    PyIndexedOntology,
+};
+use horned_owl::model::{
+    AnnotatedComponent, AnnotationProperty, ArcStr, Class, DataProperty, Datatype, MutableOntology,
+    NamedIndividual, ObjectProperty,
+};
 use pyo3::prelude::*;
 
 #[pymethods]
@@ -160,8 +166,6 @@ impl PyIndexedOntology {
         Ok(self.declare::<horned_owl::model::Datatype<ArcStr>>(self.datatype(py, iri)?.into()))
     }
 
-
-
     /// Convenience method to add a Declare(entity) axiom.
     ///
     /// Returns whether the entity as newly declared.
@@ -178,7 +182,6 @@ impl PyIndexedOntology {
             model::EntityKind::Datatype => self.declare(Datatype::from(iri)),
         })
     }
-
 }
 
 impl PyIndexedOntology {

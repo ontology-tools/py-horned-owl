@@ -2,8 +2,7 @@
 
 use crate::model::protocol::named_entity;
 use crate::model::{
-    AnnotationProperty, Class, DataProperty, Datatype, EntityKind, NamedIndividual,
-    ObjectProperty,
+    AnnotationProperty, Class, DataProperty, Datatype, EntityKind, NamedIndividual, ObjectProperty,
 };
 use horned_owl::model::{ArcStr, IRI};
 use horned_owl::visitor::immutable::{Visit, Walk};
